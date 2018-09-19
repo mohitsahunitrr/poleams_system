@@ -1,0 +1,121 @@
+{
+    "languageCode": "en",
+    "languageName": "English",
+    "name": "Florida Light and Power",
+    "countryName": "United States",
+    "version": 1,
+    "countryCode": "US",
+    "id": "986bf50d-9968-4f3a-9a92-bcf8a56258cb",
+    "updated": "20180919",
+    "errors": {
+        "maxValue": "{label} must be less than or equal to {maxValue}.",
+        "maxLength": "{label} must be no more than {maxLength} characters in length.",
+        "minLength": "{label} must be at least {minLength} characters in length.",
+        "required": "{label} is required.",
+        "listValuesOnly": "The value {value} does not exist in the list of acceptable values for {label}.",
+        "minValue": "{label} must be greater than or equal to {minValue}."
+    },
+    "logoURLs": {
+    },
+    "organizationId": "9d718b1e-ca84-4e78-a1cb-1393ceecc927",
+    "fields": {
+        "subStationSummary.feederNumber": {
+            "listValues": [],
+            "key": "subStationSummary.feederNumber",
+            "errors": {},
+            "description": "The feeder coming into the substation.",
+            "label": "Feeder"
+        },
+        "subStationSummary.name": {
+            "listValues": [],
+            "key": "subStationSummary.name",
+            "errors": {},
+            "description": "The name of the substation.",
+            "label": "Substation"
+        },
+        "poleSummary.equipmentType": {
+            "listValues": [],
+            "key": "poleSummary.equipmentType",
+            "errors": {},
+            "description": "The type of equipment installed on the pole.",
+            "label": "Equip Type"
+        },
+        "poleSummary.fplid": {
+            "listValues": [],
+            "key": "poleSummary.fplid",
+            "errors": {},
+            "description": "FPL ID.",
+            "label": "FPL ID"
+        },
+        "poleSummary.framing": {
+            "listValues": [],
+            "key": "poleSummary.framing",
+            "errors": {},
+            "description": "The framing installed on the pole.",
+            "label": "Framing"
+        },
+        "poleSummary.height": {
+            "listValues": [],
+            "key": "poleSummary.height",
+            "errors": {},
+            "description": "Height of the pole.",
+            "label": "Height"
+        },
+        "poleSummary.location.latitude": {
+            "listValues": [],
+            "key": "poleSummary.location.latitude",
+            "errors": {},
+            "description": "The latitude where the pole is located.",
+            "label": "Latitude"
+        },
+        "poleSummary.location.longitude": {
+            "listValues": [],
+            "key": "poleSummary.location.longitude",
+            "errors": {},
+            "description": "The longitude where the pole is located.",
+            "label": "Longitude"
+        },
+        "poleSummary.numberOfPhases": {
+            "listValues": [],
+            "key": "poleSummary.numberOfPhases",
+            "errors": {},
+            "description": "The number of phases of the primary span on the pole.",
+            "label": "Num of Phases"
+        },
+        "poleSummary.poleClass": {
+            "listValues": [],
+            "key": "poleSummary.poleClass",
+            "errors": {},
+            "description": "The class of pole.",
+            "label": "Class"
+        },
+        "poleSummary.type": {
+            "listValues": [],
+            "key": "poleSummary.type",
+            "errors": {},
+            "description": "The type of pole.",
+            "label": "Type"
+        },
+        "poleInspectionSummary.criticality": {
+            "listValues": [],
+            "key": "poleInspectionSummary.criticality",
+            "errors": {},
+            "description": "The criticality of the pole in terms of needing upgrades. 1 - 5, 5 being most critical.",
+            "label": "Criticality"
+        },
+        "poleInspectionSummary.loadCase.wind": {
+            "listValues": [],
+            "key": "poleInspectionSummary.feederNumber",
+            "errors": {},
+            "description": "The maximum wind speed.",
+            "label": "Wind Zone"
+        },
+        "poleInspectionSummary.horizontalLoadPercent": {
+            "listValues": [],
+            "key": "poleInspectionSummary.horizontalLoadPercent",
+            "errors": {},
+            "description": "The current wind rating for the pole.",
+            "label": "Current Wind Rating"
+        }
+    }
+}

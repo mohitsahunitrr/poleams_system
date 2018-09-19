@@ -1,0 +1,108 @@
+package com.precisionhawk.poleams.domain;
+
+import com.precisionhawk.poleams.bean.PoleAnalysisLoadCase;
+import io.swagger.oas.annotations.media.Schema;
+import java.time.LocalDate;
+
+/**
+ * A class representing the inspection of a pole.
+ * 
+ * @author pchapman
+ */
+@Schema(description="A class representing the inspection of a pole.")
+public class PoleInspection implements Identifyable {
+    
+    @Schema(description="Unique internal ID of the inspection.")
+    private String id;
+    @Override
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
+    
+    @Schema(description="If the technician had access to the tower.")
+    private boolean access;
+    public boolean isAccess() {
+        return access;
+    }
+    public void setAccess(boolean access) {
+        this.access = access;
+    }
+
+    @Schema(description="The date the analysis was completed for the tower.")
+    private LocalDate dateOfAnalysis;
+    public LocalDate getDateOfAnalysis() {
+        return dateOfAnalysis;
+    }
+    public void setDateOfAnalysis(LocalDate dateOfAnalysis) {
+        this.dateOfAnalysis = dateOfAnalysis;
+    }
+
+    @Schema(description="Horizontal loading percent result of the analysis.")
+    private int horizontalLoadingPercent;
+    public int getHorizontalLoadingPercent() {
+        return horizontalLoadingPercent;
+    }
+    public void setHorizontalLoadingPercent(int horizontalLoadingPercent) {
+        this.horizontalLoadingPercent = horizontalLoadingPercent;
+    }
+
+    @Schema(description="The load case used for analysing the pole.")
+    private PoleAnalysisLoadCase loadCase;
+    public PoleAnalysisLoadCase getLoadCase() {
+        return loadCase;
+    }
+    public void setLoadCase(PoleAnalysisLoadCase loadCase) {
+        this.loadCase = loadCase;
+    }
+    
+    @Schema(description="The organization to which the substation and related poles belong.")
+    private String organizationId;
+    public String getOrganizationId() {
+        return organizationId;
+    }
+    public void setOrganizationId(String organizationId) {
+        this.organizationId = organizationId;
+    }
+
+    @Schema(description="Unqiue ID of the pole that was inspected.")
+    private String poleId;
+    public String getPoleId() {
+        return poleId;
+    }
+    public void setPoleId(String poleId) {
+        this.poleId = poleId;
+    }
+
+    @Schema(description="The substation to which the inspected pole is related.")
+    private String subStationId;
+    public String getSubStationId() {
+        return subStationId;
+    }
+    public void setSubStationId(String subStationId) {
+        this.subStationId = subStationId;
+    }
+
+    @Schema(description="Vertical loading percent result of the analysis.")
+    private int verticalLoadingPercent;
+    public int getVerticalLoadingPercent() {
+        return verticalLoadingPercent;
+    }
+    public void setVerticalLoadingPercent(int verticalLoadingPercent) {
+        this.verticalLoadingPercent = verticalLoadingPercent;
+    }
+    
+    protected void populateFrom(PoleInspection pi) {
+        setAccess(pi.isAccess());
+        setDateOfAnalysis(pi.getDateOfAnalysis());
+        setHorizontalLoadingPercent(pi.getHorizontalLoadingPercent());
+        setId(pi.getId());
+        setLoadCase(pi.getLoadCase());
+        setOrganizationId(pi.getOrganizationId());
+        setPoleId(pi.getPoleId());
+        setSubStationId(pi.getSubStationId());
+        setVerticalLoadingPercent(pi.getVerticalLoadingPercent());
+    }
+}

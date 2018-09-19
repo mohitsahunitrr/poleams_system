@@ -1,0 +1,19 @@
+{
+    "resourcePackages": [
+        "com.precisionhawk.poleams.webservices"
+    ],
+    "prettyPrint" : true,
+    "openAPI": {
+        "info": {
+            "version": "1.0.0-SNAPSHOT",
+            "title": "PoleAMS Web Services",
+            "description": "This is documentation for the PoleAMS web services.",
+            "contact": {
+                "email": "philip.chapman@inspectools.com"
+            },
+            "license": {
+                "name": "Proprietary: All Rights Reserved"
+            }
+        }
+    }
+}
