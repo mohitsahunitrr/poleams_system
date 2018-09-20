@@ -96,6 +96,13 @@
             "description": "The type of pole.",
             "label": "Type"
         },
+        "poleInspectionSummary.passedAnalysis": {
+            "listValues": [],
+            "key": "poleInspectionSummary.passedAnalysis",
+            "errors": {},
+            "description": "Pass or fail judgment on analysis results.",
+            "label": "Pass"
+        },
         "poleInspectionSummary.criticality": {
             "listValues": [],
             "key": "poleInspectionSummary.criticality",

@@ -22,7 +22,7 @@ public abstract class AsyncJobState {
 
     @Schema(description="When the job ended.")
     protected ZonedDateTime endTime;
-    @Schema(description="When the result of the job expires and will no longer be available for download.")
+    @Schema(description="When the result of the job, if any, expires and will no longer be available for download.")
     protected ZonedDateTime expireTime;
     @Schema(description="When the job started.")
     protected ZonedDateTime startTime;
@@ -70,7 +70,6 @@ public abstract class AsyncJobState {
     public void setUuid(String uuid) {
         this.uuid = uuid;
     }
-
     
     public abstract AsyncJobState copy();
     

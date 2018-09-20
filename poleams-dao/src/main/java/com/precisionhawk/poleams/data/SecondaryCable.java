@@ -1,0 +1,24 @@
+package com.precisionhawk.poleams.data;
+
+/**
+ *
+ * @author pchapman
+ */
+public class SecondaryCable extends PowerCircuitCable {
+    
+    private Integer wireCount;
+    public Integer getWireCount() {
+        return wireCount;
+    }
+    public void setWireCount(Integer wireCount) {
+        this.wireCount = wireCount;
+    }
+
+    private Boolean multiplex;
+    public Boolean getMultiplex() {
+        return multiplex;
+    }
+    public void setMultiplex(Boolean multiplex) {
+        this.multiplex = multiplex;
+    }
+}

@@ -23,12 +23,30 @@ public class PoleInspection implements Identifyable {
     }
     
     @Schema(description="If the technician had access to the tower.")
-    private boolean access;
-    public boolean isAccess() {
+    private Boolean access;
+    public Boolean getAccess() {
         return access;
     }
-    public void setAccess(boolean access) {
+    public void setAccess(Boolean access) {
         this.access = access;
+    }
+    
+    @Schema(description="Anchors pass analysis")
+    private Boolean anchorsPass;
+    public Boolean getAnchorsPass() {
+        return anchorsPass;
+    }
+    public void setAnchorsPass(Boolean anchorsPass) {
+        this.anchorsPass = anchorsPass;
+    }
+    
+    @Schema(description="Brackets pass analysis")
+    private Boolean bracketsPass;
+    public Boolean getBracketsPass() {
+        return bracketsPass;
+    }
+    public void setBracketsPass(Boolean bracketsPass) {
+        this.bracketsPass = bracketsPass;
     }
 
     @Schema(description="The date the analysis was completed for the tower.")
@@ -39,6 +57,15 @@ public class PoleInspection implements Identifyable {
     public void setDateOfAnalysis(LocalDate dateOfAnalysis) {
         this.dateOfAnalysis = dateOfAnalysis;
     }
+    
+    @Schema(description="Down guys pass analysis")
+    private Boolean downGuysPass;
+    public Boolean getDownGuysPass() {
+        return downGuysPass;
+    }
+    public void setDownGuysPass(Boolean downGuysPass) {
+        this.downGuysPass = downGuysPass;
+    }
 
     @Schema(description="Horizontal loading percent result of the analysis.")
     private int horizontalLoadingPercent;
@@ -47,6 +74,15 @@ public class PoleInspection implements Identifyable {
     }
     public void setHorizontalLoadingPercent(int horizontalLoadingPercent) {
         this.horizontalLoadingPercent = horizontalLoadingPercent;
+    }
+    
+    @Schema(description="Insulators pass analysis")
+    private Boolean insulatorsPass;
+    public Boolean getInsulatorsPass() {
+        return insulatorsPass;
+    }
+    public void setInsulatorsPass(Boolean insulatorsPass) {
+        this.insulatorsPass = insulatorsPass;
     }
 
     @Schema(description="The load case used for analysing the pole.")
@@ -65,6 +101,15 @@ public class PoleInspection implements Identifyable {
     }
     public void setOrganizationId(String organizationId) {
         this.organizationId = organizationId;
+    }
+    
+    @Schema(description="Pass or fail judgement on analysis results.")
+    private Boolean passedAnalysis;
+    public Boolean getPassedAnalysis() {
+        return passedAnalysis;
+    }
+    public void setPassedAnalysis(Boolean passedAnalysis) {
+        this.passedAnalysis = passedAnalysis;
     }
 
     @Schema(description="Unqiue ID of the pole that was inspected.")
@@ -95,10 +140,14 @@ public class PoleInspection implements Identifyable {
     }
     
     protected void populateFrom(PoleInspection pi) {
-        setAccess(pi.isAccess());
+        setAccess(pi.getAccess());
+        setAnchorsPass(pi.getAnchorsPass());
+        setBracketsPass(pi.getBracketsPass());
         setDateOfAnalysis(pi.getDateOfAnalysis());
+        setDownGuysPass(pi.getDownGuysPass());
         setHorizontalLoadingPercent(pi.getHorizontalLoadingPercent());
         setId(pi.getId());
+        setInsulatorsPass(pi.getInsulatorsPass());
         setLoadCase(pi.getLoadCase());
         setOrganizationId(pi.getOrganizationId());
         setPoleId(pi.getPoleId());
