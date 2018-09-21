@@ -21,7 +21,7 @@ public class ElasticSearchConfigFactory implements Provider<ElasticSearchConfig>
     
     @Override
     public ElasticSearchConfig get() {
-        return appConfig.getElasticSearchConfigBean();
+        return appConfig.getElasticSearchConfig();
     }
     
 }

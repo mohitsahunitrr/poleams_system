@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import javax.imageio.ImageIO;
+import javax.inject.Named;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
@@ -53,6 +54,7 @@ import org.imgscalr.Scalr;
  *
  * @author pchapman
  */
+@Named
 public class ResourceWebServiceImpl extends AbstractWebService implements ResourceWebService {
 
     @Inject private ResourceMetadataDao resourceDao;

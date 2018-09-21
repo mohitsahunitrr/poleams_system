@@ -16,7 +16,7 @@ public class RepositoryConfigFactory implements Provider<RepositoryConfig> {
 
     @Override
     public RepositoryConfig get() {
-        return appConfig.getRepositoryConfigBean();
+        return appConfig.getRepositoryConfig();
     }
     
 }

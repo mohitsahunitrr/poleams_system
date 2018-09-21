@@ -14,7 +14,8 @@ public class AwsConfigFactory implements Provider<AwsConfig> {
     
     @Inject private AppConfig appConfig;
     
+    @Override
     public AwsConfig get() {
-        return appConfig.getAwsConfigBean();
+        return appConfig.getAwsConfig();
     }
 }

@@ -15,6 +15,6 @@ public class ServicesConfigFactory implements Provider<ServicesConfig> {
 
     @Override
     public ServicesConfig get() {
-        return appConfig.getServicesConfigBean();
+        return appConfig.getServicesConfig();
     }
 }

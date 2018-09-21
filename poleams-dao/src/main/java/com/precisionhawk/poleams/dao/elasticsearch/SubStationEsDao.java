@@ -5,6 +5,7 @@ import com.precisionhawk.poleams.dao.DaoException;
 import com.precisionhawk.poleams.dao.SubStationDao;
 import com.precisionhawk.poleams.domain.SubStation;
 import java.util.List;
+import javax.inject.Named;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -16,6 +17,7 @@ import org.elasticsearch.index.query.QueryBuilders;
  *
  * @author pchapman
  */
+@Named
 public class SubStationEsDao extends AbstractEsDao implements SubStationDao {
     
     private static final String DOCUMENT = "Pole";

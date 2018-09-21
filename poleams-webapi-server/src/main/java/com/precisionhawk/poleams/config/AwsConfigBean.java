@@ -17,15 +17,6 @@ public class AwsConfigBean implements AwsConfig {
         this.accessKey = accessKey;
     }
 
-    private String bucketName;
-    @Override
-    public String getBucketName() {
-        return bucketName;
-    }
-    public void setBucketName(String bucketName) {
-        this.bucketName = bucketName;
-    }
-
     private String region;
     @Override
     public String getRegion() {

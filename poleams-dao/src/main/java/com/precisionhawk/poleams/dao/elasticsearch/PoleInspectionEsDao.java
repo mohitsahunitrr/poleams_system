@@ -11,6 +11,7 @@ import com.precisionhawk.poleams.dao.PoleInspectionDao;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import static com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants.INDEX_NAME_POLEAMS;
 import java.util.List;
+import javax.inject.Named;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -21,6 +22,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
  *
  * @author pchapman
  */
+@Named
 public class PoleInspectionEsDao extends AbstractEsDao implements PoleInspectionDao {
     
     private static final String DOCUMENT = "PoleInspection";

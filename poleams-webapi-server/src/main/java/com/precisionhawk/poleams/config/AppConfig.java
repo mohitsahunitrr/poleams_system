@@ -6,35 +6,35 @@ package com.precisionhawk.poleams.config;
  */
 public class AppConfig {
     
-    private AwsConfigBean awsConfigBean;
-    public AwsConfigBean getAwsConfigBean() {
-        return awsConfigBean;
+    private AwsConfigBean awsConfig;
+    public AwsConfigBean getAwsConfig() {
+        return awsConfig;
     }
-    public void setAwsConfigBean(AwsConfigBean awsConfigBean) {
-        this.awsConfigBean = awsConfigBean;
-    }
-
-    private ElasticSearchConfigBean elasticSearchConfigBean;
-    public ElasticSearchConfigBean getElasticSearchConfigBean() {
-        return elasticSearchConfigBean;
-    }
-    public void setElasticSearchConfigBean(ElasticSearchConfigBean elasticSearchConfigBean) {
-        this.elasticSearchConfigBean = elasticSearchConfigBean;
+    public void setAwsConfig(AwsConfigBean awsConfig) {
+        this.awsConfig = awsConfig;
     }
 
-    private RepositoryConfigBean repositoryConfigBean;
-    public RepositoryConfigBean getRepositoryConfigBean() {
-        return repositoryConfigBean;
+    private ElasticSearchConfigBean elasticSearchConfig;
+    public ElasticSearchConfigBean getElasticSearchConfig() {
+        return elasticSearchConfig;
     }
-    public void setRepositoryConfigBean(RepositoryConfigBean repositoryConfigBean) {
-        this.repositoryConfigBean = repositoryConfigBean;
+    public void setElasticSearchConfig(ElasticSearchConfigBean elasticSearchConfig) {
+        this.elasticSearchConfig = elasticSearchConfig;
     }
 
-    private ServicesConfigBean servicesConfigBean;
-    public ServicesConfigBean getServicesConfigBean() {
-        return servicesConfigBean;
+    private RepositoryConfigBean repositoryConfig;
+    public RepositoryConfigBean getRepositoryConfig() {
+        return repositoryConfig;
     }
-    public void setServicesConfigBean(ServicesConfigBean bean) {
-        this.servicesConfigBean = bean;
+    public void setRepositoryConfig(RepositoryConfigBean repositoryConfig) {
+        this.repositoryConfig = repositoryConfig;
+    }
+
+    private ServicesConfigBean servicesConfig;
+    public ServicesConfigBean getServicesConfig() {
+        return servicesConfig;
+    }
+    public void setServicesConfig(ServicesConfigBean servicesConfig) {
+        this.servicesConfig = servicesConfig;
     }
 }

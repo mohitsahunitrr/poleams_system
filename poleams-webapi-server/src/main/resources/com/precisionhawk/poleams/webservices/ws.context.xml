@@ -9,16 +9,84 @@
         http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+   
+    <bean id="AppConfigFactory" class="com.precisionhawk.poleams.config.AppConfigFactory"/>
+    <bean
+        id="AppConfig"
+        class="com.precisionhawk.poleams.config.AppConfig"
+        factory-bean="AppConfigFactory"
+        factory-method="get"
+    />
+    <bean
+        id="AwsConfig"
+        class="com.precisionhawk.poleams.support.aws.AwsConfig"
+        factory-bean="AppConfig"
+        factory-method="getAwsConfig"
+    />
+    <bean
+        id="ElasticSearchConfig"
+        class="com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConfig"
+        factory-bean="AppConfig"
+        factory-method="getElasticSearchConfig"
+    />
+    <bean
+        id="RepositoryConfig"
+        class="com.precisionhawk.poleams.repository.RepositoryConfig"
+        factory-bean="AppConfig"
+        factory-method="getRepositoryConfig"
+    />
+    <bean
+        id="ServicesConfig"
+        class="com.precisionhawk.poleams.config.ServicesConfig"
+        factory-bean="AppConfig"
+        factory-method="getServicesConfig"
+    />
     
+    <bean
+        id="ElasticSearchClientFactory"
+        class="com.precisionhawk.poleams.support.elasticsearch.ElasticSearchClientFactory"
+    />
+    <bean
+        id="ElasticSearchClient"
+        class="org.elasticsearch.client.Client"
+        factory-bean="ElasticSearchClientFactory"
+        factory-method="get"
+    />
+    
+    <bean
+        id="ObjectMapperFactory"
+        class="com.precisionhawk.poleams.support.jackson.ObjectMapperFactory"
+    />
+    <bean
+        id="ObjectMapper"
+        class="org.codehaus.jackson.map.ObjectMapper"
+        factory-bean="ObjectMapperFactory"
+        factory-method="get"
+    />
+    
+    <bean
+        id="ResourceRepositoryFactory"
+        class="com.precisionhawk.poleams.repository.RepositoryFactory"
+    />
+    <bean
+        id="ResourceRepository"
+        class="com.precisionhawk.poleams.repository.ResourceRepository"
+        factory-bean="ResourceRepositoryFactory"
+        factory-method="get"
+    />
     
     <!-- Task executor -->
+<!--
     <task:executor id="taskExecutor" pool-size="5"/>
+-->
     
     <!-- Caching -->
+<!--
     <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
         <property name="configLocation" value="${ehcache.config}"/>
         <property name="shared" value="true"/>
     </bean>
+-->
 
     <!-- Scan for other components and controllers. -->
     <context:component-scan base-package="com.precisionhawk.poleams"/>
