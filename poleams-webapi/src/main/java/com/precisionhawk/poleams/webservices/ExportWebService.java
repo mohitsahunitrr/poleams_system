@@ -7,6 +7,7 @@ package com.precisionhawk.poleams.webservices;
 import com.precisionhawk.poleams.bean.ExportState;
 import io.swagger.oas.annotations.Operation;
 import io.swagger.oas.annotations.Parameter;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
@@ -21,6 +22,8 @@ import javax.ws.rs.core.Response;
  * @author <a href="mailto:pchapman@pcsw.us">Philip A. Chapman</a>
  */
 @Path("/export")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public interface ExportWebService {
     
     @GET

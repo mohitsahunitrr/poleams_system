@@ -33,6 +33,15 @@ public class ServicesConfigBean implements ServicesConfig {
         this.environment = environment;
     }
     
+    private String loggingConfigURI;
+    @Override
+    public String getLoggingConfigURI() {
+        return loggingConfigURI;
+    }
+    public void setLoggingConfigURI(String loggingConfigURI) {
+        this.loggingConfigURI = loggingConfigURI;
+    }
+    
     private String servicesURL;
     @Override
     public String getServicesURL() {

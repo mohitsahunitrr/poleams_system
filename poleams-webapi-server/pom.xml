@@ -145,11 +145,11 @@
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-spring</artifactId>
         </dependency>
-<!--
         <dependency>
             <groupId>us.pcsw</groupId>
             <artifactId>pcsw-spring-tools</artifactId>
     	</dependency>
+<!--
         <dependency>
             <groupId>us.pcsw</groupId>
             <artifactId>pcsw-websvcs-libs</artifactId>

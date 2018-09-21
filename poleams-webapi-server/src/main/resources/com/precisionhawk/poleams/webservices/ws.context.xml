@@ -10,6 +10,7 @@
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
    
+    <!-- Configuration beans -->
     <bean id="AppConfigFactory" class="com.precisionhawk.poleams.config.AppConfigFactory"/>
     <bean
         id="AppConfig"
@@ -42,6 +43,21 @@
         factory-method="getServicesConfig"
     />
     
+    <!-- Logging -->
+    <bean
+        id="LoggingConfigURI"
+        class="java.lang.String"
+        factory-bean="ServicesConfig"
+        factory-method="getLoggingConfigURI"
+    />
+    <bean
+        id="LoggingConfigBean"
+        class="us.pcsw.spring.logging.LogBackConfigBean"
+    >
+        <property name="configURL" ref="LoggingConfigURI"/>
+    </bean>
+    
+    <!-- ElasticSearch -->
     <bean
         id="ElasticSearchClientFactory"
         class="com.precisionhawk.poleams.support.elasticsearch.ElasticSearchClientFactory"
@@ -53,6 +69,7 @@
         factory-method="get"
     />
     
+    <!-- Jackson -->
     <bean
         id="ObjectMapperFactory"
         class="com.precisionhawk.poleams.support.jackson.ObjectMapperFactory"
@@ -63,7 +80,8 @@
         factory-bean="ObjectMapperFactory"
         factory-method="get"
     />
-    
+
+    <!-- Resource Repository -->    
     <bean
         id="ResourceRepositoryFactory"
         class="com.precisionhawk.poleams.repository.RepositoryFactory"

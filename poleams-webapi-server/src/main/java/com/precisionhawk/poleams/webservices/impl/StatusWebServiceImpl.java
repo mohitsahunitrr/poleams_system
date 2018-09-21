@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Named;
 import com.precisionhawk.poleams.webservices.StatusWebService;
+import java.time.ZonedDateTime;
 
 /**
  *
@@ -22,10 +23,10 @@ public class StatusWebServiceImpl extends AbstractWebService implements StatusWe
     @Inject private RepositoryConfig repoConfig;
     @Inject private ServicesConfig svcsConfig;
 
-    private final Map<String, Map<String, String>> statusMap = new LinkedHashMap<>();
+    private final Map<String, Object> statusMap = new LinkedHashMap<>();
     
     @Override
-    public Map<String, Map<String, String>> retrieveStatus() {
+    public Map<String, Object> retrieveStatus() {
         synchronized (statusMap) {
             if (statusMap.isEmpty()) {
                 Map<String, String> data = new LinkedHashMap<>();
@@ -38,6 +39,7 @@ public class StatusWebServiceImpl extends AbstractWebService implements StatusWe
                 statusMap.put("implementations", data);
             }
         }
+        statusMap.put("currentTime", ZonedDateTime.now());
         return statusMap;
     }
 }

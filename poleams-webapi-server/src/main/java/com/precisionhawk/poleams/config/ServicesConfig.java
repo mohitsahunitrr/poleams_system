@@ -13,6 +13,8 @@ public interface ServicesConfig {
     /** If non-SSL traffic should be blocked. */
     public Boolean getEnforceSSL();
     
+    public String getLoggingConfigURI();
+    
     /** The URL for services.  This is used for generating download URLs for resources. */
     public String getServicesURL();
     

@@ -21,5 +21,5 @@ import javax.ws.rs.core.MediaType;
 public interface StatusWebService {
 
     @GET
-    Map<String, Map<String, String>> retrieveStatus();
+    Map<String, Object> retrieveStatus();
 }
