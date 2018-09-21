@@ -12,10 +12,13 @@ import javax.inject.Provider;
 @Named
 public class S3ClientFactory extends AwsClientFactory implements Provider<AmazonS3> {
     
+    private static final Object LOCK = new Object();
+
     private AmazonS3 client;
     
+    @Override
     public AmazonS3 get() {
-        synchronized (this) {
+        synchronized (LOCK) {
             if (client == null) {
                 AmazonS3ClientBuilder builder = AmazonS3ClientBuilder.standard();
                 builder.setCredentials(createCredentials());

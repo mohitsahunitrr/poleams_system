@@ -19,4 +19,6 @@ public interface SubStationDao {
     SubStation retrieve(String id) throws DaoException;
     
     List<SubStation> search(SubStationSearchParameters params) throws DaoException;
+
+    List<SubStation> retrieveAll() throws DaoException;
 }

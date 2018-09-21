@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app
+	  PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+	  "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+	
+    <display-name>PoleAMS Web Services Server</display-name>
+	
+    <description>Web Services for PoleAMS</description>
+	
+    <!-- Contexts -->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath*:com/precisionhawk/poleams/webservices/ws.context.xml</param-value>
+    </context-param>
+
+    <!-- Listeners -->
+    <listener>
+        <listener-class>
+            org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap
+        </listener-class>
+    </listener>
+
+    <!-- Any beans annotated with JAX-RS are automatically loaded (@Path...) -->
+    <listener>
+        <listener-class>
+            org.jboss.resteasy.plugins.spring.SpringContextLoaderListener
+        </listener-class>
+    </listener>
+    
+    <!-- Filters -->
+    <filter>
+	<filter-name>CORSFilter</filter-name>
+   	<filter-class>com.precisionhawk.poleams.support.security.CORSFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>CORSFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter>
+	<filter-name>sslEnforcementFilter</filter-name>
+   	<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>sslEnforcementFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+    <!-- Servlets -->
+
+    <servlet>
+        <servlet-name>Resteasy</servlet-name>
+        <servlet-class>
+            org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher
+        </servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>Resteasy</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+</web-app>

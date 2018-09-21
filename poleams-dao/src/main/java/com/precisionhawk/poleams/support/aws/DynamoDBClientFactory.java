@@ -13,13 +13,15 @@ import javax.inject.Named;
 @Named
 public class DynamoDBClientFactory extends AwsClientFactory implements Provider<AmazonDynamoDB> {
     
+    private static final Object LOCK = new Object();
+
     private String endpointURL;
 
     private AmazonDynamoDB client;
     
     @Override
     public AmazonDynamoDB get() {
-        synchronized (this) {
+        synchronized (LOCK) {
             if (client == null) {
                 AmazonDynamoDBClientBuilder builder = AmazonDynamoDBClientBuilder.standard()
                         .withCredentials(createCredentials());

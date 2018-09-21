@@ -7,8 +7,11 @@ import io.swagger.oas.annotations.Operation;
 import io.swagger.oas.annotations.Parameter;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
  *
@@ -17,7 +20,7 @@ import javax.ws.rs.core.MediaType;
 @Path("/resource")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public interface ResourceService {
+public interface ResourceWebService {
     
     @DELETE
     @Path("{resourceId}")
@@ -40,9 +43,15 @@ public interface ResourceService {
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
             ResourceSearchParameters params);
 
+    @PUT
+    @Operation(summary = "Save new Metadata", description = "Saves the metadata for a resource.")
+    ResourceMetadata insertResourceMetadata(
+            @Parameter(required = true) @HeaderParam("Authorization") String authToken,
+            ResourceMetadata meta);
+
     @POST
-    @Operation(summary = "Save Metadata", description = "Saves the metadata for a resource.")
-    void saveResourceMetadata(
+    @Operation(summary = "Update existing Metadata", description = "Saves the metadata for a resource.")
+    ResourceMetadata updateResourceMetadata(
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
             ResourceMetadata meta);
     
@@ -60,4 +69,20 @@ public interface ResourceService {
     Map<String, Boolean> verifyUploadedResources(
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
             List<String> resourceIDs);
+    
+    @GET
+    @Path("{resourceId}/download")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @Operation(summary = "Downloads the resource.", description = "Downloads the resource.")
+    public Response downloadResource(@PathParam("resourceId") String resourceId);
+    
+    @GET
+    @Path("{resourceId}/upload")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @Operation(summary = "Uploads the resource.", description = "Uploads the resource.")
+    public void uploadResource(
+            @Parameter(required = true) @HeaderParam("Authorization") String authToken,
+            @PathParam("resourceId") String resourceId,
+            @Context HttpServletRequest request
+    );
 }

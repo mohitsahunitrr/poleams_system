@@ -30,17 +30,17 @@ public class PoleSummary extends Pole {
     }
 
     @Schema(description="The number of phases of the primary span on the pole.)")
-    private String numberOfPhases;
-    public String getNumberOfPhases() {
+    private Integer numberOfPhases;
+    public Integer getNumberOfPhases() {
         return numberOfPhases;
     }
-    public void setNumberOfPhases(String numberOfPhases) {
+    public void setNumberOfPhases(Integer numberOfPhases) {
         this.numberOfPhases = numberOfPhases;
     }
     
     public PoleSummary() {}
     
-    public PoleSummary(Pole p, String equipmentType, String framing, String numberOfPhases) {
+    public PoleSummary(Pole p, String equipmentType, String framing, Integer numberOfPhases) {
         this.equipmentType = equipmentType;
         this.framing = framing;
         this.numberOfPhases = numberOfPhases;

@@ -10,6 +10,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 
 /**
  *
@@ -104,6 +105,22 @@ public class SubStationEsDao extends AbstractEsDao implements SubStationDao {
                         .setSize(getScrollSize());
 
         SearchResponse response = search.execute().actionGet();
+        return loadFromScrolledSearch(SubStation.class, response, scrollLifeLimit);
+    }
+
+    @Override
+    public List<SubStation> retrieveAll() throws DaoException {
+        TimeValue scrollLifeLimit = new TimeValue(getScrollLifespan());
+        SearchRequestBuilder search =
+                getClient().prepareSearch(INDEX_NAME_POLEAMS)
+                        .setSearchType(SearchType.QUERY_AND_FETCH)
+                        .setTypes(DOCUMENT)
+                        .setQuery(QueryBuilders.matchAllQuery())
+                        .setScroll(scrollLifeLimit)
+                        .setSize(getScrollSize());
+
+        SearchResponse response = search.execute().actionGet();
+
         return loadFromScrolledSearch(SubStation.class, response, scrollLifeLimit);
     }
 }

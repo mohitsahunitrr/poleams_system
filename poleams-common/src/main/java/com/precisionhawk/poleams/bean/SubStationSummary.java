@@ -19,8 +19,17 @@ public class SubStationSummary extends SubStation {
     public String getFeederMapDownloadURL() {
         return feederMapDownloadURL;
     }
-    public void setFeedMapDownloadURL(String feederMapDownloadURL) {
+    public void setFeederMapDownloadURL(String feederMapDownloadURL) {
         this.feederMapDownloadURL = feederMapDownloadURL;
+    }
+    
+    @Schema(description="URL from which the vegitation encroachment report for the feeder can be downloaded.")
+    private String vegitationEncroachmentReportDownloadURL;
+    public String getVegitationEncroachmentReportDownloadURL() {
+        return vegitationEncroachmentReportDownloadURL;
+    }
+    public void setVegitationEncroachmentReportDownloadURL(String vegitationEncroachmentReportDownloadURL) {
+        this.vegitationEncroachmentReportDownloadURL = vegitationEncroachmentReportDownloadURL;
     }
 
     @Schema(description="A map of pole summary objects mapped to pole FPL ID.")
@@ -34,8 +43,9 @@ public class SubStationSummary extends SubStation {
     
     public SubStationSummary() {}
     
-    public SubStationSummary(SubStation sub, String feedMapDownloadURL, Collection<PoleSummary> poleSummaries) {
-        this.feederMapDownloadURL = feedMapDownloadURL;
+    public SubStationSummary(SubStation sub, String feederMapDownloadURL, String vegitationEncroachmentReportDownloadURL, Collection<PoleSummary> poleSummaries) {
+        this.feederMapDownloadURL = feederMapDownloadURL;
+        this.vegitationEncroachmentReportDownloadURL = vegitationEncroachmentReportDownloadURL;
         setFeederNumber(sub.getFeederNumber());
         setHardeningLevel(sub.getHardeningLevel());
         setId(sub.getId());

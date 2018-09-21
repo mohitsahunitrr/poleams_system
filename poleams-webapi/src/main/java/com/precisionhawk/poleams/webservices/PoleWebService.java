@@ -6,7 +6,6 @@ import com.precisionhawk.poleams.bean.PoleSummary;
 import com.precisionhawk.poleams.domain.Pole;
 import io.swagger.oas.annotations.Operation;
 import io.swagger.oas.annotations.Parameter;
-import java.io.InputStream;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -19,7 +18,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
 
 /**
  * The interface of a web service providing APIs for accessing pole data.

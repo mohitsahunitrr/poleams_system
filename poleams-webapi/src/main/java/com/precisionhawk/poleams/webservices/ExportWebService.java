@@ -21,7 +21,7 @@ import javax.ws.rs.core.Response;
  * @author <a href="mailto:pchapman@pcsw.us">Philip A. Chapman</a>
  */
 @Path("/export")
-public interface ExportService {
+public interface ExportWebService {
     
     @GET
     @Path("/poleInspectionReport")

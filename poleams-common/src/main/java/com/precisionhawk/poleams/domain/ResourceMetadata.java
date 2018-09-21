@@ -4,8 +4,6 @@ import com.precisionhawk.poleams.bean.Dimension;
 import com.precisionhawk.poleams.bean.GeoPoint;
 import io.swagger.oas.annotations.media.Schema;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -127,24 +125,13 @@ public final class ResourceMetadata {
 	this.status = status;
     }
     
-    /** A URL from which the resource may be  downloaded. */
-    @Schema(description="A URL from which the resource may be  downloaded.")
-    private String downloadURL;
-    public String getDownloadURL() {
-        return downloadURL;
+    @Schema(description="The type of resource being stored.")
+    private ResourceType type;
+    public ResourceType getType() {
+        return type;
     }
-    public void setDownloadURL(String downloadURL) {
-        this.downloadURL = downloadURL;
-    }
-    
-    /** A URL from which the resource was originally sourced. */
-    @Schema(description="A URL from which the resource was originally sourced.")
-    private String sourceURL;
-    public String getSourceURL() {
-        return sourceURL;
-    }
-    public void setSourceURL(String sourceURL) {
-        this.sourceURL = sourceURL;
+    public void setType(ResourceType type) {
+        this.type = type;
     }
     
     /** The ID of the zoomified data stored in the repository. */
@@ -155,16 +142,6 @@ public final class ResourceMetadata {
     }
     public void setZoomifyId(String zoomifyId) {
         this.zoomifyId = zoomifyId;
-    }
-    
-    /** A URL from which the zoomified version may be  downloaded. */
-    @Schema(description="If the resource is an image, a URL which can be used to dlownload the zoomify file created from the image.")
-    private String zoomifyURL;
-    public String getZoomifyURL() {
-        return zoomifyURL;
-    }
-    public void setZoomifyURL(String zoomifyURL) {
-        this.zoomifyURL = zoomifyURL;
     }
     
     public ResourceMetadata() {

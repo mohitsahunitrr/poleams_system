@@ -13,11 +13,11 @@ import java.util.List;
 public class PoleInspectionSummary extends PoleInspection {
     
     @Schema(description="Anaysis result XML.")
-    private String analysisResultXML;
-    public String getAnalysisResultXML() {
+    private ResourceSummary analysisResultXML;
+    public ResourceSummary getAnalysisResultXML() {
         return analysisResultXML;
     }
-    public void setAnalysisResultXML(String analysisResultXML) {
+    public void setAnalysisResultXML(ResourceSummary analysisResultXML) {
         this.analysisResultXML = analysisResultXML;
     }
     
@@ -28,15 +28,6 @@ public class PoleInspectionSummary extends PoleInspection {
     }
     public void setCriticality(Integer criticality) {
         this.criticality = criticality;
-    }
-    
-    @Schema(description="A list of all vegetation encrhoachment LIDAR images, in no particular order.")
-    private List<ResourceSummary> encroachmentLidarImages = new LinkedList<>();
-    public List<ResourceSummary> getEncroachmentLidarImages() {
-        return encroachmentLidarImages;
-    }
-    public void setEncroachmentLidarImages(List<ResourceSummary> encroachmentLidarImages) {
-        this.encroachmentLidarImages = encroachmentLidarImages;
     }
 
     @Schema(description="A list of all images collected in drone flight, in no particular order.")
@@ -77,11 +68,10 @@ public class PoleInspectionSummary extends PoleInspection {
     
     public PoleInspectionSummary() {}
     
-    public PoleInspectionSummary(PoleInspection pi, Integer criticality, String analysisResultXML, List<ResourceSummary> encroachmentResources, List<ResourceSummary> flightImages, List<ResourceSummary> groundImages, List<ResourceSummary> thermalImages, List<ResourceSummary> otherResources) {
+    public PoleInspectionSummary(PoleInspection pi, Integer criticality, ResourceSummary analysisResultXML, List<ResourceSummary> flightImages, List<ResourceSummary> groundImages, List<ResourceSummary> thermalImages, List<ResourceSummary> otherResources) {
         populateFrom(pi);
         this.analysisResultXML = analysisResultXML;
         this.criticality = criticality;
-        this.encroachmentLidarImages = encroachmentResources;
         this.flightImages = flightImages;
         this.groundImages = groundImages;
         this.otherResources = otherResources;

@@ -5,6 +5,7 @@
 package com.precisionhawk.poleams.bean;
 
 import com.precisionhawk.poleams.domain.ResourceStatus;
+import com.precisionhawk.poleams.domain.ResourceType;
 import io.swagger.oas.annotations.media.Schema;
 
 /**
@@ -71,10 +72,29 @@ public class ResourceSearchParameters {
     public void setSubStationId(String subStationId) {
         this.subStationId = subStationId;
     }
+
+    @Schema(description="The type of resource being stored.")
+    private ResourceType type;
+    public ResourceType getType() {
+        return type;
+    }
+    public void setType(ResourceType type) {
+        this.type = type;
+    }
+    
+    @Schema(description="The unique ID of the zoomify data for the image.")
+    private String zoomifyId;
+    public String getZoomifyId() {
+        return zoomifyId;
+    }
+    public void setZoomifyId(String zoomifyId) {
+        this.zoomifyId = zoomifyId;
+    }
     
     public boolean hasCriteria() {
         return testField(subStationId) || testField(organizationId) || testField(poleId) ||
-                testField(poleInspectionId) || status != null || testField(sourceResourceId);
+                testField(poleInspectionId) || status != null || testField(sourceResourceId)
+                || type != null;
     }
     
     private boolean testField(String field) {

@@ -51,11 +51,21 @@ public class PoleData extends Pole {
         this.risers = risers;
     }
 
-    private List spans = new LinkedList<>();
-    public List getSpans() {
+    private List<PoleSpan> spans = new LinkedList<>();
+    public List<PoleSpan> getSpans() {
         return spans;
     }
-    public void setSpans(List spans) {
+    public void setSpans(List<PoleSpan> spans) {
         this.spans = spans;
+    }
+    
+    public PoleData() {}
+    
+    public PoleData(Pole p) {
+        populateFrom(p);
+    }
+    
+    public void updateFrom(Pole p) {
+        populateFrom(p);
     }
 }

@@ -3,6 +3,7 @@ package com.precisionhawk.poleams.support.aws;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import javax.inject.Inject;
 
 /**
  *
@@ -10,31 +11,18 @@ import com.amazonaws.auth.BasicAWSCredentials;
  */
 public abstract class AwsClientFactory {
     
-    private String accessKey;
-    public String getAccessKey() {
-        return accessKey;
-    }
-//    @Value("${aws.access}")
-    public void setAccessKey(String accessKey) {
-        this.accessKey = accessKey;
+    @Inject private AwsConfig config;
+    
+    protected String getAccessKey() {
+        return config.getAccessKey();
     }
     
-    private String region;
-    public String getRegion() {
-        return region;
-    }
-//    @Value("${aws.region}")
-    public void setRegion(String region) {
-        this.region = region;
+    protected String getRegion() {
+        return config.getRegion();
     }
     
-    private String secretKey;
     public String getSecretKey() {
-        return secretKey;
-    }
-//    @Value("${aws.secret}")
-    public void setSecretKey(String secretKey) {
-        this.secretKey = secretKey;
+        return config.getSecretKey();
     }
 
     private AWSCredentialsProvider credentialsProvider;

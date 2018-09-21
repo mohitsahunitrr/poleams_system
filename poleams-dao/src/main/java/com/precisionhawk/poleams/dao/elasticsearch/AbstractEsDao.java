@@ -1,5 +1,6 @@
 package com.precisionhawk.poleams.dao.elasticsearch;
 
+import com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConfig;
 import com.precisionhawk.poleams.dao.DaoException;
 import com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants;
 import java.io.IOException;
@@ -30,6 +31,8 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractEsDao implements ElasticSearchConstants {
 
+    @Inject protected Client client;
+    @Inject protected ElasticSearchConfig config;
     @Inject protected ObjectMapper mapper;
     protected final Logger LOGGER;
     
@@ -37,40 +40,20 @@ public abstract class AbstractEsDao implements ElasticSearchConstants {
         LOGGER = LoggerFactory.getLogger(getClass());
     }
 
-    private int bulkSize;
-    public int getBulkSize() {
-        return bulkSize;
-    }
-//    @Value("${elasticsearch.bulk.size}")
-    public void setBulkSize(int bulkSize) {
-        this.bulkSize = bulkSize;
+    protected Integer getBulkSize() {
+        return config.getBulkSize();
     }
     
-    private Client client;
-    public Client getClient() {
+    protected Client getClient() {
         return client;
     }
-//    @Autowired
-    public void setClient(Client client) {
-        this.client = client;
-    }
     
-    private long scrollLifespan = 60000L;
     public long getScrollLifespan() {
-        return scrollLifespan;
-    }
-//    @Value("${elasticsearch.scroll.lifespan}")
-    public void setScrollLifespan(long scrollLifespan) {
-        this.scrollLifespan = scrollLifespan;
+        return config.getScrollLifespan();
     }
     
-    private int scrollSize = 100;
     public int getScrollSize() {
-        return scrollSize;
-    }
-//    @Value("${elasticsearch.scroll.size}")
-    public void setScrollSize(int scrollSize) {
-        this.scrollSize = scrollSize;
+        return config.getScrollSize();
     }
 
     /**
@@ -212,10 +195,10 @@ public abstract class AbstractEsDao implements ElasticSearchConstants {
             return;
         }
 
-        for (int i = 0; i <= ids.size(); i += bulkSize) {
+        for (int i = 0; i <= ids.size(); i += getBulkSize()) {
             BulkRequestBuilder bulk = client.prepareBulk();
 
-            Integer toIndex = i + bulkSize;
+            Integer toIndex = i + getBulkSize();
             if (toIndex > ids.size()) {
                 toIndex = ids.size();
             }

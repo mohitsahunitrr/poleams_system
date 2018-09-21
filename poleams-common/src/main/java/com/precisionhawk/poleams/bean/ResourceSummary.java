@@ -1,5 +1,7 @@
 package com.precisionhawk.poleams.bean;
 
+import com.precisionhawk.poleams.domain.ResourceMetadata;
+import com.precisionhawk.poleams.domain.ResourceType;
 import io.swagger.oas.annotations.media.Schema;
 import java.time.ZonedDateTime;
 
@@ -56,6 +58,15 @@ public class ResourceSummary {
         this.poleId = poleId;
     }
 
+    @Schema(description="Unique ID of the related pole inspection.")
+    private String poleInspectionId;
+    public String getPoleInspectionId() {
+        return poleInspectionId;
+    }
+    public void setPoleInspectionId(String poleInspectionId) {
+        this.poleInspectionId = poleInspectionId;
+    }
+
     @Schema(description="The unique ID of the resource.")
     private String resourceId;
     public String getResourceId() {
@@ -93,6 +104,15 @@ public class ResourceSummary {
         this.timestamp = timestamp;
     }
     
+    @Schema(description="The type of resource being stored.")
+    private ResourceType type;
+    public ResourceType getType() {
+        return type;
+    }
+    public void setType(ResourceType type) {
+        this.type = type;
+    }
+    
     /** A URL from which the zoomified version may be  downloaded. */
     @Schema(description="If the resource is an image, a URL which can be used to dlownload the zoomify file created from the image.")
     private String zoomifyURL;
@@ -101,5 +121,22 @@ public class ResourceSummary {
     }
     public void setZoomifyURL(String zoomifyURL) {
         this.zoomifyURL = zoomifyURL;
-    }    
+    }
+    
+    public ResourceSummary() {}
+    
+    public ResourceSummary(ResourceMetadata rmeta, String downloadURL, String scaledImageURL, String zoomifyURL) {
+        this.contentType = rmeta.getContentType();
+        this.downloadURL = downloadURL;
+        this.location = rmeta.getLocation();
+        this.organizationId = rmeta.getOrganizationId();
+        this.poleId = rmeta.getPoleId();
+        this.poleInspectionId = rmeta.getPoleInspectionId();
+        this.resourceId = rmeta.getResourceId();
+        this.scaledImageURL = scaledImageURL;
+        this.subStationId = rmeta.getSubStationId();
+        this.timestamp = rmeta.getTimestamp();
+        this.type = rmeta.getType();
+        this.zoomifyURL = zoomifyURL;
+    }
 }
