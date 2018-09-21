@@ -24,7 +24,7 @@ import javax.ws.rs.core.MediaType;
 @Path("/poleInspection")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public interface PoleInspectionWebService {
+public interface PoleInspectionWebService extends WebService {
     
     @PUT
     @Operation(summary = "Create a new pole inspection record", description = "Creates a new pole inspection.  If unique ID is not populated, it will be populated in the returned object.")

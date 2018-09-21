@@ -1,11 +1,10 @@
-package com.precisionhawk.poleams.data;
+package com.precisionhawk.poleams.domain.poledata;
 
 /**
  *
  * @author pchapman
  */
-public class PoleLight {
-
+public class PoleEquipment {
     private String description;
     public String getDescription() {
         return description;

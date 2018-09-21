@@ -5,12 +5,13 @@ import com.precisionhawk.poleams.bean.PoleSearchParameters;
 import com.precisionhawk.poleams.bean.PoleSummary;
 import com.precisionhawk.poleams.dao.DaoException;
 import com.precisionhawk.poleams.dao.PoleDao;
-import com.precisionhawk.poleams.data.PoleData;
-import com.precisionhawk.poleams.data.PoleEquipment;
-import com.precisionhawk.poleams.data.PoleSpan;
-import com.precisionhawk.poleams.data.PowerCircuit;
-import com.precisionhawk.poleams.data.PrimaryCable;
+import com.precisionhawk.poleams.domain.poledata.PoleData;
+import com.precisionhawk.poleams.domain.poledata.PoleEquipment;
+import com.precisionhawk.poleams.domain.poledata.PoleSpan;
+import com.precisionhawk.poleams.domain.poledata.PowerCircuit;
+import com.precisionhawk.poleams.domain.poledata.PrimaryCable;
 import com.precisionhawk.poleams.domain.Pole;
+import com.precisionhawk.poleams.util.CollectionsUtilities;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,20 +33,14 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
     @Inject private PoleDao poleDao;
 
     @Override
-    public Pole create(String authToken, Pole pole) {
+    public PoleData create(String authToken, PoleData pole) {
         ensureExists(pole, "The pole is required.");
         if (pole.getId() == null) {
             pole.setId(UUID.randomUUID().toString());
         }
         try {
-            PoleData p;
-            if (pole instanceof PoleData) {
-                p = (PoleData)pole;
-            } else {
-                p = new PoleData(pole);
-            }
-            if (poleDao.insert(p)) {
-                return p;
+            if (poleDao.insert(pole)) {
+                return pole;
             } else {
                 throw new BadRequestException(String.format("The pole %s already exists.", pole.getId()));
             }
@@ -65,7 +60,7 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
     }
 
     @Override
-    public Pole retrieve(String authToken, String poleId) {
+    public PoleData retrieve(String authToken, String poleId) {
         ensureExists(poleId, "The pole ID is required.");
         try {
             return poleDao.retrieve(poleId);
@@ -100,31 +95,21 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
     }
 
     @Override
-    public List<Pole> search(String authToken, PoleSearchParameters params) {
+    public List<PoleData> search(String authToken, PoleSearchParameters params) {
         ensureExists(params, "Search parameters are required.");
         try {
-            List<Pole> results = new LinkedList<>();
-            for (PoleData p : poleDao.search(params)) {
-                results.add(p);
-            }
-            return results;
+            return poleDao.search(params);
         } catch (DaoException ex) {
             throw new InternalServerErrorException("Error retrieving poles based on search criteria.", ex);
         }
     }
 
     @Override
-    public void update(String authToken, Pole pole) {
+    public void update(String authToken, PoleData pole) {
         ensureExists(pole, "The pole is required.");
         ensureExists(pole.getId(), "The pole ID is required.");
         try {
-            PoleData p;
-            if (pole instanceof PoleData) {
-                p = (PoleData)pole;
-            } else {
-                p = new PoleData(pole);
-            }
-            if (!poleDao.update(p)) {
+            if (!poleDao.update(pole)) {
                 throw new NotFoundException(String.format("No pole with ID %s exists.", pole.getId()));
             }
         } catch (DaoException ex) {
@@ -138,11 +123,11 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
         }
         
         // Equipment Type is of first one found.
-        PoleEquipment equip = firstItemIn(data.getEquipment());
+        PoleEquipment equip = CollectionsUtilities.firstItemIn(data.getEquipment());
         // Framing and phases are of first circuit.
-        PoleSpan span = firstItemIn(data.getSpans());
-        PowerCircuit circuit = span == null ? null : span.getPowerCircuit();
-        PrimaryCable cable = span == null ? null : circuit.getPrimary();
+        PoleSpan span = CollectionsUtilities.firstItemIn(data.getSpans());
+        PowerCircuit circuit = span    == null ? null : span.getPowerCircuit();
+        PrimaryCable cable   = circuit == null ? null : circuit.getPrimary();
 
         return new PoleSummary(
                 data,

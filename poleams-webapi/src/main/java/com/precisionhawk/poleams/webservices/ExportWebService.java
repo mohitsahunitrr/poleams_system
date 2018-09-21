@@ -24,7 +24,7 @@ import javax.ws.rs.core.Response;
 @Path("/export")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public interface ExportWebService {
+public interface ExportWebService extends WebService {
     
     @GET
     @Path("/poleInspectionReport")

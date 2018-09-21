@@ -9,6 +9,7 @@ import com.precisionhawk.poleams.dao.PoleInspectionDao;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.ResourceMetadata;
 import com.precisionhawk.poleams.domain.ResourceType;
+import com.precisionhawk.poleams.util.CollectionsUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import java.util.List;
 import java.util.Random;
@@ -79,7 +80,7 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
             // Get URL for the analysis XML, if any.
             rparams.setType(ResourceType.PoleInspectionAnalysisXML);
             resources = resourceService.query(authToken, rparams);
-            ResourceSummary analysisResultXML = resourceService.summaryFor(firstItemIn(resources));
+            ResourceSummary analysisResultXML = resourceService.summaryFor(CollectionsUtilities.firstItemIn(resources));
             
             // Flight Images
             rparams.setType(ResourceType.DroneInspectionImage);

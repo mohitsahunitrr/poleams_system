@@ -3,7 +3,7 @@ package com.precisionhawk.poleams.webservices;
 import com.precisionhawk.poleams.bean.PoleAnalysisImportJobState;
 import com.precisionhawk.poleams.bean.PoleSearchParameters;
 import com.precisionhawk.poleams.bean.PoleSummary;
-import com.precisionhawk.poleams.domain.Pole;
+import com.precisionhawk.poleams.domain.poledata.PoleData;
 import io.swagger.oas.annotations.Operation;
 import io.swagger.oas.annotations.Parameter;
 import java.util.List;
@@ -27,13 +27,13 @@ import javax.ws.rs.core.MediaType;
 @Path("/pole")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public interface PoleWebService {
+public interface PoleWebService extends WebService {
     
     @PUT
     @Operation(summary = "Create a new pole record", description = "Creates a new pole.  If unique ID is not populated, it will be populated in the returned object.")
-    Pole create(
+    PoleData create(
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
-            Pole pole
+            PoleData pole
     );
     
     @POST
@@ -56,7 +56,7 @@ public interface PoleWebService {
     @GET
     @Path("/{poleId}")
     @Operation(summary = "Get pole By ID", description = "Gets pole by unique ID")
-    Pole retrieve(
+    PoleData retrieve(
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
             @PathParam("poleId") String id);
     
@@ -70,7 +70,7 @@ public interface PoleWebService {
     @POST
     @Path("/search")
     @Operation(summary = "Search poles", description = "Get a list of poles by search criteria.")
-    List<Pole> search(
+    List<PoleData> search(
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
             PoleSearchParameters searchParams);
     
@@ -78,6 +78,6 @@ public interface PoleWebService {
     @Operation(summary = "Updates a pole.", description = "Updates an existing pole record.")
     void update(
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
-            Pole pole
+            PoleData pole
     );        
 }

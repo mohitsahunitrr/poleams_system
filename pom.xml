@@ -111,6 +111,11 @@
                 <artifactId>poleams-webapi</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>poleams-webapi-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>ch.qos.logback</groupId>
@@ -178,6 +183,16 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-imaging</artifactId>
                 <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi</artifactId>
+                <version>4.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>4.0.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.groovy</groupId>
@@ -336,6 +351,8 @@
         <module>poleams-dao</module>
         <module>poleams-swagger</module>
         <module>poleams-webapi</module>
+        <module>poleams-webapi-client</module>
         <module>poleams-webapi-server</module>
+        <module>poleams-workbench</module>
     </modules>
 </project>

@@ -24,7 +24,7 @@ import javax.ws.rs.core.MediaType;
 @Path("/subStation")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public interface SubStationWebService {
+public interface SubStationWebService extends WebService {
     
     @PUT
     @Operation(summary = "Create a new substation record", description = "Creates a new substation.  If unique ID is not populated, it will be populated in the returned object.")

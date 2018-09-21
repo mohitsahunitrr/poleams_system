@@ -3,7 +3,7 @@ package com.precisionhawk.poleams.dao.elasticsearch;
 import com.precisionhawk.poleams.bean.PoleSearchParameters;
 import com.precisionhawk.poleams.dao.DaoException;
 import com.precisionhawk.poleams.dao.PoleDao;
-import com.precisionhawk.poleams.data.PoleData;
+import com.precisionhawk.poleams.domain.poledata.PoleData;
 import java.util.List;
 import javax.inject.Named;
 import org.elasticsearch.action.search.SearchRequestBuilder;

@@ -20,7 +20,7 @@ import javax.ws.rs.core.Response;
 @Path("/resource")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public interface ResourceWebService {
+public interface ResourceWebService extends WebService {
     
     @DELETE
     @Path("{resourceId}")

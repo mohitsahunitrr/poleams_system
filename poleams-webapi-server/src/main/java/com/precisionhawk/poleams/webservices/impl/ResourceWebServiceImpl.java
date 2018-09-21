@@ -12,6 +12,7 @@ import com.precisionhawk.poleams.domain.ResourceStatus;
 import com.precisionhawk.poleams.domain.ResourceType;
 import com.precisionhawk.poleams.repository.RepositoryException;
 import com.precisionhawk.poleams.repository.ResourceRepository;
+import com.precisionhawk.poleams.util.CollectionsUtilities;
 import com.precisionhawk.poleams.util.ImageUtilities;
 import java.util.List;
 import java.util.Map;
@@ -386,7 +387,7 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
             List<ResourceSummary> results = new ArrayList<>(resources.size());
             String thumbnailId;
             for (ResourceMetadata rmeta : resources) {
-                thumbnailId = firstItemIn(thumbnailsBySourceId.get(rmeta.getResourceId()));
+                thumbnailId = CollectionsUtilities.firstItemIn(thumbnailsBySourceId.get(rmeta.getResourceId()));
                 results.add(new ResourceSummary(
                         rmeta,
                         getResourceDownloadURL(rmeta.getResourceId()),
@@ -420,7 +421,7 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
             params.setSourceResourceId(rmeta.getResourceId());
             params.setType(ResourceType.ThumbNail);
             try {
-                ResourceMetadata thumbnail = firstItemIn(resourceDao.lookup(params));
+                ResourceMetadata thumbnail = CollectionsUtilities.firstItemIn(resourceDao.lookup(params));
                 if (thumbnail != null) {
                     scaledImageURL = getResourceDownloadURL(thumbnail.getResourceId());
                 }

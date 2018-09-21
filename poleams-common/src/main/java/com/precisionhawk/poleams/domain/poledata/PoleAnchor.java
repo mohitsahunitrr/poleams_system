@@ -1,4 +1,4 @@
-package com.precisionhawk.poleams.data;
+package com.precisionhawk.poleams.domain.poledata;
 
 /**
  *

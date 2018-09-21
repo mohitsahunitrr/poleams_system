@@ -1,4 +1,4 @@
-package com.precisionhawk.poleams.data;
+package com.precisionhawk.poleams.domain.poledata;
 
 import java.util.LinkedList;
 import java.util.List;

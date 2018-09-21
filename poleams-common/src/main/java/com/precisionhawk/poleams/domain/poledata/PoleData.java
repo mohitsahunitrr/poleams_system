@@ -1,4 +1,4 @@
-package com.precisionhawk.poleams.data;
+package com.precisionhawk.poleams.domain.poledata;
 
 import com.precisionhawk.poleams.domain.Pole;
 import java.util.LinkedList;
@@ -10,6 +10,14 @@ import java.util.List;
  * @author pchapman
  */
 public class PoleData extends Pole {
+    
+    private Boolean access;
+    public Boolean getAccess() {
+        return access;
+    }
+    public void setAccess(Boolean access) {
+        this.access = access;
+    }
     
     private List<PoleAnchor> anchors = new LinkedList<>();
     public List<PoleAnchor> getAnchors() {

@@ -1,6 +1,5 @@
 package com.precisionhawk.poleams.webservices.impl;
 
-import java.util.List;
 import javax.ws.rs.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,14 +20,6 @@ public abstract class AbstractWebService {
             )
         {
             throw new BadRequestException(errMsg);
-        }
-    }
-    
-    protected static <T> T firstItemIn(List<T> list) {
-        if (list == null || list.isEmpty()) {
-            return null;
-        } else {
-            return list.get(0);
         }
     }
 }

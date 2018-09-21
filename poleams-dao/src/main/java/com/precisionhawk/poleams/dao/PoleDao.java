@@ -1,7 +1,7 @@
 package com.precisionhawk.poleams.dao;
 
 import com.precisionhawk.poleams.bean.PoleSearchParameters;
-import com.precisionhawk.poleams.data.PoleData;
+import com.precisionhawk.poleams.domain.poledata.PoleData;
 import java.util.List;
 
 /**
