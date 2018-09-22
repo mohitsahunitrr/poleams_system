@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
@@ -23,6 +24,7 @@ import javax.ws.rs.NotFoundException;
  *
  * @author pchapman
  */
+@Named
 public class PoleInspectionWebServiceImpl extends AbstractWebService implements PoleInspectionWebService {
     
     //TODO: Remove boilderplate DaoException handling?
