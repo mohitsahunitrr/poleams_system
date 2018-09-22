@@ -10,7 +10,7 @@ public interface ProcessListener {
 
     public void reportFatalError(String message);
 
-    public void reportFatalException(String message, Exception ioe);
+    public void reportFatalException(String message, Throwable t);
 
     public void reportFatalException(Exception ioe);
 

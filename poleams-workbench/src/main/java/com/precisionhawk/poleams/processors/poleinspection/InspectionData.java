@@ -3,6 +3,7 @@ package com.precisionhawk.poleams.processors.poleinspection;
 import com.precisionhawk.poleams.domain.ResourceMetadata;
 import com.precisionhawk.poleams.domain.SubStation;
 import com.precisionhawk.poleams.domain.poledata.PoleData;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,5 +54,12 @@ public class InspectionData {
     public void setPoleResources(Map<String, List<ResourceMetadata>> poleResources) {
         this.poleResources = poleResources;
     }
-    
+ 
+    private Map<String, File> resourceDataFiles = new HashMap<>();
+    public Map<String, File> getResourceDataFiles() {
+        return resourceDataFiles;
+    }
+    public void setResourceDataFiles(Map<String, File> resourceDataFiles) {
+        this.resourceDataFiles = resourceDataFiles;
+    }
 }
