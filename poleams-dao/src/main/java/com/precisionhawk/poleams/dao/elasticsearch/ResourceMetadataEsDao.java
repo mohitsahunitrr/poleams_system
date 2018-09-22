@@ -23,14 +23,15 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 @Named
 public class ResourceMetadataEsDao extends AbstractEsDao implements ResourceMetadataDao {
 
+    private static final String COL_CONTENT_TYPE = "contentType";
+    private static final String COL_NAME = "name";
+    private static final String COL_ORG_ID = "organizationId";
     private static final String COL_POLE_ID = "poleId";
     private static final String COL_POLE_INSP_ID = "poleInspectionId";
-    private static final String COL_STATUS = "status";
-    private static final String COL_ORG_ID = "organizationId";
-    private static final String COL_CONTENT_TYPE = "contentType";
-    private static final String COL_SOURCE_RESOURCE_ID = "sourceResourceId";
-    private static final String COL_SUB_STTN_ID = "subStationId";
     private static final String COL_RESOURCE_ID = "resourceId";
+    private static final String COL_SOURCE_RESOURCE_ID = "sourceResourceId";
+    private static final String COL_STATUS = "status";
+    private static final String COL_SUB_STTN_ID = "subStationId";
     private static final String COL_TYPE = "type";
     private static final String COL_ZOOMIFY_ID = "zoomifyID";
     private static final String DOCUMENT = "Resource";
@@ -69,7 +70,9 @@ public class ResourceMetadataEsDao extends AbstractEsDao implements ResourceMeta
         if (params == null) {
             throw new IllegalArgumentException("The search parameters are required.");
         }
-        BoolQueryBuilder query = addQueryMust(null, COL_ORG_ID, params.getOrganizationId());
+        BoolQueryBuilder query = null;
+        query = addQueryMust(query, COL_NAME, params.getName());
+        query = addQueryMust(query, COL_ORG_ID, params.getOrganizationId());
         query = addQueryMust(query, COL_POLE_ID, params.getPoleId());
         query = addQueryMust(query, COL_POLE_INSP_ID, params.getPoleInspectionId());
         query = addQueryMust(query, COL_SOURCE_RESOURCE_ID, params.getSourceResourceId());

@@ -18,4 +18,11 @@ public class CollectionsUtilities {
         }
     }
     
+    public static <T extends Object> T firstItemIn(T[] array) {
+        if (array == null || array.length == 0) {
+            return null;
+        } else {
+            return array[0];
+        }
+    }
 }

@@ -4,21 +4,29 @@
 
 package com.precisionhawk.poleams.util;
 
+import com.precisionhawk.poleams.bean.Dimension;
+import com.precisionhawk.poleams.bean.GeoPoint;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import javax.imageio.ImageIO;
+import org.apache.commons.imaging.ImageInfo;
 import org.apache.commons.imaging.ImageReadException;
+import org.apache.commons.imaging.Imaging;
+import org.apache.commons.imaging.common.ImageMetadata;
+import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
 import org.apache.commons.imaging.formats.tiff.TiffField;
 import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
 import org.apache.commons.imaging.formats.tiff.constants.ExifTagConstants;
+import org.apache.commons.imaging.formats.tiff.constants.GpsTagConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,6 +148,30 @@ public final class ImageUtilities {
         AffineTransform at = AffineTransform.getScaleInstance(fWidth, fHeight);
         g.drawRenderedImage(sbi, at);
         return dbi;
+    }
+    
+    public static GeoPoint getLocation(TiffImageMetadata metadata) throws ImageReadException, IOException {
+        TiffImageMetadata.GPSInfo gpsInfo = metadata.getGPS();
+        if (gpsInfo != null) {
+            GeoPoint p = new GeoPoint();
+            p.setLatitude(gpsInfo.getLatitudeAsDegreesNorth());
+            p.setLongitude(gpsInfo.getLongitudeAsDegreesEast());
+            TiffField field = metadata.findField(GpsTagConstants.GPS_TAG_GPS_ALTITUDE);
+            if (field != null) {
+                p.setAltitude(field.getDoubleValue());
+            }
+            return p;
+        } else {
+            return null;
+        }
+    }
+
+    public static Dimension getSize(File f) throws ImageReadException, IOException {
+        ImageInfo iinfo = Imaging.getImageInfo(f);
+        Dimension d = new Dimension();
+        d.setHeight(Double.valueOf(iinfo.getHeight()));
+        d.setWidth(Double.valueOf(iinfo.getWidth()));
+        return d;
     }
     
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss.SSSZ");

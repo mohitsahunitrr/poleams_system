@@ -54,7 +54,6 @@ public class InspectionData {
     public void setPoleResources(Map<String, List<ResourceMetadata>> poleResources) {
         this.poleResources = poleResources;
     }
- 
     private Map<String, File> resourceDataFiles = new HashMap<>();
     public Map<String, File> getResourceDataFiles() {
         return resourceDataFiles;
@@ -62,4 +61,19 @@ public class InspectionData {
     public void setResourceDataFiles(Map<String, File> resourceDataFiles) {
         this.resourceDataFiles = resourceDataFiles;
     }
+    
+    public void addResourceMetadata(ResourceMetadata rmeta, boolean isNew) {
+        if (rmeta.getPoleId() == null) {
+            subStationResources.add(rmeta);
+        } else {
+            List<ResourceMetadata> list = poleResources.get(rmeta.getPoleId());
+            if (list == null) {
+                list = new ArrayList<>();
+                poleResources.put(rmeta.getPoleId(), list);
+            }
+            list.add(rmeta);
+        }
+        poleDataIsNew.put(rmeta.getResourceId(), isNew);
+    }
+ 
 }

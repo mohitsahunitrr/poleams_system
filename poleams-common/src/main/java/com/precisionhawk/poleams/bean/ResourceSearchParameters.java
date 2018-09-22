@@ -14,6 +14,15 @@ import io.swagger.oas.annotations.media.Schema;
  */
 @Schema(description="A bean containing search criteria for resources and objects related to resources.  At least one field must have a non-null value.")
 public class ResourceSearchParameters {
+
+    @Schema(description="A name for the resource.")
+    private String name;
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
     
     @Schema(description="The organization.")
     private String organizationId;
