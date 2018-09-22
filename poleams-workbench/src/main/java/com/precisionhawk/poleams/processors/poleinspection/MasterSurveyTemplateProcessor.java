@@ -2,10 +2,13 @@ package com.precisionhawk.poleams.processors.poleinspection;
 
 import com.precisionhawk.poleams.bean.GeoPoint;
 import com.precisionhawk.poleams.bean.PoleSearchParameters;
+import com.precisionhawk.poleams.bean.PoleInspectionSearchParameters;
 import com.precisionhawk.poleams.bean.SubStationSearchParameters;
+import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.SubStation;
 import com.precisionhawk.poleams.domain.poledata.PoleData;
 import com.precisionhawk.poleams.util.CollectionsUtilities;
+import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.poleams.webservices.SubStationWebService;
 import com.precisionhawk.poleams.webservices.client.Environment;
@@ -13,14 +16,18 @@ import java.awt.Point;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbookFactory;
+import org.papernapkin.liana.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,6 +100,7 @@ final class MasterSurveyTemplateProcessor implements Constants {
     private static final Point FEEDER_NAME = new Point(5, 1);
     private static final Point FEEDER_NUM = new Point(1, 1);
     private static final Point FEEDER_WIND_ZONE = new Point(8, 1);
+    private static final int FIRST_POLE_ROW = 4;
     private static final String SURVEY_SHEET = "Survey Data";
     
     private static final FilenameFilter EXCEL_SPREADSHEET_FILTER = new FilenameFilter() {
@@ -111,13 +119,11 @@ final class MasterSurveyTemplateProcessor implements Constants {
         if (files.length > 1) {
             listener.reportFatalError(String.format("Multiple excel files exist in directory \"%s\"", feederDir));
             return null;
+        } else if (files.length == 0) {
+            listener.reportFatalError(String.format("Master Survey Template does not exist in directory \"%s\" or is not readable", feederDir));
+            return null;
         } else {
-            if (excelFile == null) {
-                listener.reportFatalError(String.format("Master Survey Template does not exist in directory \"%s\" or is not readable", feederDir));
-                return null;
-            } else {
-                return files[1];
-            }
+            return files[0];
         }
     }
     
@@ -127,8 +133,8 @@ final class MasterSurveyTemplateProcessor implements Constants {
             return false;
         }
         try {
-            Workbook workbook = XSSFWorkbookFactory.createWorkbook(masterDataFile, true);
             listener.setStatus(ProcessStatus.ProcessingMasterSurveyTemplate);
+            Workbook workbook = XSSFWorkbookFactory.createWorkbook(masterDataFile, true);
             
             // Find the "Survey Data" sheet.
             Sheet sheet = workbook.getSheet(SURVEY_SHEET);
@@ -152,34 +158,34 @@ final class MasterSurveyTemplateProcessor implements Constants {
             
             // We now have enough to lookup an existing sub station
             inspectionData.setSubStation(lookupSubStationByFeederId(environment, feederId));
-            
+            if (inspectionData.getSubStation() == null) {
             String subStationName = getCellDataAsString(row, FEEDER_NAME.x);
-            if (subStationName == null || subStationName.isEmpty()) {
-                if (inspectionData.getSubStation() == null) {
+                if (subStationName == null || subStationName.isEmpty()) {
                     // We cannot create a nameless substation.
                     listener.reportFatalError("Master Survey Template spreadsheet is missing Feeder Name.");
                     return false;
                 }
-            } else if (inspectionData.getSubStation() == null) {
                 // Create a new substation.
                 inspectionData.setSubStation(new SubStation());
+                inspectionData.getSubStation().setId(UUID.randomUUID().toString());
                 inspectionData.getSubStation().setHardeningLevel(getCellDataAsString(row, FEEDER_HARDENING_LVL.x));
                 inspectionData.getSubStation().setFeederNumber(feederId);
                 inspectionData.getSubStation().setName(subStationName);
                 inspectionData.getSubStation().setOrganizationId(ORG_ID);
-                inspectionData.getSubStation().setWindZone(getCellDataAsString(row, FEEDER_WIND_ZONE.x));
-//            } else if (!subStationName.equals(inspectionData.getSubStation().getName())) {
-//
-                //FIXME:
+                inspectionData.getSubStation().setWindZone(StringUtil.getNullableString(getCellDataAsInteger(row, FEEDER_WIND_ZONE.x)));
+                inspectionData.getDomainObjectIsNew().put(inspectionData.getSubStation().getId(), true);
+            } else {
+                inspectionData.getDomainObjectIsNew().put(inspectionData.getSubStation().getId(), false);
+                //TODO: Update SubStation data?
             }
             
             // We may now process pole rows.
             PoleWebService poleSvc = environment.obtainWebService(PoleWebService.class);
+            PoleInspectionWebService poleInspSvc = environment.obtainWebService(PoleInspectionWebService.class);
             
             boolean dataFound = true;
-            for (int rowIndex = FEEDER_NUM.y + 1; dataFound; rowIndex++) {
-                // Environment environment, ProcessListener listener, InspectionData inspectionData, 
-                dataFound = processPoleRow(environment, poleSvc, listener, row, inspectionData);
+            for (int rowIndex = FIRST_POLE_ROW; dataFound; rowIndex++) {
+                dataFound = processPoleRow(environment, poleSvc, poleInspSvc, listener, sheet.getRow(rowIndex), inspectionData);
             }
             
             return true;
@@ -190,19 +196,22 @@ final class MasterSurveyTemplateProcessor implements Constants {
     }
 
     private static boolean processPoleRow(
-            Environment environment, PoleWebService svc, ProcessListener listener,
+            Environment env, PoleWebService psvc, PoleInspectionWebService pisvc, ProcessListener listener,
             Row row, InspectionData inspectionData
         )
         throws IOException
     {
-        String fplId = getCellDataAsString(row, COL_FPL_ID);
+        String fplId = getCellDataAsId(row, COL_FPL_ID);
         if (fplId == null || fplId.isEmpty()) {
             listener.reportMessage(String.format("Now fplId found on row %d, end of data found", row.getRowNum()));
             return false;
+        } else if ("X".equals(fplId.toUpperCase())) {
+            return false;
         } else {
-            PoleData pole = lookupPoleByFPLId(environment, svc, fplId);
+            PoleData pole = lookupPoleByFPLId(env, psvc, fplId);
+            boolean isNew = false;
             if (pole == null) {
-                String poleNum = getCellDataAsString(row, COL_POLE_NUM);
+                String poleNum = getCellDataAsId(row, COL_POLE_NUM);
                 if (poleNum == null || poleNum.isEmpty()) {
                     listener.reportNonFatalError(String.format("The tower on row %d with FPL ID %s has no Object ID.", row.getRowNum(), fplId));
                     return true;
@@ -211,16 +220,14 @@ final class MasterSurveyTemplateProcessor implements Constants {
                 pole = new PoleData();
                 pole.setFPLId(fplId);
                 pole.setId(poleNum);
-                inspectionData.getPoleDataIsNew().put(pole.getId(), Boolean.TRUE);
-            } else {
-                inspectionData.getPoleDataIsNew().put(pole.getId(), Boolean.FALSE);
+                isNew = true;
             }
             pole.setType(getCellDataAsString(row, COL_POLE_TYPE));
             pole.setAccess(getCellDataAsBoolean(row, COL_POLE_ACCESS));
 //TODO:                pole.setSwitchNumber(getCellDataAsString(row, COL_POLE_SWITCH_NUM));
 //TODO:                pole.setTLNCoordinate(getCellDataAsString(row, COL_POLE_TLN_COORD));
-            Double lat = getCellDataAsNumeric(row, COL_POLE_LAT);
-            Double lon = getCellDataAsNumeric(row, COL_POLE_LON);
+            Double lat = getCellDataAsDouble(row, COL_POLE_LAT);
+            Double lon = getCellDataAsDouble(row, COL_POLE_LON);
             if (lat != null && lon != null && (!lat.equals(0.0)) && (!lon.equals(0.0))) {
                 GeoPoint p = pole.getLocation();
                 if (p == null) {
@@ -230,17 +237,56 @@ final class MasterSurveyTemplateProcessor implements Constants {
                 p.setLatitude(lat);
                 p.setLongitude(lon);
             }
-            inspectionData.getPoleData().put(fplId, pole);
+            inspectionData.addPole(pole, isNew);
+            
+            PoleInspection inspection = null;
+            if (!isNew) {
+                // Attempt to find an existing inspection
+                PoleInspectionSearchParameters params = new PoleInspectionSearchParameters();
+                params.setPoleId(pole.getId());
+                inspection = CollectionsUtilities.firstItemIn(pisvc.search(env.obtainAccessToken(), params));
+            }
+            if (inspection == null) {
+                inspection = new PoleInspection();
+                inspection.setId(UUID.randomUUID().toString());
+                inspection.setOrganizationId(ORG_ID);
+                inspection.setPoleId(pole.getId());
+                inspection.setSubStationId(inspectionData.getSubStation().getId());
+                inspectionData.addPoleInspection(pole, inspection, true);
+            } else {
+                inspectionData.addPoleInspection(pole, inspection, false);
+            }
+            
             return true;
         }
     }
     
     private static Boolean getCellDataAsBoolean(Row row, int col) {
         Cell cell = row.getCell(col);
-        if (cell == null) {
+        Object value = null;
+        CellType ctype = cell.getCellType();
+        switch (ctype) {
+            case BOOLEAN:
+                return cell.getBooleanCellValue();
+            case FORMULA:
+            case NUMERIC:
+                value = cell.getNumericCellValue();
+                break;
+            case STRING:
+                value = cell.getStringCellValue();
+        }
+        if (value == null) {
             return null;
         } else {
-            return cell.getBooleanCellValue();
+            try {
+                // Special case
+                if ("Y".equals(value) || "y".equals(value)) {
+                    return Boolean.TRUE;
+                }
+                return Boolean.valueOf(value.toString());
+            } catch (NumberFormatException ex) {
+                throw new IllegalArgumentException(String.format("The value %s in row %d, column %d cannot be parsed as a numeric value.", value, row.getRowNum(), col));
+            }
         }
     }
     
@@ -253,12 +299,86 @@ final class MasterSurveyTemplateProcessor implements Constants {
         }
     }
     
-    private static Double getCellDataAsNumeric(Row row, int col) {
+    private static Double getCellDataAsDouble(Row row, int col) {
         Cell cell = row.getCell(col);
         if (cell == null) {
             return null;
         } else {
-            return cell.getNumericCellValue();
+            Object value = null;
+            CellType ctype = cell.getCellType();
+            switch (ctype) {
+                case BOOLEAN:
+                    value = cell.getBooleanCellValue();
+                    break;
+                case FORMULA:
+                case NUMERIC:
+                    return cell.getNumericCellValue();
+                case STRING:
+                    value = cell.getStringCellValue();
+            }
+            if (value == null) {
+                return null;
+            } else {
+                try {
+                    return Double.valueOf(value.toString());
+                } catch (NumberFormatException ex) {
+                    throw new IllegalArgumentException(String.format("The value %s in row %d, column %d cannot be parsed as a decimal value.", value, row.getRowNum(), col));
+                }
+            }
+        }
+    }
+    
+    private static Integer getCellDataAsInteger(Row row, int col) {
+        Cell cell = row.getCell(col);
+        if (cell == null) {
+            return null;
+        } else {
+            Object value = null;
+            CellType ctype = cell.getCellType();
+            switch (ctype) {
+                case BOOLEAN:
+                    value = cell.getBooleanCellValue();
+                    break;
+                case FORMULA:
+                case NUMERIC:
+                    Double d = cell.getNumericCellValue();
+                    return d == null ? null : d.intValue();
+                case STRING:
+                    value = cell.getStringCellValue();
+            }
+            if (value == null) {
+                return null;
+            } else {
+                try {
+                    return Integer.valueOf(value.toString());
+                } catch (NumberFormatException ex) {
+                    throw new IllegalArgumentException(String.format("The value %s in row %d, column %d cannot be parsed as an integer value.", value, row.getRowNum(), col));
+                }
+            }
+        }
+    }
+    
+    private static final DecimalFormat LONG_INT = new DecimalFormat("########0");
+    
+    private static String getCellDataAsId(Row row, int col) {
+        Cell cell = row.getCell(col);
+        if (cell == null) {
+            return null;
+        } else {
+            Object value = null;
+            CellType ctype = cell.getCellType();
+            switch (ctype) {
+                case BOOLEAN:
+                    value = cell.getBooleanCellValue();
+                    break;
+                case FORMULA:
+                case NUMERIC:
+                    Double d = cell.getNumericCellValue();
+                    return d == null ? null : LONG_INT.format(d);
+                case STRING:
+                    value = cell.getStringCellValue();
+            }
+            return value == null ? null : String.valueOf(value);
         }
     }
     
@@ -267,7 +387,20 @@ final class MasterSurveyTemplateProcessor implements Constants {
         if (cell == null) {
             return null;
         } else {
-            return cell.getStringCellValue();
+            Object value = null;
+            CellType ctype = cell.getCellType();
+            switch (ctype) {
+                case BOOLEAN:
+                    value = cell.getBooleanCellValue();
+                    break;
+                case FORMULA:
+                case NUMERIC:
+                    value = cell.getNumericCellValue();
+                    break;
+                case STRING:
+                    value = cell.getStringCellValue();
+            }
+            return value == null ? null : String.valueOf(value);
         }
     }
     

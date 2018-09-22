@@ -22,6 +22,7 @@ public final class Main {
     public static final String USER_COFIG_DIR = ".poleams";
     private static final String USER_LOGGING_COFIG = "workbench.logback.groovy";
     private final CommandProcess[] COMMANDS = new CommandProcess[] {
+        new FeederDataImportProcess()
     };
     
     private Main() {}

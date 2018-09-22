@@ -6,5 +6,8 @@ package com.precisionhawk.poleams.processors.poleinspection;
  */
 public enum ProcessStatus {
     Initializing,
-    ProcessingMasterSurveyTemplate
+    ProcessingMasterSurveyTemplate,
+    ProcessingPoleData,
+    PersistingData,
+    Done
 }

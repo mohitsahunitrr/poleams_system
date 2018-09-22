@@ -12,10 +12,12 @@ public interface ProcessListener {
 
     public void reportFatalException(String message, Throwable t);
 
-    public void reportFatalException(Exception ioe);
+    public void reportFatalException(Exception ex);
 
-    public void reportMessage(String format);
+    public void reportMessage(String message);
 
     public void reportNonFatalError(String message);
     
+    public void reportNonFatalException(String message, Throwable t);
+
 }

@@ -45,7 +45,7 @@ public class SubStationEsDao extends AbstractEsDao implements SubStationDao {
         }
         SubStation ss = retrieve(substation.getId());
         if (ss == null) {
-            indexObject(ss.getId(), substation);
+            indexObject(substation.getId(), substation);
             return true;
         } else {
             return false;

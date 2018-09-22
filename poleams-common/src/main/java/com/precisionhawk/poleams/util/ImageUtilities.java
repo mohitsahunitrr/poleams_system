@@ -11,22 +11,23 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import javax.imageio.ImageIO;
 import org.apache.commons.imaging.ImageInfo;
 import org.apache.commons.imaging.ImageReadException;
-import org.apache.commons.imaging.Imaging;
-import org.apache.commons.imaging.common.ImageMetadata;
-import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
 import org.apache.commons.imaging.formats.tiff.TiffField;
 import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
 import org.apache.commons.imaging.formats.tiff.constants.ExifTagConstants;
 import org.apache.commons.imaging.formats.tiff.constants.GpsTagConstants;
+import org.apache.commons.imaging.formats.tiff.constants.TiffTagConstants;
+import org.apache.commons.imaging.formats.tiff.taginfos.TagInfoAscii;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,6 +152,9 @@ public final class ImageUtilities {
     }
     
     public static GeoPoint getLocation(TiffImageMetadata metadata) throws ImageReadException, IOException {
+        if (metadata == null) {
+            return null;
+        }
         TiffImageMetadata.GPSInfo gpsInfo = metadata.getGPS();
         if (gpsInfo != null) {
             GeoPoint p = new GeoPoint();
@@ -166,8 +170,7 @@ public final class ImageUtilities {
         }
     }
 
-    public static Dimension getSize(File f) throws ImageReadException, IOException {
-        ImageInfo iinfo = Imaging.getImageInfo(f);
+    public static Dimension getSize(ImageInfo iinfo) throws ImageReadException, IOException {
         Dimension d = new Dimension();
         d.setHeight(Double.valueOf(iinfo.getHeight()));
         d.setWidth(Double.valueOf(iinfo.getWidth()));
@@ -175,15 +178,44 @@ public final class ImageUtilities {
     }
     
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss.SSSZ");
-    public static ZonedDateTime getTimestamp(TiffImageMetadata metadata) throws ImageReadException {
-        // TiffTagConstants.TIFF_TAG_DATE_TIME
-        TiffField field = metadata.findField(ExifTagConstants.EXIF_TAG_DATE_TIME_DIGITIZED);
-        if (field != null) {
-            String s = field.getStringValue();
-            if (s != null && (!s.isEmpty())) {
-                return ZonedDateTime.parse(s, DATE_TIME_FORMATTER);
+    private static final DateTimeFormatter DATE_TIME_FORMATTER2 = DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss");
+    private static final TagInfoAscii[] TIMESTAMP_FIELDS = {ExifTagConstants.EXIF_TAG_DATE_TIME_DIGITIZED, ExifTagConstants.EXIF_TAG_DATE_TIME_ORIGINAL, TiffTagConstants.TIFF_TAG_DATE_TIME};
+    public static ZonedDateTime getTimestamp(TiffImageMetadata metadata, ZoneId defaultZoneId) throws ImageReadException {
+        ZonedDateTime result = null;
+        TiffField field;
+        for (int i = 0; result == null && i < TIMESTAMP_FIELDS.length; i++) {
+            field = metadata.findField(TIMESTAMP_FIELDS[i]);
+            if (field != null) {
+                String s = field.getStringValue();
+                if (s != null && (!s.isEmpty())) {
+                    try {
+                        result = getTimestamp(s);
+                    } catch (DateTimeParseException e) {
+                        if (defaultZoneId != null) {
+                            result = getTimestamp(s, defaultZoneId);
+                        }
+                    }
+                    if (result == null) {
+                        LOGGER.warn("Unable to parse the value {} as a timestamp.", s);
+                    }
+                }
             }
         }
-        return null;
+        return result;
+    }
+    
+    private static ZonedDateTime getTimestamp(String value) throws DateTimeParseException {
+        if (value == null || value.isEmpty()) {
+            return null;
+        }
+        return ZonedDateTime.parse(value, DATE_TIME_FORMATTER);
+    }
+    
+    private static ZonedDateTime getTimestamp(String value, ZoneId zoneId) throws DateTimeParseException {
+        if (value == null || value.isEmpty()) {
+            return null;
+        }
+        LocalDateTime ldt = LocalDateTime.parse(value, DATE_TIME_FORMATTER2);
+        return ZonedDateTime.of(ldt, zoneId);
     }
 }

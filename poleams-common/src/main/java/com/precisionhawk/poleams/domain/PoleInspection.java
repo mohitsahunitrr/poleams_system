@@ -68,11 +68,11 @@ public class PoleInspection implements Identifyable {
     }
 
     @Schema(description="Horizontal loading percent result of the analysis.")
-    private int horizontalLoadingPercent;
-    public int getHorizontalLoadingPercent() {
+    private Integer horizontalLoadingPercent;
+    public Integer getHorizontalLoadingPercent() {
         return horizontalLoadingPercent;
     }
-    public void setHorizontalLoadingPercent(int horizontalLoadingPercent) {
+    public void setHorizontalLoadingPercent(Integer horizontalLoadingPercent) {
         this.horizontalLoadingPercent = horizontalLoadingPercent;
     }
     
@@ -131,11 +131,11 @@ public class PoleInspection implements Identifyable {
     }
 
     @Schema(description="Vertical loading percent result of the analysis.")
-    private int verticalLoadingPercent;
-    public int getVerticalLoadingPercent() {
+    private Integer verticalLoadingPercent;
+    public Integer getVerticalLoadingPercent() {
         return verticalLoadingPercent;
     }
-    public void setVerticalLoadingPercent(int verticalLoadingPercent) {
+    public void setVerticalLoadingPercent(Integer verticalLoadingPercent) {
         this.verticalLoadingPercent = verticalLoadingPercent;
     }
     

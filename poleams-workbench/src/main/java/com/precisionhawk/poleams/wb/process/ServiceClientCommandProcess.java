@@ -26,6 +26,7 @@ public abstract class ServiceClientCommandProcess extends CommandProcess {
     private static final String DEFAULT_CFG_FILE = "environments.yaml";
     private static final String ARG_CONFIG = "-cfg";
     private static final String ARG_ENV = "-env";
+    protected static final String ARGS_FOR_HELP = "[" + ARG_CONFIG + " environments/config/file.yaml] " + ARG_ENV + " environment";
     
     public final boolean process(Queue<String> args) {
         String configURI = "file://" + new File(new File(new File(System.getProperty("user.home")), Main.USER_COFIG_DIR), DEFAULT_CFG_FILE).getAbsolutePath();

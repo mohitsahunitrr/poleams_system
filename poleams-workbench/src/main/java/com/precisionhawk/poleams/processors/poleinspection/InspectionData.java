@@ -1,5 +1,7 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
+import com.precisionhawk.poleams.domain.Pole;
+import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.ResourceMetadata;
 import com.precisionhawk.poleams.domain.SubStation;
 import com.precisionhawk.poleams.domain.poledata.PoleData;
@@ -14,6 +16,31 @@ import java.util.Map;
  * @author pchapman
  */
 public class InspectionData {
+    
+    private Map<String, Boolean> domainDataIsNew = new HashMap<>();
+    public Map<String, Boolean> getDomainObjectIsNew() {
+        return domainDataIsNew;
+    }
+
+    private Map<String, PoleData> poleData = new HashMap<>();
+    public Map<String, PoleData> getPoleDataByFPLId() {
+        return poleData;
+    }
+    
+    private Map<String, PoleInspection> poleInspectionsByFPLId = new HashMap<>();
+    public Map<String, PoleInspection> getPoleInspectionsByFPLId() {
+        return poleInspectionsByFPLId;
+    }
+
+    private Map<String, List<ResourceMetadata>> poleResources = new HashMap<>();
+    public Map<String, List<ResourceMetadata>> getPoleResources() {
+        return poleResources;
+    }
+    
+    private Map<String, File> resourceDataFiles = new HashMap<>();
+    public Map<String, File> getResourceDataFiles() {
+        return resourceDataFiles;
+    }
 
     private SubStation subStation;
     public SubStation getSubStation() {
@@ -27,42 +54,18 @@ public class InspectionData {
     public List<ResourceMetadata> getSubStationResources() {
         return subStationResources;
     }
-    public void setSubStationResources(List<ResourceMetadata> subStationResources) {
-        this.subStationResources = subStationResources;
-    }
-
-    private Map<String, PoleData> poleData = new HashMap<>();
-    public Map<String, PoleData> getPoleData() {
-        return poleData;
-    }
-    public void setPoleData(Map<String, PoleData> poleData) {
-        this.poleData = poleData;
+    
+    public void addPole(PoleData pole, boolean isNew) {
+        poleData.put(pole.getFPLId(), pole);
+        domainDataIsNew.put(pole.getId(), isNew);
     }
     
-    private Map<String, Boolean> poleDataIsNew = new HashMap<>();
-    public Map<String, Boolean> getPoleDataIsNew() {
-        return poleDataIsNew;
-    }
-    public void setPoleDataIsNew(Map<String, Boolean> poleDataIsNew) {
-        this.poleDataIsNew = poleDataIsNew;
-    }
-
-    private Map<String, List<ResourceMetadata>> poleResources = new HashMap<>();
-    public Map<String, List<ResourceMetadata>> getPoleResources() {
-        return poleResources;
-    }
-    public void setPoleResources(Map<String, List<ResourceMetadata>> poleResources) {
-        this.poleResources = poleResources;
-    }
-    private Map<String, File> resourceDataFiles = new HashMap<>();
-    public Map<String, File> getResourceDataFiles() {
-        return resourceDataFiles;
-    }
-    public void setResourceDataFiles(Map<String, File> resourceDataFiles) {
-        this.resourceDataFiles = resourceDataFiles;
+    public void addPoleInspection(Pole pole, PoleInspection inspection, boolean isNew) {
+        poleInspectionsByFPLId.put(pole.getFPLId(), inspection);
+        domainDataIsNew.put(inspection.getId(), isNew);
     }
     
-    public void addResourceMetadata(ResourceMetadata rmeta, boolean isNew) {
+    public void addResourceMetadata(ResourceMetadata rmeta, File dataFile, boolean isNew) {
         if (rmeta.getPoleId() == null) {
             subStationResources.add(rmeta);
         } else {
@@ -73,7 +76,8 @@ public class InspectionData {
             }
             list.add(rmeta);
         }
-        poleDataIsNew.put(rmeta.getResourceId(), isNew);
+        domainDataIsNew.put(rmeta.getResourceId(), isNew);
+        resourceDataFiles.put(rmeta.getResourceId(), dataFile);
     }
  
 }

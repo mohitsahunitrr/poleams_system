@@ -1,9 +1,11 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
 import com.precisionhawk.poleams.bean.ImageScaleRequest;
+import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.ResourceMetadata;
 import com.precisionhawk.poleams.domain.poledata.PoleData;
 import com.precisionhawk.poleams.support.httpclient.HttpClientUtilities;
+import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.poleams.webservices.ResourceWebService;
 import com.precisionhawk.poleams.webservices.SubStationWebService;
@@ -31,22 +33,29 @@ public final class FeederDataDirProcessor implements Constants {
     // no state
     private FeederDataDirProcessor() {};
 
-    public static boolean process(Environment environment, ProcessListener listener, File feederDir) {
+    public static boolean process(Environment env, ProcessListener listener, File feederDir) {
         
         listener.setStatus(ProcessStatus.Initializing);
         InspectionData data = new InspectionData();
         
         // There should be an excel file for all poles.
-        boolean success = MasterSurveyTemplateProcessor.processMasterSurveyTemplate(environment, listener, data, feederDir);
+        boolean success = MasterSurveyTemplateProcessor.processMasterSurveyTemplate(env, listener, data, feederDir);
         
         if (success) {
             File poleDataDir = new File(feederDir, POLE_DATA_SUBDIR);
             if (poleDataDir.exists() && poleDataDir.canRead()) {
+                listener.setStatus(ProcessStatus.ProcessingPoleData);
                 for (File f : poleDataDir.listFiles()) {
                     if (f.isDirectory()) {
-                        success = PoleDataProcessor.process(environment, listener, data, f);
-                        if (!success) {
-                            break;
+                        // The name of the directory should be the FPL ID of the pole.
+                        PoleData pole = data.getPoleDataByFPLId().get(f.getName());
+                        if (pole == null) {
+                            listener.reportMessage(String.format("No pole found with FPL ID \"%s\".  The directory \"%s\" is being skipped.", f.getName(), f.getAbsolutePath()));
+                        } else {
+                            success = PoleDataProcessor.process(env, listener, data, pole, f);
+                            if (!success) {
+                                break;
+                            }
                         }
                     } else {
                         listener.reportMessage(String.format("File \"%s\" is not a directory and is being skipped.", f));
@@ -59,43 +68,53 @@ public final class FeederDataDirProcessor implements Constants {
         }
         
         try {
+            listener.setStatus(ProcessStatus.PersistingData);
+            
             // Save SubStation
             if (data.getSubStation() != null) {
-                SubStationWebService sssvc = environment.obtainWebService(SubStationWebService.class);
-                if (data.getSubStation().getId() == null) {
-                    sssvc.create(environment.obtainAccessToken(), data.getSubStation());
+                SubStationWebService sssvc = env.obtainWebService(SubStationWebService.class);
+                if (data.getDomainObjectIsNew().get(data.getSubStation().getId())) {
+                    sssvc.create(env.obtainAccessToken(), data.getSubStation());
                 } else {
-                    sssvc.update(environment.obtainAccessToken(), data.getSubStation());
+                    sssvc.update(env.obtainAccessToken(), data.getSubStation());
                 }
             }
 
             // Save Poles
-            if (!data.getPoleData().isEmpty()) {
-                PoleWebService psvc = environment.obtainWebService(PoleWebService.class);
-                for (PoleData pdata : data.getPoleData().values()) {
-                    if (data.getPoleDataIsNew().get(pdata.getId())) {
-                        psvc.create(environment.obtainAccessToken(), pdata);
+            if (!data.getPoleDataByFPLId().isEmpty()) {
+                PoleWebService psvc = env.obtainWebService(PoleWebService.class);
+                for (PoleData pdata : data.getPoleDataByFPLId().values()) {
+                    if (data.getDomainObjectIsNew().get(pdata.getId())) {
+                        psvc.create(env.obtainAccessToken(), pdata);
                     } else {
-                        psvc.update(environment.obtainAccessToken(), pdata);
+                        psvc.update(env.obtainAccessToken(), pdata);
+                    }
+                }
+            }
+            
+            // Save Pole Inspections
+            if (!data.getPoleInspectionsByFPLId().isEmpty()) {
+                PoleInspectionWebService pisvc = env.obtainWebService(PoleInspectionWebService.class);
+                for (PoleInspection pi : data.getPoleInspectionsByFPLId().values()) {
+                    if (data.getDomainObjectIsNew().get(pi.getId())) {
+                        pisvc.create(env.obtainAccessToken(), pi);
+                    } else {
+                        pisvc.update(env.obtainAccessToken(), pi);
                     }
                 }
             }
             
             // Save Resources
-            ResourceWebService rsvc = environment.obtainWebService(ResourceWebService.class);
+            ResourceWebService rsvc = env.obtainWebService(ResourceWebService.class);
             for (ResourceMetadata rmeta : data.getSubStationResources()) {
-                if (rmeta.getResourceId() == null) {
-                    rmeta.setResourceId(UUID.randomUUID().toString());
-                    rsvc.insertResourceMetadata(environment.obtainAccessToken(), rmeta);
-                } else {
-                    rsvc.updateResourceMetadata(environment.obtainAccessToken(), rmeta);
-                }
+                saveResource(env, rsvc, listener, data, rmeta, feederDir, success);
             }
         } catch (Throwable t) {
             listener.reportFatalException("Error persisting inspection data.", t);
         }
         
-        //TODO:
+        listener.setStatus(ProcessStatus.Done);
+        
         return success;
     }
     
@@ -109,9 +128,16 @@ public final class FeederDataDirProcessor implements Constants {
         SCALE_IMAGE_REQ.setWidth(100.0);
     }
     
-    private static void saveResource(Environment env, ResourceWebService svc, ResourceMetadata rmeta, File data, boolean generateThumbnail)
+    private static void saveResource(Environment env, ResourceWebService svc, ProcessListener listener, InspectionData data, ResourceMetadata rmeta, File dataFile, boolean generateThumbnail)
         throws IOException, URISyntaxException
     {
+        if (rmeta == null) {
+            return;
+        }
+        if (dataFile == null) {
+            listener.reportNonFatalError(String.format("Missing data file for image %s for pole %s", rmeta.getName(), rmeta.getPoleId()));
+            return;
+        }
         if (rmeta.getResourceId() == null) {
             rmeta.setResourceId(UUID.randomUUID().toString());
             svc.insertResourceMetadata(env.obtainAccessToken(), rmeta);
@@ -119,7 +145,7 @@ public final class FeederDataDirProcessor implements Constants {
             svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
         }
         String url = String.format(UPLOAD_URL, env.getServiceURI(), rmeta.getResourceId());
-        HttpClientUtilities.postFile(new URI(url), ORG_ID, data);
+        HttpClientUtilities.postFile(new URI(url), ORG_ID, dataFile);
         if (generateThumbnail) {
             svc.scale(env.obtainAccessToken(), rmeta.getResourceId(), SCALE_IMAGE_REQ);
         }

@@ -19,7 +19,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <main.class>com.precisionahawk.poleams.wb.Main</main.class>
+        <main.class>com.precisionhawk.poleams.wb.Main</main.class>
     </properties>
 
     <dependencies>
@@ -70,6 +70,10 @@
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jackson-provider</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.papernapkin.liana</groupId>
+            <artifactId>liana-util</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
