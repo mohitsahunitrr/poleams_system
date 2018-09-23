@@ -3,7 +3,6 @@ package com.precisionhawk.poleams.webservices.impl;
 import com.precisionhawk.poleams.bean.PoleInspectionSearchParameters;
 import com.precisionhawk.poleams.bean.PoleInspectionSummary;
 import com.precisionhawk.poleams.bean.ResourceSearchParameters;
-import com.precisionhawk.poleams.bean.ResourceSummary;
 import com.precisionhawk.poleams.dao.DaoException;
 import com.precisionhawk.poleams.dao.PoleInspectionDao;
 import com.precisionhawk.poleams.domain.PoleInspection;
@@ -11,6 +10,7 @@ import com.precisionhawk.poleams.domain.ResourceMetadata;
 import com.precisionhawk.poleams.domain.ResourceType;
 import com.precisionhawk.poleams.util.CollectionsUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -71,39 +71,7 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
                 return null;
             }
             
-            //TODO: Calculate criticality
-            int criticality = random.nextInt(5 - 1 + 1) + 1; // Randomize so that we can see cool stuff in the UI.
-            
-            ResourceSearchParameters rparams = new ResourceSearchParameters();
-            rparams.setPoleId(inspection.getPoleId());
-            rparams.setPoleInspectionId(inspection.getId());
-            List<ResourceMetadata> resources;
-            
-            // Get URL for the analysis XML, if any.
-            rparams.setType(ResourceType.PoleInspectionAnalysisXML);
-            resources = resourceService.query(authToken, rparams);
-            ResourceSummary analysisResultXML = resourceService.summaryFor(CollectionsUtilities.firstItemIn(resources));
-            
-            // Flight Images
-            rparams.setType(ResourceType.DroneInspectionImage);
-            List<ResourceSummary> flightImages = resourceService.summaryFor(rparams);
-            
-            // Ground Images
-            rparams.setType(ResourceType.ManualInspectionImage);
-            List<ResourceSummary> groundImages = resourceService.summaryFor(rparams);
-            
-            // Thermal Images
-            rparams.setType(ResourceType.Thermal);
-            List<ResourceSummary> thermalImages = resourceService.summaryFor(rparams);
-            
-            // Other Resources
-            rparams.setType(ResourceType.Other);
-            List<ResourceSummary> otherResources = resourceService.summaryFor(rparams);
-            
-            return new PoleInspectionSummary(
-                    inspection, criticality, analysisResultXML,
-                    flightImages, groundImages, thermalImages, otherResources
-            );
+            return populateSummary(new PoleInspectionSummary(inspection));
         } catch (DaoException ex) {
             throw new InternalServerErrorException("Error retrieving pole inspection data.", ex);
         }
@@ -132,4 +100,60 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
         }
     }
     
+    
+    List<PoleInspectionSummary> retrieveSummary(PoleInspectionSearchParameters params) {
+        try {
+            List<PoleInspection> inspections = piDao.search(params);
+            List<PoleInspectionSummary> results = new ArrayList<>(inspections.size());
+            for (PoleInspection inspection : inspections) {
+                results.add(
+                        populateSummary(
+                                new PoleInspectionSummary(
+                                        inspection, 0, null, null, null, null, null
+                                )
+                        )
+                );
+            }
+            return results;
+        } catch (DaoException ex) {
+            throw new InternalServerErrorException("Error retrieving pole inspection data.", ex);
+        }
+    }
+    
+    private void calculateCriticality(PoleInspectionSummary summary) {
+        //FIXME: Do actual calculation
+        summary.setCriticality(random.nextInt(5 - 1 + 1) + 1); // Randomize so that we can see cool stuff in the UI.
+    }
+    
+    private PoleInspectionSummary populateSummary(PoleInspectionSummary summary) {
+
+        ResourceSearchParameters rparams = new ResourceSearchParameters();
+        rparams.setPoleId(summary.getPoleId());
+        rparams.setPoleInspectionId(summary.getId());
+        List<ResourceMetadata> resources;
+
+        // Get URL for the analysis XML, if any.
+        rparams.setType(ResourceType.PoleInspectionAnalysisXML);
+        summary.setAnalysisResultXML(CollectionsUtilities.firstItemIn(resourceService.summaryFor(rparams)));
+
+        // Flight Images
+        rparams.setType(ResourceType.DroneInspectionImage);
+        summary.setFlightImages(resourceService.summaryFor(rparams));
+
+        // Ground Images
+        rparams.setType(ResourceType.ManualInspectionImage);
+        summary.setGroundImages(resourceService.summaryFor(rparams));
+
+        // Thermal Images
+        rparams.setType(ResourceType.Thermal);
+        summary.setThermalImages(resourceService.summaryFor(rparams));
+
+        // Other Resources
+        rparams.setType(ResourceType.Other);
+        summary.setOtherResources(resourceService.summaryFor(rparams));
+
+        calculateCriticality(summary);
+        
+        return summary;
+    }
 }

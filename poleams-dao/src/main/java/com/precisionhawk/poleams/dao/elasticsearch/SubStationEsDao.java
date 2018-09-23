@@ -4,6 +4,7 @@ import com.precisionhawk.poleams.bean.SubStationSearchParameters;
 import com.precisionhawk.poleams.dao.DaoException;
 import com.precisionhawk.poleams.dao.SubStationDao;
 import com.precisionhawk.poleams.domain.SubStation;
+import static com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants.INDEX_NAME_POLEAMS;
 import java.util.List;
 import javax.inject.Named;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -20,11 +21,17 @@ import org.elasticsearch.index.query.QueryBuilders;
 @Named
 public class SubStationEsDao extends AbstractEsDao implements SubStationDao {
     
-    private static final String DOCUMENT = "Pole";
     private static final String COL_FEEDER_NUM = "feederNumber";
     private static final String COL_ID = "id";
     private static final String COL_NAME = "name";
     private static final String COL_ORG_ID = "organizationId";
+    private static final String DOCUMENT = "SubStation";
+    private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch/SubStation_Mapping.json";
+
+    @Override
+    public String getMappingPath() {
+        return MAPPING;
+    }
 
     @Override
     protected String getIndexName() {

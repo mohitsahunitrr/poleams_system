@@ -3,8 +3,11 @@ package com.precisionhawk.poleams.processors.poleinspection;
 import com.precisionhawk.poleams.bean.ImageScaleRequest;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.ResourceMetadata;
+import com.precisionhawk.poleams.domain.ResourceStatus;
+import com.precisionhawk.poleams.domain.ResourceType;
 import com.precisionhawk.poleams.domain.poledata.PoleData;
 import com.precisionhawk.poleams.support.httpclient.HttpClientUtilities;
+import com.precisionhawk.poleams.util.ImageUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.poleams.webservices.ResourceWebService;
@@ -14,7 +17,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.UUID;
+import org.papernapkin.liana.util.BASE64Encoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,7 +112,12 @@ public final class FeederDataDirProcessor implements Constants {
             // Save Resources
             ResourceWebService rsvc = env.obtainWebService(ResourceWebService.class);
             for (ResourceMetadata rmeta : data.getSubStationResources()) {
-                saveResource(env, rsvc, listener, data, rmeta, feederDir, success);
+                saveResource(env, rsvc, listener, data, rmeta);
+            }
+            for (List<ResourceMetadata> rmetaList : data.getPoleResources().values()) {
+                for (ResourceMetadata rmeta : rmetaList) {
+                    saveResource(env, rsvc, listener, data, rmeta);
+                }
             }
         } catch (Throwable t) {
             listener.reportFatalException("Error persisting inspection data.", t);
@@ -119,35 +129,57 @@ public final class FeederDataDirProcessor implements Constants {
     }
     
     private static final String UPLOAD_URL = "%s/resource/%s/upload";
+    private static final double SCALE_WIDTH = 100;
     private static final ImageScaleRequest SCALE_IMAGE_REQ;
     static {
         SCALE_IMAGE_REQ = new ImageScaleRequest();
         SCALE_IMAGE_REQ.setResultType(ImageScaleRequest.ContentType.JPEG);
         SCALE_IMAGE_REQ.setScaleOperation(ImageScaleRequest.ScaleOperation.ScaleToWidth);
         SCALE_IMAGE_REQ.setHeight(0.0);
-        SCALE_IMAGE_REQ.setWidth(100.0);
+        SCALE_IMAGE_REQ.setWidth(SCALE_WIDTH);
     }
     
-    private static void saveResource(Environment env, ResourceWebService svc, ProcessListener listener, InspectionData data, ResourceMetadata rmeta, File dataFile, boolean generateThumbnail)
+    private static void saveResource(Environment env, ResourceWebService svc, ProcessListener listener, InspectionData data, ResourceMetadata rmeta)
         throws IOException, URISyntaxException
     {
         if (rmeta == null) {
             return;
         }
+        File dataFile = data.getResourceDataFiles().get(rmeta.getResourceId());
         if (dataFile == null) {
             listener.reportNonFatalError(String.format("Missing data file for image %s for pole %s", rmeta.getName(), rmeta.getPoleId()));
             return;
         }
-        if (rmeta.getResourceId() == null) {
-            rmeta.setResourceId(UUID.randomUUID().toString());
+        if (rmeta.getResourceId() == null || data.getDomainObjectIsNew().get(rmeta.getResourceId())) {
+            if (rmeta.getResourceId() == null) {
+                rmeta.setResourceId(UUID.randomUUID().toString());
+            }
+            rmeta.setStatus(ResourceStatus.QueuedForUpload);
             svc.insertResourceMetadata(env.obtainAccessToken(), rmeta);
         } else {
             svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
-        }
-        String url = String.format(UPLOAD_URL, env.getServiceURI(), rmeta.getResourceId());
-        HttpClientUtilities.postFile(new URI(url), ORG_ID, dataFile);
-        if (generateThumbnail) {
-            svc.scale(env.obtainAccessToken(), rmeta.getResourceId(), SCALE_IMAGE_REQ);
+        } if (ResourceStatus.QueuedForUpload == rmeta.getStatus()) {
+            String url = String.format(UPLOAD_URL, env.getServiceURI(), rmeta.getResourceId());
+            HttpClientUtilities.postFile(new URI(url), env.obtainAccessToken(), rmeta.getContentType(), dataFile);
+            rmeta.setStatus(ResourceStatus.Uploaded);
+            svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
+            if (
+                    ImageUtilities.ImageType.fromContentType(rmeta.getContentType()) != null
+                    && rmeta.getSize() != null
+                    && rmeta.getSize().getWidth() > SCALE_WIDTH
+                )
+            {
+                // Generate a thumbnail for the image.
+                svc.scale(env.obtainAccessToken(), rmeta.getResourceId(), SCALE_IMAGE_REQ);
+            }
+            if (ResourceType.DroneInspectionImage == rmeta.getType()) {
+                // Queue the image to be zoomified.
+                rmeta.setStatus(ResourceStatus.Processed);
+            } else {
+                // Mark the resource ready for user consumption
+                rmeta.setStatus(ResourceStatus.Released);
+            }
+            svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
         }
     }
 }

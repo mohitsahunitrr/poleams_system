@@ -1,0 +1,46 @@
+### Elasticserach Health
+curl -XGET 'http://windamses:9200/_cluster/health' | aeson-pretty
+
+### Delete Index
+curl -XDELETE 'http://windamses:9200/poleams'
+curl -XDELETE 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams'
+
+### Download Mapping
+curl -XGET 'http://windamses:9200/poleams/SubStation/_mapping?pretty=true'
+curl -XGET 'http://windamses:9200/poleams/Pole/_mapping?pretty=true'
+curl -XGET 'http://windamses:9200/poleams/PoleInspection/_mapping?pretty=true'
+curl -XGET 'http://windamses:9200/poleams/Resource/_mapping?pretty=true'
+
+curl -XGET 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/SubStation/_mapping?pretty=true'
+curl -XGET 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/Pole/_mapping?pretty=true'
+
+### Upload Mapping
+curl -XPOST 'http://windamses:9200/poleams/SubStation/_mapping?pretty=true' -d "@/home/pchapman/workspace/poleams_system/poleams-dao/src/main/resources/com/precisionhawk/poleams/dao/elasticsearch/SubStation_Mapping.json"
+curl -XPOST 'http://windamses:9200/poleams/Pole/_mapping?pretty=true' -d "@/home/pchapman/workspace/poleams_system/poleams-dao/src/main/resources/com/precisionhawk/poleams/dao/elasticsearch/Pole_Mapping.json"
+curl -XPOST 'http://windamses:9200/poleams/PoleInspection/_mapping?pretty=true' -d "@/home/pchapman/workspace/poleams_system/poleams-dao/src/main/resources/com/precisionhawk/poleams/dao/elasticsearch/PoleInspection_Mapping.json"
+curl -XPOST 'http://windamses:9200/poleams/Resource/_mapping?pretty=true' -d "@/home/pchapman/workspace/poleams_system/poleams-dao/src/main/resources/com/precisionhawk/poleams/dao/elasticsearch/Resource_Mapping.json"
+
+### Elasticsearch Query all
+curl -s -XGET 'http://windamses:9200/poleams/SubStation/_search?pretty=true&scroll=10m&size=100' -d '{"query":{"match_all": {}}}' | aeson-pretty
+curl -s -XGET 'http://windamses:9200/poleams/Pole/_search?pretty=true&scroll=10m&size=100' -d '{"query":{"match_all": {}}}' | aeson-pretty
+curl -s -XGET 'http://windamses:9200/poleams/PoleInspection/_search?pretty=true&scroll=10m&size=100' -d '{"query":{"match_all": {}}}' | aeson-pretty
+curl -s -XGET 'http://windamses:9200/poleams/Resource/_search?pretty=true&scroll=10m&size=100' -d '{"query":{"match_all": {}}}' | aeson-pretty
+
+### Get Instance
+curl -s -XGET 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/Pole/_search?pretty=true&scroll=10m&size=100' -d '{"query":{"match_all": {}}}' | aeson-pretty
+curl -s -XGET 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/Resource/1e84a305-6d08-4869-8ef3-d858be87d94f' | aeson-pretty
+
+
+### Search for Pole by PFLId
+curl -s -XGET "http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/Pole/_search?pretty=true&scroll=10m&size=50" -d '
+{
+	"query": {
+        "term" : { "fplid" : "4009449" }
+    }
+}
+' | aeson-pretty
+
+
+
+### Services
+curl -s -H "accept: application/json" -H "content-type: application/json" -XGET "https://servicesdev.inspectools.net/poleams/substation/5f6449d2-bd38-43d3-a81f-aaa0b0482c2a/summary"

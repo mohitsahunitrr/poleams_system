@@ -5,6 +5,7 @@
 package com.precisionhawk.poleams.webservices.client.spring;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
+import com.precisionhawk.poleams.support.resteasy.JacksonProvider;
 import com.precisionhawk.poleams.webservices.client.Environment;
 import java.io.InputStreamReader;
 import java.io.Reader;

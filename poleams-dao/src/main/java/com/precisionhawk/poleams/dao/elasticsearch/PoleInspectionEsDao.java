@@ -11,12 +11,14 @@ import com.precisionhawk.poleams.dao.PoleInspectionDao;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import static com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants.INDEX_NAME_POLEAMS;
 import java.util.List;
+import javax.annotation.PostConstruct;
 import javax.inject.Named;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import us.pcsw.es.util.ESUtils;
 
 /**
  *
@@ -25,11 +27,26 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 @Named
 public class PoleInspectionEsDao extends AbstractEsDao implements PoleInspectionDao {
     
-    private static final String DOCUMENT = "PoleInspection";
     private static final String COL_ID = "id";
     private static final String COL_ORG_ID = "organizationId";
     private static final String COL_POLE_ID = "poleId";
     private static final String COL_SS_ID = "subStationId";
+    private static final String DOCUMENT = "PoleInspection";
+    private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch/PoleInspection_Mapping.json";
+
+    @Override
+    public String getMappingPath() {
+        return MAPPING;
+    }
+
+    @PostConstruct
+    public void init() {
+        try {
+            ESUtils.ensureMapping(getClient(), INDEX_NAME_POLEAMS, DOCUMENT, MAPPING);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
 
     @Override
     protected String getIndexName() {

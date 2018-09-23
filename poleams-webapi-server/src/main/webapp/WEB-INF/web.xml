@@ -48,7 +48,7 @@
     </filter-mapping>
     
     <!-- Servlets -->
-
+    <!-- Restful Services -->
     <servlet>
         <servlet-name>Resteasy</servlet-name>
         <servlet-class>

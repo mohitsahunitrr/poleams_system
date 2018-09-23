@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -24,6 +25,7 @@ import org.elasticsearch.search.SearchHit;
 import org.papernapkin.liana.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import us.pcsw.es.util.ESUtils;
 
 /**
  *
@@ -54,6 +56,15 @@ public abstract class AbstractEsDao implements ElasticSearchConstants {
     
     public int getScrollSize() {
         return config.getScrollSize();
+    }
+
+    @PostConstruct
+    public void init() {
+        try {
+            ESUtils.ensureMapping(getClient(), getIndexName(), getDocumentType(), getMappingPath());
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
     /**
@@ -320,6 +331,8 @@ public abstract class AbstractEsDao implements ElasticSearchConstants {
     protected abstract String getIndexName();
     
     protected abstract String getDocumentType();
+    
+    protected abstract String getMappingPath();
     
     protected BoolQueryBuilder addQueryMust(BoolQueryBuilder original, QueryBuilder toAdd) {
         if (original == null) {

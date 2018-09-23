@@ -144,9 +144,7 @@ public final class ResourceMetadata {
         this.zoomifyId = zoomifyId;
     }
     
-    public ResourceMetadata() {
-        this.resourceId = UUID.randomUUID().toString();
-    }
+    public ResourceMetadata() {}
 
     @Override
     public boolean equals(Object o) {

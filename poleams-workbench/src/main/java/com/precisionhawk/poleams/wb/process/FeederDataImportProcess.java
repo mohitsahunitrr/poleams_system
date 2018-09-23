@@ -66,7 +66,7 @@ public class FeederDataImportProcess extends ServiceClientCommandProcess {
             }
         };
         boolean success = FeederDataDirProcessor.process(env, listener, new File(dirPath));
-        System.out.printf("Import finished with %s", (success ? "success" : "errors"));
+        System.out.printf("Import finished with %s\n", (success ? "success" : "errors"));
         return true;
     }
 

@@ -4,6 +4,7 @@ import com.precisionhawk.poleams.bean.PoleSearchParameters;
 import com.precisionhawk.poleams.dao.DaoException;
 import com.precisionhawk.poleams.dao.PoleDao;
 import com.precisionhawk.poleams.domain.poledata.PoleData;
+import static com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants.INDEX_NAME_POLEAMS;
 import java.util.List;
 import javax.inject.Named;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -19,11 +20,17 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 @Named
 public class PoleEsDao extends AbstractEsDao implements PoleDao {
     
-    private static final String DOCUMENT = "Pole";
     private static final String COL_ID = "id";
     private static final String COL_FPL_ID = "fplid";
     private static final String COL_ORG_ID = "organizationId";
     private static final String COL_SS_ID = "subStationId";
+    private static final String DOCUMENT = "Pole";
+    private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch/Pole_Mapping.json";
+
+    @Override
+    public String getMappingPath() {
+        return MAPPING;
+    }
 
     @Override
     public boolean insert(PoleData pole) throws DaoException {

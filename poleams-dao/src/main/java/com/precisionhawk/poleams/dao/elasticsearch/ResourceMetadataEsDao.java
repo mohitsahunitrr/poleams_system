@@ -6,14 +6,12 @@ import com.precisionhawk.poleams.dao.ResourceMetadataDao;
 import com.precisionhawk.poleams.domain.ResourceMetadata;
 import static com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants.INDEX_NAME_POLEAMS;
 import java.util.List;
-
 import javax.inject.Named;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-//import us.pcsw.es.util.ESUtils;
 
 /**
  * Implementation of ResourceMetadataDao which stores metadata in Elasticsearch.
@@ -35,17 +33,12 @@ public class ResourceMetadataEsDao extends AbstractEsDao implements ResourceMeta
     private static final String COL_TYPE = "type";
     private static final String COL_ZOOMIFY_ID = "zoomifyID";
     private static final String DOCUMENT = "Resource";
-    
-    private static final String MAPPING_RESOURCE_METADATA = "com/precisionhawk/poleams/dao/elasticsearch/Resource_Mapping.json";
+    private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch/Resource_Mapping.json";
 
-//    @PostConstruct
-//    public void init() {
-//        try {
-//            ESUtils.ensureMapping(getClient(), INDEX_NAME_WAREHOUSE, DOCUMENT_TYPE_RESOURCE_METADATA, MAPPING_RESOURCE_METADATA);
-//        } catch (Exception e) {
-//            throw new RuntimeException(e.getMessage(), e);
-//        }
-//    }
+    @Override
+    public String getMappingPath() {
+        return MAPPING;
+    }
 
     @Override
     protected String getIndexName() {
@@ -104,6 +97,7 @@ public class ResourceMetadataEsDao extends AbstractEsDao implements ResourceMeta
         ResourceMetadata existing = retrieveObject(meta.getResourceId(), ResourceMetadata.class);
         if (existing == null) {
             indexObject(meta.getResourceId(), meta);
+            LOGGER.debug("Resource %s has been inserted.", meta.getResourceId());
             return true;
         } else {
             return false;
@@ -131,6 +125,7 @@ public class ResourceMetadataEsDao extends AbstractEsDao implements ResourceMeta
             return false;
         } else {
             indexObject(meta.getResourceId(), meta);
+            LOGGER.debug("Resource %s has been updated.", meta.getResourceId());
             return true;
         }
     }

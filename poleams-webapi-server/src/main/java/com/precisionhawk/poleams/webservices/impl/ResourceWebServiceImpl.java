@@ -50,6 +50,7 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.imgscalr.Scalr;
+import org.papernapkin.liana.util.BASE64Decoder;
 
 /**
  *
@@ -124,6 +125,7 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
         }
         try {
             if (resourceDao.insertMetadata(rmeta)) {
+                LOGGER.debug("Resource %s has been inserted.", rmeta.getResourceId());
                 return rmeta;
             } else {
                 throw new BadRequestException(String.format("Metadata for resource %s already exists.", rmeta.getResourceId()));
@@ -139,6 +141,7 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
         ensureExists(rmeta.getResourceId(), "The resource ID is required.");
         try {
             if (resourceDao.updateMetadata(rmeta)) {
+                LOGGER.debug("Resource %s has been updated.", rmeta.getResourceId());
                 return rmeta;
             } else {
                 throw new NotFoundException(String.format("No metadata for resource %s exists.", rmeta.getResourceId()));
@@ -148,7 +151,6 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
         }
     }
 
-    @Override
     public Response downloadResource(String resourceId) {
         ensureExists(resourceId, "The resource IDs are required.");
         try {
@@ -237,12 +239,14 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
                     // Update metadata
                     InputStream is = null;
                     try {
+                        if (meta.getContentType() == null || meta.getName() == null) {
+                            meta.setContentType(fileitem.getContentType());
+                            meta.setName(fileitem.getName());
+                            resourceDao.updateMetadata(meta);
+                        }
                         is = fileitem.getInputStream();
                         repo.storeResource(meta, meta.getResourceId(), meta.getName(), meta.getContentType(), is, null);
                         LOGGER.debug("Data for resource {} stored", resourceId);
-                        meta.setContentType(fileitem.getContentType());
-                        meta.setName(fileitem.getName());
-                        resourceDao.updateMetadata(meta);
                         LOGGER.debug("Content type and name for resource {} stored", resourceId);
                     } finally {
                         if (is != null) {
@@ -253,7 +257,17 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
                     }
                 }
             } else {
-                throw new BadRequestException("Invalid Request.  Multipart expected");
+                ResourceMetadata meta = resourceDao.retrieveResourceMetadata(resourceId);
+                if (meta == null) {
+                    LOGGER.debug("No metadata for resource {}, upload aborted.", resourceId);
+                    throw new BadRequestException(String.format("No metadata for resource %s found.  Data cannot be uploaded.", resourceId));
+                }
+                if (meta.getContentType() == null || meta.getName() == null) {
+                    meta.setContentType(req.getContextPath());
+                    meta.setName(req.getHeader("content-disposition"));
+                    resourceDao.updateMetadata(meta);
+                }
+                repo.storeResource(meta, meta.getResourceId(), meta.getName(), meta.getContentType(), req.getInputStream(), null);
             }
         } catch (DaoException | RepositoryException | IOException | FileUploadException ex) {
             throw new InternalServerErrorException(String.format("Unable to store resource %s", resourceId));
@@ -318,7 +332,7 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
                     destMD.setPoleInspectionId(originalMD.getPoleInspectionId());
                     destMD.setOrganizationId(originalMD.getOrganizationId());
                     destMD.setSubStationId(originalMD.getSubStationId());
-                    destMD.setContentType(ImageUtilities.ImageType.valueOf(scaleRequest.getResultType().toString()).getContentType());
+                    destMD.setContentType(ImageUtilities.ImageType.fromExtension(scaleRequest.getResultType().name()).getContentType());
                     destMD.setLocation(originalMD.getLocation());
                     destMD.setName(originalMD.getName());
                     destMD.setResourceId(UUID.randomUUID().toString());
@@ -431,5 +445,26 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
         }
         
         return new ResourceSummary(rmeta, downloadURL, scaledImageURL, zoomifyURL);
-    }    
+    }
+    
+    private final BASE64Decoder decoder = new BASE64Decoder();
+
+    @Override
+    public void uploadResourceData(String authToken, String resourceId, String base64Data) {
+        ensureExists(resourceId, "The resource ID is required.");
+        try {
+            ResourceMetadata meta = resourceDao.retrieveResourceMetadata(resourceId);
+            if (meta == null) {
+                LOGGER.debug("No metadata for resource {}, upload aborted.", resourceId);
+                throw new BadRequestException(String.format("No metadata for resource %s found.  Data cannot be uploaded.", resourceId));
+            }
+            // Update metadata
+            byte[] data = decoder.decodeBuffer(base64Data);
+            InputStream is = new ByteArrayInputStream(data);
+            repo.storeResource(meta, meta.getResourceId(), meta.getName(), meta.getContentType(), is, null);
+            LOGGER.debug("Data for resource {} stored", resourceId);
+        } catch (DaoException | RepositoryException ex) {
+            throw new InternalServerErrorException("Error storing data.", ex);
+        }
+    }
 }

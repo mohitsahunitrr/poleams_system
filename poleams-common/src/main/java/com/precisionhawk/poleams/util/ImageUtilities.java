@@ -40,13 +40,15 @@ public final class ImageUtilities {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageUtilities.class);
     
     public enum ImageType {
-        GIF("image/gif", "GIF"), JPG("image/jpeg", "JPG"), PNG("image/png", "PNG");
+        GIF("image/gif", "GIF", new String[]{"GIF"}), JPG("image/jpeg", "JPG", new String[]{"JPG", "JPEG"}), PNG("image/png", "PNG", new String[]{"PNG"});
         
         private final String contentType;
+        private final String[] extensions;
         private final String iOUtilsIdentifier;
         
-        private ImageType(String contentType, String iOUtilsIdentifier) {
+        private ImageType(String contentType, String iOUtilsIdentifier, String[] extensions) {
             this.contentType = contentType;
+            this.extensions = extensions;
             this.iOUtilsIdentifier = iOUtilsIdentifier;
         }
         
@@ -62,6 +64,17 @@ public final class ImageUtilities {
             for (ImageType it : ImageType.values()) {
                 if (it.contentType.equals(contentType)) {
                     return it;
+                }
+            }
+            return null;
+        }
+        
+        public static ImageType fromExtension(String extension) {
+            for (ImageType it : ImageType.values()) {
+                for (String ext : it.extensions) {
+                    if (ext.equalsIgnoreCase(extension)) {
+                        return it;
+                    }
                 }
             }
             return null;

@@ -40,10 +40,19 @@ public class SubStationSummary extends SubStation {
     public void setPolesByFPLId(Map<String, PoleSummary> polesByFPLId) {
         this.polesByFPLId = polesByFPLId;
     }
+
+    @Schema(description="A map of pole summary objects mapped to pole FPL ID.")
+    private Map<String, PoleInspectionSummary> poleInspectionsByFPLId = new HashMap<>();
+    public Map<String, PoleInspectionSummary> getPoleInspectionsByFPLId() {
+        return poleInspectionsByFPLId;
+    }
+    public void setPoleInspectionsByFPLId(Map<String, PoleInspectionSummary> polesByFPLId) {
+        this.poleInspectionsByFPLId = poleInspectionsByFPLId;
+    }
     
     public SubStationSummary() {}
     
-    public SubStationSummary(SubStation sub, String feederMapDownloadURL, String vegitationEncroachmentReportDownloadURL, Collection<PoleSummary> poleSummaries) {
+    public SubStationSummary(SubStation sub, String feederMapDownloadURL, String vegitationEncroachmentReportDownloadURL, Collection<PoleSummary> poleSummaries, Collection<PoleInspectionSummary> poleInspectionSummaries) {
         this.feederMapDownloadURL = feederMapDownloadURL;
         this.vegitationEncroachmentReportDownloadURL = vegitationEncroachmentReportDownloadURL;
         setFeederNumber(sub.getFeederNumber());
@@ -51,8 +60,13 @@ public class SubStationSummary extends SubStation {
         setId(sub.getId());
         setName(sub.getName());
         setWindZone(sub.getWindZone());
+        Map<String, String> fplidByPoleId = new HashMap<>();
         for (PoleSummary ps : poleSummaries) {
+            fplidByPoleId.put(ps.getId(), ps.getFPLId());
             polesByFPLId.put(ps.getFPLId(), ps);
+        }
+        for (PoleInspectionSummary pis : poleInspectionSummaries) {
+            poleInspectionsByFPLId.put(fplidByPoleId.get(pis.getPoleId()), pis);
         }
     }
 }

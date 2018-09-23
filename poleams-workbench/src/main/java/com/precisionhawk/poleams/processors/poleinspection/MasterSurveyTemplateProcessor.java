@@ -197,7 +197,7 @@ final class MasterSurveyTemplateProcessor implements Constants {
 
     private static boolean processPoleRow(
             Environment env, PoleWebService psvc, PoleInspectionWebService pisvc, ProcessListener listener,
-            Row row, InspectionData inspectionData
+            Row row, InspectionData data
         )
         throws IOException
     {
@@ -220,6 +220,8 @@ final class MasterSurveyTemplateProcessor implements Constants {
                 pole = new PoleData();
                 pole.setFPLId(fplId);
                 pole.setId(poleNum);
+                pole.setOrganizationId(ORG_ID);
+                pole.setSubStationId(data.getSubStation().getId());
                 isNew = true;
             }
             pole.setType(getCellDataAsString(row, COL_POLE_TYPE));
@@ -237,7 +239,7 @@ final class MasterSurveyTemplateProcessor implements Constants {
                 p.setLatitude(lat);
                 p.setLongitude(lon);
             }
-            inspectionData.addPole(pole, isNew);
+            data.addPole(pole, isNew);
             
             PoleInspection inspection = null;
             if (!isNew) {
@@ -251,10 +253,10 @@ final class MasterSurveyTemplateProcessor implements Constants {
                 inspection.setId(UUID.randomUUID().toString());
                 inspection.setOrganizationId(ORG_ID);
                 inspection.setPoleId(pole.getId());
-                inspection.setSubStationId(inspectionData.getSubStation().getId());
-                inspectionData.addPoleInspection(pole, inspection, true);
+                inspection.setSubStationId(data.getSubStation().getId());
+                data.addPoleInspection(pole, inspection, true);
             } else {
-                inspectionData.addPoleInspection(pole, inspection, false);
+                data.addPoleInspection(pole, inspection, false);
             }
             
             return true;

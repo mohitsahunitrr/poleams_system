@@ -1,5 +1,7 @@
 package com.precisionhawk.poleams.webservices.impl;
 
+import com.precisionhawk.poleams.bean.PoleInspectionSearchParameters;
+import com.precisionhawk.poleams.bean.PoleInspectionSummary;
 import com.precisionhawk.poleams.bean.PoleSearchParameters;
 import com.precisionhawk.poleams.bean.PoleSummary;
 import com.precisionhawk.poleams.bean.ResourceSearchParameters;
@@ -25,6 +27,7 @@ import javax.ws.rs.InternalServerErrorException;
 @Named
 public class SubStationWebServiceImpl extends AbstractWebService implements SubStationWebService {
 
+    @Inject private PoleInspectionWebServiceImpl poleInspectionService;
     @Inject private PoleWebServiceImpl poleService;
     @Inject private ResourceWebServiceImpl resourceService;
     @Inject private SubStationDao substationDao;
@@ -94,7 +97,12 @@ public class SubStationWebServiceImpl extends AbstractWebService implements SubS
         pparams.setSubStationId(substationId);
         List<PoleSummary> poleSummaries = poleService.retrieveSummaries(authToken, pparams);
         
-        return new SubStationSummary(ss, feederMapDownloadURL, vegitationEncroachmentReportDownloadURL, poleSummaries);
+        // Load pole inspection summaries
+        PoleInspectionSearchParameters pisparams = new PoleInspectionSearchParameters();
+        pisparams.setSubStationId(substationId);
+        List<PoleInspectionSummary> poleInspectionSummaries = poleInspectionService.retrieveSummary(pisparams);
+        
+        return new SubStationSummary(ss, feederMapDownloadURL, vegitationEncroachmentReportDownloadURL, poleSummaries, poleInspectionSummaries);
     }
 
     @Override
