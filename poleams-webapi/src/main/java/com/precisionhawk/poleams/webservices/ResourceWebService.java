@@ -86,14 +86,4 @@ public interface ResourceWebService extends WebService {
             @PathParam("resourceId") String resourceId,
             @Context HttpServletRequest request
     );
-    
-    @POST
-    @Path("{resourceId}/upload")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(summary = "Uploads the resource data.", description = "Uploads the resource data. For internal use.")
-    public void uploadResourceData(
-            @Parameter(required = true) @HeaderParam("Authorization") String authToken,
-            @PathParam("resourceId") String resourceId, String base64Data
-    );
 }

@@ -446,25 +446,4 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
         
         return new ResourceSummary(rmeta, downloadURL, scaledImageURL, zoomifyURL);
     }
-    
-    private final BASE64Decoder decoder = new BASE64Decoder();
-
-    @Override
-    public void uploadResourceData(String authToken, String resourceId, String base64Data) {
-        ensureExists(resourceId, "The resource ID is required.");
-        try {
-            ResourceMetadata meta = resourceDao.retrieveResourceMetadata(resourceId);
-            if (meta == null) {
-                LOGGER.debug("No metadata for resource {}, upload aborted.", resourceId);
-                throw new BadRequestException(String.format("No metadata for resource %s found.  Data cannot be uploaded.", resourceId));
-            }
-            // Update metadata
-            byte[] data = decoder.decodeBuffer(base64Data);
-            InputStream is = new ByteArrayInputStream(data);
-            repo.storeResource(meta, meta.getResourceId(), meta.getName(), meta.getContentType(), is, null);
-            LOGGER.debug("Data for resource {} stored", resourceId);
-        } catch (DaoException | RepositoryException ex) {
-            throw new InternalServerErrorException("Error storing data.", ex);
-        }
-    }
 }
