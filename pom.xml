@@ -350,6 +350,11 @@
                 <version>${spring.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.quartz-scheduler</groupId>
+                <artifactId>quartz</artifactId>
+                <version>2.2.1</version>
+            </dependency>
+            <dependency>
                 <groupId>us.pcsw</groupId>
                 <artifactId>pcsw-es-util</artifactId>
                 <version>${pcsw.version}</version>
@@ -364,6 +369,7 @@
     <modules>
         <module>poleams-common</module>
         <module>poleams-dao</module>
+        <module>poleams-processor</module>
         <module>poleams-swagger</module>
         <module>poleams-webapi</module>
         <module>poleams-webapi-client</module>

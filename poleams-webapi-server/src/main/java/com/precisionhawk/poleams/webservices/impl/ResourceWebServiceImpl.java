@@ -372,6 +372,10 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
         return String.format(DOWNLOAD_PATH, config.getServicesURL(), resourceId);
     }
     
+    public List<ResourceSummary> querySummaries(String authToken, ResourceSearchParameters params) {
+        return summaryFor(params);
+    }
+    
     List<ResourceSummary> summaryFor(ResourceSearchParameters params) {
         if (params == null) {
             return Collections.emptyList();

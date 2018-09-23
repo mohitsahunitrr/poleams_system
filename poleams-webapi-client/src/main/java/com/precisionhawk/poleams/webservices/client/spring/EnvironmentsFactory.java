@@ -5,7 +5,6 @@
 package com.precisionhawk.poleams.webservices.client.spring;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
-import com.precisionhawk.poleams.support.resteasy.JacksonProvider;
 import com.precisionhawk.poleams.webservices.client.Environment;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -23,6 +22,8 @@ import org.jboss.resteasy.client.ProxyFactory;
 import org.jboss.resteasy.client.core.executors.ApacheHttpClient4Executor;
 import org.jboss.resteasy.plugins.providers.RegisterBuiltin;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -30,6 +31,8 @@ import org.jboss.resteasy.spi.ResteasyProviderFactory;
  */
 public class EnvironmentsFactory
 {
+    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
+    
     private String configFilePath;
     private HttpClient httpClient;
     private ClientExecutor clientExecutor;
@@ -88,6 +91,7 @@ public class EnvironmentsFactory
             env.setServicesFactory(servicesFactory);
             environments.add(env);
         }
+        LOGGER.info("%d environments initialized from configuration.", environments.size());
     }
 
 
