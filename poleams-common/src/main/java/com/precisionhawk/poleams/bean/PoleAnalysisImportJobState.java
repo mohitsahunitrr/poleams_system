@@ -2,7 +2,7 @@ package com.precisionhawk.poleams.bean;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public class PoleAnalysisImportJobState extends AsyncJobState
 {

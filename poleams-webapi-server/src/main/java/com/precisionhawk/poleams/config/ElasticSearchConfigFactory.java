@@ -12,7 +12,7 @@ import javax.inject.Provider;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Named
 public class ElasticSearchConfigFactory implements Provider<ElasticSearchConfig> {

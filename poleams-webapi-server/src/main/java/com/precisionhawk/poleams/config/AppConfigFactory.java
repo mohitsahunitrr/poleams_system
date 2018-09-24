@@ -11,7 +11,7 @@ import org.apache.commons.io.IOUtils;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Named
 public class AppConfigFactory implements Provider<AppConfig> {

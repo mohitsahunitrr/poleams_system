@@ -5,7 +5,7 @@ import io.swagger.oas.annotations.media.Schema;
 /**
  * Parameters for searching for sub stations in the data store.
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Schema(description="Parameters for searching for sub stations in the data store.")
 public class SubStationSearchParameters {

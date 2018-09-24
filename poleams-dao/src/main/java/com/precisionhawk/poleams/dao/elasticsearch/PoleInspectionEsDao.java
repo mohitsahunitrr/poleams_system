@@ -22,7 +22,7 @@ import us.pcsw.es.util.ESUtils;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Named
 public class PoleInspectionEsDao extends AbstractEsDao implements PoleInspectionDao {

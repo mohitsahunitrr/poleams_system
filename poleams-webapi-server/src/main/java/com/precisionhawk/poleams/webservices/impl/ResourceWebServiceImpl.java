@@ -54,7 +54,7 @@ import org.papernapkin.liana.util.BASE64Decoder;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Named
 public class ResourceWebServiceImpl extends AbstractWebService implements ResourceWebService {

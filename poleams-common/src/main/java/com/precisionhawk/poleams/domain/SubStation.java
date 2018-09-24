@@ -5,7 +5,7 @@ import io.swagger.oas.annotations.media.Schema;
 /**
  * A power substation.
  * 
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Schema(description="Data related to power substation to which poles are related.")
 public class SubStation implements Identifyable {

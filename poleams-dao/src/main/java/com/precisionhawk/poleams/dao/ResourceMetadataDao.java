@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Storage for resource metadata.
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public interface ResourceMetadataDao {
     

@@ -5,16 +5,16 @@ import java.util.List;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public class PoleSpan {
     
-    private String brearing;
-    public String getBrearing() {
-        return brearing;
+    private String bearing;
+    public String getBearing() {
+        return bearing;
     }
-    public void setBrearing(String brearing) {
-        this.brearing = brearing;
+    public void setBearing(String bearing) {
+        this.bearing = bearing;
     }
 
     private String length;

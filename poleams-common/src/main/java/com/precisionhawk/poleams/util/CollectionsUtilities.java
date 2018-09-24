@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public class CollectionsUtilities {
     

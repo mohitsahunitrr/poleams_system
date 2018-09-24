@@ -7,7 +7,7 @@ import javax.inject.Provider;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Named
 public class S3ClientFactory extends AwsClientFactory implements Provider<AmazonS3> {

@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Extended data for an inspected pole.
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public class PoleData extends Pole {
     

@@ -10,7 +10,7 @@ import java.util.Queue;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public class FeederDataImportProcess extends ServiceClientCommandProcess {
     

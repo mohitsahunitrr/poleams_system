@@ -16,7 +16,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Named
 public class SubStationEsDao extends AbstractEsDao implements SubStationDao {

@@ -11,7 +11,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public class ZonedDateTimeDeserializer extends JsonDeserializer<ZonedDateTime> implements TimeFormattingConstants {
 

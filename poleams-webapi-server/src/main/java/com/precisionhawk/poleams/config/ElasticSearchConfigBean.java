@@ -4,7 +4,7 @@ import com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConfig;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public class ElasticSearchConfigBean implements ElasticSearchConfig {
 

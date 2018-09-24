@@ -2,7 +2,7 @@ package com.precisionhawk.poleams.config;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public class ServicesConfigBean implements ServicesConfig {
     

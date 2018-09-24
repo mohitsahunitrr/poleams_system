@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public interface ResourceRepository {
 

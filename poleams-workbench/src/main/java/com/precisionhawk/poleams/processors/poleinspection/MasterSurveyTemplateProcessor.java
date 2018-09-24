@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 final class MasterSurveyTemplateProcessor implements Constants {
     

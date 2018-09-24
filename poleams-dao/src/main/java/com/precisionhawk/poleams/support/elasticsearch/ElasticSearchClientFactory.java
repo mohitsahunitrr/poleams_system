@@ -11,7 +11,7 @@ import us.pcsw.es.util.TransportElasticSearchClientFactory;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Named
 public class ElasticSearchClientFactory implements Provider<Client> {

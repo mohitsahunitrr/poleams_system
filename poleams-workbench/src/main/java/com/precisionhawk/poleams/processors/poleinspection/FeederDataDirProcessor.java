@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * Given a directory processes the Excel spreadsheet and pole analysis XML files
  * for pole data.  This data along with related artifacts uploaded into PoleAMS.
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public final class FeederDataDirProcessor implements Constants {
     

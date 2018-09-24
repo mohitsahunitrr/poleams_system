@@ -2,7 +2,7 @@ package com.precisionhawk.poleams.webservices;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public interface WebService {
     

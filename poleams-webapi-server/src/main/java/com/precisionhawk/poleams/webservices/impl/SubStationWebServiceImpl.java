@@ -22,7 +22,7 @@ import javax.ws.rs.InternalServerErrorException;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Named
 public class SubStationWebServiceImpl extends AbstractWebService implements SubStationWebService {

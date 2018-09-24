@@ -6,7 +6,7 @@ import io.swagger.oas.annotations.media.Schema;
 /**
  * A displayable summary of Pole information.
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Schema(description="A displayable summary of Pole information.")
 public class PoleSummary extends Pole {

@@ -4,7 +4,7 @@ import com.precisionhawk.poleams.support.aws.AwsConfig;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public class AwsConfigBean implements AwsConfig {
 

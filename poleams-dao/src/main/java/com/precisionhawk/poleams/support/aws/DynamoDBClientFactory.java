@@ -8,7 +8,7 @@ import javax.inject.Named;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Named
 public class DynamoDBClientFactory extends AwsClientFactory implements Provider<AmazonDynamoDB> {

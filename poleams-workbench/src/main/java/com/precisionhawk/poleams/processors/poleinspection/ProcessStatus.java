@@ -2,7 +2,7 @@ package com.precisionhawk.poleams.processors.poleinspection;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public enum ProcessStatus {
     Initializing,

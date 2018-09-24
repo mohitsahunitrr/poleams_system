@@ -11,7 +11,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public class LocalDateDeserializer extends JsonDeserializer<LocalDate> implements TimeFormattingConstants {
 

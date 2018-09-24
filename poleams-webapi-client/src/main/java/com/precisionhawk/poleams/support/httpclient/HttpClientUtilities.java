@@ -12,7 +12,7 @@ import org.apache.http.impl.client.HttpClients;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public class HttpClientUtilities {
     

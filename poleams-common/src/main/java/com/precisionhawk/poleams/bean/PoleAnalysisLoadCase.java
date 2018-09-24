@@ -5,7 +5,7 @@ import io.swagger.oas.annotations.media.Schema;
 /**
  * The load case used to analyze the pole.
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Schema(description="The load case used to analyze the pole.")
 public class PoleAnalysisLoadCase {

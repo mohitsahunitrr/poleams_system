@@ -6,7 +6,7 @@ import io.swagger.oas.annotations.media.Schema;
 /**
  * A power substation.
  * 
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Schema(description="Data related to power poles surveyed for a utility.")
 public class Pole implements Identifyable {
@@ -30,13 +30,13 @@ public class Pole implements Identifyable {
         this.fplId = id;
     }
 
-    @Schema(description="The height of the pole.")
-    private String height;
-    public String getHeight() {
-        return height;
+    @Schema(description="The length of the pole.")
+    private Integer length;
+    public Integer getLength() {
+        return length;
     }
-    public void setHeight(String poleHeight) {
-        this.height = poleHeight;
+    public void setLength(Integer length) {
+        this.length = length;
     }
     
     @Schema(description="The location of the pole.")
@@ -86,7 +86,7 @@ public class Pole implements Identifyable {
     
     protected void populateFrom(Pole p) {
         setFPLId(p.getFPLId());
-        setHeight(p.getHeight());
+        setLength(p.getLength());
         setId(p.getId());
         if (p.getLocation() == null) {
             p.setLocation(null);

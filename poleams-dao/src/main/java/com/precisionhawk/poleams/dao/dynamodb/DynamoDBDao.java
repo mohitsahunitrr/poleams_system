@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public abstract class DynamoDBDao {
     

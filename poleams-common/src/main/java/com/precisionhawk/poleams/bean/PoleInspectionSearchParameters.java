@@ -5,7 +5,7 @@ import io.swagger.oas.annotations.media.Schema;
 /**
  * Search parameters for querying for pole inspections.
  * 
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Schema(description="Search parameters for querying for pole inspections.")
 public class PoleInspectionSearchParameters {

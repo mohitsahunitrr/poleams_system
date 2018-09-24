@@ -25,7 +25,7 @@ import javax.ws.rs.NotFoundException;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Named
 public class PoleWebServiceImpl extends AbstractWebService implements PoleWebService {

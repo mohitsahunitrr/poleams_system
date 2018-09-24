@@ -2,7 +2,7 @@ package com.precisionhawk.poleams.domain;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public enum ResourceType {
     

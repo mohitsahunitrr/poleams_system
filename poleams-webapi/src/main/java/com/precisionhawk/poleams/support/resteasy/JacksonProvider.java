@@ -9,7 +9,7 @@ import org.jboss.resteasy.plugins.providers.jackson.ResteasyJacksonProvider;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Provider
 @Consumes(MediaType.APPLICATION_JSON)

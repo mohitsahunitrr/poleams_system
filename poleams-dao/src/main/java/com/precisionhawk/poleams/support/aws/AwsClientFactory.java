@@ -7,7 +7,7 @@ import javax.inject.Inject;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public abstract class AwsClientFactory {
     

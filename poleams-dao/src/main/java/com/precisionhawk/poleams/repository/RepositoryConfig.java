@@ -2,7 +2,7 @@ package com.precisionhawk.poleams.repository;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public interface RepositoryConfig {
     

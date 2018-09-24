@@ -2,7 +2,7 @@ package com.precisionhawk.poleams.domain.poledata;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public class PowerCircuit {
     
@@ -14,11 +14,11 @@ public class PowerCircuit {
         this.primary = primary;
     }
 
-    private PowerCircuitCable neutral;
-    public PowerCircuitCable getNeutral() {
+    private NeutralCable neutral;
+    public NeutralCable getNeutral() {
         return neutral;
     }
-    public void setNeutral(PowerCircuitCable neutral) {
+    public void setNeutral(NeutralCable neutral) {
         this.neutral = neutral;
     }
 

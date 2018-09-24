@@ -22,7 +22,7 @@ import javax.ws.rs.NotFoundException;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Named
 public class PoleInspectionWebServiceImpl extends AbstractWebService implements PoleInspectionWebService {

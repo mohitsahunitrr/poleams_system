@@ -2,9 +2,15 @@ package com.precisionhawk.poleams.domain.poledata;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
-public class PowerCircuitCable {
+public abstract class PowerCircuitCable {
 
     private String conductor;
+    public String getConductor() {
+        return conductor;
+    }
+    public void setConductor(String conductor) {
+        this.conductor = conductor;
+    }
 }

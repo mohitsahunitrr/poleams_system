@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * An implementation of ResourceRepository which makes use of Amazon S3 for the
  * resource data and SimpleDB for easy search of the MetaData.
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public class S3ResourceRepository implements ResourceRepository {
 

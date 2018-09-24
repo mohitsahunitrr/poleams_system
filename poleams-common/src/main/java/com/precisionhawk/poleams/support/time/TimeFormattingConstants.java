@@ -4,7 +4,7 @@ import java.time.format.DateTimeFormatter;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public interface TimeFormattingConstants {
     final String DATE_FORMAT = "yyyyMMdd";

@@ -2,7 +2,7 @@ package com.precisionhawk.poleams.support.elasticsearch;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public interface ElasticSearchConstants {
     static final String INDEX_NAME_POLEAMS = "poleams";  

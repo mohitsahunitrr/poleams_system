@@ -8,7 +8,7 @@ import java.time.ZonedDateTime;
 /**
  * A summary of information for a resource.
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public class ResourceSummary {
     

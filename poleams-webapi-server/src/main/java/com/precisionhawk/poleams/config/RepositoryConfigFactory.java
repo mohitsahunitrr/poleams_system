@@ -7,7 +7,7 @@ import javax.inject.Provider;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Named
 public class RepositoryConfigFactory implements Provider<RepositoryConfig> {

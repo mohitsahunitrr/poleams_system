@@ -25,7 +25,7 @@ import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 final class ImagesProcessor implements Constants {
 

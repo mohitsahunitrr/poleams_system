@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * A bean which summarizes SubStation data for display.
  * 
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Schema(description="A bean which summarizes SubStation data for display.")
 public class SubStationSummary extends SubStation {
@@ -59,6 +59,7 @@ public class SubStationSummary extends SubStation {
         setHardeningLevel(sub.getHardeningLevel());
         setId(sub.getId());
         setName(sub.getName());
+        setOrganizationId(sub.getOrganizationId());
         setWindZone(sub.getWindZone());
         Map<String, String> fplidByPoleId = new HashMap<>();
         for (PoleSummary ps : poleSummaries) {

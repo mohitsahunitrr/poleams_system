@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Handles WebApplicationExceptions writing out JSON which contains error information.
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Named
 @Provider

@@ -2,7 +2,7 @@ package com.precisionhawk.poleams.domain.poledata;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public class PoleEquipment {
     private String description;

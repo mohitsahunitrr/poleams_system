@@ -19,7 +19,7 @@ import javax.ws.rs.core.MediaType;
 /**
  * The interface of a web service providing APIs for accessing pole data.
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Path("/poleInspection")
 @Consumes(MediaType.APPLICATION_JSON)

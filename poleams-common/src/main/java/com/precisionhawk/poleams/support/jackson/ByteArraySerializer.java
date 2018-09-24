@@ -10,7 +10,7 @@ import org.papernapkin.liana.util.BASE64Encoder;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public class ByteArraySerializer extends JsonSerializer<byte[]> {
     

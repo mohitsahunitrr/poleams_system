@@ -16,7 +16,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 /**
  * Implementation of ResourceMetadataDao which stores metadata in Elasticsearch.
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Named
 public class ResourceMetadataEsDao extends AbstractEsDao implements ResourceMetadataDao {

@@ -2,7 +2,7 @@ package com.precisionhawk.poleams.support.aws;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public interface AwsConfig {
     

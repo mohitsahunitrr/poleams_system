@@ -15,7 +15,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Named
 public class PoleEsDao extends AbstractEsDao implements PoleDao {

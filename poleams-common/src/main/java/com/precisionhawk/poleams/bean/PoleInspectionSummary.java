@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * A summary of a pole inspection including related resources.
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public class PoleInspectionSummary extends PoleInspection {
     

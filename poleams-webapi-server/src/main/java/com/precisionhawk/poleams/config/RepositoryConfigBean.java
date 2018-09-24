@@ -4,7 +4,7 @@ import com.precisionhawk.poleams.repository.RepositoryConfig;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public class RepositoryConfigBean implements RepositoryConfig {
 

@@ -5,7 +5,7 @@ import io.swagger.oas.annotations.media.Schema;
 /**
  * Parameters for searching for poles in the data store.
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Schema(description="Parameters for searching for poles in the data store.")
 public class PoleSearchParameters {

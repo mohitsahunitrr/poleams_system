@@ -7,7 +7,7 @@ import us.pcsw.es.util.ESUtils;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Named
 public class IndexEnsuringLifecycleListener implements ClientLifecycleListener, ElasticSearchConstants {

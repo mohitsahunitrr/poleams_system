@@ -24,7 +24,7 @@
       "dateOfAnalysis" : {
         "include_in_all" : false,
           "type" : "date",
-          "format" : "yyyyMMdd'T'HHmmss.SSSZ"
+          "format" : "yyyyMMdd"
       }
     }
   }

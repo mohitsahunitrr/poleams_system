@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<PoleForeman>
+  <Timestamp>09/21/2018 15:08:42</Timestamp>
+  <Design_ID/>
+  <Designer/>
+  <Analysis_Pole GIS_ID="4009449">
+    <Pole_Length>45</Pole_Length>
+    <Pole_Class>6.00 KIP CONC  </Pole_Class>
+    <Pole_Description>152 245 002  IIIH        </Pole_Description>
+    <Pass_or_Fail>Pass</Pass_or_Fail>
+    <Horizontal_Loading_Percent>99</Horizontal_Loading_Percent>
+    <Vertical_Loading_Percent>2</Vertical_Loading_Percent>
+  </Analysis_Pole>
+  <LoadCase>
+    <NESC_Rule>250C</NESC_Rule>
+    <Wind>145 mph</Wind>
+    <Ice>0.00 in</Ice>
+    <Temp>60F</Temp>
+  </LoadCase>
+  <Spans>
+    <Span>
+      <SpanLength>120'</SpanLength>
+      <SpanBearing>20&#xB0;</SpanBearing>
+      <Power>
+        <Circuit>
+          <Primary>
+            <Conductor>568 ACAR (15/4)</Conductor>
+            <Phases>3</Phases>
+            <Framing>3PH-TAN-AArm-8' 6" Stl-35KV PT-E-13.0.0 F4 NUET</Framing>
+          </Primary>
+          <Neutral>
+            <Conductor>3/0 AAAC (7)</Conductor>
+          </Neutral>
+        </Circuit>
+      </Power>
+      <Communication>
+        <CATV>
+          <Diameter>1</Diameter>
+          <Height>20</Height>
+        </CATV>
+        <NoCATVAttachments>1</NoCATVAttachments>
+        <NoTELCOAttachments>0</NoTELCOAttachments>
+      </Communication>
+    </Span>
+    <Span>
+      <SpanLength>65'</SpanLength>
+      <SpanBearing>200&#xB0;</SpanBearing>
+      <Power>
+        <Circuit>
+          <Primary>
+            <Conductor>568 ACAR (15/4)</Conductor>
+            <Phases>3</Phases>
+            <Framing>*3PH-TAN-AArm-8' 6" Stl-35KV PT-E-13.0.0 F4 NUET</Framing>
+          </Primary>
+          <Neutral>
+            <Conductor>3/0 AAAC (7)</Conductor>
+          </Neutral>
+          <Secondary>
+            <Conductor>4 AAAC (7)</Conductor>
+            <WireCount>1</WireCount>
+            <Multiplex>False</Multiplex>
+          </Secondary>
+        </Circuit>
+      </Power>
+      <Communication>
+        <CATV>
+          <Diameter>1</Diameter>
+          <Height>20</Height>
+        </CATV>
+        <NoCATVAttachments>1</NoCATVAttachments>
+        <NoTELCOAttachments>0</NoTELCOAttachments>
+      </Communication>
+    </Span>
+  </Spans>
+  <Equipments>
+    <Equipment>
+      <Description>3&#xD8; RISER / CO / LA ASSEMBLY</Description>
+      <Type>3&#xD8; RISER / CO / LA ASSEMBLY</Type>
+    </Equipment>
+    <EquipmentQuantity>1</EquipmentQuantity>
+  </Equipments>
+  <Anchors>
+    <AnchorQuantity>0</AnchorQuantity>
+  </Anchors>
+  <Lights>
+    <Light>
+      <Type>Security Light</Type>
+      <Description>150-400W Flood</Description>
+    </Light>
+    <LightQuantity>1</LightQuantity>
+  </Lights>
+  <Risers>
+    <Riser>
+      <Type>PVC U-GUARD 5"</Type>
+    </Riser>
+    <RiserQuantity>1</RiserQuantity>
+  </Risers>
+  <Components>
+    <Brackets>Fail</Brackets>
+    <Insulators>Pass</Insulators>
+  </Components>
+</PoleForeman>

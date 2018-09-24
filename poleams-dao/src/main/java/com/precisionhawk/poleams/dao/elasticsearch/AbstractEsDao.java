@@ -29,7 +29,7 @@ import us.pcsw.es.util.ESUtils;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public abstract class AbstractEsDao implements ElasticSearchConstants {
 

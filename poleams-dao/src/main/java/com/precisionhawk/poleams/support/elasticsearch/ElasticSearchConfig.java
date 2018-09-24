@@ -4,7 +4,7 @@ package com.precisionhawk.poleams.support.elasticsearch;
  * Implemented by a class that provides configuration for DAOs making use of
  * ElasticSearch.
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public interface ElasticSearchConfig {
 

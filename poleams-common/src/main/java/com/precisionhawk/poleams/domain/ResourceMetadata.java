@@ -8,7 +8,7 @@ import java.util.UUID;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Schema(description="Data related to a resource (image, sound, video, sensor readings, etc) gathered when an inspection is made.")
 public final class ResourceMetadata {

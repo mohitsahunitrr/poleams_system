@@ -10,7 +10,7 @@ import org.codehaus.jackson.map.SerializerProvider;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 public class LocalTimeSerializer extends JsonSerializer<LocalTime> implements TimeFormattingConstants {
 

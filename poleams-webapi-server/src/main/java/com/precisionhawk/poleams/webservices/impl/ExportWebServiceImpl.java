@@ -7,7 +7,7 @@ import javax.ws.rs.core.Response;
 
 /**
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Named
 public class ExportWebServiceImpl implements ExportWebService {

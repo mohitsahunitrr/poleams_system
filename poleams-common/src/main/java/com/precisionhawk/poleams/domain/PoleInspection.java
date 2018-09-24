@@ -7,7 +7,7 @@ import java.time.LocalDate;
 /**
  * A class representing the inspection of a pole.
  * 
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Schema(description="A class representing the inspection of a pole.")
 public class PoleInspection implements Identifyable {
@@ -150,6 +150,7 @@ public class PoleInspection implements Identifyable {
         setInsulatorsPass(pi.getInsulatorsPass());
         setLoadCase(pi.getLoadCase());
         setOrganizationId(pi.getOrganizationId());
+        setPassedAnalysis(pi.passedAnalysis);
         setPoleId(pi.getPoleId());
         setSubStationId(pi.getSubStationId());
         setVerticalLoadingPercent(pi.getVerticalLoadingPercent());

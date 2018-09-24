@@ -19,7 +19,7 @@ import javax.ws.rs.core.MediaType;
 /**
  * The interface of a web service providing APIs for accessing substation data.
  *
- * @author pchapman
+ * @author Philip A. Chapman
  */
 @Path("/subStation")
 @Consumes(MediaType.APPLICATION_JSON)
