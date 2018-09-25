@@ -72,7 +72,11 @@ public class PoleInspectionSummary extends PoleInspection {
         populateFrom(pi);
     }
     
-    public PoleInspectionSummary(PoleInspection pi, Integer criticality, ResourceSummary analysisResultXML, List<ResourceSummary> flightImages, List<ResourceSummary> groundImages, List<ResourceSummary> thermalImages, List<ResourceSummary> otherResources) {
+    public PoleInspectionSummary(
+            PoleInspection pi, Integer criticality, ResourceSummary analysisResultXML, List<ResourceSummary> flightImages,
+            List<ResourceSummary> groundImages, List<ResourceSummary> thermalImages, List<ResourceSummary> otherResources
+        )
+    {
         populateFrom(pi);
         this.analysisResultXML = analysisResultXML;
         this.criticality = criticality;

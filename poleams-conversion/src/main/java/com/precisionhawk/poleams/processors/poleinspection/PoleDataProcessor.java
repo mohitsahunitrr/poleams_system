@@ -1,6 +1,6 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
-import com.precisionhawk.poleams.domain.poledata.PoleData;
+import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.webservices.client.Environment;
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +15,7 @@ import org.apache.commons.imaging.Imaging;
  */
 final class PoleDataProcessor {
     
-    static boolean process(Environment env, ProcessListener listener, InspectionData data, PoleData p, File dir) {
+    static boolean process(Environment env, ProcessListener listener, InspectionData data, Pole p, File dir) {
         for (File f : dir.listFiles()) {
             if (f.isFile()) {
                 if (f.canRead()) {

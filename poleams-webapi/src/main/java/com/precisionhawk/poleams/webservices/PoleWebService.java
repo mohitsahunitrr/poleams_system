@@ -3,7 +3,7 @@ package com.precisionhawk.poleams.webservices;
 import com.precisionhawk.poleams.bean.PoleAnalysisImportJobState;
 import com.precisionhawk.poleams.bean.PoleSearchParameters;
 import com.precisionhawk.poleams.bean.PoleSummary;
-import com.precisionhawk.poleams.domain.poledata.PoleData;
+import com.precisionhawk.poleams.domain.Pole;
 import io.swagger.oas.annotations.Operation;
 import io.swagger.oas.annotations.Parameter;
 import java.util.List;
@@ -31,9 +31,9 @@ public interface PoleWebService extends WebService {
     
     @PUT
     @Operation(summary = "Create a new pole record", description = "Creates a new pole.  If unique ID is not populated, it will be populated in the returned object.")
-    PoleData create(
+    Pole create(
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
-            PoleData pole
+            Pole pole
     );
     
     @POST
@@ -56,7 +56,7 @@ public interface PoleWebService extends WebService {
     @GET
     @Path("/{poleId}")
     @Operation(summary = "Get pole By ID", description = "Gets pole by unique ID")
-    PoleData retrieve(
+    Pole retrieve(
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
             @PathParam("poleId") String id);
     
@@ -70,7 +70,7 @@ public interface PoleWebService extends WebService {
     @POST
     @Path("/search")
     @Operation(summary = "Search poles", description = "Get a list of poles by search criteria.")
-    List<PoleData> search(
+    List<Pole> search(
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
             PoleSearchParameters searchParams);
     
@@ -78,6 +78,6 @@ public interface PoleWebService extends WebService {
     @Operation(summary = "Updates a pole.", description = "Updates an existing pole record.")
     void update(
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
-            PoleData pole
+            Pole pole
     );        
 }

@@ -103,6 +103,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>poleams-conversion</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>poleams-dao</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -368,6 +373,7 @@
     </dependencyManagement>
     <modules>
         <module>poleams-common</module>
+        <module>poleams-conversion</module>
         <module>poleams-dao</module>
         <module>poleams-processor</module>
         <module>poleams-swagger</module>

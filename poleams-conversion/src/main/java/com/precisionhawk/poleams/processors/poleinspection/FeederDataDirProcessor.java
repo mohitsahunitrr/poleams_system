@@ -1,11 +1,11 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
 import com.precisionhawk.poleams.bean.ImageScaleRequest;
+import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.ResourceMetadata;
 import com.precisionhawk.poleams.domain.ResourceStatus;
 import com.precisionhawk.poleams.domain.ResourceType;
-import com.precisionhawk.poleams.domain.poledata.PoleData;
 import com.precisionhawk.poleams.support.httpclient.HttpClientUtilities;
 import com.precisionhawk.poleams.util.ImageUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
@@ -52,7 +52,7 @@ public final class FeederDataDirProcessor implements Constants {
                 for (File f : poleDataDir.listFiles()) {
                     if (f.isDirectory()) {
                         // The name of the directory should be the FPL ID of the pole.
-                        PoleData pole = data.getPoleDataByFPLId().get(f.getName());
+                        Pole pole = data.getPoleDataByFPLId().get(f.getName());
                         if (pole == null) {
                             listener.reportMessage(String.format("No pole found with FPL ID \"%s\".  The directory \"%s\" is being skipped.", f.getName(), f.getAbsolutePath()));
                         } else {
@@ -87,7 +87,7 @@ public final class FeederDataDirProcessor implements Constants {
             // Save Poles
             if (!data.getPoleDataByFPLId().isEmpty()) {
                 PoleWebService psvc = env.obtainWebService(PoleWebService.class);
-                for (PoleData pdata : data.getPoleDataByFPLId().values()) {
+                for (Pole pdata : data.getPoleDataByFPLId().values()) {
                     if (data.getDomainObjectIsNew().get(pdata.getId())) {
                         psvc.create(env.obtainAccessToken(), pdata);
                     } else {
@@ -148,6 +148,8 @@ public final class FeederDataDirProcessor implements Constants {
         if (dataFile == null) {
             listener.reportNonFatalError(String.format("Missing data file for image %s for pole %s", rmeta.getName(), rmeta.getPoleId()));
             return;
+        } else {
+            listener.reportMessage(String.format("Uploading file \"%s\" for resource \"%s\"", dataFile, rmeta.getResourceId()));
         }
         if (rmeta.getResourceId() == null || data.getDomainObjectIsNew().get(rmeta.getResourceId())) {
             if (rmeta.getResourceId() == null) {

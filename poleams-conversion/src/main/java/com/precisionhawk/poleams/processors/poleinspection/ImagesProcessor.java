@@ -15,6 +15,7 @@ import java.time.ZoneId;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.apache.commons.imaging.ImageFormat;
 import org.apache.commons.imaging.ImageInfo;
 import org.apache.commons.imaging.ImageReadException;
@@ -49,6 +50,7 @@ final class ImagesProcessor implements Constants {
         ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(rsvc.query(environment.obtainAccessToken(), params));
         if (rmeta == null) {
             rmeta = new ResourceMetadata();
+            rmeta.setResourceId(UUID.randomUUID().toString());
             String name = f.getName().toLowerCase();
             rmeta.setType(ResourceType.Other);
             if (name.startsWith(DRONE_IMG)) {

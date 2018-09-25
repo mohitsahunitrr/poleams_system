@@ -191,7 +191,7 @@ public class ZoomifyJob {
                                         // Upload zoomify resource
                                         String uri = String.format(UPLOAD_URL, env.getServiceURI(), rmeta.getZoomifyId());
                                         HttpClientUtilities.postFile(new URI(uri), env.obtainAccessToken(), "application/binary", targetFile);
-                                        LOGGER.info("Zoomify data of image {} saved with resource ID {}", rmeta.getResourceId(), rmeta.getZoomifyId());
+                                        LOGGER.info("Zoomify data of image {} saved with zoonify ID {}", rmeta.getResourceId(), rmeta.getZoomifyId());
                                         rmeta.setStatus(ResourceStatus.Released);
                                         svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
                                         LOGGER.info("Status \"{}\" and zoomify ID of image {} saved", rmeta.getStatus(), rmeta.getResourceId());

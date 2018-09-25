@@ -1,7 +1,7 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
+import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
-import com.precisionhawk.poleams.domain.poledata.PoleData;
 import org.apache.commons.io.IOUtils;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -19,7 +19,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
  */
 class PoleForemanXMLProcessor {
 
-    static boolean process(ProcessListener listener, PoleData pole, PoleInspection inspection, File xmlFile) {
+    static boolean process(ProcessListener listener, Pole pole, PoleInspection inspection, File xmlFile) {
 
         InputStream is = null;
         try {
@@ -33,7 +33,7 @@ class PoleForemanXMLProcessor {
         }
     }
 
-    static boolean process(ProcessListener listener, PoleData pole, PoleInspection inspection, InputStream xmlStream)
+    static boolean process(ProcessListener listener, Pole pole, PoleInspection inspection, InputStream xmlStream)
             throws IOException, SAXException
     {
         if (pole == null) {

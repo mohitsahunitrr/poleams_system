@@ -1,5 +1,6 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
+import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.poledata.*;
 
@@ -23,7 +24,7 @@ public class PoleFormanXMLProcessorTest
 
     @Test
     public void processTest() throws IOException, SAXException {
-        PoleData pole = new PoleData();
+        Pole pole = new Pole();
         pole.setFPLId("4009449");
         PoleInspection inspection = new PoleInspection();
         InputStream is = getClass().getClassLoader().getResourceAsStream(TEST_XML_PATH);

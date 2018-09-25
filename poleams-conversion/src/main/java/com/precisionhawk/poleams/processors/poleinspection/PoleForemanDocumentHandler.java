@@ -1,6 +1,7 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
 import com.precisionhawk.poleams.bean.PoleAnalysisLoadCase;
+import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.poledata.*;
 import java.time.LocalDate;
@@ -77,7 +78,7 @@ class PoleForemanDocumentHandler extends AbstractDocumentHandler {
 
     private final PoleInspection inspection;
     private final ProcessListener listener;
-    private final PoleData pole;
+    private final Pole pole;
 
     private PoleAnchor anchor;
     private int anchorIndex = -1;
@@ -98,7 +99,7 @@ class PoleForemanDocumentHandler extends AbstractDocumentHandler {
     private PoleSpan span;
     private int spanIndex = -1;
 
-    public PoleForemanDocumentHandler(ProcessListener listener, PoleData pole, PoleInspection inspection) {
+    public PoleForemanDocumentHandler(ProcessListener listener, Pole pole, PoleInspection inspection) {
         this.inspection = inspection;
         this.listener = listener;
         this.pole = pole;

@@ -44,3 +44,11 @@ curl -s -XGET "http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/Po
 
 ### Services
 curl -s -H "accept: application/json" -H "content-type: application/json" -XGET "https://servicesdev.inspectools.net/poleams/substation/5f6449d2-bd38-43d3-a81f-aaa0b0482c2a/summary"
+
+### Delete all Resources
+curl -XDELETE 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/warehouse/AssetInspection/_query?pretty=true' -d '
+{
+    "query": {
+        "match_all" : {}
+    }
+}'

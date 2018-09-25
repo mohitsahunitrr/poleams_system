@@ -4,7 +4,6 @@ import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.ResourceMetadata;
 import com.precisionhawk.poleams.domain.SubStation;
-import com.precisionhawk.poleams.domain.poledata.PoleData;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,27 +16,27 @@ import java.util.Map;
  */
 public class InspectionData {
     
-    private Map<String, Boolean> domainDataIsNew = new HashMap<>();
+    private final Map<String, Boolean> domainDataIsNew = new HashMap<>();
     public Map<String, Boolean> getDomainObjectIsNew() {
         return domainDataIsNew;
     }
 
-    private Map<String, PoleData> poleData = new HashMap<>();
-    public Map<String, PoleData> getPoleDataByFPLId() {
+    private final Map<String, Pole> poleData = new HashMap<>();
+    public Map<String, Pole> getPoleDataByFPLId() {
         return poleData;
     }
     
-    private Map<String, PoleInspection> poleInspectionsByFPLId = new HashMap<>();
+    private final Map<String, PoleInspection> poleInspectionsByFPLId = new HashMap<>();
     public Map<String, PoleInspection> getPoleInspectionsByFPLId() {
         return poleInspectionsByFPLId;
     }
 
-    private Map<String, List<ResourceMetadata>> poleResources = new HashMap<>();
+    private final Map<String, List<ResourceMetadata>> poleResources = new HashMap<>();
     public Map<String, List<ResourceMetadata>> getPoleResources() {
         return poleResources;
     }
     
-    private Map<String, File> resourceDataFiles = new HashMap<>();
+    private final Map<String, File> resourceDataFiles = new HashMap<>();
     public Map<String, File> getResourceDataFiles() {
         return resourceDataFiles;
     }
@@ -50,12 +49,12 @@ public class InspectionData {
         this.subStation = subStation;
     }
 
-    private List<ResourceMetadata> subStationResources = new ArrayList<>();
+    private final List<ResourceMetadata> subStationResources = new ArrayList<>();
     public List<ResourceMetadata> getSubStationResources() {
         return subStationResources;
     }
     
-    public void addPole(PoleData pole, boolean isNew) {
+    public void addPole(Pole pole, boolean isNew) {
         poleData.put(pole.getFPLId(), pole);
         domainDataIsNew.put(pole.getId(), isNew);
     }

@@ -4,20 +4,19 @@ import com.precisionhawk.poleams.bean.GeoPoint;
 import com.precisionhawk.poleams.bean.PoleSearchParameters;
 import com.precisionhawk.poleams.bean.PoleInspectionSearchParameters;
 import com.precisionhawk.poleams.bean.SubStationSearchParameters;
+import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.SubStation;
-import com.precisionhawk.poleams.domain.poledata.PoleData;
+import static com.precisionhawk.poleams.support.poi.ExcelUtilities.*;
 import com.precisionhawk.poleams.util.CollectionsUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.poleams.webservices.SubStationWebService;
 import com.precisionhawk.poleams.webservices.client.Environment;
-import java.awt.Point;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -35,73 +34,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Philip A. Chapman
  */
-final class MasterSurveyTemplateProcessor implements Constants {
+final class MasterSurveyTemplateProcessor implements Constants, MasterSurveyTemplateConstants {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(MasterSurveyTemplateProcessor.class);
-    
-    private static final int COL_FPL_ID = 0;
-    private static final int COL_POLE_NUM = 1;
-    private static final int COL_POLE_TYPE = 2;
-    private static final int COL_POLE_OWNER = 3;
-    private static final int COL_POLE_ACCESS = 4;
-    private static final int COL_POLE_HEIGHT = 6;
-    private static final int COL_POLE_CLASS = 7;
-    private static final int COL_POLE_FRAMING_1 = 8;
-    private static final int COL_POLE_SPAN_LEN_1 = 9;
-    private static final int COL_POLE_SPAN_LEN_2 = 10;
-    private static final int COL_POLE_SPAN_LEN_3 = 11;
-    private static final int COL_POLE_SPAN_LEN_4 = 12;
-    private static final int COL_POLE_FRAMING_2 = 13;
-    private static final int COL_POLE_EQUIP_TYPE = 14;
-    private static final int COL_POLE_EQUIP_QUAN = 15;
-    private static final int COL_POLE_STREETLIGHT = 16;
-    private static final int COL_POLE_RISER_TYPE_1 = 17;
-    private static final int COL_POLE_RISER_TYPE_2 = 18;
-    private static final int COL_POLE_CATV_ATTCHMNT_CNT = 19;
-    private static final int COL_POLE_CATV_TOTAL_SIZE = 20;
-    private static final int COL_POLE_CATV_ATTCHMNT_HEIGHT_1 = 21;
-    private static final int COL_POLE_CATV_ATTCHMNT_DIAM_1 = 22;
-    private static final int COL_POLE_CATV_ATTCHMNT_HEIGHT_2 = 23;
-    private static final int COL_POLE_CATV_ATTCHMNT_DIAM_2 = 24;
-    private static final int COL_POLE_CATV_ATTCHMNT_HEIGHT_3 = 25;
-    private static final int COL_POLE_CATV_ATTCHMNT_DIAM_3 = 26;
-    private static final int COL_POLE_CATV_ATTCHMNT_HEIGHT_4 = 27;
-    private static final int COL_POLE_CATV_ATTCHMNT_DIAM_4 = 28;
-    private static final int COL_POLE_CATV_ATTCHMNT_HEIGHT_5 = 29;
-    private static final int COL_POLE_CATV_ATTCHMNT_DIAM_5 = 30;
-    private static final int COL_POLE_CATV_ATTCHMNT_HEIGHT_6 = 31;
-    private static final int COL_POLE_CATV_ATTCHMNT_DIAM_6 = 32;
-    private static final int COL_POLE_TELCO_ATTCHMNT_CNT = 33;
-    private static final int COL_POLE_TELCO_TOTAL_SIZE = 34;
-    private static final int COL_POLE_TELCO_ATTCHMNT_HEIGHT_1 = 35;
-    private static final int COL_POLE_TELCO_ATTCHMNT_DIAM_1 = 36;
-    private static final int COL_POLE_TELCO_ATTCHMNT_HEIGHT_2 = 37;
-    private static final int COL_POLE_TELCO_ATTCHMNT_DIAM_2 = 38;
-    private static final int COL_POLE_TELCO_ATTCHMNT_HEIGHT_3 = 39;
-    private static final int COL_POLE_TELCO_ATTCHMNT_DIAM_3 = 40;
-    private static final int COL_POLE_TELCO_ATTCHMNT_HEIGHT_4 = 41;
-    private static final int COL_POLE_TELCO_ATTCHMNT_DIAM_4 = 42;
-    private static final int COL_POLE_TELCO_ATTCHMNT_HEIGHT_5 = 43;
-    private static final int COL_POLE_TELCO_ATTCHMNT_DIAM_5 = 44;
-    private static final int COL_POLE_TELCO_ATTCHMNT_HEIGHT_6 = 45;
-    private static final int COL_POLE_TELCO_ATTCHMNT_DIAM_6 = 46;
-    private static final int COL_POLE_NUM_PHASES = 47;
-    private static final int COL_POLE_PRIMARY_WIRE_TYPE = 48;
-    private static final int COL_POLE_NEUTRAL_WIRE_TYPE = 49;
-    private static final int COL_POLE_OPEN_WIRE_TYPE = 50;
-    private static final int COL_POLE_OPEN_WIRE_COUNT = 51;
-    private static final int COL_POLE_MULTIPLEX_TYPE = 52;
-    private static final int COL_POLE_SWITCH_NUM = 53;
-    private static final int COL_POLE_TLN_COORD = 54;
-    private static final int COL_POLE_LAT = 55;
-    private static final int COL_POLE_LON = 56;
-    private static final int COL_POLE_CONTRACTOR_COMMENTS = 57;
-    private static final Point FEEDER_HARDENING_LVL = new Point(13, 1);
-    private static final Point FEEDER_NAME = new Point(5, 1);
-    private static final Point FEEDER_NUM = new Point(1, 1);
-    private static final Point FEEDER_WIND_ZONE = new Point(8, 1);
-    private static final int FIRST_POLE_ROW = 4;
-    private static final String SURVEY_SHEET = "Survey Data";
     
     private static final FilenameFilter EXCEL_SPREADSHEET_FILTER = new FilenameFilter() {
         @Override
@@ -208,16 +143,16 @@ final class MasterSurveyTemplateProcessor implements Constants {
         } else if ("X".equals(fplId.toUpperCase())) {
             return false;
         } else {
-            PoleData pole = lookupPoleByFPLId(env, psvc, fplId);
+            Pole pole = lookupPoleByFPLId(env, psvc, fplId);
             boolean isNew = false;
             if (pole == null) {
-                String poleNum = getCellDataAsId(row, COL_POLE_NUM);
+                String poleNum = getCellDataAsId(row, COL_POLE_NUM_1);
                 if (poleNum == null || poleNum.isEmpty()) {
                     listener.reportNonFatalError(String.format("The tower on row %d with FPL ID %s has no Object ID.", row.getRowNum(), fplId));
                     return true;
                 }
                 
-                pole = new PoleData();
+                pole = new Pole();
                 pole.setFPLId(fplId);
                 pole.setId(poleNum);
                 pole.setOrganizationId(ORG_ID);
@@ -225,9 +160,8 @@ final class MasterSurveyTemplateProcessor implements Constants {
                 isNew = true;
             }
             pole.setType(getCellDataAsString(row, COL_POLE_TYPE));
-            pole.setAccess(getCellDataAsBoolean(row, COL_POLE_ACCESS));
-//TODO:                pole.setSwitchNumber(getCellDataAsString(row, COL_POLE_SWITCH_NUM));
-//TODO:                pole.setTLNCoordinate(getCellDataAsString(row, COL_POLE_TLN_COORD));
+            pole.setSwitchNumber(getCellDataAsString(row, COL_POLE_SWITCH_NUM));
+            pole.setTlnCoordinate(getCellDataAsString(row, COL_POLE_TLN_COORD));
             Double lat = getCellDataAsDouble(row, COL_POLE_LAT);
             Double lon = getCellDataAsDouble(row, COL_POLE_LON);
             if (lat != null && lon != null && (!lat.equals(0.0)) && (!lon.equals(0.0))) {
@@ -258,111 +192,16 @@ final class MasterSurveyTemplateProcessor implements Constants {
             } else {
                 data.addPoleInspection(pole, inspection, false);
             }
+            inspection.setAccess(getCellDataAsBoolean(row, COL_POLE_ACCESS));
+            inspection.setLatLongDelta(getCellDataAsInteger(row, COL_LAT_LONG_DELTA));
             
             return true;
         }
     }
     
-    private static Boolean getCellDataAsBoolean(Row row, int col) {
-        Cell cell = row.getCell(col);
-        Object value = null;
-        CellType ctype = cell.getCellType();
-        switch (ctype) {
-            case BOOLEAN:
-                return cell.getBooleanCellValue();
-            case FORMULA:
-            case NUMERIC:
-                value = cell.getNumericCellValue();
-                break;
-            case STRING:
-                value = cell.getStringCellValue();
-        }
-        if (value == null) {
-            return null;
-        } else {
-            try {
-                // Special case
-                if ("Y".equals(value) || "y".equals(value)) {
-                    return Boolean.TRUE;
-                }
-                return Boolean.valueOf(value.toString());
-            } catch (NumberFormatException ex) {
-                throw new IllegalArgumentException(String.format("The value %s in row %d, column %d cannot be parsed as a numeric value.", value, row.getRowNum(), col));
-            }
-        }
-    }
-    
-    private static Date getCellDataAsDate(Row row, int col) {
-        Cell cell = row.getCell(col);
-        if (cell == null) {
-            return null;
-        } else {
-            return cell.getDateCellValue();
-        }
-    }
-    
-    private static Double getCellDataAsDouble(Row row, int col) {
-        Cell cell = row.getCell(col);
-        if (cell == null) {
-            return null;
-        } else {
-            Object value = null;
-            CellType ctype = cell.getCellType();
-            switch (ctype) {
-                case BOOLEAN:
-                    value = cell.getBooleanCellValue();
-                    break;
-                case FORMULA:
-                case NUMERIC:
-                    return cell.getNumericCellValue();
-                case STRING:
-                    value = cell.getStringCellValue();
-            }
-            if (value == null) {
-                return null;
-            } else {
-                try {
-                    return Double.valueOf(value.toString());
-                } catch (NumberFormatException ex) {
-                    throw new IllegalArgumentException(String.format("The value %s in row %d, column %d cannot be parsed as a decimal value.", value, row.getRowNum(), col));
-                }
-            }
-        }
-    }
-    
-    private static Integer getCellDataAsInteger(Row row, int col) {
-        Cell cell = row.getCell(col);
-        if (cell == null) {
-            return null;
-        } else {
-            Object value = null;
-            CellType ctype = cell.getCellType();
-            switch (ctype) {
-                case BOOLEAN:
-                    value = cell.getBooleanCellValue();
-                    break;
-                case FORMULA:
-                case NUMERIC:
-                    Double d = cell.getNumericCellValue();
-                    return d == null ? null : d.intValue();
-                case STRING:
-                    value = cell.getStringCellValue();
-            }
-            if (value == null) {
-                return null;
-            } else {
-                try {
-                    return Integer.valueOf(value.toString());
-                } catch (NumberFormatException ex) {
-                    throw new IllegalArgumentException(String.format("The value %s in row %d, column %d cannot be parsed as an integer value.", value, row.getRowNum(), col));
-                }
-            }
-        }
-    }
-    
     private static final DecimalFormat LONG_INT = new DecimalFormat("########0");
     
-    private static String getCellDataAsId(Row row, int col) {
+    public static String getCellDataAsId(Row row, int col) {
         Cell cell = row.getCell(col);
         if (cell == null) {
             return null;
@@ -384,28 +223,6 @@ final class MasterSurveyTemplateProcessor implements Constants {
         }
     }
     
-    private static String getCellDataAsString(Row row, int col) {
-        Cell cell = row.getCell(col);
-        if (cell == null) {
-            return null;
-        } else {
-            Object value = null;
-            CellType ctype = cell.getCellType();
-            switch (ctype) {
-                case BOOLEAN:
-                    value = cell.getBooleanCellValue();
-                    break;
-                case FORMULA:
-                case NUMERIC:
-                    value = cell.getNumericCellValue();
-                    break;
-                case STRING:
-                    value = cell.getStringCellValue();
-            }
-            return value == null ? null : String.valueOf(value);
-        }
-    }
-    
     private static SubStation lookupSubStationByFeederId(Environment env, String feederId) throws IOException {
         SubStationSearchParameters params = new SubStationSearchParameters();
         params.setFeederNumber(feederId);
@@ -413,10 +230,10 @@ final class MasterSurveyTemplateProcessor implements Constants {
         return CollectionsUtilities.firstItemIn(subStations);
     }
 
-    private static PoleData lookupPoleByFPLId(Environment env, PoleWebService svc, String fplId) throws IOException {
+    private static Pole lookupPoleByFPLId(Environment env, PoleWebService svc, String fplId) throws IOException {
         PoleSearchParameters params = new PoleSearchParameters();
         params.setFPLId(fplId);
-        List<PoleData> poles = svc.search(env.obtainAccessToken(), params);
+        List<Pole> poles = svc.search(env.obtainAccessToken(), params);
         return CollectionsUtilities.firstItemIn(poles);
     }
 }

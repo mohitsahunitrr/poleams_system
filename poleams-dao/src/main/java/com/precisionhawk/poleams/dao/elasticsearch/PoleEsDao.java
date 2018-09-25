@@ -3,7 +3,7 @@ package com.precisionhawk.poleams.dao.elasticsearch;
 import com.precisionhawk.poleams.bean.PoleSearchParameters;
 import com.precisionhawk.poleams.dao.DaoException;
 import com.precisionhawk.poleams.dao.PoleDao;
-import com.precisionhawk.poleams.domain.poledata.PoleData;
+import com.precisionhawk.poleams.domain.Pole;
 import static com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants.INDEX_NAME_POLEAMS;
 import java.util.List;
 import javax.inject.Named;
@@ -33,13 +33,13 @@ public class PoleEsDao extends AbstractEsDao implements PoleDao {
     }
 
     @Override
-    public boolean insert(PoleData pole) throws DaoException {
+    public boolean insert(Pole pole) throws DaoException {
         if (pole == null) {
             throw new IllegalArgumentException("Pole cannot be null.");
         } else if (pole.getId() == null || pole.getId().isEmpty()) {
             throw new IllegalArgumentException("Pole ID is required.");
         }
-        PoleData p = retrieve(pole.getId());
+        Pole p = retrieve(pole.getId());
         if (p == null) {
             indexObject(pole.getId(), pole);
             return true;
@@ -49,13 +49,13 @@ public class PoleEsDao extends AbstractEsDao implements PoleDao {
     }
 
     @Override
-    public boolean update(PoleData pole) throws DaoException {
+    public boolean update(Pole pole) throws DaoException {
         if (pole == null) {
             throw new IllegalArgumentException("Pole cannot be null.");
         } else if (pole.getId() == null || pole.getId().isEmpty()) {
             throw new IllegalArgumentException("Pole ID is required.");
         }
-        PoleData p = retrieve(pole.getId());
+        Pole p = retrieve(pole.getId());
         if (p == null) {
             return false;
         } else {
@@ -74,15 +74,15 @@ public class PoleEsDao extends AbstractEsDao implements PoleDao {
     }
 
     @Override
-    public PoleData retrieve(String id) throws DaoException {
+    public Pole retrieve(String id) throws DaoException {
         if (id == null || id.isEmpty()) {
             throw new IllegalArgumentException("Pole ID is required.");
         }
-        return retrieveObject(id, PoleData.class);
+        return retrieveObject(id, Pole.class);
     }
 
     @Override
-    public List<PoleData> search(PoleSearchParameters params) throws DaoException {
+    public List<Pole> search(PoleSearchParameters params) throws DaoException {
         if (params == null) {
             throw new IllegalArgumentException("Search parameters are required.");
         }
@@ -103,7 +103,7 @@ public class PoleEsDao extends AbstractEsDao implements PoleDao {
                         .setSize(getScrollSize());
 
         SearchResponse response = search.execute().actionGet();
-        return loadFromScrolledSearch(PoleData.class, response, scrollLifeLimit);
+        return loadFromScrolledSearch(Pole.class, response, scrollLifeLimit);
     }
 
     @Override

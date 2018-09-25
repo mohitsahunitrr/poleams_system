@@ -212,6 +212,25 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
     public void uploadResource(String authToken, String resourceId, HttpServletRequest req) {
         ensureExists(resourceId, "Resource ID is required.");
         try {
+            String contentType;
+            String name;
+            ResourceMetadata meta = resourceDao.retrieveResourceMetadata(resourceId);
+            if (meta == null) {
+                // It may be a zoomify image.
+                ResourceSearchParameters rparms = new ResourceSearchParameters();
+                rparms.setZoomifyId(resourceId);
+                contentType = "application/octet-stream";
+                name = resourceId + ".zif";
+                meta = CollectionsUtilities.firstItemIn(resourceDao.lookup(rparms));
+                if (meta == null) {
+                    LOGGER.debug("No metadata for resource {}, upload aborted.", resourceId);
+                    throw new BadRequestException(String.format("No metadata for resource %s found.  Data cannot be uploaded.", resourceId));
+                }
+            } else {
+                contentType = meta.getContentType();
+                name = meta.getName();
+            }
+                    
             if (ServletFileUpload.isMultipartContent(req)) {
                 LOGGER.debug("Data being uploaded for resource {}", resourceId);
                 
@@ -231,23 +250,13 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
                     throw new BadRequestException("It is expected that exactly 1 file will be uploaded");
                 } else {
                     FileItem fileitem = items.get(0);
-                    ResourceMetadata meta = resourceDao.retrieveResourceMetadata(resourceId);
-                    if (meta == null) {
-                        LOGGER.debug("No metadata for resource {}, upload aborted.", resourceId);
-                        throw new BadRequestException(String.format("No metadata for resource %s found.  Data cannot be uploaded.", resourceId));
-                    }
                     // Update metadata
                     InputStream is = null;
                     try {
-                        if (meta.getContentType() == null || meta.getName() == null) {
-                            meta.setContentType(fileitem.getContentType());
-                            meta.setName(fileitem.getName());
-                            resourceDao.updateMetadata(meta);
-                        }
                         is = fileitem.getInputStream();
-                        repo.storeResource(meta, meta.getResourceId(), meta.getName(), meta.getContentType(), is, null);
+                        repo.storeResource(meta, meta.getResourceId(), name, contentType, is, null);
                         LOGGER.debug("Data for resource {} stored", resourceId);
-                        LOGGER.debug("Content type and name for resource {} stored", resourceId);
+                        LOGGER.debug("Content type {} and name {} for resource {} stored", contentType, name, resourceId);
                     } finally {
                         if (is != null) {
                             try {
@@ -257,17 +266,7 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
                     }
                 }
             } else {
-                ResourceMetadata meta = resourceDao.retrieveResourceMetadata(resourceId);
-                if (meta == null) {
-                    LOGGER.debug("No metadata for resource {}, upload aborted.", resourceId);
-                    throw new BadRequestException(String.format("No metadata for resource %s found.  Data cannot be uploaded.", resourceId));
-                }
-                if (meta.getContentType() == null || meta.getName() == null) {
-                    meta.setContentType(req.getContextPath());
-                    meta.setName(req.getHeader("content-disposition"));
-                    resourceDao.updateMetadata(meta);
-                }
-                repo.storeResource(meta, meta.getResourceId(), meta.getName(), meta.getContentType(), req.getInputStream(), null);
+                repo.storeResource(meta, meta.getResourceId(), name, contentType, req.getInputStream(), null);
             }
         } catch (DaoException | RepositoryException | IOException | FileUploadException ex) {
             throw new InternalServerErrorException(String.format("Unable to store resource %s", resourceId));

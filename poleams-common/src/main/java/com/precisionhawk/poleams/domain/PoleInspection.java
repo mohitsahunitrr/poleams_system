@@ -84,6 +84,14 @@ public class PoleInspection implements Identifyable {
     public void setInsulatorsPass(Boolean insulatorsPass) {
         this.insulatorsPass = insulatorsPass;
     }
+    
+    private Integer latLongDelta;
+    public Integer getLatLongDelta() {
+        return latLongDelta;
+    }
+    public void setLatLongDelta(Integer latLongDelta) {
+        this.latLongDelta = latLongDelta;
+    }
 
     @Schema(description="The load case used for analysing the pole.")
     private PoleAnalysisLoadCase loadCase;
