@@ -100,7 +100,7 @@ public class PoleFormanXMLProcessorTest
         assertNotNull(commCable);
         assertEquals(CommunicationsCable.Type.CaTV, commCable.getType());
         assertEquals(Float.valueOf(1), commCable.getDiameter());
-        assertEquals(Integer.valueOf(20), commCable.getHeight());
+        assertEquals(Float.valueOf(20), commCable.getHeight());
 
         // Span 2
         span = pole.getSpans().get(1);
@@ -123,7 +123,7 @@ public class PoleFormanXMLProcessorTest
         assertNotNull(commCable);
         assertEquals(CommunicationsCable.Type.CaTV, commCable.getType());
         assertEquals(Float.valueOf(1), commCable.getDiameter());
-        assertEquals(Integer.valueOf(20), commCable.getHeight());
+        assertEquals(Float.valueOf(20), commCable.getHeight());
 
         // Equipment
         assertNotNull(pole.getEquipment());

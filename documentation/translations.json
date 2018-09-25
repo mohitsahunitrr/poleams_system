@@ -229,6 +229,13 @@
             "description": "Pull Off 2 Span Length (2)",
             "label": "Pull Off 2 Span Length (2)"
         },
+        "poleSummary.pullOffFraming": {
+            "listValues": [],
+            "key": "poleSummary.framing",
+            "errors": {},
+            "description": "The framing installed on the pole.",
+            "label": "Framing"
+        },
         "poleSummary.risers[]": {
             "listValues": [],
             "key": "poleSummary.risers[]",
@@ -358,7 +365,7 @@
             "poleSummary.circuit1SpanLength2",
             "poleSummary.pullOff1SpanLength1",
             "poleSummary.pullOff2SpanLength2",
-            "poleSummary.framing",
+            "poleSummary.pullOffFraming",
             "poleSummary.equipmentQuantity",
             "poleSummary.streetLight",
             "poleSummary.risers[]",

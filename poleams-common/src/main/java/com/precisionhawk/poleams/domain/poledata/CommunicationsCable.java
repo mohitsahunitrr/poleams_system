@@ -16,11 +16,11 @@ public class CommunicationsCable {
         this.diameter = diameter;
     }
 
-    private Integer height;
-    public Integer getHeight() {
+    private Float height;
+    public Float getHeight() {
         return height;
     }
-    public void setHeight(Integer height) {
+    public void setHeight(Float height) {
         this.height = height;
     }
 

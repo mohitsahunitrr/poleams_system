@@ -166,6 +166,15 @@ public class PoleSummary extends Pole {
         this.pullOff2SpanLength2 = pullOff2SpanLength2;
     }
     
+    @Schema(description="The framing of pull off 1")
+    private String pullOffFraming;
+    public String getPullOffFraming() {
+        return pullOffFraming;
+    }
+    public void setPullOffFraming(String pullOffFraming) {
+        this.pullOffFraming = pullOffFraming;
+    }
+    
     @Schema(description="The street light.")
     private String streetLight;
     public String getStreetLight() {

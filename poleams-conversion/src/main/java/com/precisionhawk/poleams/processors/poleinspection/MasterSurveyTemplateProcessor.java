@@ -67,9 +67,10 @@ final class MasterSurveyTemplateProcessor implements Constants, MasterSurveyTemp
         if (masterDataFile == null) {
             return false;
         }
+        Workbook workbook = null;
         try {
             listener.setStatus(ProcessStatus.ProcessingMasterSurveyTemplate);
-            Workbook workbook = XSSFWorkbookFactory.createWorkbook(masterDataFile, true);
+            workbook = XSSFWorkbookFactory.createWorkbook(masterDataFile, true);
             
             // Find the "Survey Data" sheet.
             Sheet sheet = workbook.getSheet(SURVEY_SHEET);
@@ -85,7 +86,7 @@ final class MasterSurveyTemplateProcessor implements Constants, MasterSurveyTemp
                 return false;
             }
             
-            String feederId = getCellDataAsString(row, FEEDER_NUM.x);
+            String feederId = getCellDataAsId(row, FEEDER_NUM.x);
             if (feederId == null || feederId.isEmpty()) {
                 listener.reportFatalError("Master Survey Template spreadsheet is missing Feeder ID.");
                 return false;
@@ -127,6 +128,14 @@ final class MasterSurveyTemplateProcessor implements Constants, MasterSurveyTemp
         } catch (InvalidFormatException | IOException ex) {
             listener.reportFatalException(ex);
             return false;
+        } finally {
+            if (workbook != null) {
+                try {
+                    workbook.close();
+                } catch (IOException ioe) {
+                    listener.reportNonFatalException("Unable to close master survey template.", ioe);
+                }
+            }
         }
     }
 

@@ -1,20 +1,12 @@
 package com.precisionhawk.poleams.support.poi;
 
-import com.precisionhawk.poleams.bean.PoleSearchParameters;
-import com.precisionhawk.poleams.bean.SubStationSearchParameters;
-import com.precisionhawk.poleams.domain.Pole;
-import com.precisionhawk.poleams.domain.SubStation;
-import com.precisionhawk.poleams.util.CollectionsUtilities;
-import com.precisionhawk.poleams.webservices.PoleWebService;
-import com.precisionhawk.poleams.webservices.SubStationWebService;
-import com.precisionhawk.poleams.webservices.client.Environment;
-import java.io.IOException;
-import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
-import java.util.List;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 
 /**
  *
@@ -24,6 +16,9 @@ public class ExcelUtilities {
     
     public static Boolean getCellDataAsBoolean(Row row, int col) {
         Cell cell = row.getCell(col);
+        if (cell == null) {
+            return null;
+        }
         Object value = null;
         CellType ctype = cell.getCellType();
         switch (ctype) {
@@ -48,6 +43,81 @@ public class ExcelUtilities {
             } catch (NumberFormatException ex) {
                 throw new IllegalArgumentException(String.format("The value %s in row %d, column %d cannot be parsed as a numeric value.", value, row.getRowNum(), col));
             }
+        }
+    }
+    
+    public static void setCellData(Row row, int col, Boolean b) {
+        Cell cell = row.getCell(col);
+        if (cell == null) {
+            if (b == null) {
+                return;
+            }
+            cell = row.createCell(col);
+        }
+        if (b == null) {
+            cell.setCellValue((String)null);
+        } else {
+            cell.setCellValue(b);
+        }
+    }
+    
+    public static void setCellData(Row row, int col, LocalDate d) {
+        Cell cell = row.getCell(col);
+        if (cell == null) {
+            if (d == null) {
+                return;
+            }
+            cell = row.createCell(col);
+        }
+        if (d == null) {
+            cell.setCellValue((Date)null);
+        } else {
+            cell.setCellValue(Date.from(d.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        }
+    }
+    
+    public static void setCellData(Row row, int col, Float f) {
+        Cell cell = row.getCell(col);
+        if (cell == null) {
+            if (f == null) {
+                return;
+            }
+            cell = row.createCell(col);
+        }
+        if (f == null) {
+            cell.setCellValue((String)null);
+        } else {
+            cell.setCellValue(f);
+        }
+    }
+    
+    public static void setCellData(Row row, int col, Integer i) {
+        Cell cell = row.getCell(col);
+        if (cell == null) {
+            if (i == null) {
+                return;
+            }
+            cell = row.createCell(col);
+        }
+        if (i == null) {
+            cell.setCellValue((String)null);
+        } else {
+            cell.setCellValue(i);
+        }
+    }
+    
+    public static void setCellData(Row row, int col, String s) {
+        Cell cell = row.getCell(col);
+        if (cell == null) {
+            if (s == null) {
+                return;
+            }
+            cell = row.createCell(col);
+        }
+        if (s == null) {
+            cell.setCellValue((String)null);
+        } else {
+            cell.setCellValue(s);
         }
     }
     
@@ -141,4 +211,11 @@ public class ExcelUtilities {
         }
     }
     
+    public static Row ensureRow(Sheet sheet, int index) {
+        Row row = sheet.getRow(index);
+        if (row == null) {
+            row = sheet.createRow(index);
+        }
+        return row;
+    }
 }

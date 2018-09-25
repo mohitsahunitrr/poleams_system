@@ -97,7 +97,7 @@ public class ResourceMetadataEsDao extends AbstractEsDao implements ResourceMeta
         ResourceMetadata existing = retrieveObject(meta.getResourceId(), ResourceMetadata.class);
         if (existing == null) {
             indexObject(meta.getResourceId(), meta);
-            LOGGER.debug("Resource %s has been inserted.", meta.getResourceId());
+            LOGGER.debug("Resource {} has been inserted.", meta.getResourceId());
             return true;
         } else {
             return false;
@@ -125,7 +125,7 @@ public class ResourceMetadataEsDao extends AbstractEsDao implements ResourceMeta
             return false;
         } else {
             indexObject(meta.getResourceId(), meta);
-            LOGGER.debug("Resource %s has been updated.", meta.getResourceId());
+            LOGGER.debug("Resource {} has been updated.", meta.getResourceId());
             return true;
         }
     }

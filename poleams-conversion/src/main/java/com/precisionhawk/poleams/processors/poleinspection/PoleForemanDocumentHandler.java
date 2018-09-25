@@ -238,7 +238,7 @@ class PoleForemanDocumentHandler extends AbstractDocumentHandler {
                 break;
             case TAG_HEIGHT:
                 checkNotNullAtEndTag(localName, commCable);
-                commCable.setHeight(intFromBuffer());
+                commCable.setHeight(floatFromBuffer());
                 break;
             case TAG_LIGHT:
                 checkNotNullAtEndTag(localName, light);
@@ -350,7 +350,9 @@ class PoleForemanDocumentHandler extends AbstractDocumentHandler {
                     ensureAnchor(anchorIndex + 1);
                     break;
                 case TAG_ANCHORS:
-                    checkIndexAtStartOfCollection(localName, anchorIndex);
+                    if (!inComponents) {
+                        checkIndexAtStartOfCollection(localName, anchorIndex);
+                    }
                     break;
                 case TAG_CATV:
                 case TAG_TELCO:

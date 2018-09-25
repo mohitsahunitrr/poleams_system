@@ -125,7 +125,7 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
         }
         try {
             if (resourceDao.insertMetadata(rmeta)) {
-                LOGGER.debug("Resource %s has been inserted.", rmeta.getResourceId());
+                LOGGER.debug("Resource {} has been inserted.", rmeta.getResourceId());
                 return rmeta;
             } else {
                 throw new BadRequestException(String.format("Metadata for resource %s already exists.", rmeta.getResourceId()));
@@ -141,7 +141,7 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
         ensureExists(rmeta.getResourceId(), "The resource ID is required.");
         try {
             if (resourceDao.updateMetadata(rmeta)) {
-                LOGGER.debug("Resource %s has been updated.", rmeta.getResourceId());
+                LOGGER.debug("Resource {} has been updated.", rmeta.getResourceId());
                 return rmeta;
             } else {
                 throw new NotFoundException(String.format("No metadata for resource %s exists.", rmeta.getResourceId()));

@@ -10,12 +10,10 @@ import com.precisionhawk.poleams.domain.poledata.CommunicationsCable;
 import com.precisionhawk.poleams.domain.poledata.PoleEquipment;
 import com.precisionhawk.poleams.domain.poledata.PoleLight;
 import com.precisionhawk.poleams.domain.poledata.PoleSpan;
-import com.precisionhawk.poleams.domain.poledata.PowerCircuit;
 import com.precisionhawk.poleams.domain.poledata.PrimaryCable;
 import com.precisionhawk.poleams.domain.poledata.SecondaryCable;
 import com.precisionhawk.poleams.util.CollectionsUtilities;
 import com.precisionhawk.poleams.webservices.PoleWebService;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -132,6 +130,7 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
         
         summary.setCircuit1SpanLength1(s == null ? null : s.getLength());
         PrimaryCable pcable = (s == null || s.getPowerCircuit() == null) ? null : s.getPowerCircuit().getPrimary();
+        summary.setPrimaryWireType(pcable == null ? null : pcable.getConductor());
         summary.setNumberOfPhases(pcable == null ? null : pcable.getPhases());
         summary.setFraming(pcable == null ? null : pcable.getFraming());
         
@@ -153,6 +152,8 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
         
         s = CollectionsUtilities.getItemSafely(data.getSpans(), 1);
         summary.setCircuit1SpanLength2(s == null ? null : s.getLength());
+        pcable = (s == null || s.getPowerCircuit() == null) ? null : s.getPowerCircuit().getPrimary();
+        summary.setPullOffFraming(pcable == null ? null : pcable.getFraming());
 
         s = CollectionsUtilities.getItemSafely(data.getSpans(), 2);
         summary.setPullOff1SpanLength1(s == null ? null : s.getLength());
