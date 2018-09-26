@@ -34,9 +34,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Philip A. Chapman
  */
-final class MasterSurveyTemplateProcessor implements Constants, MasterSurveyTemplateConstants {
+final class SurveyReportImport implements Constants, SurveyReportConstants {
     
-    private static final Logger LOGGER = LoggerFactory.getLogger(MasterSurveyTemplateProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SurveyReportImport.class);
     
     private static final FilenameFilter EXCEL_SPREADSHEET_FILTER = new FilenameFilter() {
         @Override
@@ -46,9 +46,9 @@ final class MasterSurveyTemplateProcessor implements Constants, MasterSurveyTemp
     };
     
     // No state data
-    private MasterSurveyTemplateProcessor() {} 
+    private SurveyReportImport() {} 
 
-    private static File findMasterSurveyTemplate(Environment environment, ProcessListener listener, File feederDir) {
+    private static File findMasterSurveyTemplate(Environment environment, ImportProcessListener listener, File feederDir) {
         File[] files = feederDir.listFiles(EXCEL_SPREADSHEET_FILTER);
         File excelFile = null;
         if (files.length > 1) {
@@ -62,14 +62,14 @@ final class MasterSurveyTemplateProcessor implements Constants, MasterSurveyTemp
         }
     }
     
-    static boolean processMasterSurveyTemplate(Environment environment, ProcessListener listener, InspectionData inspectionData, File feederDir) {
+    static boolean processMasterSurveyTemplate(Environment environment, ImportProcessListener listener, InspectionData inspectionData, File feederDir) {
         File masterDataFile = findMasterSurveyTemplate(environment, listener, feederDir);
         if (masterDataFile == null) {
             return false;
         }
         Workbook workbook = null;
         try {
-            listener.setStatus(ProcessStatus.ProcessingMasterSurveyTemplate);
+            listener.setStatus(ImportProcessStatus.ProcessingMasterSurveyTemplate);
             workbook = XSSFWorkbookFactory.createWorkbook(masterDataFile, true);
             
             // Find the "Survey Data" sheet.

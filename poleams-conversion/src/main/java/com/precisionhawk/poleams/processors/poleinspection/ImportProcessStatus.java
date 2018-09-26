@@ -4,7 +4,7 @@ package com.precisionhawk.poleams.processors.poleinspection;
  *
  * @author Philip A. Chapman
  */
-public enum ProcessStatus {
+public enum ImportProcessStatus {
     Initializing,
     ProcessingMasterSurveyTemplate,
     ProcessingPoleData,

@@ -50,7 +50,6 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.imgscalr.Scalr;
-import org.papernapkin.liana.util.BASE64Decoder;
 
 /**
  *
@@ -165,10 +164,9 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
                     throw new NotFoundException(String.format("No resource with ID %s exists.", resourceId));
                 } else {
                     isZoomify = true;
-                    resourceId = rmeta.getZoomifyId();
                 }
             }
-            // If we reached here, resourceId is valid resource or zoomify ID.
+            // If we reached here, resourceId is a valid resource or zoomify ID.
             URL redirect = repo.retrieveURL(resourceId);
             if (redirect == null) {
                 return provideResource(rmeta, isZoomify);
@@ -186,8 +184,8 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
             public void write(OutputStream output) throws IOException, WebApplicationException {
                 InputStream is = null;
                 try {
-                    String resourceId = isZoomify ? rmeta.getZoomifyId() : rmeta.getResourceId();
-                    is = repo.retrieveResource(resourceId);
+                    String key = isZoomify ? rmeta.getZoomifyId() : rmeta.getResourceId();
+                    is = repo.retrieveResource(key);
                     IOUtils.copy(is, output);
                 } catch (RepositoryException ex) {
                     
@@ -219,12 +217,13 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
                 // It may be a zoomify image.
                 ResourceSearchParameters rparms = new ResourceSearchParameters();
                 rparms.setZoomifyId(resourceId);
-                contentType = "application/octet-stream";
                 name = resourceId + ".zif";
                 meta = CollectionsUtilities.firstItemIn(resourceDao.lookup(rparms));
                 if (meta == null) {
                     LOGGER.debug("No metadata for resource {}, upload aborted.", resourceId);
                     throw new BadRequestException(String.format("No metadata for resource %s found.  Data cannot be uploaded.", resourceId));
+                } else {
+                    contentType = "application/octet-stream";
                 }
             } else {
                 contentType = meta.getContentType();
@@ -254,7 +253,7 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
                     InputStream is = null;
                     try {
                         is = fileitem.getInputStream();
-                        repo.storeResource(meta, meta.getResourceId(), name, contentType, is, null);
+                        repo.storeResource(meta, resourceId, name, contentType, is, null);
                         LOGGER.debug("Data for resource {} stored", resourceId);
                         LOGGER.debug("Content type {} and name {} for resource {} stored", contentType, name, resourceId);
                     } finally {
@@ -266,7 +265,7 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
                     }
                 }
             } else {
-                repo.storeResource(meta, meta.getResourceId(), name, contentType, req.getInputStream(), null);
+                repo.storeResource(meta, resourceId, name, contentType, req.getInputStream(), null);
             }
         } catch (DaoException | RepositoryException | IOException | FileUploadException ex) {
             throw new InternalServerErrorException(String.format("Unable to store resource %s", resourceId));

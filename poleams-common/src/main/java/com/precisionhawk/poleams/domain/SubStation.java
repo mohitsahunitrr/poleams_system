@@ -55,6 +55,16 @@ public class SubStation implements Identifyable {
     public void setOrganizationId(String organizationId) {
         this.organizationId = organizationId;
     }
+
+    //TODO: Belongs to a SubStationInspection object
+    @Schema(description="URL from which the vegitation encroachment report for the feeder can be downloaded.")
+    private String vegitationEncroachmentGoogleEarthURL;
+    public String getVegitationEncroachmentGoogleEarthURL() {
+        return vegitationEncroachmentGoogleEarthURL;
+    }
+    public void setVegitationEncroachmentGoogleEarthURL(String vegitationEncroachmentGoogleEarthURL) {
+        this.vegitationEncroachmentGoogleEarthURL = vegitationEncroachmentGoogleEarthURL;
+    }
     
     @Schema(description="The wind zone that the substation is located in, e.g. 145 = rated for up to 145 MPH winds.")
     private String windZone;

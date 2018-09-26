@@ -9,8 +9,8 @@ import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.SubStation;
 import com.precisionhawk.poleams.domain.poledata.CommunicationsCable;
 import com.precisionhawk.poleams.domain.poledata.PoleAnchor;
-import static com.precisionhawk.poleams.processors.poleinspection.MasterSurveyTemplateConstants.COL_FPL_ID;
-import static com.precisionhawk.poleams.processors.poleinspection.MasterSurveyTemplateProcessor.getCellDataAsId;
+import static com.precisionhawk.poleams.processors.poleinspection.SurveyReportConstants.COL_FPL_ID;
+import static com.precisionhawk.poleams.processors.poleinspection.SurveyReportImport.getCellDataAsId;
 import static com.precisionhawk.poleams.support.poi.ExcelUtilities.*;
 import com.precisionhawk.poleams.util.CollectionsUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
@@ -32,7 +32,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbookFactory;
  *
  * @author pchapman
  */
-public class MasterSurveyTemplatePopulator implements MasterSurveyTemplateConstants {
+public class SurveyReportGenerator implements SurveyReportConstants {
 
     public static boolean process(Environment env, ProcessListener listener, String feederId, File file) {
         SubStationSearchParameters params = new SubStationSearchParameters();
@@ -62,7 +62,6 @@ public class MasterSurveyTemplatePopulator implements MasterSurveyTemplateConsta
         }
         Workbook workbook = null;
         try {
-            listener.setStatus(ProcessStatus.ProcessingMasterSurveyTemplate);
             workbook = XSSFWorkbookFactory.createWorkbook(excelFile, false);
             
             // Find the "Survey Data" sheet.

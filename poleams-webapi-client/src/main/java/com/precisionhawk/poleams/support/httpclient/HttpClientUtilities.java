@@ -9,6 +9,8 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -17,6 +19,7 @@ import org.apache.http.impl.client.HttpClients;
 public class HttpClientUtilities {
     
     private final static CloseableHttpClient CLIENT = HttpClients.createDefault();
+    private final static Logger LOGGER = LoggerFactory.getLogger(HttpClientUtilities.class);
     
     private HttpClientUtilities() {}
     

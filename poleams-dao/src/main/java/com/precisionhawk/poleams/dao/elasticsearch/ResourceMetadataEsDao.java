@@ -31,7 +31,7 @@ public class ResourceMetadataEsDao extends AbstractEsDao implements ResourceMeta
     private static final String COL_STATUS = "status";
     private static final String COL_SUB_STTN_ID = "subStationId";
     private static final String COL_TYPE = "type";
-    private static final String COL_ZOOMIFY_ID = "zoomifyID";
+    private static final String COL_ZOOMIFY_ID = "zoomifyId";
     private static final String DOCUMENT = "Resource";
     private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch/Resource_Mapping.json";
 

@@ -8,10 +8,15 @@ public enum ResourceType {
     
     DroneInspectionImage,
     EncroachmentReport,
+    EncroachmentShape,
+    FeederAnomalyMap,
+    FeederAnomalyReport,
     FeederMap,
     ManualInspectionImage,
     Other,
-    PoleInspectionAnalysisXML,
+    PoleInspectionAnalysisXML, // Pole Foreman
+    SurveyReport,              // Excel Spreadsheet
     Thermal,
     ThumbNail
+    
 }

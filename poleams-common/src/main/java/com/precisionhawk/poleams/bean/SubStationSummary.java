@@ -14,6 +14,27 @@ import java.util.Map;
 @Schema(description="A bean which summarizes SubStation data for display.")
 public class SubStationSummary extends SubStation {
     
+    //TODO: Belongs to a SubStationInspection object
+    @Schema(description="URL from which the anomaly map for the substation can be downloaded.")
+    private String anomalyMapDownloadURL;
+    public String getAnomalyMapDownloadURL() {
+        return anomalyMapDownloadURL;
+    }
+    public void setAnomalyMapDownloadURL(String anomalyMapDownloadURL) {
+        this.anomalyMapDownloadURL = anomalyMapDownloadURL;
+    }
+     //TODO: Belongs to a SubStationInspection object
+   
+    @Schema(description="URL from which the anomaly report for the substation can be downloaded.")
+    private String anomalyReportDownloadURL;
+    public String getAnomalyReportDownloadURL() {
+        return anomalyReportDownloadURL;
+    }
+    public void setAnomalyReportDownloadURL(String anomalyReportDownloadURL) {
+        this.anomalyReportDownloadURL = anomalyReportDownloadURL;
+    }
+    
+    //TODO: Belongs to a SubStationInspection object
     @Schema(description="URL from which the feeder map for the substation can be downloaded.")
     private String feederMapDownloadURL;
     public String getFeederMapDownloadURL() {
@@ -23,12 +44,33 @@ public class SubStationSummary extends SubStation {
         this.feederMapDownloadURL = feederMapDownloadURL;
     }
     
+    //TODO: Belongs to a SubStationInspection object
+    @Schema(description="URL from which the anomaly report for the substation can be downloaded.")
+    private String surveyReportDownloadURL;
+    public String getSurveyReportDownloadURL() {
+        return surveyReportDownloadURL;
+    }
+    public void setSurveyReportDownloadURL(String surveyReportDownloadURL) {
+        this.surveyReportDownloadURL = surveyReportDownloadURL;
+    }
+
+    //TODO: Belongs to a SubStationInspection object
     @Schema(description="URL from which the vegitation encroachment report for the feeder can be downloaded.")
     private String vegitationEncroachmentReportDownloadURL;
     public String getVegitationEncroachmentReportDownloadURL() {
         return vegitationEncroachmentReportDownloadURL;
     }
     public void setVegitationEncroachmentReportDownloadURL(String vegitationEncroachmentReportDownloadURL) {
+        this.vegitationEncroachmentReportDownloadURL = vegitationEncroachmentReportDownloadURL;
+    }
+
+    //TODO: Belongs to a SubStationInspection object
+    @Schema(description="URL from which the vegitation encroachment shape for the feeder can be downloaded.")
+    private String vegitationEncroachmentShapeDownloadURL;
+    public String getVegitationEncroachmentShapeDownloadURL() {
+        return vegitationEncroachmentReportDownloadURL;
+    }
+    public void setVegitationEncroachmentShapeDownloadURL(String vegitationEncroachmentReportDownloadURL) {
         this.vegitationEncroachmentReportDownloadURL = vegitationEncroachmentReportDownloadURL;
     }
 
@@ -47,14 +89,12 @@ public class SubStationSummary extends SubStation {
         return poleInspectionsByFPLId;
     }
     public void setPoleInspectionsByFPLId(Map<String, PoleInspectionSummary> polesByFPLId) {
-        this.poleInspectionsByFPLId = poleInspectionsByFPLId;
+        this.poleInspectionsByFPLId = polesByFPLId;
     }
     
     public SubStationSummary() {}
     
-    public SubStationSummary(SubStation sub, String feederMapDownloadURL, String vegitationEncroachmentReportDownloadURL, Collection<PoleSummary> poleSummaries, Collection<PoleInspectionSummary> poleInspectionSummaries) {
-        this.feederMapDownloadURL = feederMapDownloadURL;
-        this.vegitationEncroachmentReportDownloadURL = vegitationEncroachmentReportDownloadURL;
+    public SubStationSummary(SubStation sub, Collection<PoleSummary> poleSummaries, Collection<PoleInspectionSummary> poleInspectionSummaries) {
         setFeederNumber(sub.getFeederNumber());
         setHardeningLevel(sub.getHardeningLevel());
         setId(sub.getId());

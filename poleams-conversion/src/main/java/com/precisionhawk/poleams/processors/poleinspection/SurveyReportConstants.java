@@ -6,7 +6,7 @@ import java.awt.Point;
  *
  * @author Philip A Chapman
  */
-public interface MasterSurveyTemplateConstants {
+public interface SurveyReportConstants {
     
     static final int COL_FPL_ID = 0;
     static final int COL_POLE_NUM_1 = 1;

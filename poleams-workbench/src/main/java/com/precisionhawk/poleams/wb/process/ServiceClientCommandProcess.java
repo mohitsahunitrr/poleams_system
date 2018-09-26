@@ -69,7 +69,7 @@ public abstract class ServiceClientCommandProcess extends CommandProcess {
             factory.init();
             environments = factory.getEnvironments();
         } catch (Exception ex) {
-            LOGGER.error("Unable to configure environments from URI {}", configURI);
+            System.err.printf("Unable to configure environments from URI %s\n", configURI);
             return false;
         }
         
@@ -82,13 +82,13 @@ public abstract class ServiceClientCommandProcess extends CommandProcess {
                 }
             }
             if (env == null) {
-                LOGGER.error("Unable to locate configuration for environment {}", envStr);
+                System.err.printf("Unable to locate configuration for environment %s\n", envStr);
                 return false;
             }
         } else if (environments.size() == 1) {
             env = environments.get(0);
         } else {
-            LOGGER.error("Unable to determine what environment to use");
+            System.err.println("Unable to determine what environment to use");
             return false;
         }
         

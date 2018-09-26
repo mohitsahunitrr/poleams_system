@@ -30,11 +30,6 @@ public class PoleFormanXMLProcessorTest
         InputStream is = getClass().getClassLoader().getResourceAsStream(TEST_XML_PATH);
         PoleForemanXMLProcessor.process(new ProcessListener() {
             @Override
-            public void setStatus(ProcessStatus processStatus) {
-                LOGGER.info("Processing Status: {}", processStatus);
-            }
-
-            @Override
             public void reportFatalError(String message) {
                 LOGGER.error(message);
             }

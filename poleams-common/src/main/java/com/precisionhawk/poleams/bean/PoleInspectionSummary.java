@@ -56,6 +56,15 @@ public class PoleInspectionSummary extends PoleInspection {
     public void setOtherResources(List<ResourceSummary> otherResources) {
         this.otherResources = otherResources;
     }
+    
+    @Schema(description="URL from which the anomaly report for the substation can be downloaded.")
+    private String surveyReportDownloadURL;
+    public String getSurveyReportDownloadURL() {
+        return surveyReportDownloadURL;
+    }
+    public void setSurveyReportDownloadURL(String surveyReportDownloadURL) {
+        this.surveyReportDownloadURL = surveyReportDownloadURL;
+    }
 
     @Schema(description="A list of all thermal images collected in drone flight, in no particular order.")
     private List<ResourceSummary> thermalImages = new LinkedList<>();

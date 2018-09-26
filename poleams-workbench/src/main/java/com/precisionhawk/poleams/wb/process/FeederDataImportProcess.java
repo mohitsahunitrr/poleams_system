@@ -1,8 +1,8 @@
 package com.precisionhawk.poleams.wb.process;
 
 import com.precisionhawk.poleams.processors.poleinspection.FeederDataDirProcessor;
-import com.precisionhawk.poleams.processors.poleinspection.ProcessListener;
-import com.precisionhawk.poleams.processors.poleinspection.ProcessStatus;
+import com.precisionhawk.poleams.processors.poleinspection.ImportProcessListener;
+import com.precisionhawk.poleams.processors.poleinspection.ImportProcessStatus;
 import com.precisionhawk.poleams.webservices.client.Environment;
 import java.io.File;
 import java.io.PrintStream;
@@ -34,8 +34,8 @@ public class FeederDataImportProcess extends ServiceClientCommandProcess {
         if (dirPath == null) {
             return false;
         }
-        ProcessListener listener = new ProcessListener() {
-            public void setStatus(ProcessStatus processStatus) {
+        ImportProcessListener listener = new ImportProcessListener() {
+            public void setStatus(ImportProcessStatus processStatus) {
                 System.out.printf("Status: %s\n", processStatus);
             }
 

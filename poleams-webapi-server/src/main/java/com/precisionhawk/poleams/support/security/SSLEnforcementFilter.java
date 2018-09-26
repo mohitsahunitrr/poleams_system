@@ -50,7 +50,6 @@ public class SSLEnforcementFilter implements Filter {
         scheme = scheme == null ? req.getScheme().toLowerCase() : scheme.toLowerCase();
         String requester = req.getHeader("X-Forwarded-For");
         requester = requester == null ? req.getRemoteHost() : requester;
-        LOGGER.debug("Testing access to URI {} via protocol {} from {}.", uri, scheme, requester);
         if (
                 !servicesConfig.getEnforceSSL()
                 ||
@@ -59,7 +58,7 @@ public class SSLEnforcementFilter implements Filter {
                 STATUS_REGEXP.matcher(uri).matches()
            )
         {
-            LOGGER.debug("Access allowed");
+            LOGGER.debug("Access allowed to URI {} via protocol {} from {}.", uri, scheme, requester);
             fc.doFilter(sreq, sresp);
         } else {
             LOGGER.error("Denying access to URI {} via protocol {} from {}.", uri, scheme, requester);

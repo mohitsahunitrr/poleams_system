@@ -72,26 +72,6 @@ public class SubStationWebServiceImpl extends AbstractWebService implements SubS
     public SubStationSummary retrieveSummary(String authToken, String substationId) {
         SubStation ss = retrieve(authToken, substationId);
 
-        ResourceSearchParameters rparams = new ResourceSearchParameters();
-        rparams.setSubStationId(substationId);
-        List<ResourceMetadata> resources;
-        
-        // Find the Feeder Map, if any.
-        String feederMapDownloadURL = null;
-        rparams.setType(ResourceType.FeederMap);
-        resources = resourceService.query(authToken, rparams);
-        if (!resources.isEmpty()) {
-            feederMapDownloadURL = resourceService.getResourceDownloadURL(resources.get(0).getResourceId());
-        }
-        
-        // Find Vegitation Encroachment Report, if any.
-        String vegitationEncroachmentReportDownloadURL = null;
-        rparams.setType(ResourceType.FeederMap);
-        resources = resourceService.query(authToken, rparams);
-        if (!resources.isEmpty()) {
-            vegitationEncroachmentReportDownloadURL = resourceService.getResourceDownloadURL(resources.get(0).getResourceId());
-        }
-        
         // Load pole Summaries
         PoleSearchParameters pparams = new PoleSearchParameters();
         pparams.setSubStationId(substationId);
@@ -102,7 +82,48 @@ public class SubStationWebServiceImpl extends AbstractWebService implements SubS
         pisparams.setSubStationId(substationId);
         List<PoleInspectionSummary> poleInspectionSummaries = poleInspectionService.retrieveSummary(pisparams);
         
-        return new SubStationSummary(ss, feederMapDownloadURL, vegitationEncroachmentReportDownloadURL, poleSummaries, poleInspectionSummaries);
+        SubStationSummary sss = new SubStationSummary(ss, poleSummaries, poleInspectionSummaries);
+
+        ResourceSearchParameters rparams = new ResourceSearchParameters();
+        rparams.setSubStationId(substationId);
+        List<ResourceMetadata> resources;
+        
+        // find the anomaly report, if any.
+        rparams.setType(ResourceType.FeederAnomalyReport);
+        resources = resourceService.query(authToken, rparams);
+        if (!resources.isEmpty()) {
+            sss.setAnomalyReportDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
+        }
+        
+        // Find the Feeder Map, if any.
+        rparams.setType(ResourceType.FeederMap);
+        resources = resourceService.query(authToken, rparams);
+        if (!resources.isEmpty()) {
+            sss.setFeederMapDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
+        }
+        
+        // find the Survey report, if any.
+        rparams.setType(ResourceType.SurveyReport);
+        resources = resourceService.query(authToken, rparams);
+        if (!resources.isEmpty()) {
+            sss.setSurveyReportDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
+        }
+        
+        // Find Vegitation Encroachment Report, if any.
+        rparams.setType(ResourceType.EncroachmentReport);
+        resources = resourceService.query(authToken, rparams);
+        if (!resources.isEmpty()) {
+            sss.setVegitationEncroachmentReportDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
+        }
+        
+        // Find Vegitation Encroachment Report, if any.
+        rparams.setType(ResourceType.EncroachmentShape);
+        resources = resourceService.query(authToken, rparams);
+        if (!resources.isEmpty()) {
+            sss.setVegitationEncroachmentShapeDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
+        }
+        
+        return sss;
     }
 
     @Override

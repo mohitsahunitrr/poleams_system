@@ -37,18 +37,18 @@ public final class FeederDataDirProcessor implements Constants {
     // no state
     private FeederDataDirProcessor() {};
 
-    public static boolean process(Environment env, ProcessListener listener, File feederDir) {
+    public static boolean process(Environment env, ImportProcessListener listener, File feederDir) {
         
-        listener.setStatus(ProcessStatus.Initializing);
+        listener.setStatus(ImportProcessStatus.Initializing);
         InspectionData data = new InspectionData();
         
         // There should be an excel file for all poles.
-        boolean success = MasterSurveyTemplateProcessor.processMasterSurveyTemplate(env, listener, data, feederDir);
+        boolean success = SurveyReportImport.processMasterSurveyTemplate(env, listener, data, feederDir);
         
         if (success) {
             File poleDataDir = new File(feederDir, POLE_DATA_SUBDIR);
             if (poleDataDir.exists() && poleDataDir.canRead()) {
-                listener.setStatus(ProcessStatus.ProcessingPoleData);
+                listener.setStatus(ImportProcessStatus.ProcessingPoleData);
                 for (File f : poleDataDir.listFiles()) {
                     if (f.isDirectory()) {
                         // The name of the directory should be the FPL ID of the pole.
@@ -72,7 +72,7 @@ public final class FeederDataDirProcessor implements Constants {
         }
         
         try {
-            listener.setStatus(ProcessStatus.PersistingData);
+            listener.setStatus(ImportProcessStatus.PersistingData);
             
             // Save SubStation
             if (data.getSubStation() != null) {
@@ -122,7 +122,7 @@ public final class FeederDataDirProcessor implements Constants {
             listener.reportFatalException("Error persisting inspection data.", t);
         }
         
-        listener.setStatus(ProcessStatus.Done);
+        listener.setStatus(ImportProcessStatus.Done);
         
         return success;
     }

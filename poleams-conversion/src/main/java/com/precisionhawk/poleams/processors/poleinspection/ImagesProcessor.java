@@ -85,7 +85,11 @@ final class ImagesProcessor implements Constants {
             List<String> resourceIDs = new LinkedList<>();
             resourceIDs.add(rmeta.getResourceId());
             Map<String, Boolean> results = rsvc.verifyUploadedResources(environment.obtainAccessToken(), resourceIDs);
-            if (rmeta.getStatus() == ResourceStatus.QueuedForUpload) {
+            if (
+                    rmeta.getStatus() == ResourceStatus.QueuedForUpload
+                    || (!results.get(rmeta.getResourceId()))
+                )
+            {
                 // Add it to the list so that the upload is attempted again
                 data.addResourceMetadata(rmeta, f, false);
             }

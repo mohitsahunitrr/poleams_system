@@ -111,7 +111,7 @@ public class ZoomifyJob {
                 }
                 LOGGER.info("Found {} resources in environment {} that may need to be zoomified.", resources.size(), env.getName());
                 for (ResourceSummary smry : resources) {
-                    if (smry.getContentType().startsWith("image/") && smry.getZoomifyURL() == null && smry.getScaledImageURL() == null) {
+                    if (smry.getContentType().startsWith("image/")) {
                         LOGGER.info("Downloading image {} to zoomify it", smry.getResourceId());
                         File sourceFile = createSourceFile(smry);
                         File targetFile = createTargetFile(smry);
@@ -144,6 +144,7 @@ public class ZoomifyJob {
                                         break;
                                     case HttpURLConnection.HTTP_MOVED_PERM:
                                     case HttpURLConnection.HTTP_MOVED_TEMP:
+                                    case 307: // Temporary redirect
                                         location = conn.getHeaderField("Location");
                                         url = new URL(url, location);  // Deal with relative URLs
                                         LOGGER.info("Redirected to {}", url);

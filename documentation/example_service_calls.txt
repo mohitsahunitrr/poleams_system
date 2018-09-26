@@ -46,9 +46,72 @@ curl -s -XGET "http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/Po
 curl -s -H "accept: application/json" -H "content-type: application/json" -XGET "https://servicesdev.inspectools.net/poleams/substation/5f6449d2-bd38-43d3-a81f-aaa0b0482c2a/summary"
 
 ### Delete all Resources
-#curl -XDELETE 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/warehouse/AssetInspection/_query?pretty=true' -d '
+#curl -XDELETE 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/warehouse/Resource/_query?pretty=true' -d '
 {
     "query": {
         "match_all" : {}
     }
 }'
+
+
+curl -XGET 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/Resource/d7e9523a-8479-42d3-b04c-b161fcedf8a3'
+
+
+
+curl -H 'application/octet-stream' "https://servicesdev.inspectools.net/poleams/resource/d7e9523a-8479-42d3-b04c-b161fcedf8a3/download"
+
+
+curl -XGET 'http://ec2-18-208-181-167.compute-1.amazonaws.com:8080/poleams-services/resource/d7e9523a-8479-42d3-b04c-b161fcedf8a3/download' > /tmp/file.pdf
+
+curl -XGET 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/Resource/_search?pretty=true' -d '
+{
+    "query": {
+        "bool" : {
+            "must" : [
+                {"term" : { "subStationId": "4bba90ab-5f0e-4fa3-ae16-4e2e003b3af9" }},
+                {"term" : { "type": "FeederAnomalyReport" }}
+            ]
+	}
+    }
+}'
+
+
+curl -XGET 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/Resource/_search?pretty=true' -d '
+{
+    "query": {
+                "term" : { "subStationId": "4bba90ab-5f0e-4fa3-ae16-4e2e003b3af9" }
+    }
+}'
+
+
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 706664 -type FeederAnomalyReport /opt/poleams/feeder_files/NOBHILL_706664_Anomaly_Report.zip
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 706664 -type FeederMap /opt/poleams/feeder_files/NOBHILL_706664_Feeder_Map.pdf
+
+
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -resourceId 7336aa01-fb84-4757-af82-f5281fc99fa6 /opt/poleams/feeder_files/NOBHILL_706664_Anomaly_Report.zip
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -resourceId cd6ca4bc-fc3b-4eac-8d9d-fa144e2ee4e5 /opt/poleams/feeder_files/NOBHILL_706664_Feeder_Map.pdf
+
+
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'Local Dev' -resourceId 7336aa01-fb84-4757-af82-f5281fc99fa6 /opt/poleams/feeder_files/NOBHILL_706664_Anomaly_Report.zip
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'Local Dev' -resourceId cd6ca4bc-fc3b-4eac-8d9d-fa144e2ee4e5 /opt/poleams/feeder_files/NOBHILL_706664_Feeder_Map.pdf
+
+
+// Reset status on Flight Images
+
+for id in $(curl -H 'content-type: application/json' -H 'accept: application/json' -XPOST 'https://servicesdev.inspectools.net/poleams/resource/search' -d '{
+"subStationId": "4bba90ab-5f0e-4fa3-ae16-4e2e003b3af9", "type": "DroneInspectionImage"}' | aeson-pretty  |grep 'resourceId' | cut -d '"' -f 4)
+do
+  echo "resetting $id for zoomify"
+  java -jar /home/pchapman/.m2/repository/com/precisionhawk/poleams-workbench/1.0.0-SNAPSHOT/poleams-workbench-1.0.0-SNAPSHOT.jar changeResourceStatus -env 'InspecTools Dev' -resourceId "$id" -status "Processed"
+  echo ""
+done
+
+curl -H 'content-type: application/json' -H 'accept: application/json' -XPOST 'https://servicesdev.inspectools.net/poleams/resource/search' -d '{
+"zoomifyId": "cbdb8215-e39c-458c-b1f6-119e725477f6"}' | aeson-pretty
+
+curl -H 'content-type: application/json' -H 'accept: application/json' -XPOST 'http://localhost:7171/resource/search' -d '{
+"zoomifyId": "cbdb8215-e39c-458c-b1f6-119e725477f6"}' | aeson-pretty
+
+
+curl -H 'content-type: application/json' -H 'accept: application/json' -XDELETE 'https://servicesdev.inspectools.net/poleams/resource/31ebabdc-1cd0-4f8d-9783-8b651c020966'
+curl -H 'content-type: application/json' -H 'accept: application/json' -XDELETE 'https://servicesdev.inspectools.net/poleams/resource/fe8b05c9-5290-402d-9098-1810a1a57a97'

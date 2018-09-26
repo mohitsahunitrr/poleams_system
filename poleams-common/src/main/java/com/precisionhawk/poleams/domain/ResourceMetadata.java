@@ -4,7 +4,6 @@ import com.precisionhawk.poleams.bean.Dimension;
 import com.precisionhawk.poleams.bean.GeoPoint;
 import io.swagger.oas.annotations.media.Schema;
 import java.time.ZonedDateTime;
-import java.util.UUID;
 
 /**
  *

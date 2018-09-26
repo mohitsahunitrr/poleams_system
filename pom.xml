@@ -129,10 +129,8 @@
             </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-bom</artifactId>
-                <version>1.11.409</version>
-                <scope>import</scope>
-                <type>pom</type>
+                <artifactId>aws-java-sdk</artifactId>
+                <version>1.11.22</version>
             </dependency>
             <dependency>
                 <groupId>com.google.http-client</groupId>

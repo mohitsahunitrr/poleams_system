@@ -1,8 +1,8 @@
 package com.precisionhawk.poleams.wb.process;
 
-import com.precisionhawk.poleams.processors.poleinspection.MasterSurveyTemplatePopulator;
+import com.precisionhawk.poleams.processors.poleinspection.SurveyReportGenerator;
 import com.precisionhawk.poleams.processors.poleinspection.ProcessListener;
-import com.precisionhawk.poleams.processors.poleinspection.ProcessStatus;
+import com.precisionhawk.poleams.processors.poleinspection.ImportProcessStatus;
 import com.precisionhawk.poleams.webservices.client.Environment;
 import java.io.File;
 import java.io.PrintStream;
@@ -41,7 +41,7 @@ public class PopulateMasterSurveyProcess extends ServiceClientCommandProcess {
             return false;
         }
         ProcessListener listener = new ProcessListener() {
-            public void setStatus(ProcessStatus processStatus) {
+            public void setStatus(ImportProcessStatus processStatus) {
                 System.out.printf("Status: %s\n", processStatus);
             }
 
@@ -71,7 +71,7 @@ public class PopulateMasterSurveyProcess extends ServiceClientCommandProcess {
                 t.printStackTrace(System.err);
             }
         };
-        boolean success = MasterSurveyTemplatePopulator.process(env, listener, feederId, new File(filePath));
+        boolean success = SurveyReportGenerator.process(env, listener, feederId, new File(filePath));
         System.out.printf("Import finished with %s\n", (success ? "success" : "errors"));
         return true;
     }

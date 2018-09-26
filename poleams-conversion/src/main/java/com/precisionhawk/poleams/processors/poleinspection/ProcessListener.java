@@ -6,8 +6,6 @@ package com.precisionhawk.poleams.processors.poleinspection;
  */
 public interface ProcessListener {
 
-    public void setStatus(ProcessStatus processStatus);
-
     public void reportFatalError(String message);
 
     public void reportFatalException(String message, Throwable t);
