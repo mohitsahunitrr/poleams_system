@@ -80,13 +80,20 @@ public class SubStationWebServiceImpl extends AbstractWebService implements SubS
         // Load pole inspection summaries
         PoleInspectionSearchParameters pisparams = new PoleInspectionSearchParameters();
         pisparams.setSubStationId(substationId);
-        List<PoleInspectionSummary> poleInspectionSummaries = poleInspectionService.retrieveSummary(pisparams);
+        List<PoleInspectionSummary> poleInspectionSummaries = poleInspectionService.retrieveSummary(authToken, pisparams);
         
         SubStationSummary sss = new SubStationSummary(ss, poleSummaries, poleInspectionSummaries);
 
         ResourceSearchParameters rparams = new ResourceSearchParameters();
         rparams.setSubStationId(substationId);
         List<ResourceMetadata> resources;
+        
+        // find the anomaly report, if any.
+        rparams.setType(ResourceType.FeederAnomalyMap);
+        resources = resourceService.query(authToken, rparams);
+        if (!resources.isEmpty()) {
+            sss.setAnomalyMapDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
+        }
         
         // find the anomaly report, if any.
         rparams.setType(ResourceType.FeederAnomalyReport);
@@ -109,6 +116,7 @@ public class SubStationWebServiceImpl extends AbstractWebService implements SubS
             sss.setSurveyReportDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
         }
         
+        //TODO: We should probably remove this
         // Find Vegitation Encroachment Report, if any.
         rparams.setType(ResourceType.EncroachmentReport);
         resources = resourceService.query(authToken, rparams);

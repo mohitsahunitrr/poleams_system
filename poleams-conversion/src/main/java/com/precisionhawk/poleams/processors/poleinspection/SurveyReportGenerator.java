@@ -19,7 +19,9 @@ import com.precisionhawk.poleams.webservices.client.Environment;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
+import org.apache.commons.io.IOUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -34,7 +36,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbookFactory;
  */
 public class SurveyReportGenerator implements SurveyReportConstants {
 
-    public static boolean process(Environment env, ProcessListener listener, String feederId, File file) {
+    public static boolean process(Environment env, ProcessListener listener, String feederId, File inFile, File outFile) {
         SubStationSearchParameters params = new SubStationSearchParameters();
         params.setFeederNumber(feederId);
         SubStationWebService svc = env.obtainWebService(SubStationWebService.class);
@@ -46,23 +48,24 @@ public class SurveyReportGenerator implements SurveyReportConstants {
                 return false;
             }
             SubStationSummary summary = svc.retrieveSummary(env.obtainAccessToken(), ss.getId());
-            return populateTemplate(env, listener, summary, file);
+            return populateTemplate(env, listener, summary, inFile, outFile);
         } catch (Throwable t) {
             listener.reportNonFatalException("", t);
             return false;
         }
     }
     
-    public static boolean populateTemplate(Environment env, ProcessListener listener, SubStationSummary summary, File excelFile) {
-        if (excelFile == null) {
+    public static boolean populateTemplate(Environment env, ProcessListener listener, SubStationSummary summary, File inFile, File outFile) {
+        if (inFile == null) {
             return false;
         }
         if (summary == null) {
             return false;
         }
+        OutputStream outStream = null;
         Workbook workbook = null;
         try {
-            workbook = XSSFWorkbookFactory.createWorkbook(excelFile, false);
+            workbook = XSSFWorkbookFactory.createWorkbook(inFile, false);
             
             // Find the "Survey Data" sheet.
             Sheet sheet = workbook.getSheet(SURVEY_SHEET);
@@ -120,9 +123,10 @@ public class SurveyReportGenerator implements SurveyReportConstants {
                 }
             }
             
-            String fileName = excelFile.getAbsoluteFile() + ".processed";
-            listener.reportMessage(String.format("Saving the populated excel to %s", fileName));
-            workbook.write(new FileOutputStream(fileName));
+            listener.reportMessage(String.format("Saving the populated excel to %s", outFile.getAbsolutePath()));
+            
+            outStream = new FileOutputStream(outFile);
+            workbook.write(outStream);
             
             return true;
         } catch (InvalidFormatException | IOException ex) {
@@ -136,6 +140,7 @@ public class SurveyReportGenerator implements SurveyReportConstants {
                     listener.reportNonFatalException("Unable to close master survey template.", ioe);
                 }
             }
+            IOUtils.closeQuietly(outStream);
         }
     }
 

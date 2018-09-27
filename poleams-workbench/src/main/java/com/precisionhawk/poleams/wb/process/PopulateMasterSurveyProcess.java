@@ -15,11 +15,18 @@ import java.util.Queue;
 public class PopulateMasterSurveyProcess extends ServiceClientCommandProcess {
     
     private static final String ARG_FEEDER_ID = "-f";
+    private static final String ARG_IN_FILE = "-i";
+    private static final String ARG_OUT_FILE = "-o";
     private static final String COMMAND = "populateMasterSurvey";
-    private static final String HELP = "\t" + COMMAND + " " + ARGS_FOR_HELP + " " + ARG_FEEDER_ID + " FeederId  path/to/feeder/data/dir";
+    private static final String HELP = "\t" + COMMAND + " "
+            + ARGS_FOR_HELP + " " +
+            ARG_FEEDER_ID + " FeederId "
+            + ARG_IN_FILE + " path/to/in/file"
+            + ARG_OUT_FILE + " path/to/out/file";
     
     private String feederId;
-    private String filePath;
+    private String inFile;
+    private String outFile;
 
     @Override
     protected boolean processArg(String arg, Queue<String> args) {
@@ -28,8 +35,11 @@ public class PopulateMasterSurveyProcess extends ServiceClientCommandProcess {
             if (feederId != null) {
                 return true;
             }
-        } else if (filePath == null) {
-            filePath = arg;
+        } else if (inFile == null) {
+            inFile = arg;
+            return true;
+        } else if (outFile == null) {
+            outFile = arg;
             return true;
         }
         return false;
@@ -37,7 +47,11 @@ public class PopulateMasterSurveyProcess extends ServiceClientCommandProcess {
 
     @Override
     protected boolean execute(Environment env) {
-        if (filePath == null) {
+        if (feederId == null) {
+            return false;
+        } else if (inFile == null) {
+            return false;
+        } else if (outFile == null) {
             return false;
         }
         ProcessListener listener = new ProcessListener() {
@@ -71,7 +85,7 @@ public class PopulateMasterSurveyProcess extends ServiceClientCommandProcess {
                 t.printStackTrace(System.err);
             }
         };
-        boolean success = SurveyReportGenerator.process(env, listener, feederId, new File(filePath));
+        boolean success = SurveyReportGenerator.process(env, listener, feederId, new File(inFile), new File(outFile));
         System.out.printf("Import finished with %s\n", (success ? "success" : "errors"));
         return true;
     }

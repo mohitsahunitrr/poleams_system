@@ -12,13 +12,22 @@ import java.util.List;
  */
 public class PoleInspectionSummary extends PoleInspection {
     
-    @Schema(description="Anaysis result XML.")
-    private ResourceSummary analysisResultXML;
-    public ResourceSummary getAnalysisResultXML() {
-        return analysisResultXML;
+    @Schema(description="Anaysis result XML output from PoleForeman.")
+    private String analysisResultURL;
+    public String getAnalysisResultURL() {
+        return analysisResultURL;
     }
-    public void setAnalysisResultXML(ResourceSummary analysisResultXML) {
-        this.analysisResultXML = analysisResultXML;
+    public void setAnalysisResultURL(String analysisResultURL) {
+        this.analysisResultURL = analysisResultURL;
+    }
+    
+    @Schema(description="Anaysis report PDF output from PoleForeman.")
+    private String analysisReportURL;
+    public String getAnalysisReportURL() {
+        return analysisReportURL;
+    }
+    public void setAnalysisReportURL(String analysisReportURL) {
+        this.analysisReportURL = analysisReportURL;
     }
     
     @Schema(description="The criticality of the pole in terms of needing upgrades. 1 - 5, 5 being most critical.")
@@ -79,19 +88,5 @@ public class PoleInspectionSummary extends PoleInspection {
     
     public PoleInspectionSummary(PoleInspection pi) {
         populateFrom(pi);
-    }
-    
-    public PoleInspectionSummary(
-            PoleInspection pi, Integer criticality, ResourceSummary analysisResultXML, List<ResourceSummary> flightImages,
-            List<ResourceSummary> groundImages, List<ResourceSummary> thermalImages, List<ResourceSummary> otherResources
-        )
-    {
-        populateFrom(pi);
-        this.analysisResultXML = analysisResultXML;
-        this.criticality = criticality;
-        this.flightImages = flightImages;
-        this.groundImages = groundImages;
-        this.otherResources = otherResources;
-        this.thermalImages = thermalImages;
     }
 }

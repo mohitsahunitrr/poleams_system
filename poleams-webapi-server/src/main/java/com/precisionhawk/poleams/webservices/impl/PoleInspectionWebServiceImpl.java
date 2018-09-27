@@ -8,7 +8,6 @@ import com.precisionhawk.poleams.dao.PoleInspectionDao;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.ResourceMetadata;
 import com.precisionhawk.poleams.domain.ResourceType;
-import com.precisionhawk.poleams.util.CollectionsUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +70,7 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
                 return null;
             }
             
-            return populateSummary(new PoleInspectionSummary(inspection));
+            return populateSummary(authToken, new PoleInspectionSummary(inspection));
         } catch (DaoException ex) {
             throw new InternalServerErrorException("Error retrieving pole inspection data.", ex);
         }
@@ -101,18 +100,12 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
     }
     
     
-    List<PoleInspectionSummary> retrieveSummary(PoleInspectionSearchParameters params) {
+    List<PoleInspectionSummary> retrieveSummary(String authToken, PoleInspectionSearchParameters params) {
         try {
             List<PoleInspection> inspections = piDao.search(params);
             List<PoleInspectionSummary> results = new ArrayList<>(inspections.size());
             for (PoleInspection inspection : inspections) {
-                results.add(
-                        populateSummary(
-                                new PoleInspectionSummary(
-                                        inspection, 0, null, null, null, null, null
-                                )
-                        )
-                );
+                results.add(populateSummary(authToken, new PoleInspectionSummary(inspection)));
             }
             return results;
         } catch (DaoException ex) {
@@ -125,16 +118,26 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
         summary.setCriticality(random.nextInt(5 - 1 + 1) + 1); // Randomize so that we can see cool stuff in the UI.
     }
     
-    private PoleInspectionSummary populateSummary(PoleInspectionSummary summary) {
+    private PoleInspectionSummary populateSummary(String authToken, PoleInspectionSummary summary) {
 
         ResourceSearchParameters rparams = new ResourceSearchParameters();
         rparams.setPoleId(summary.getPoleId());
         rparams.setPoleInspectionId(summary.getId());
         List<ResourceMetadata> resources;
+        
+        // find the analysis report, if any.
+        rparams.setType(ResourceType.PoleInspectionReport);
+        resources = resourceService.query(authToken, rparams);
+        if (!resources.isEmpty()) {
+            summary.setAnalysisReportURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
+        }
 
         // Get URL for the analysis XML, if any.
         rparams.setType(ResourceType.PoleInspectionAnalysisXML);
-        summary.setAnalysisResultXML(CollectionsUtilities.firstItemIn(resourceService.summaryFor(rparams)));
+        resources = resourceService.query(authToken, rparams);
+        if (!resources.isEmpty()) {
+            summary.setAnalysisResultURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
+        }
 
         // Flight Images
         rparams.setType(ResourceType.DroneInspectionImage);

@@ -1,12 +1,15 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
 import com.precisionhawk.poleams.bean.ImageScaleRequest;
+import com.precisionhawk.poleams.bean.ResourceSearchParameters;
+import com.precisionhawk.poleams.bean.SubStationSummary;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.ResourceMetadata;
 import com.precisionhawk.poleams.domain.ResourceStatus;
 import com.precisionhawk.poleams.domain.ResourceType;
 import com.precisionhawk.poleams.support.httpclient.HttpClientUtilities;
+import com.precisionhawk.poleams.util.CollectionsUtilities;
 import com.precisionhawk.poleams.util.ImageUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
@@ -17,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -71,60 +75,101 @@ public final class FeederDataDirProcessor implements Constants {
             }            
         }
         
-        try {
-            listener.setStatus(ImportProcessStatus.PersistingData);
-            
-            // Save SubStation
-            if (data.getSubStation() != null) {
-                SubStationWebService sssvc = env.obtainWebService(SubStationWebService.class);
-                if (data.getDomainObjectIsNew().get(data.getSubStation().getId())) {
-                    sssvc.create(env.obtainAccessToken(), data.getSubStation());
-                } else {
-                    sssvc.update(env.obtainAccessToken(), data.getSubStation());
-                }
-            }
+        if (success) {
+            try {
+                listener.setStatus(ImportProcessStatus.PersistingData);
 
-            // Save Poles
-            if (!data.getPoleDataByFPLId().isEmpty()) {
-                PoleWebService psvc = env.obtainWebService(PoleWebService.class);
-                for (Pole pdata : data.getPoleDataByFPLId().values()) {
-                    if (data.getDomainObjectIsNew().get(pdata.getId())) {
-                        psvc.create(env.obtainAccessToken(), pdata);
+                // Save SubStation
+                if (data.getSubStation() != null) {
+                    SubStationWebService sssvc = env.obtainWebService(SubStationWebService.class);
+                    if (data.getDomainObjectIsNew().get(data.getSubStation().getId())) {
+                        sssvc.create(env.obtainAccessToken(), data.getSubStation());
                     } else {
-                        psvc.update(env.obtainAccessToken(), pdata);
+                        sssvc.update(env.obtainAccessToken(), data.getSubStation());
                     }
                 }
-            }
-            
-            // Save Pole Inspections
-            if (!data.getPoleInspectionsByFPLId().isEmpty()) {
-                PoleInspectionWebService pisvc = env.obtainWebService(PoleInspectionWebService.class);
-                for (PoleInspection pi : data.getPoleInspectionsByFPLId().values()) {
-                    if (data.getDomainObjectIsNew().get(pi.getId())) {
-                        pisvc.create(env.obtainAccessToken(), pi);
-                    } else {
-                        pisvc.update(env.obtainAccessToken(), pi);
+
+                // Save Poles
+                if (!data.getPoleDataByFPLId().isEmpty()) {
+                    PoleWebService psvc = env.obtainWebService(PoleWebService.class);
+                    for (Pole pdata : data.getPoleDataByFPLId().values()) {
+                        if (data.getDomainObjectIsNew().get(pdata.getId())) {
+                            psvc.create(env.obtainAccessToken(), pdata);
+                        } else {
+                            psvc.update(env.obtainAccessToken(), pdata);
+                        }
                     }
                 }
-            }
-            
-            // Save Resources
-            ResourceWebService rsvc = env.obtainWebService(ResourceWebService.class);
-            for (ResourceMetadata rmeta : data.getSubStationResources()) {
-                saveResource(env, rsvc, listener, data, rmeta);
-            }
-            for (List<ResourceMetadata> rmetaList : data.getPoleResources().values()) {
-                for (ResourceMetadata rmeta : rmetaList) {
+
+                // Save Pole Inspections
+                if (!data.getPoleInspectionsByFPLId().isEmpty()) {
+                    PoleInspectionWebService pisvc = env.obtainWebService(PoleInspectionWebService.class);
+                    for (PoleInspection pi : data.getPoleInspectionsByFPLId().values()) {
+                        if (data.getDomainObjectIsNew().get(pi.getId())) {
+                            pisvc.create(env.obtainAccessToken(), pi);
+                        } else {
+                            pisvc.update(env.obtainAccessToken(), pi);
+                        }
+                    }
+                }
+                
+                // Now that we've saved all the data, we can update the survey report.
+                updateSurveyReport(env, data, listener);
+        
+                listener.setStatus(ImportProcessStatus.UploadingResources);
+                // Save Resources
+                ResourceWebService rsvc = env.obtainWebService(ResourceWebService.class);
+                for (ResourceMetadata rmeta : data.getSubStationResources()) {
                     saveResource(env, rsvc, listener, data, rmeta);
                 }
+                for (List<ResourceMetadata> rmetaList : data.getPoleResources().values()) {
+                    for (ResourceMetadata rmeta : rmetaList) {
+                        saveResource(env, rsvc, listener, data, rmeta);
+                    }
+                }
+            } catch (Throwable t) {
+                listener.reportFatalException("Error persisting inspection data.", t);
             }
-        } catch (Throwable t) {
-            listener.reportFatalException("Error persisting inspection data.", t);
         }
         
         listener.setStatus(ImportProcessStatus.Done);
         
         return success;
+    }
+    
+    private static boolean updateSurveyReport(Environment env, InspectionData data, ImportProcessListener listener) {
+        listener.setStatus(ImportProcessStatus.GeneratingUpdatedSurveyReport);
+        try {
+            File outFile = File.createTempFile(data.getSubStation().getFeederNumber(), "surveyrpt");
+            SubStationSummary summary = env.obtainWebService(SubStationWebService.class).retrieveSummary(env.obtainAccessToken(), data.getSubStation().getId());
+            boolean success = SurveyReportGenerator.populateTemplate(env, listener, summary, data.getMasterDataFile(), outFile);
+            if (success) {
+                ResourceWebService svc = env.obtainWebService(ResourceWebService.class);
+                ResourceSearchParameters params = new ResourceSearchParameters();
+                params.setOrganizationId(data.getSubStation().getOrganizationId());
+                params.setSubStationId(data.getSubStation().getId());
+                params.setType(ResourceType.SurveyReport);
+                ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(svc.query(env.obtainAccessToken(), params));
+                if (rmeta == null) {
+                    rmeta = new ResourceMetadata();
+                    rmeta.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                    rmeta.setName(String.format("%s-%s_Survey_Report.xlsx", data.getSubStation().getName(), data.getSubStation().getFeederNumber()));
+                    rmeta.setOrganizationId(params.getOrganizationId());
+                    rmeta.setResourceId(UUID.randomUUID().toString());
+                    rmeta.setStatus(ResourceStatus.QueuedForUpload);
+                    rmeta.setSubStationId(params.getSubStationId());
+                    rmeta.setTimestamp(ZonedDateTime.now());
+                    rmeta.setType(params.getType());
+                    data.addResourceMetadata(rmeta, outFile, true);
+                } else {
+                    data.addResourceMetadata(rmeta, outFile, false);
+                }
+            }
+        } catch (IOException ioe) {
+            listener.reportNonFatalException("Error creating temporary file for updated Survey Report", ioe);
+        }
+        //TODO:
+        return true;
     }
     
     private static final String UPLOAD_URL = "%s/resource/%s/upload";
@@ -159,7 +204,8 @@ public final class FeederDataDirProcessor implements Constants {
             svc.insertResourceMetadata(env.obtainAccessToken(), rmeta);
         } else {
             svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
-        } if (ResourceStatus.QueuedForUpload == rmeta.getStatus()) {
+        }
+        if (ResourceStatus.QueuedForUpload == rmeta.getStatus()) {
             String url = String.format(UPLOAD_URL, env.getServiceURI(), rmeta.getResourceId());
             HttpClientUtilities.postFile(new URI(url), env.obtainAccessToken(), rmeta.getContentType(), dataFile);
             rmeta.setStatus(ResourceStatus.Uploaded);

@@ -48,7 +48,7 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
     // No state data
     private SurveyReportImport() {} 
 
-    private static File findMasterSurveyTemplate(Environment environment, ImportProcessListener listener, File feederDir) {
+    private static File findMasterSurveyTemplate(ImportProcessListener listener, File feederDir) {
         File[] files = feederDir.listFiles(EXCEL_SPREADSHEET_FILTER);
         File excelFile = null;
         if (files.length > 1) {
@@ -62,8 +62,8 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
         }
     }
     
-    static boolean processMasterSurveyTemplate(Environment environment, ImportProcessListener listener, InspectionData inspectionData, File feederDir) {
-        File masterDataFile = findMasterSurveyTemplate(environment, listener, feederDir);
+    static boolean processMasterSurveyTemplate(Environment env, ImportProcessListener listener, InspectionData data, File feederDir) {
+        File masterDataFile = findMasterSurveyTemplate(listener, feederDir);
         if (masterDataFile == null) {
             return false;
         }
@@ -93,8 +93,8 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
             }
             
             // We now have enough to lookup an existing sub station
-            inspectionData.setSubStation(lookupSubStationByFeederId(environment, feederId));
-            if (inspectionData.getSubStation() == null) {
+            data.setSubStation(lookupSubStationByFeederId(env, feederId));
+            if (data.getSubStation() == null) {
             String subStationName = getCellDataAsString(row, FEEDER_NAME.x);
                 if (subStationName == null || subStationName.isEmpty()) {
                     // We cannot create a nameless substation.
@@ -102,27 +102,29 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
                     return false;
                 }
                 // Create a new substation.
-                inspectionData.setSubStation(new SubStation());
-                inspectionData.getSubStation().setId(UUID.randomUUID().toString());
-                inspectionData.getSubStation().setHardeningLevel(getCellDataAsString(row, FEEDER_HARDENING_LVL.x));
-                inspectionData.getSubStation().setFeederNumber(feederId);
-                inspectionData.getSubStation().setName(subStationName);
-                inspectionData.getSubStation().setOrganizationId(ORG_ID);
-                inspectionData.getSubStation().setWindZone(StringUtil.getNullableString(getCellDataAsInteger(row, FEEDER_WIND_ZONE.x)));
-                inspectionData.getDomainObjectIsNew().put(inspectionData.getSubStation().getId(), true);
+                data.setSubStation(new SubStation());
+                data.getSubStation().setId(UUID.randomUUID().toString());
+                data.getSubStation().setHardeningLevel(getCellDataAsString(row, FEEDER_HARDENING_LVL.x));
+                data.getSubStation().setFeederNumber(feederId);
+                data.getSubStation().setName(subStationName);
+                data.getSubStation().setOrganizationId(ORG_ID);
+                data.getSubStation().setWindZone(StringUtil.getNullableString(getCellDataAsInteger(row, FEEDER_WIND_ZONE.x)));
+                data.getDomainObjectIsNew().put(data.getSubStation().getId(), true);
             } else {
-                inspectionData.getDomainObjectIsNew().put(inspectionData.getSubStation().getId(), false);
+                data.getDomainObjectIsNew().put(data.getSubStation().getId(), false);
                 //TODO: Update SubStation data?
             }
             
             // We may now process pole rows.
-            PoleWebService poleSvc = environment.obtainWebService(PoleWebService.class);
-            PoleInspectionWebService poleInspSvc = environment.obtainWebService(PoleInspectionWebService.class);
+            PoleWebService poleSvc = env.obtainWebService(PoleWebService.class);
+            PoleInspectionWebService poleInspSvc = env.obtainWebService(PoleInspectionWebService.class);
             
             boolean dataFound = true;
             for (int rowIndex = FIRST_POLE_ROW; dataFound; rowIndex++) {
-                dataFound = processPoleRow(environment, poleSvc, poleInspSvc, listener, sheet.getRow(rowIndex), inspectionData);
+                dataFound = processPoleRow(env, poleSvc, poleInspSvc, listener, sheet.getRow(rowIndex), data);
             }
+            
+            data.setMasterDataFile(masterDataFile);
             
             return true;
         } catch (InvalidFormatException | IOException ex) {

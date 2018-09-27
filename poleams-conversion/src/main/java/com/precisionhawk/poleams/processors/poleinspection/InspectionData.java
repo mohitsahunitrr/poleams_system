@@ -21,6 +21,14 @@ public class InspectionData {
         return domainDataIsNew;
     }
 
+    private File masterDataFile;
+    public File getMasterDataFile() {
+        return masterDataFile;
+    }
+    public void setMasterDataFile(File masterDataFile) {
+        this.masterDataFile = masterDataFile;
+    }
+
     private final Map<String, Pole> poleData = new HashMap<>();
     public Map<String, Pole> getPoleDataByFPLId() {
         return poleData;
