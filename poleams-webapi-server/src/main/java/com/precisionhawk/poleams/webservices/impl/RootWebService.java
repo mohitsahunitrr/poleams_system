@@ -23,7 +23,12 @@ public class RootWebService {
     @Inject private StatusWebService statusService;
     
     @GET
-    Map<String, Object> retrieveStatus() {
+    public Map<String, Object> retrieveStatus1() {
+        return statusService.retrieveStatus();
+    }
+    
+    @Path("/poleams-services")
+    public Map<String, Object> retrieveStatus2() {
         return statusService.retrieveStatus();
     }
 }

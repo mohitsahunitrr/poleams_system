@@ -23,6 +23,12 @@
         factory-method="getAwsConfig"
     />
     <bean
+        id="CacheConfig"
+        class="com.precisionhawk.poleams.cache.CacheConfig"
+        factory-bean="AppConfig"
+        factory-method="getCacheConfig"
+    />
+    <bean
         id="ElasticSearchConfig"
         class="com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConfig"
         factory-bean="AppConfig"
@@ -94,14 +100,6 @@
     <!-- Task executor -->
 <!--
     <task:executor id="taskExecutor" pool-size="5"/>
--->
-    
-    <!-- Caching -->
-<!--
-    <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-        <property name="configLocation" value="${ehcache.config}"/>
-        <property name="shared" value="true"/>
-    </bean>
 -->
 
     <!-- Scan for other components and controllers. -->

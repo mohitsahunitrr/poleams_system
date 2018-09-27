@@ -57,17 +57,6 @@ public class FSResourceRepository implements ResourceRepository {
         return new File(ensureStorageDir(key), key);
     }
     
-    private static final String DB_INIT_QUERY =
-            "select count(*) from INFORMATION_SCHEMA.tables where TABLE_SCHEMA = 'PUBLIC'  and TABLE_NAME = 'RESOURCE_METADATA';";
-    private static final String[] DB_INIT_UPDATES = {
-        "create table RESOURCE_METADATA (KEY varchar(38) primary key, ORDER_NUMBER varchar(128) not null, SITE_ID varchar(128) not null, ASSET_ID varchar(256) not null,  FORM_ID varchar(38) not null, SUBMISSION_ID varchar(128) not null,  CONTENT_TYPE varchar(64) not null, NAME varchar(128) not null, SOURCE_URL varchar(256) not null);",
-        "create index IDX_RESOURCE_METADATA_01 on RESOURCE_METADATA (ORDER_NUMBER);",
-        "create index IDX_RESOURCE_METADATA_02 on RESOURCE_METADATA (SITE_ID);",
-        "create index IDX_RESOURCE_METADATA_03 on RESOURCE_METADATA (ASSET_ID);",
-        "create index IDX_RESOURCE_METADATA_04 on RESOURCE_METADATA (FORM_ID);",
-        "create index IDX_RESOURCE_METADATA_05 on RESOURCE_METADATA (SUBMISSION_ID);"
-    };
-    
     @PostConstruct
     public void init() {
         // Ensure the storage directory exists

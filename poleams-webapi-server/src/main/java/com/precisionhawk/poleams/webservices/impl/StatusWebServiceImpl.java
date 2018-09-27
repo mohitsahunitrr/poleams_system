@@ -42,31 +42,4 @@ public class StatusWebServiceImpl extends AbstractWebService implements StatusWe
         statusMap.put("currentTime", ZonedDateTime.now());
         return statusMap;
     }
-    
-    @Override
-    public Map<String, Object> retrieveStatus2() {
-        return retrieveStatus();
-    }
-    
-    @Override
-    public Map<String, Object> retrieveStatus3() {
-        return retrieveStatus();
-    }
-
-    public RepositoryConfig getRepoConfig() {
-        return repoConfig;
-    }
-
-    public void setRepoConfig(RepositoryConfig repoConfig) {
-        this.repoConfig = repoConfig;
-    }
-
-    public ServicesConfig getSvcsConfig() {
-        return svcsConfig;
-    }
-
-    public void setSvcsConfig(ServicesConfig svcsConfig) {
-        this.svcsConfig = svcsConfig;
-    }
-    
 }

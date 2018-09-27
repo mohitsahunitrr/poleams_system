@@ -168,8 +168,8 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
                 // This may be zoomify resource.
                 ResourceSearchParameters params = new ResourceSearchParameters();
                 params.setZoomifyId(resourceId);
-                List<ResourceMetadata> list = resourceDao.lookup(params);
-                if (list == null || list.isEmpty()) {
+                rmeta = CollectionsUtilities.firstItemIn(resourceDao.lookup(params));
+                if (rmeta == null) {
                     throw new NotFoundException(String.format("No resource with ID %s exists.", resourceId));
                 } else {
                     isZoomify = true;

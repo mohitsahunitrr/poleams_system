@@ -32,6 +32,7 @@ public class RepositoryFactory implements Provider<ResourceRepository> {
                 } else if (FSResourceRepository.class.getName().equals(config.getRepositoryImplementation())) {
                     FSResourceRepository rr = new FSResourceRepository();
                     rr.setStorageDir(config.getFSStorageDir());
+                    rr.init();
                     repository = rr;
                 } else {
                     throw new IllegalArgumentException("Unknown or unset repository implementation.");
