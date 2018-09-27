@@ -44,7 +44,9 @@ public class S3ResourceRepository implements ResourceRepository {
 
     private static final String META_POLE_ID = "poleams.pole.id";
     private static final String META_NAME = "poleams.resource.name";
+    private static final String META_SOURCE_ID = "poleams.source.id";
     private static final String META_SUBSTATION_ID = "poleams.substation.id";
+    private static final String META_ZOOMIFY_FOR_ID = "poleams.zoomifyFor.id";
     
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private final int MAX_IN_MEMORY_RESOURCE_SIZE = 2097152; // 2 MB
@@ -88,9 +90,15 @@ public class S3ResourceRepository implements ResourceRepository {
         if (length != null) {
             ometa.setContentLength(length);
         }
-        ometa.addUserMetadata(META_NAME, metaData.getName());
+        ometa.addUserMetadata(META_NAME, name);
         ometa.addUserMetadata(META_POLE_ID, metaData.getPoleId());
         ometa.addUserMetadata(META_SUBSTATION_ID, metaData.getSubStationId());
+        if (metaData.getSourceResourceId() != null) {
+            ometa.addUserMetadata(META_SOURCE_ID, metaData.getSourceResourceId());
+        }
+        if (key.equals(metaData.getZoomifyId())) {
+            ometa.addUserMetadata(META_ZOOMIFY_FOR_ID, metaData.getResourceId());
+        }
         PutObjectRequest req = new PutObjectRequest(getBucketName(), key, resourceStream, ometa);
         req.setCannedAcl(CannedAccessControlList.PublicRead);
         getS3Client().putObject(req);

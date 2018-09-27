@@ -113,9 +113,21 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
         }
     }
     
-    private void calculateCriticality(PoleInspectionSummary summary) {
-        //FIXME: Do actual calculation
-        summary.setCriticality(random.nextInt(5 - 1 + 1) + 1); // Randomize so that we can see cool stuff in the UI.
+    private Integer calculateCriticality(PoleInspectionSummary summary) {
+        Integer i = summary.getHorizontalLoadingPercent();
+        if (i == null) {
+            return null;
+        } else if (i < 90) {
+            return 1;
+        } else if (i < 100) {
+            return 2;
+        } else if (i < 120) {
+            return 3;
+        } else if (i < 200) {
+            return 4;
+        } else {
+            return 5;
+        }
     }
     
     private PoleInspectionSummary populateSummary(String authToken, PoleInspectionSummary summary) {
@@ -155,7 +167,7 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
         rparams.setType(ResourceType.Other);
         summary.setOtherResources(resourceService.summaryFor(rparams));
 
-        calculateCriticality(summary);
+        summary.setCriticality(calculateCriticality(summary));
         
         return summary;
     }

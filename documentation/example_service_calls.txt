@@ -84,24 +84,34 @@ curl -XGET 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/Resou
 }'
 
 
-java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 706664 -type FeederAnomalyReport /opt/poleams/feeder_files/NOBHILL_706664_Anomaly_Report.zip
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 706664 -type FeederAnomalyMap /opt/poleams/feeder_files/NOBHILL_706664_Map.pdf
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 706664 -type FeederAnomalyReport /opt/poleams/feeder_files/Nobhill_706664_Report.pdf
 java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 706664 -type FeederMap /opt/poleams/feeder_files/NOBHILL_706664_Feeder_Map.pdf
 
 
-java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -resourceId 7336aa01-fb84-4757-af82-f5281fc99fa6 /opt/poleams/feeder_files/NOBHILL_706664_Anomaly_Report.zip
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -resourceId 7336aa01-fb84-4757-af82-f5281fc99fa6 /opt/poleams/feeder_files/Nobhill_706664_Report.pdf
 java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -resourceId cd6ca4bc-fc3b-4eac-8d9d-fa144e2ee4e5 /opt/poleams/feeder_files/NOBHILL_706664_Feeder_Map.pdf
 
 
-java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'Local Dev' -resourceId 7336aa01-fb84-4757-af82-f5281fc99fa6 /opt/poleams/feeder_files/NOBHILL_706664_Anomaly_Report.zip
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'Local Dev' -resourceId 7336aa01-fb84-4757-af82-f5281fc99fa6 /opt/poleams/feeder_files/Nobhill_706664_Report.pdf
 java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'Local Dev' -resourceId cd6ca4bc-fc3b-4eac-8d9d-fa144e2ee4e5 /opt/poleams/feeder_files/NOBHILL_706664_Feeder_Map.pdf
 
+// Deleting zoomify images
+
+for id in $(curl -H 'content-type: application/json' -H 'accept: application/json' -XPOST 'https://servicesdev.inspectools.net/poleams/resource/search' -d '{
+"subStationId": "05a194c8-9fbe-4a52-b6cd-95d91369e257", "type": "DroneInspectionImage"}' | aeson-pretty  |grep 'zoomifyId' | cut -d '"' -f 4)
+do
+  echo "Deleting zoomify $id"
+  curl -H 'content-type: application/json' -H 'accept: application/json' -XDELETE "https://servicesdev.inspectools.net/poleams/resource/$id"
+  echo ""
+done
 
 // Reset status on Flight Images
 
 for id in $(curl -H 'content-type: application/json' -H 'accept: application/json' -XPOST 'https://servicesdev.inspectools.net/poleams/resource/search' -d '{
-"subStationId": "4bba90ab-5f0e-4fa3-ae16-4e2e003b3af9", "type": "DroneInspectionImage"}' | aeson-pretty  |grep 'resourceId' | cut -d '"' -f 4)
+"subStationId": "05a194c8-9fbe-4a52-b6cd-95d91369e257", "type": "DroneInspectionImage"}' | aeson-pretty  |grep 'resourceId' | cut -d '"' -f 4)
 do
-  echo "resetting $id for zoomify"
+  echo "Resetting $id for zoomify"
   java -jar /home/pchapman/.m2/repository/com/precisionhawk/poleams-workbench/1.0.0-SNAPSHOT/poleams-workbench-1.0.0-SNAPSHOT.jar changeResourceStatus -env 'InspecTools Dev' -resourceId "$id" -status "Processed"
   echo ""
 done
@@ -115,3 +125,5 @@ curl -H 'content-type: application/json' -H 'accept: application/json' -XPOST 'h
 
 curl -H 'content-type: application/json' -H 'accept: application/json' -XDELETE 'https://servicesdev.inspectools.net/poleams/resource/31ebabdc-1cd0-4f8d-9783-8b651c020966'
 curl -H 'content-type: application/json' -H 'accept: application/json' -XDELETE 'https://servicesdev.inspectools.net/poleams/resource/fe8b05c9-5290-402d-9098-1810a1a57a97'
+
+curl -H 'content-type: application/json' -H 'accept: application/json' -XGET 'https://servicesdev.inspectools.net/poleams/resource/4cd80102-54d4-40e6-b61f-9e5be7e6892b' | aeson-pretty

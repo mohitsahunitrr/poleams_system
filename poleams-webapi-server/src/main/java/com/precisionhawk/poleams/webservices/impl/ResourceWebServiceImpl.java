@@ -31,7 +31,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,8 +65,18 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
     public void delete(String authToken, String resourceId) {
         ensureExists(resourceId, "The resource ID is required.");
         try {
+            ResourceMetadata rmeta = resourceDao.retrieveResourceMetadata(resourceId);
+            if (rmeta == null) {
+                ResourceSearchParameters params = new ResourceSearchParameters();
+                params.setZoomifyId(resourceId);
+                rmeta = CollectionsUtilities.firstItemIn(resourceDao.lookup(params));
+                if (rmeta == null) {
+                    return;
+                } // Else, this is a zoomify file, remove it from the repository.
+            } else {
+                resourceDao.deleteMetadata(resourceId);
+            }
             repo.deleteResource(resourceId);
-            resourceDao.deleteMetadata(resourceId);
         } catch (DaoException | RepositoryException ex) {
             throw new InternalServerErrorException(String.format("Error deleting resource %s", resourceId));
         }
@@ -168,12 +177,14 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
             }
             // If we reached here, resourceId is a valid resource or zoomify ID.
             URL redirect = repo.retrieveURL(resourceId);
-            if (redirect == null) {
+            if (redirect == null || isZoomify) {
                 return provideResource(rmeta, isZoomify);
             } else {
-                return Response.temporaryRedirect(redirect.toURI()).build();
+                return Response.status(302).header("location", redirect).build();
+                // The below returns a 307
+//                return Response.temporaryRedirect(redirect.toURI()).build();
             }
-        } catch (DaoException | RepositoryException | URISyntaxException ex) {
+        } catch (DaoException | RepositoryException ex) { // | URISyntaxException ex) {
             throw new InternalServerErrorException(String.format("Error retrieving resource %s", resourceId));
         }
     }
@@ -183,12 +194,12 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
                 InputStream is = null;
+                String key = isZoomify ? rmeta.getZoomifyId() : rmeta.getResourceId();
                 try {
-                    String key = isZoomify ? rmeta.getZoomifyId() : rmeta.getResourceId();
                     is = repo.retrieveResource(key);
                     IOUtils.copy(is, output);
                 } catch (RepositoryException ex) {
-                    
+                    LOGGER.error("Error retrieving resource {}", key, ex);
                 } finally {
                     IOUtils.closeQuietly(is);
                 }
@@ -197,7 +208,7 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
         String contentType;
         String fileNameHeader;
         if (isZoomify) {
-            contentType = "application/binary";
+            contentType = "image/zif";
             fileNameHeader = String.format("attachment; filename=\"%s.zif\"", rmeta.getZoomifyId());
         } else {
             contentType = rmeta.getContentType();
@@ -217,13 +228,14 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
                 // It may be a zoomify image.
                 ResourceSearchParameters rparms = new ResourceSearchParameters();
                 rparms.setZoomifyId(resourceId);
-                name = resourceId + ".zif";
                 meta = CollectionsUtilities.firstItemIn(resourceDao.lookup(rparms));
                 if (meta == null) {
                     LOGGER.debug("No metadata for resource {}, upload aborted.", resourceId);
                     throw new BadRequestException(String.format("No metadata for resource %s found.  Data cannot be uploaded.", resourceId));
                 } else {
-                    contentType = "application/octet-stream";
+                    // Zoomify image
+                    contentType = "image/zif";
+                    name = resourceId + ".zif";
                 }
             } else {
                 contentType = meta.getContentType();
