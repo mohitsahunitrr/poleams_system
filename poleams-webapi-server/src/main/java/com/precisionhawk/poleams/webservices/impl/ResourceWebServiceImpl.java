@@ -376,11 +376,23 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
     
     private static final String DOWNLOAD_PATH = "%s/resource/%s/download";
     
-    String getResourceDownloadURL(String resourceId) {
+    String getResourceDownloadURL(String resourceId, boolean isZoomify) {
         if (resourceId == null || resourceId.isEmpty()) {
             return null;
         }
-        return String.format(DOWNLOAD_PATH, config.getServicesURL(), resourceId);
+        String url = null;
+        if (isZoomify) {
+            // Try to go directly to source.  This is necessary for the S3 repo.
+            try {
+                url = repo.retrieveURL(resourceId).toExternalForm();
+            } catch (RepositoryException ex) {
+                LOGGER.error("Error determining direct access URL for resource {}", resourceId, ex);
+            }
+        }
+        if (url == null) {
+            url = String.format(DOWNLOAD_PATH, config.getServicesURL(), resourceId);
+        }
+        return url;
     }
     
     public List<ResourceSummary> querySummaries(String authToken, ResourceSearchParameters params) {
@@ -419,9 +431,9 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
                 thumbnailId = CollectionsUtilities.firstItemIn(thumbnailsBySourceId.get(rmeta.getResourceId()));
                 results.add(new ResourceSummary(
                         rmeta,
-                        getResourceDownloadURL(rmeta.getResourceId()),
-                        getResourceDownloadURL(thumbnailId),
-                        getResourceDownloadURL(rmeta.getZoomifyId())
+                        getResourceDownloadURL(rmeta.getResourceId(), false),
+                        getResourceDownloadURL(thumbnailId, false),
+                        getResourceDownloadURL(rmeta.getZoomifyId(), true)
                 ));
             }
             
@@ -436,10 +448,10 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
             return null;
         }
         
-        String downloadURL = getResourceDownloadURL(rmeta.getResourceId());
+        String downloadURL = getResourceDownloadURL(rmeta.getResourceId(), false);
         String zoomifyURL = null;
         if (rmeta.getZoomifyId() != null) {
-            zoomifyURL = getResourceDownloadURL(rmeta.getZoomifyId());
+            zoomifyURL = getResourceDownloadURL(rmeta.getZoomifyId(), true);
         }
         
         // Find scaled image, if any.
@@ -452,7 +464,7 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
             try {
                 ResourceMetadata thumbnail = CollectionsUtilities.firstItemIn(resourceDao.lookup(params));
                 if (thumbnail != null) {
-                    scaledImageURL = getResourceDownloadURL(thumbnail.getResourceId());
+                    scaledImageURL = getResourceDownloadURL(thumbnail.getResourceId(), false);
                 }
             } catch (DaoException dao) {
                 throw new InternalServerErrorException("Error looking up thumbnail images.", dao);

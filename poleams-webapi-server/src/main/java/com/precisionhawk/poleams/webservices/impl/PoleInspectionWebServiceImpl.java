@@ -141,14 +141,14 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
         rparams.setType(ResourceType.PoleInspectionReport);
         resources = resourceService.query(authToken, rparams);
         if (!resources.isEmpty()) {
-            summary.setAnalysisReportURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
+            summary.setAnalysisReportURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId(), false));
         }
 
         // Get URL for the analysis XML, if any.
         rparams.setType(ResourceType.PoleInspectionAnalysisXML);
         resources = resourceService.query(authToken, rparams);
         if (!resources.isEmpty()) {
-            summary.setAnalysisResultURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
+            summary.setAnalysisResultURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId(), false));
         }
 
         // Flight Images

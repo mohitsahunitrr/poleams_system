@@ -92,28 +92,28 @@ public class SubStationWebServiceImpl extends AbstractWebService implements SubS
         rparams.setType(ResourceType.FeederAnomalyMap);
         resources = resourceService.query(authToken, rparams);
         if (!resources.isEmpty()) {
-            sss.setAnomalyMapDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
+            sss.setAnomalyMapDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId(), false));
         }
         
         // find the anomaly report, if any.
         rparams.setType(ResourceType.FeederAnomalyReport);
         resources = resourceService.query(authToken, rparams);
         if (!resources.isEmpty()) {
-            sss.setAnomalyReportDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
+            sss.setAnomalyReportDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId(), false));
         }
         
         // Find the Feeder Map, if any.
         rparams.setType(ResourceType.FeederMap);
         resources = resourceService.query(authToken, rparams);
         if (!resources.isEmpty()) {
-            sss.setFeederMapDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
+            sss.setFeederMapDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId(), false));
         }
         
         // find the Survey report, if any.
         rparams.setType(ResourceType.SurveyReport);
         resources = resourceService.query(authToken, rparams);
         if (!resources.isEmpty()) {
-            sss.setSurveyReportDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
+            sss.setSurveyReportDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId(), false));
         }
         
         //TODO: We should probably remove this
@@ -121,14 +121,14 @@ public class SubStationWebServiceImpl extends AbstractWebService implements SubS
         rparams.setType(ResourceType.EncroachmentReport);
         resources = resourceService.query(authToken, rparams);
         if (!resources.isEmpty()) {
-            sss.setVegitationEncroachmentReportDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
+            sss.setVegitationEncroachmentReportDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId(), false));
         }
         
         // Find Vegitation Encroachment Report, if any.
         rparams.setType(ResourceType.EncroachmentShape);
         resources = resourceService.query(authToken, rparams);
         if (!resources.isEmpty()) {
-            sss.setVegitationEncroachmentShapeDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
+            sss.setVegitationEncroachmentShapeDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId(), false));
         }
         
         return sss;
