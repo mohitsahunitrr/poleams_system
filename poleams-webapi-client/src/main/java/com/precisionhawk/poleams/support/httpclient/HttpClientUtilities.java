@@ -1,8 +1,10 @@
 package com.precisionhawk.poleams.support.httpclient;
 
+import com.precisionhawk.poleams.webservices.client.Environment;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -20,19 +22,20 @@ public class HttpClientUtilities {
     
     private final static CloseableHttpClient CLIENT = HttpClients.createDefault();
     private final static Logger LOGGER = LoggerFactory.getLogger(HttpClientUtilities.class);
+    private static final String UPLOAD_URL = "%s/resource/%s/upload";
     
     private HttpClientUtilities() {}
     
-    public static void postFile(URI uri, String authJWT, String contentType, File file) throws IOException
+    public static void postFile(Environment env, String resourceId, String contentType, File file) throws IOException, URISyntaxException
     {
-        HttpPost httpPost = new HttpPost(uri);
-        uploadFile(httpPost, authJWT, contentType, file);
+        HttpPost httpPost = new HttpPost(uploadURL(env, resourceId));
+        uploadFile(httpPost, env.obtainAccessToken(), contentType, file);
     }
     
-    public static void putFile(URI uri, String authJWT, String contentType, File file) throws IOException
+    public static void putFile(Environment env, String resourceId, String contentType, File file) throws IOException, URISyntaxException
     {
-        HttpPost httpPut = new HttpPost(uri);
-        uploadFile(httpPut, authJWT, contentType, file);
+        HttpPost httpPut = new HttpPost(uploadURL(env, resourceId));
+        uploadFile(httpPut, env.obtainAccessToken(), contentType, file);
     }
     
     private static void uploadFile(HttpEntityEnclosingRequestBase req, String authJWT, String contentType, File file) throws IOException
@@ -46,5 +49,9 @@ public class HttpClientUtilities {
         } finally {
             req.reset();
         }
+    }
+    
+    private static URI uploadURL(Environment env, String resourceId) throws URISyntaxException {
+        return new URI(String.format(UPLOAD_URL, env.getServiceURI(), resourceId));
     }
 }

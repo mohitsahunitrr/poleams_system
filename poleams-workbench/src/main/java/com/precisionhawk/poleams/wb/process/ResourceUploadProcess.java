@@ -13,7 +13,6 @@ import com.precisionhawk.poleams.webservices.client.Environment;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
 import java.util.Queue;
@@ -30,8 +29,6 @@ import org.apache.commons.imaging.common.ImageMetadata;
  * @author pchapman
  */
 public class ResourceUploadProcess extends ServiceClientCommandProcess {
-    
-    private static final String UPLOAD_URL = "%s/resource/%s/upload";
     
     private static final String ARG_FEEDER_ID = "-feeder";
     private static final String ARG_RESOURCE_ID = "-resourceId";
@@ -157,7 +154,7 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                     }
                 }
 
-                HttpClientUtilities.postFile(new URI(String.format(UPLOAD_URL, env.getServiceURI(), rmeta.getResourceId())), env.obtainAccessToken(), contentType, f);
+                HttpClientUtilities.postFile(env, rmeta.getResourceId(), contentType, f);
 
                 if (resourceId == null) {
                     // If this is a new upload rather than a re-upload, switch status to Released.

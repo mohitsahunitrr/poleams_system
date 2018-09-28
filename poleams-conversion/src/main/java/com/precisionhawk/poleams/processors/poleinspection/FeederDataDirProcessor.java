@@ -120,11 +120,11 @@ public final class FeederDataDirProcessor implements Constants {
                 // Save Resources
                 ResourceWebService rsvc = env.obtainWebService(ResourceWebService.class);
                 for (ResourceMetadata rmeta : data.getSubStationResources()) {
-                    saveResource(env, rsvc, listener, data, rmeta);
+                    ResourceDataUploader.uploadResources(env, listener, data.getSubStationResources(), data.getResourceDataFiles(), 2);
                 }
                 for (List<ResourceMetadata> rmetaList : data.getPoleResources().values()) {
-                    for (ResourceMetadata rmeta : rmetaList) {
-                        saveResource(env, rsvc, listener, data, rmeta);
+                    for (List<ResourceMetadata> list : data.getPoleResources().values()) {
+                        ResourceDataUploader.uploadResources(env, listener, list, data.getResourceDataFiles(), 2);
                     }
                 }
             } catch (Throwable t) {
@@ -170,63 +170,5 @@ public final class FeederDataDirProcessor implements Constants {
         }
         //TODO:
         return true;
-    }
-    
-    private static final String UPLOAD_URL = "%s/resource/%s/upload";
-    private static final double SCALE_WIDTH = 100;
-    private static final ImageScaleRequest SCALE_IMAGE_REQ;
-    static {
-        SCALE_IMAGE_REQ = new ImageScaleRequest();
-        SCALE_IMAGE_REQ.setResultType(ImageScaleRequest.ContentType.JPEG);
-        SCALE_IMAGE_REQ.setScaleOperation(ImageScaleRequest.ScaleOperation.ScaleToWidth);
-        SCALE_IMAGE_REQ.setHeight(0.0);
-        SCALE_IMAGE_REQ.setWidth(SCALE_WIDTH);
-    }
-    
-    private static void saveResource(Environment env, ResourceWebService svc, ProcessListener listener, InspectionData data, ResourceMetadata rmeta)
-        throws IOException, URISyntaxException
-    {
-        if (rmeta == null) {
-            return;
-        }
-        File dataFile = data.getResourceDataFiles().get(rmeta.getResourceId());
-        if (dataFile == null) {
-            listener.reportNonFatalError(String.format("Missing data file for image %s for pole %s", rmeta.getName(), rmeta.getPoleId()));
-            return;
-        } else {
-            listener.reportMessage(String.format("Uploading file \"%s\" for resource \"%s\"", dataFile, rmeta.getResourceId()));
-        }
-        if (rmeta.getResourceId() == null || data.getDomainObjectIsNew().get(rmeta.getResourceId())) {
-            if (rmeta.getResourceId() == null) {
-                rmeta.setResourceId(UUID.randomUUID().toString());
-            }
-            rmeta.setStatus(ResourceStatus.QueuedForUpload);
-            svc.insertResourceMetadata(env.obtainAccessToken(), rmeta);
-        } else {
-            svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
-        }
-        if (ResourceStatus.QueuedForUpload == rmeta.getStatus()) {
-            String url = String.format(UPLOAD_URL, env.getServiceURI(), rmeta.getResourceId());
-            HttpClientUtilities.postFile(new URI(url), env.obtainAccessToken(), rmeta.getContentType(), dataFile);
-            rmeta.setStatus(ResourceStatus.Uploaded);
-            svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
-            if (
-                    ImageUtilities.ImageType.fromContentType(rmeta.getContentType()) != null
-                    && rmeta.getSize() != null
-                    && rmeta.getSize().getWidth() > SCALE_WIDTH
-                )
-            {
-                // Generate a thumbnail for the image.
-                svc.scale(env.obtainAccessToken(), rmeta.getResourceId(), SCALE_IMAGE_REQ);
-            }
-            if (ResourceType.DroneInspectionImage == rmeta.getType()) {
-                // Queue the image to be zoomified.
-                rmeta.setStatus(ResourceStatus.Processed);
-            } else {
-                // Mark the resource ready for user consumption
-                rmeta.setStatus(ResourceStatus.Released);
-            }
-            svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
-        }
     }
 }
