@@ -1,6 +1,5 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
-import com.precisionhawk.poleams.bean.ImageScaleRequest;
 import com.precisionhawk.poleams.bean.ResourceSearchParameters;
 import com.precisionhawk.poleams.bean.SubStationSummary;
 import com.precisionhawk.poleams.domain.Pole;
@@ -8,9 +7,7 @@ import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.ResourceMetadata;
 import com.precisionhawk.poleams.domain.ResourceStatus;
 import com.precisionhawk.poleams.domain.ResourceType;
-import com.precisionhawk.poleams.support.httpclient.HttpClientUtilities;
 import com.precisionhawk.poleams.util.CollectionsUtilities;
-import com.precisionhawk.poleams.util.ImageUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.poleams.webservices.ResourceWebService;
@@ -18,8 +15,6 @@ import com.precisionhawk.poleams.webservices.SubStationWebService;
 import com.precisionhawk.poleams.webservices.client.Environment;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -52,13 +47,18 @@ public final class FeederDataDirProcessor implements Constants {
         if (success) {
             File poleDataDir = new File(feederDir, POLE_DATA_SUBDIR);
             if (poleDataDir.exists() && poleDataDir.canRead()) {
+                String fplid;
                 listener.setStatus(ImportProcessStatus.ProcessingPoleData);
                 for (File f : poleDataDir.listFiles()) {
                     if (f.isDirectory()) {
+                        fplid = f.getName();
+                        if (fplid.endsWith("f")) {
+                            fplid = fplid.substring(0, fplid.length() -1);
+                        }
                         // The name of the directory should be the FPL ID of the pole.
-                        Pole pole = data.getPoleDataByFPLId().get(f.getName());
+                        Pole pole = data.getPoleDataByFPLId().get(fplid);
                         if (pole == null) {
-                            listener.reportMessage(String.format("No pole found with FPL ID \"%s\".  The directory \"%s\" is being skipped.", f.getName(), f.getAbsolutePath()));
+                            listener.reportMessage(String.format("No pole found with FPL ID \"%s\".  The directory \"%s\" is being skipped.", fplid, f.getAbsolutePath()));
                         } else {
                             success = PoleDataProcessor.process(env, listener, data, pole, f);
                             if (!success) {
@@ -118,14 +118,15 @@ public final class FeederDataDirProcessor implements Constants {
         
                 listener.setStatus(ImportProcessStatus.UploadingResources);
                 // Save Resources
+                listener.reportMessage("Uploading SubStation resources.");
                 ResourceWebService rsvc = env.obtainWebService(ResourceWebService.class);
                 for (ResourceMetadata rmeta : data.getSubStationResources()) {
-                    ResourceDataUploader.uploadResources(env, listener, data.getSubStationResources(), data.getResourceDataFiles(), 2);
+                    ResourceDataUploader.uploadResources(env, listener, data, data.getSubStationResources(), data.getResourceDataFiles(), 2);
                 }
-                for (List<ResourceMetadata> rmetaList : data.getPoleResources().values()) {
-                    for (List<ResourceMetadata> list : data.getPoleResources().values()) {
-                        ResourceDataUploader.uploadResources(env, listener, list, data.getResourceDataFiles(), 2);
-                    }
+                int index = 1;
+                for (List<ResourceMetadata> list : data.getPoleResources().values()) {
+                    listener.reportMessage(String.format("Uploading Pole resources ( %d of %d poles).", index++, data.getPoleResources().size()));
+                    ResourceDataUploader.uploadResources(env, listener, data, list, data.getResourceDataFiles(), 2);
                 }
             } catch (Throwable t) {
                 listener.reportFatalException("Error persisting inspection data.", t);

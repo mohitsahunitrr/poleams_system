@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -38,7 +37,6 @@ import org.slf4j.LoggerFactory;
 public class ZoomifyJob {
     
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
-    private static final String UPLOAD_URL = "%s/resource/%s/upload";
     
     // Time to allow the zoomify process to run before timing out, in seconds.
     private static final long ZOOMIFY_PROCESS_TIMEOUT = 120;
@@ -190,8 +188,7 @@ public class ZoomifyJob {
                                             svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
                                         }
                                         // Upload zoomify resource
-                                        String uri = String.format(UPLOAD_URL, env.getServiceURI(), rmeta.getZoomifyId());
-                                        HttpClientUtilities.postFile(new URI(uri), env.obtainAccessToken(), "image/zif", targetFile);
+                                        HttpClientUtilities.postFile(env, rmeta.getZoomifyId(), "image/zif", targetFile);
                                         LOGGER.info("Zoomify data of image {} saved with zoonify ID {}", rmeta.getResourceId(), rmeta.getZoomifyId());
                                         rmeta.setStatus(ResourceStatus.Released);
                                         svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);

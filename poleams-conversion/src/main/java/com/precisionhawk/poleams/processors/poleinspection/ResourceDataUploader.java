@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  *
@@ -34,21 +35,23 @@ public final class ResourceDataUploader {
     }
     
     public static void uploadResources(
-        Environment env, ProcessListener listener, Collection<ResourceMetadata> metadata, Map<String, File> data, int retryCount
+        Environment env, ProcessListener listener, InspectionData inspdata, Collection<ResourceMetadata> metadata, Map<String, File> data, int retryCount
     )
     {
         Map<String, ResourceMetadata> map = new HashMap<>();
         for (ResourceMetadata rmeta : metadata) {
             map.put(rmeta.getResourceId(), rmeta);
         }
-        _uploadResources(env, listener, map, data, retryCount);
+        _uploadResources(env, listener, inspdata, map, data, retryCount);
     }
     
     private static void _uploadResources(
-        Environment env, ProcessListener listener, Map<String, ResourceMetadata> metadata, Map<String, File> data, int retryCount
+        Environment env, ProcessListener listener, InspectionData inspdata, Map<String, ResourceMetadata> metadata, Map<String, File> data, int retryCount
     )
     {
         Boolean b;
+        File dataFile;
+        int count = 1;
         Map<String, Boolean> exists;
         List<String> ids = new ArrayList<>(metadata.keySet());
         ResourceMetadata rmeta;
@@ -64,14 +67,24 @@ public final class ResourceDataUploader {
                     rmeta = metadata.get(resourceId);
                     if (b == null || (!b) || ResourceStatus.QueuedForUpload == rmeta.getStatus()) {
                         success = false;
-                        break;
-                    }
-                }
-                if (!success) {
-                    // Attempt uploads
-                    for (String resourceId : metadata.keySet()) {
-                        rmeta = metadata.get(resourceId);
-                        HttpClientUtilities.postFile(env, rmeta.getResourceId(), rmeta.getContentType(), data.get(resourceId));
+                        if (rmeta.getResourceId() == null || inspdata.getDomainObjectIsNew().get(rmeta.getResourceId())) {
+                            if (rmeta.getResourceId() == null) {
+                                rmeta.setResourceId(UUID.randomUUID().toString());
+                            }
+                            rmeta.setStatus(ResourceStatus.QueuedForUpload);
+                            svc.insertResourceMetadata(env.obtainAccessToken(), rmeta);
+                            try {
+                                Thread.sleep(250); // Pause .25 second to ensure ElasticSearch has had time to injest.
+                            } catch (InterruptedException ex) {
+                                // DO Nothing
+                            }
+                            inspdata.getDomainObjectIsNew().put(rmeta.getResourceId(), false);
+                        } else {
+                            svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
+                        }
+                        dataFile = data.get(resourceId);
+                        listener.reportMessage(String.format("Uploading file \"%s\" for resource \"%s\", attempt %d (total: %d of %d)", dataFile, rmeta.getResourceId(), (i + 1), count++, exists.size()));
+                        HttpClientUtilities.postFile(env, rmeta.getResourceId(), rmeta.getContentType(), dataFile);
                         rmeta.setStatus(ResourceStatus.Uploaded);
                         svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
                         if (
@@ -81,6 +94,11 @@ public final class ResourceDataUploader {
                             )
                         {
                             // Generate a thumbnail for the image.
+                            try {
+                                Thread.sleep(1250); // Pause 1.25 second to ensure S3 has had time to injest.
+                            } catch (InterruptedException ex) {
+                                // DO Nothing
+                            }
                             svc.scale(env.obtainAccessToken(), rmeta.getResourceId(), SCALE_IMAGE_REQ);
                         }
                         if (ResourceType.DroneInspectionImage == rmeta.getType()) {
@@ -94,9 +112,10 @@ public final class ResourceDataUploader {
                     }
                 }
             } catch (IOException | URISyntaxException ex) {
-                //TODO:
+                listener.reportNonFatalException("Error uploading resource.", ex);
             }
         }
+        
         // Report any resources that were not successfully uploaded.
         try {
             exists = svc.verifyUploadedResources(env.obtainAccessToken(), ids);
