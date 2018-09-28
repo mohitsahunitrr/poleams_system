@@ -159,6 +159,7 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
         }
     }
 
+    @Override
     public Response downloadResource(String resourceId) {
         ensureExists(resourceId, "The resource IDs are required.");
         try {
@@ -177,7 +178,7 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
             }
             // If we reached here, resourceId is a valid resource or zoomify ID.
             URL redirect = repo.retrieveURL(resourceId);
-            if (redirect == null || isZoomify) {
+            if (redirect == null) {
                 return provideResource(rmeta, isZoomify);
             } else {
                 return Response.status(302).header("location", redirect).build();

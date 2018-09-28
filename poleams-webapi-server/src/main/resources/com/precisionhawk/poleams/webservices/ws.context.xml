@@ -23,12 +23,6 @@
         factory-method="getAwsConfig"
     />
     <bean
-        id="CacheConfig"
-        class="com.precisionhawk.poleams.cache.CacheConfig"
-        factory-bean="AppConfig"
-        factory-method="getCacheConfig"
-    />
-    <bean
         id="ElasticSearchConfig"
         class="com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConfig"
         factory-bean="AppConfig"

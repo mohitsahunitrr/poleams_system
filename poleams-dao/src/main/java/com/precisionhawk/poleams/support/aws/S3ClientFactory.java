@@ -20,6 +20,7 @@ public class S3ClientFactory extends AwsClientFactory implements Provider<Amazon
     public AmazonS3 get() {
         synchronized (LOCK) {
             if (client == null) {
+                LOGGER.info("Instantiating S3 client to for region %s.", getRegion());
                 AmazonS3ClientBuilder builder = AmazonS3ClientBuilder.standard();
                 builder.setCredentials(createCredentials());
                 if (getRegion() != null && getRegion().length() > 0) {

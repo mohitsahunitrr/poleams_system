@@ -4,6 +4,8 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import javax.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -12,6 +14,7 @@ import javax.inject.Inject;
 public abstract class AwsClientFactory {
     
     private static final Object LOCK = new Object();
+    protected static final Logger LOGGER = LoggerFactory.getLogger(AwsClientFactory.class);
     
     @Inject private AwsConfig config;
     

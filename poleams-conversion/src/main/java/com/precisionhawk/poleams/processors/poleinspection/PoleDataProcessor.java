@@ -40,6 +40,7 @@ final class PoleDataProcessor {
                             params.setPoleInspectionId(data.getPoleInspectionsByFPLId().get(p.getFPLId()).getId());
                             if (fname.endsWith("_250C.XML")) {
                                 // We have the PoleForeman data file.
+                                PoleForemanXMLProcessor.process(listener, p, data.getPoleInspectionsByFPLId().get(p.getFPLId()), f);
                                 params = new ResourceSearchParameters();
                                 params.setPoleId(p.getId());
                                 params.setPoleInspectionId(data.getPoleInspectionsByFPLId().get(p.getFPLId()).getId());

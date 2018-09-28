@@ -69,6 +69,7 @@ public class S3ResourceRepository implements ResourceRepository {
     
     @PostConstruct
     public void initialize() {
+        LOGGER.info("S3 Resource Repository being created for S3 bucket %s", getBucketName());
         // Ensure bucket exists in S3
         boolean found = false;
         for (Bucket bucket : getS3Client().listBuckets()) {
@@ -85,7 +86,13 @@ public class S3ResourceRepository implements ResourceRepository {
     @Override
     public void storeResource(ResourceMetadata metaData, String key, String name, String contentType, InputStream resourceStream, Long length) throws RepositoryException {
         ObjectMetadata ometa = new ObjectMetadata();
-        ometa.setContentDisposition(StringUtil.replaceArgs("attachment; filename=\"{1}\"", name));
+        String ct = contentType.toLowerCase();
+        // Non-zif images and pdfs should be loaded inline.  Everything else, download.
+        if ((!"image/zif".equals(contentType)) && (ct.startsWith("image") || "application/pdf".equals(ct))) {
+            ometa.setContentDisposition(String.format("inline; filename=\"%s\"", name));
+        } else {
+            ometa.setContentDisposition(String.format("attachment; filename=\"%s\"", name));
+        }
         ometa.setContentType(contentType);
         if (length != null) {
             ometa.setContentLength(length);
