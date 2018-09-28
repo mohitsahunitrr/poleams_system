@@ -4,6 +4,7 @@ curl -XGET 'http://windamses:9200/_cluster/health' | aeson-pretty
 ### Delete Index
 curl -XDELETE 'http://windamses:9200/poleams'
 #curl -XDELETE 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams'
+#curl -XDELETE 'http://ec2-52-201-252-174.compute-1.amazonaws.com:9200/poleams'
 
 ### Download Mapping
 curl -XGET 'http://windamses:9200/poleams/SubStation/_mapping?pretty=true'
@@ -68,8 +69,8 @@ curl -XGET 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/Resou
     "query": {
         "bool" : {
             "must" : [
-                {"term" : { "subStationId": "4bba90ab-5f0e-4fa3-ae16-4e2e003b3af9" }},
-                {"term" : { "type": "FeederAnomalyReport" }}
+                {"term" : { "subStationId": "4d5668d8-be42-45ee-8677-1897fb7370f9" }},
+                {"term" : { "type": "SurveyReport" }}
             ]
 	}
     }
@@ -99,7 +100,7 @@ java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workb
 // Deleting zoomify images
 
 for id in $(curl -H 'content-type: application/json' -H 'accept: application/json' -XPOST 'https://servicesdev.inspectools.net/poleams/resource/search' -d '{
-"subStationId": "05a194c8-9fbe-4a52-b6cd-95d91369e257", "type": "DroneInspectionImage"}' | aeson-pretty  |grep 'zoomifyId' | cut -d '"' -f 4)
+"subStationId": "4d5668d8-be42-45ee-8677-1897fb7370f9", "type": "DroneInspectionImage"}' | aeson-pretty  |grep 'zoomifyId' | cut -d '"' -f 4)
 do
   echo "Deleting zoomify $id"
   curl -H 'content-type: application/json' -H 'accept: application/json' -XDELETE "https://servicesdev.inspectools.net/poleams/resource/$id"
@@ -109,7 +110,7 @@ done
 // Reset status on Flight Images
 
 for id in $(curl -H 'content-type: application/json' -H 'accept: application/json' -XPOST 'https://servicesdev.inspectools.net/poleams/resource/search' -d '{
-"subStationId": "05a194c8-9fbe-4a52-b6cd-95d91369e257", "type": "DroneInspectionImage"}' | aeson-pretty  |grep 'resourceId' | cut -d '"' -f 4)
+"subStationId": "4d5668d8-be42-45ee-8677-1897fb7370f9", "type": "DroneInspectionImage"}' | aeson-pretty  |grep 'resourceId' | cut -d '"' -f 4)
 do
   echo "Resetting $id for zoomify"
   java -jar /home/pchapman/.m2/repository/com/precisionhawk/poleams-workbench/1.0.0-SNAPSHOT/poleams-workbench-1.0.0-SNAPSHOT.jar changeResourceStatus -env 'InspecTools Dev' -resourceId "$id" -status "Processed"
@@ -127,3 +128,10 @@ curl -H 'content-type: application/json' -H 'accept: application/json' -XDELETE 
 curl -H 'content-type: application/json' -H 'accept: application/json' -XDELETE 'https://servicesdev.inspectools.net/poleams/resource/fe8b05c9-5290-402d-9098-1810a1a57a97'
 
 curl -H 'content-type: application/json' -H 'accept: application/json' -XGET 'https://servicesdev.inspectools.net/poleams/resource/4cd80102-54d4-40e6-b61f-9e5be7e6892b' | aeson-pretty
+
+
+curl -H 'content-type: application/json' -H 'accept: application/json' -XPOST 'https://servicesdev.inspectools.net/poleams/resource/search' -d '{
+"subStationId": "05a194c8-9fbe-4a52-b6cd-95d91369e257", "type": "DroneInspectionImage"}' | aeson-pretty  |grep 'zoomifyId'
+
+
+debccf78-bfbf-4dd3-834c-168224a61153

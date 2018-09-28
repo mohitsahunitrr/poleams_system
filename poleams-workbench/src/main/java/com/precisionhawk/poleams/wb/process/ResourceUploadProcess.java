@@ -110,6 +110,8 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                     contentType = "application/vnd.google-earth.kml+xml";
                 } else if (fn.endsWith(".PDF")) {
                     contentType = "application/pdf";
+                } else if (fn.endsWith(".XLSX")) {
+                    contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                 }
             } else {
                 ImageInfo info = Imaging.getImageInfo(f);
