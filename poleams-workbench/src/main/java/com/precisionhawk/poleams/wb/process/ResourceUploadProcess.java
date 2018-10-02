@@ -1,12 +1,18 @@
 package com.precisionhawk.poleams.wb.process;
 
+import com.precisionhawk.poleams.bean.PoleInspectionSearchParameters;
+import com.precisionhawk.poleams.bean.PoleSearchParameters;
 import com.precisionhawk.poleams.bean.SubStationSearchParameters;
+import com.precisionhawk.poleams.domain.Pole;
+import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.ResourceMetadata;
 import com.precisionhawk.poleams.domain.ResourceStatus;
 import com.precisionhawk.poleams.domain.ResourceType;
 import com.precisionhawk.poleams.domain.SubStation;
 import com.precisionhawk.poleams.support.httpclient.HttpClientUtilities;
 import com.precisionhawk.poleams.util.CollectionsUtilities;
+import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
+import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.poleams.webservices.ResourceWebService;
 import com.precisionhawk.poleams.webservices.SubStationWebService;
 import com.precisionhawk.poleams.webservices.client.Environment;
@@ -31,17 +37,21 @@ import org.apache.commons.imaging.common.ImageMetadata;
 public class ResourceUploadProcess extends ServiceClientCommandProcess {
     
     private static final String ARG_FEEDER_ID = "-feeder";
+    private static final String ARG_FPL_ID = "-fplid";
     private static final String ARG_RESOURCE_ID = "-resourceId";
     private static final String ARG_TYPE = "-type";
     private static final String COMMAND = "uploadResource";
 
     private static final String HELP =
-            "\t" + COMMAND + " [" + ARG_FEEDER_ID + " FeederId] ["
-            + ARG_TYPE + "] ["
-            + ARG_RESOURCE_ID + " ResourceId] "
+            "\t" + COMMAND
+            + " [" + ARG_FEEDER_ID + " FeederId]"
+            + " [" + ARG_FPL_ID + " FPL_Id]"
+            + " [" + ARG_TYPE + " ResourceType]"
+            + " [" + ARG_RESOURCE_ID + " ResourceId] "
             + " resourceType path/to/resource";
 
     private String feederId;
+    private String fplId;
     private String fileName;
     private String resourceId;
     private ResourceType resourceType;
@@ -53,6 +63,13 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                 if (feederId == null) {
                     feederId = args.poll();
                     return feederId != null;
+                } else {
+                    return false;
+                }
+            case ARG_FPL_ID:
+                if (fplId == null) {
+                    fplId = args.poll();
+                    return fplId != null;
                 } else {
                     return false;
                 }
@@ -82,13 +99,7 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
 
     @Override
     protected boolean execute(Environment env) {
-        if (resourceId == null) {
-            if (feederId == null) {
-                return false;
-            } else if (resourceType == null) {
-                return false;
-            }
-        } else if (fileName == null) {
+        if ((resourceId == null && feederId == null && fplId == null) || fileName == null) {
             return false;
         }
         File f = new File(fileName);
@@ -129,16 +140,47 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                 SubStationWebService ssvc = env.obtainWebService(SubStationWebService.class);
 
                 ResourceMetadata rmeta;
+                SubStation ss;
+                
                 if (resourceId == null) {
-                    SubStationSearchParameters params = new SubStationSearchParameters();
-                    params.setFeederNumber(feederId);
-                    SubStation ss = CollectionsUtilities.firstItemIn(ssvc.search(env.obtainAccessToken(), params));
-                    if (ss == null) {
-                        System.err.printf("No substation found for feeder \"%s\".\n", feederId);
-                        return true;
+                    rmeta = new ResourceMetadata();
+                    
+                    if (fplId != null) {
+                        PoleWebService psvc = env.obtainWebService(PoleWebService.class);
+                        PoleSearchParameters pparams = new PoleSearchParameters();
+                        pparams.setFPLId(fplId);
+                        Pole p = CollectionsUtilities.firstItemIn(psvc.search(env.obtainAccessToken(), pparams));
+                        if (p == null) {
+                            System.err.printf("No pole found for FPL ID \"%s\".\n", fplId);
+                            return true;
+                        } else {
+                            PoleInspectionWebService pisvc = env.obtainWebService(PoleInspectionWebService.class);
+                            PoleInspectionSearchParameters piparams = new PoleInspectionSearchParameters();
+                            piparams.setPoleId(p.getId());
+                            PoleInspection pi = CollectionsUtilities.firstItemIn(pisvc.search(env.obtainAccessToken(), piparams));
+                            if (pi == null) {
+                                System.err.printf("No inspection for pole with FPL ID \"%s\" found.\n", fplId);
+                                return true;
+                            } else {
+                                rmeta.setPoleId(p.getId());
+                                rmeta.setPoleInspectionId(pi.getId());
+                                ss = ssvc.retrieve(env.obtainAccessToken(), p.getSubStationId());
+                            }
+                        }
+                    } else if (feederId != null) {
+                        SubStationSearchParameters params = new SubStationSearchParameters();
+                        params.setFeederNumber(feederId);
+                        ss = CollectionsUtilities.firstItemIn(ssvc.search(env.obtainAccessToken(), params));
+                        if (ss == null) {
+                            System.err.printf("No substation found for feeder \"%s\".\n", feederId);
+                            return true;
+                        }
+                    } else {
+                        // Shouldn't get here due to checks above
+                        System.err.println("Either Resource ID, Feeder ID or FPL ID are required.");
+                        return false;
                     }
 
-                    rmeta = new ResourceMetadata();
                     rmeta.setContentType(contentType);
                     rmeta.setName(f.getName());
                     rmeta.setOrganizationId(ss.getOrganizationId());
