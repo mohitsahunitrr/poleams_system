@@ -36,6 +36,9 @@ public enum ResourceType {
     @Schema(description="Misc. files gathered during inspeciton")
     Other,
     
+    @Schema(description="Design report (PDF) per pole")
+    PoleDesignReport,
+    
     //TODO: Rename to "PoleForemanAnalysisXML"
     @Schema(description="Pole Foreman analysis data")
     PoleInspectionAnalysisXML,

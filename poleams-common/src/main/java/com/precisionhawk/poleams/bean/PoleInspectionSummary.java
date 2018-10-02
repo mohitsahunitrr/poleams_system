@@ -39,6 +39,15 @@ public class PoleInspectionSummary extends PoleInspection {
     public void setCriticality(Integer criticality) {
         this.criticality = criticality;
     }
+    
+    @Schema(description="Design report (PDF) pole.")
+    private String designReportURL;
+    public String getDesignReportURL() {
+        return designReportURL;
+    }
+    public void setDesignReportURL(String designReportURL) {
+        this.designReportURL = designReportURL;
+    }
 
     @Schema(description="A list of all images collected in drone flight, in no particular order.")
     private List<ResourceSummary> flightImages = new LinkedList<>();

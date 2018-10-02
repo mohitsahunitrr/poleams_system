@@ -137,6 +137,13 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
         rparams.setPoleInspectionId(summary.getId());
         List<ResourceMetadata> resources;
         
+        // find the design report, if any.
+        rparams.setType(ResourceType.PoleDesignReport);
+        resources = resourceService.query(authToken, rparams);
+        if (!resources.isEmpty()) {
+            summary.setDesignReportURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId(), false));
+        }
+        
         // find the analysis report, if any.
         rparams.setType(ResourceType.PoleInspectionReport);
         resources = resourceService.query(authToken, rparams);

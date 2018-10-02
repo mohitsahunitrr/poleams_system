@@ -45,6 +45,15 @@ public class SubStationSummary extends SubStation {
         this.feederMapDownloadURL = feederMapDownloadURL;
     }
     
+    @Schema(description="Summary report (PDF) of the inspection of the poles for the feeder.")
+    private String summaryReportURL;
+    public String getSummaryReportDownloadURL() {
+        return summaryReportURL;
+    }
+    public void setSummaryReportDownloadURL(String summaryReportURL) {
+        this.summaryReportURL = summaryReportURL;
+    }
+    
     //TODO: Belongs to a SubStationInspection object
     @Schema(description="URL from which the anomaly report for the substation can be downloaded.")
     private String surveyReportDownloadURL;

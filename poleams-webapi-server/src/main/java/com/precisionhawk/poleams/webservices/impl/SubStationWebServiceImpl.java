@@ -109,6 +109,13 @@ public class SubStationWebServiceImpl extends AbstractWebService implements SubS
             sss.setFeederMapDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId(), false));
         }
         
+        // find the Summary report, if any.
+        rparams.setType(ResourceType.FeederSummaryReport);
+        resources = resourceService.query(authToken, rparams);
+        if (!resources.isEmpty()) {
+            sss.setSummaryReportDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId(), false));
+        }
+        
         // find the Survey report, if any.
         rparams.setType(ResourceType.SurveyReport);
         resources = resourceService.query(authToken, rparams);

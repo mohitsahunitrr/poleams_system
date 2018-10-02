@@ -24,6 +24,7 @@ public final class Main {
     private final CommandProcess[] COMMANDS = new CommandProcess[] {
         new ChangeResourceStatusProcess(),
         new FeederDataImportProcess(),
+        new PopulateEncroachmentGoogleEarthURL(),
         new PopulateMasterSurveyProcess(),
         new ResourceUploadProcess()
     };

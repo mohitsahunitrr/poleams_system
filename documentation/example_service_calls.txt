@@ -88,14 +88,8 @@ curl -XGET 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/Resou
 java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 706664 -type FeederAnomalyMap /opt/poleams/feeder_files/NOBHILL_706664_Map.pdf
 java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 706664 -type FeederAnomalyReport /opt/poleams/feeder_files/Nobhill_706664_Report.pdf
 java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 706664 -type FeederMap /opt/poleams/feeder_files/NOBHILL_706664_Feeder_Map.pdf
-
-
-java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -resourceId 7336aa01-fb84-4757-af82-f5281fc99fa6 /opt/poleams/feeder_files/Nobhill_706664_Report.pdf
-java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -resourceId cd6ca4bc-fc3b-4eac-8d9d-fa144e2ee4e5 /opt/poleams/feeder_files/NOBHILL_706664_Feeder_Map.pdf
-
-
-java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'Local Dev' -resourceId 7336aa01-fb84-4757-af82-f5281fc99fa6 /opt/poleams/feeder_files/Nobhill_706664_Report.pdf
-java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'Local Dev' -resourceId cd6ca4bc-fc3b-4eac-8d9d-fa144e2ee4e5 /opt/poleams/feeder_files/NOBHILL_706664_Feeder_Map.pdf
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 706664 -type EncroachmentShape /opt/poleams/feeder_files/Nob\ Hill\ 64.kmz
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar populateEncroachmentURL -env 'InspecTools Dev' -feeder 706664 -url "https://drive.google.com/open?id=1-2iHzLTHXPrOBpQLNrC-69mI4FiAgYMd"
 
 // Deleting zoomify images
 
@@ -134,4 +128,27 @@ curl -H 'content-type: application/json' -H 'accept: application/json' -XPOST 'h
 "subStationId": "05a194c8-9fbe-4a52-b6cd-95d91369e257", "type": "DroneInspectionImage"}' | aeson-pretty  |grep 'zoomifyId'
 
 
-debccf78-bfbf-4dd3-834c-168224a61153
+curl -H 'accept: application/json' -H 'content-type: application/json' -XPOST 'https://servicesdev.inspectools.net/poleams/subStation' -d '
+{
+    "hardeningLevel": "Extreme Wind",
+    "vegitationEncroachmentGoogleEarthURL": "https://drive.google.com/open?id=1-2iHzLTHXPrOBpQLNrC-69mI4FiAgYMd",
+    "name": "NOBHILL",
+    "windZone": "145",
+    "id": "4d5668d8-be42-45ee-8677-1897fb7370f9",
+    "organizationId": "9d718b1e-ca84-4e78-a1cb-1393ceecc927",
+    "feederNumber": "706664"
+}'
+
+Pinehurst 38:
+https://drive.google.com/open?id=1eXe6YhZ3wqWxpWYSf3PBNlAzWaE_tZtD
+
+
+********* FEEDER FILE UPLOADS *********
+
+***** Feeder 706664 *****
+
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 706664 -type FeederAnomalyMap /opt/poleams/feeder_files/NOBHILL_706664_Map.pdf
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 706664 -type FeederAnomalyReport /opt/poleams/feeder_files/Nobhill_706664_Report.pdf
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 706664 -type FeederMap /opt/poleams/feeder_files/NOBHILL_706664_Feeder_Map.pdf
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 706664 -type EncroachmentShape /opt/poleams/feeder_files/Nob\ Hill\ 64.kmz
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar populateEncroachmentURL -env 'InspecTools Dev' -feeder 706664 -url "https://drive.google.com/open?id=1-2iHzLTHXPrOBpQLNrC-69mI4FiAgYMd"
