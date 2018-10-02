@@ -324,8 +324,8 @@
             "listValues": [],
             "key": "poleInspectionSummary.horizontalLoadPercent",
             "errors": {},
-            "description": "The current wind rating for the pole.",
-            "label": "Current Wind Rating"
+            "description": "The horizontal pole loading for the pole.",
+            "label": "Horizontal Pole Loading"
         },
         "poleInspectionSummary.latLongDelta": {
             "listValues": [],

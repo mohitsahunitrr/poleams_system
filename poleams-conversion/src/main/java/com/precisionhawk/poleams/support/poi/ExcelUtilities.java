@@ -61,6 +61,21 @@ public class ExcelUtilities {
         }
     }
     
+    public static void setCellData(Row row, int col, Double d) {
+        Cell cell = row.getCell(col);
+        if (cell == null) {
+            if (d == null) {
+                return;
+            }
+            cell = row.createCell(col);
+        }
+        if (d == null) {
+            cell.setCellValue((String)null);
+        } else {
+            cell.setCellValue(d);
+        }
+    }
+    
     public static void setCellData(Row row, int col, LocalDate d) {
         Cell cell = row.getCell(col);
         if (cell == null) {

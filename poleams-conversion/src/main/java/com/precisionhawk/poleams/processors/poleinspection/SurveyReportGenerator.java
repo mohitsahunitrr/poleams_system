@@ -113,9 +113,10 @@ public class SurveyReportGenerator implements SurveyReportConstants {
             while (processing) {
                 row = sheet.getRow(rowIndex);
                 fplId = getCellDataAsId(row, COL_FPL_ID);
-                if ("X".equals(fplId.toUpperCase())) {
+                if (fplId == null || "X".equals(fplId.toUpperCase())) {
                     processing = false;
                 } else {
+                    listener.reportMessage(String.format("Processing FPL ID %s", fplId));
                     pole = summary.getPolesByFPLId().get(fplId);
                     inspection = summary.getPoleInspectionsByFPLId().get(fplId);
                     processRow(row, pole, inspection);
@@ -191,7 +192,7 @@ public class SurveyReportGenerator implements SurveyReportConstants {
             setCellData(row, COL_POLE_NUM_2, pole.getId());
         }
         if (inspection != null) {
-            setCellData(row, COL_CURRENT_WIND_RATING, inspection.getHorizontalLoadingPercent());
+            setCellData(row, COL_HORIZONTAL_POLE_LOADING, inspection.getHorizontalLoadingPercent());
             setCellData(row, COL_LAT_LONG_DELTA, inspection.getLatLongDelta());
         }
     }

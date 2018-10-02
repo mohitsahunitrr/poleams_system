@@ -84,8 +84,10 @@ public final class FeederDataDirProcessor implements Constants {
                     SubStationWebService sssvc = env.obtainWebService(SubStationWebService.class);
                     if (data.getDomainObjectIsNew().get(data.getSubStation().getId())) {
                         sssvc.create(env.obtainAccessToken(), data.getSubStation());
+                        listener.reportMessage(String.format("Inserted new sub station %s", data.getSubStation().getFeederNumber()));
                     } else {
                         sssvc.update(env.obtainAccessToken(), data.getSubStation());
+                        listener.reportMessage(String.format("Updating sub station %s", data.getSubStation().getFeederNumber()));
                     }
                 }
 
@@ -95,8 +97,10 @@ public final class FeederDataDirProcessor implements Constants {
                     for (Pole pdata : data.getPoleDataByFPLId().values()) {
                         if (data.getDomainObjectIsNew().get(pdata.getId())) {
                             psvc.create(env.obtainAccessToken(), pdata);
+                            listener.reportMessage(String.format("Inserted new pole %s FPL ID %s", pdata.getId(), pdata.getFPLId()));
                         } else {
                             psvc.update(env.obtainAccessToken(), pdata);
+                            listener.reportMessage(String.format("Updated pole %s FPL ID %s", pdata.getId(), pdata.getFPLId()));
                         }
                     }
                 }
@@ -107,8 +111,10 @@ public final class FeederDataDirProcessor implements Constants {
                     for (PoleInspection pi : data.getPoleInspectionsByFPLId().values()) {
                         if (data.getDomainObjectIsNew().get(pi.getId())) {
                             pisvc.create(env.obtainAccessToken(), pi);
+                            listener.reportMessage(String.format("Inserted new inspection for pole %s", pi.getPoleId()));
                         } else {
                             pisvc.update(env.obtainAccessToken(), pi);
+                            listener.reportMessage(String.format("updated inspection for pole %s", pi.getPoleId()));
                         }
                     }
                 }

@@ -204,7 +204,7 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
                 data.addPoleInspection(pole, inspection, false);
             }
             inspection.setAccess(getCellDataAsBoolean(row, COL_POLE_ACCESS));
-            inspection.setLatLongDelta(getCellDataAsInteger(row, COL_LAT_LONG_DELTA));
+            inspection.setLatLongDelta(getCellDataAsDouble(row, COL_LAT_LONG_DELTA));
             
             return true;
         }

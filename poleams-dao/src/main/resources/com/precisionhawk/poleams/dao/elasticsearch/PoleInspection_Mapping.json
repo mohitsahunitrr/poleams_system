@@ -1,31 +1,71 @@
 {
-  "PoleInspection" : {
-    "properties" : {
-      "id" : {
-        "include_in_all" : true,
-        "index" : "not_analyzed",
-        "type" : "string"
-      },
-      "organizationId" : {
-        "include_in_all" : true,
-        "index" : "not_analyzed",
-        "type" : "string"
-      },
-      "subStationId" : {
-        "include_in_all" : true,
-        "index" : "not_analyzed",
-        "type" : "string"
-      },
-      "poleId" : {
-        "include_in_all" : true,
-        "index" : "not_analyzed",
-        "type" : "string"
-      },
-      "dateOfAnalysis" : {
-        "include_in_all" : false,
-          "type" : "date",
-          "format" : "yyyyMMdd"
-      }
+    "PoleInspection": {
+        "properties": {
+            "id": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "organizationId": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "subStationId": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "poleId": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "dateOfAnalysis": {
+                "include_in_all": false,
+                "type": "date",
+                "format": "yyyyMMdd"
+            },
+            "access": {
+                "type": "boolean"
+            },
+            "verticalLoadingPercent": {
+                "type": "long"
+            },
+            "anchorsPass": {
+                "type": "boolean"
+            },
+            "insulatorsPass": {
+                "type": "boolean"
+            },
+            "passedAnalysis": {
+                "type": "boolean"
+            },
+            "bracketsPass": {
+                "type": "boolean"
+            },
+            "horizontalLoadingPercent": {
+                "type": "long"
+            },
+            "latLongDelta": {
+                "type": "double"
+            },
+            "loadCase": {
+                "properties": {
+                    "wind": {
+                        "type": "string"
+                    },
+                    "ice": {
+                        "type": "string"
+                    },
+                    "nescRule": {
+                        "type": "string"
+                    },
+                    "temperature": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
     }
-  }
 }

@@ -7,6 +7,7 @@ import io.swagger.oas.annotations.media.Schema;
  * 
  * @author Philip A. Chapman
  */
+//TODO: Refactor SubStation to be called Feeder instead.  Touches summary objects, search bean, dao, and services.
 @Schema(description="Data related to power substation to which poles are related.")
 public class SubStation implements Identifyable {
     

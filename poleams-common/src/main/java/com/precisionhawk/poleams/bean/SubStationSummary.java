@@ -34,6 +34,7 @@ public class SubStationSummary extends SubStation {
         this.anomalyReportDownloadURL = anomalyReportDownloadURL;
     }
     
+    //TODO: Rename to "Circuit Map"
     //TODO: Belongs to a SubStationInspection object
     @Schema(description="URL from which the feeder map for the substation can be downloaded.")
     private String feederMapDownloadURL;
@@ -100,6 +101,7 @@ public class SubStationSummary extends SubStation {
         setId(sub.getId());
         setName(sub.getName());
         setOrganizationId(sub.getOrganizationId());
+        setVegitationEncroachmentGoogleEarthURL(sub.getVegitationEncroachmentGoogleEarthURL());
         setWindZone(sub.getWindZone());
         Map<String, String> fplidByPoleId = new HashMap<>();
         for (PoleSummary ps : poleSummaries) {

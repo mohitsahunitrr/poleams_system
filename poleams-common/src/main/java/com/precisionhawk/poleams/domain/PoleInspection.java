@@ -85,11 +85,11 @@ public class PoleInspection implements Identifyable {
         this.insulatorsPass = insulatorsPass;
     }
     
-    private Integer latLongDelta;
-    public Integer getLatLongDelta() {
+    private Double latLongDelta;
+    public Double getLatLongDelta() {
         return latLongDelta;
     }
-    public void setLatLongDelta(Integer latLongDelta) {
+    public void setLatLongDelta(Double latLongDelta) {
         this.latLongDelta = latLongDelta;
     }
 
@@ -156,6 +156,7 @@ public class PoleInspection implements Identifyable {
         setHorizontalLoadingPercent(pi.getHorizontalLoadingPercent());
         setId(pi.getId());
         setInsulatorsPass(pi.getInsulatorsPass());
+        setLatLongDelta(pi.getLatLongDelta());
         setLoadCase(pi.getLoadCase());
         setOrganizationId(pi.getOrganizationId());
         setPassedAnalysis(pi.passedAnalysis);

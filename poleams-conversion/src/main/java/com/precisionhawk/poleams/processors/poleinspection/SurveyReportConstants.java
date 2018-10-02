@@ -47,11 +47,12 @@ public interface SurveyReportConstants {
     static final int[] COL_GUY_BEARING =  {60, 64, 68, 72, 76, 80};
     static final int COL_POLE_NUM_2 = 81;
     static final int COL_POLE_CONTRACTOR_COMMENTS = 82;
-    static final int COL_CURRENT_WIND_RATING = 83;
+//    static final int COL_CURRENT_WIND_RATING = 83;
     static final int COL_CURRENT_PROPOSED_WORK = 84;
     static final int COL_CURRENT_ESTIMATED_COST = 85;
     static final int COL_CURRENT_NEW_WIND_RATING = 86;
     static final int COL_LAT_LONG_DELTA = 87;
+    static final int COL_HORIZONTAL_POLE_LOADING = 88;
     static final Point FEEDER_HARDENING_LVL = new Point(13, 1);
     static final Point FEEDER_NAME = new Point(5, 1);
     static final Point FEEDER_NUM = new Point(1, 1);

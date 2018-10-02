@@ -12,6 +12,7 @@ import java.util.List;
  */
 public class PoleInspectionSummary extends PoleInspection {
     
+    //TODO: Rename to "PoleForeman Analysis"
     @Schema(description="Anaysis result XML output from PoleForeman.")
     private String analysisResultURL;
     public String getAnalysisResultURL() {

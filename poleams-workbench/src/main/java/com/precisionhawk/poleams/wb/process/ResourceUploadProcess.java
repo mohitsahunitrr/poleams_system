@@ -105,6 +105,8 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                     contentType = "application/zip";
                 } else if (fn.endsWith(".KML")) {
                     contentType = "application/vnd.google-earth.kml+xml";
+                } else if (fn.endsWith(".KMZ")) {
+                    contentType = "application/vnd.google-earth.kmz";
                 } else if (fn.endsWith(".PDF")) {
                     contentType = "application/pdf";
                 } else if (fn.endsWith(".XLSX")) {

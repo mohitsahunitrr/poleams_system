@@ -36,11 +36,11 @@ public class PopulateMasterSurveyProcess extends ServiceClientCommandProcess {
                 return true;
             }
         } else if (inFile == null) {
-            inFile = arg;
-            return true;
+            inFile = args.poll();
+            return inFile != null;
         } else if (outFile == null) {
-            outFile = arg;
-            return true;
+            outFile = args.poll();
+            return outFile != null;
         }
         return false;
     }

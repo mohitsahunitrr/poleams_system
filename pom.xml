@@ -113,6 +113,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>poleams-report</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>poleams-webapi</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -374,6 +379,7 @@
         <module>poleams-conversion</module>
         <module>poleams-dao</module>
         <module>poleams-processor</module>
+        <module>poleams-report</module>
         <module>poleams-swagger</module>
         <module>poleams-webapi</module>
         <module>poleams-webapi-client</module>
