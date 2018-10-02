@@ -33,6 +33,10 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>poleams-reporting</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>poleams-webapi</artifactId>
         </dependency>
         <dependency>
