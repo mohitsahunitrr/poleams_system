@@ -189,7 +189,6 @@ public class SurveyReportGenerator implements SurveyReportConstants {
                 setCellData(row, COL_GUY_DIAM[i], anchor.getStrandDiameter());
                 setCellData(row, COL_GUY_LEAD_LEN[i], anchor.getLeadLength());
             }
-            setCellData(row, COL_POLE_NUM_2, pole.getId());
         }
         if (inspection != null) {
             setCellData(row, COL_HORIZONTAL_POLE_LOADING, inspection.getHorizontalLoadingPercent());

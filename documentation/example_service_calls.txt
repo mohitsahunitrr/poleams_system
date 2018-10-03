@@ -152,3 +152,19 @@ java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workb
 java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 706664 -type FeederMap /opt/poleams/feeder_files/NOBHILL_706664_Feeder_Map.pdf
 java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 706664 -type EncroachmentShape /opt/poleams/feeder_files/Nob\ Hill\ 64.kmz
 java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar populateEncroachmentURL -env 'InspecTools Dev' -feeder 706664 -url "https://drive.google.com/open?id=1-2iHzLTHXPrOBpQLNrC-69mI4FiAgYMd"
+
+***** Feeder 706662 *****
+
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 706662 -type FeederAnomalyMap /opt/poleams/feeder_files/Nobhill_706662_Map.pdf
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 706662 -type FeederAnomalyReport /opt/poleams/feeder_files/Nobhill_706662_Report.pdf
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 706662 -type FeederMap /opt/poleams/feeder_files/NOBHILL_70662_Feeder_Map.pdf
+#java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 706662 -type EncroachmentShape /opt/poleams/feeder_files/Nob\ Hill\ 62.kmz
+#java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar populateEncroachmentURL -env 'InspecTools Dev' -feeder 706662 -url "https://drive.google.com/open?id=1-2iHzLTHXPrOBpQLNrC-69mI4FiAgYMd"
+
+***** Feeder 700534 *****
+
+#java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700534 -type FeederAnomalyMap /opt/poleams/feeder_files/NOBHILL_706662_Map.pdf
+#java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700534 -type FeederAnomalyReport /opt/poleams/feeder_files/Nobhill_706662_Report.pdf
+#java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700534 -type FeederMap /opt/poleams/feeder_files/NOBHILL_706662_Feeder_Map.pdf
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700534 -type EncroachmentShape /opt/poleams/feeder_files/Pompano.kmz
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar populateEncroachmentURL -env 'InspecTools Dev' -feeder 700534 -url "https://drive.google.com/open?id=1bDeUhQbDSU2EQhPwYZ9RCdTT8DqkNqml"
