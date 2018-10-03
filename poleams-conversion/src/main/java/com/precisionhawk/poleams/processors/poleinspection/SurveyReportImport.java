@@ -149,23 +149,25 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
     {
         String fplId = getCellDataAsId(row, COL_FPL_ID);
         if (fplId == null || fplId.isEmpty()) {
-            listener.reportMessage(String.format("Now fplId found on row %d, end of data found", row.getRowNum()));
+            listener.reportMessage(String.format("No fplId found on row %d, end of data found", row.getRowNum() + 1));
             return false;
-        } else if ("X".equals(fplId.toUpperCase())) {
+        } else if ("X".equalsIgnoreCase(fplId)) {
             return false;
         } else {
-            Pole pole = lookupPoleByFPLId(env, psvc, fplId);
+            listener.reportMessage(String.format("Processing Pole with FPL ID \"%s\" in spreadsheet row %d", fplId, (row.getRowNum() + 1)));
+            String poleNum = getCellDataAsId(row, COL_POLE_NUM_1);
+            if ("N/A".equalsIgnoreCase(poleNum)) {
+                listener.reportNonFatalError(String.format("The tower on row %d with FPL ID %s is marked \"N/A\" and is being skipped.", row.getRowNum() + 1, fplId));
+                return true;
+            }
+            PoleSearchParameters pparams = new PoleSearchParameters();
+            pparams.setFPLId(fplId);
+            Pole pole = CollectionsUtilities.firstItemIn(psvc.search(env.obtainAccessToken(), pparams));
             boolean isNew = false;
-            if (pole == null) {
-                String poleNum = getCellDataAsId(row, COL_POLE_NUM_1);
-                if (poleNum == null || poleNum.isEmpty()) {
-                    listener.reportNonFatalError(String.format("The tower on row %d with FPL ID %s has no Object ID.", row.getRowNum(), fplId));
-                    return true;
-                }
-                
+            if (pole == null) {   
                 pole = new Pole();
                 pole.setFPLId(fplId);
-                pole.setId(poleNum);
+                pole.setId(UUID.randomUUID().toString());
                 pole.setOrganizationId(ORG_ID);
                 pole.setSubStationId(data.getSubStation().getId());
                 isNew = true;
@@ -189,9 +191,9 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
             PoleInspection inspection = null;
             if (!isNew) {
                 // Attempt to find an existing inspection
-                PoleInspectionSearchParameters params = new PoleInspectionSearchParameters();
-                params.setPoleId(pole.getId());
-                inspection = CollectionsUtilities.firstItemIn(pisvc.search(env.obtainAccessToken(), params));
+                PoleInspectionSearchParameters piparams = new PoleInspectionSearchParameters();
+                piparams.setPoleId(pole.getId());
+                inspection = CollectionsUtilities.firstItemIn(pisvc.search(env.obtainAccessToken(), piparams));
             }
             if (inspection == null) {
                 inspection = new PoleInspection();

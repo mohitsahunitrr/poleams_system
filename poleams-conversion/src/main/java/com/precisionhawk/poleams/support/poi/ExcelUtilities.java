@@ -158,7 +158,12 @@ public class ExcelUtilities {
                     break;
                 case FORMULA:
                 case NUMERIC:
-                    return cell.getNumericCellValue();
+                    try {
+                        return cell.getNumericCellValue();
+                    } catch (IllegalStateException ex) {
+                        //FIXME: Remove this after Excel file is fixed.
+                        return null;
+                    }
                 case STRING:
                     value = cell.getStringCellValue();
             }
