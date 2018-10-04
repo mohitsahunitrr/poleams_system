@@ -11,6 +11,7 @@ import com.precisionhawk.poleams.domain.ResourceType;
 import com.precisionhawk.poleams.domain.SubStation;
 import com.precisionhawk.poleams.support.httpclient.HttpClientUtilities;
 import com.precisionhawk.poleams.util.CollectionsUtilities;
+import com.precisionhawk.poleams.util.ContentTypeUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.poleams.webservices.ResourceWebService;
@@ -108,30 +109,7 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
             System.err.printf("The file \"%s\" either does not exist or cannot be read.\n", f);
         }
         
-        String contentType = null;
-        try {
-            ImageFormat format = Imaging.guessFormat(f);
-            if (ImageFormats.UNKNOWN.equals(format)) {
-                if (fn.endsWith(".ZIP")) {
-                    contentType = "application/zip";
-                } else if (fn.endsWith(".KML")) {
-                    contentType = "application/vnd.google-earth.kml+xml";
-                } else if (fn.endsWith(".KMZ")) {
-                    contentType = "application/vnd.google-earth.kmz";
-                } else if (fn.endsWith(".PDF")) {
-                    contentType = "application/pdf";
-                } else if (fn.endsWith(".XLSX")) {
-                    contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                }
-            } else {
-                ImageInfo info = Imaging.getImageInfo(f);
-                ImageMetadata metadata = Imaging.getMetadata(f);
-                contentType = info.getMimeType();
-            }
-        } catch (IOException | ImageReadException ioe) {
-            ioe.printStackTrace(System.err);
-            return true;
-        }
+        String contentType = ContentTypeUtilities.guessContentType(f);
         if (contentType == null) {
             System.err.printf("The file \"%s\" is an unrecognized file type.", f);
         } else {

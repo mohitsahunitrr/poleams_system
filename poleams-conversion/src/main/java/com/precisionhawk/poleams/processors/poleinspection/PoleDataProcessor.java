@@ -78,7 +78,7 @@ final class PoleDataProcessor {
                         } else {
                             data.addResourceMetadata(rmeta, f, false);
                         }
-                    } else if (fname.endsWith(".PDF")) {
+                    } else if (fname.endsWith("_250C.PDF")) {
                         // Assume it's the Pole Foreman report
                         params.setType(ResourceType.PoleInspectionReport);
                         rmeta = CollectionsUtilities.firstItemIn(rsvc.query(env.obtainAccessToken(), params));

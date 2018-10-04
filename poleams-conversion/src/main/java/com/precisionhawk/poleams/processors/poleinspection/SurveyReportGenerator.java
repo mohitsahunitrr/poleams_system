@@ -147,6 +147,8 @@ public class SurveyReportGenerator implements SurveyReportConstants {
 
     private static void processRow(Row row, PoleSummary pole, PoleInspectionSummary inspection) {
         if (pole != null) {
+            String poleNum = getCellDataAsId(row, COL_POLE_NUM_1);
+            setCellData(row, COL_POLE_NUM_2, poleNum); // Why copy pole num into another column?  IDK
             setCellData(row, COL_POLE_HEIGHT, pole.getLength());
             setCellData(row, COL_POLE_CLASS, pole.getPoleClass());
             setCellData(row, COL_POLE_SPAN_1_FRAMING, pole.getFraming());

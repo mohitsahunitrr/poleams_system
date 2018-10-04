@@ -45,7 +45,7 @@ public interface SurveyReportConstants {
     static final int[] COL_GUY_LEAD_LEN = {58, 62, 66, 70, 74, 78};
     static final int[] COL_GUY_DIAM =     {59, 63, 67, 71, 75, 79};
     static final int[] COL_GUY_BEARING =  {60, 64, 68, 72, 76, 80};
-//    static final int COL_POLE_NUM_2 = 81;
+    static final int COL_POLE_NUM_2 = 81;
     static final int COL_POLE_CONTRACTOR_COMMENTS = 82;
 //    static final int COL_CURRENT_WIND_RATING = 83;
     static final int COL_CURRENT_PROPOSED_WORK = 84;

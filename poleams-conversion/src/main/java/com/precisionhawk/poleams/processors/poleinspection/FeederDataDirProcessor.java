@@ -7,21 +7,26 @@ import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.ResourceMetadata;
 import com.precisionhawk.poleams.domain.ResourceStatus;
 import com.precisionhawk.poleams.domain.ResourceType;
+import com.precisionhawk.poleams.domain.SubStation;
 import com.precisionhawk.poleams.util.CollectionsUtilities;
+import com.precisionhawk.poleams.util.ContentTypeUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.poleams.webservices.ResourceWebService;
 import com.precisionhawk.poleams.webservices.SubStationWebService;
 import com.precisionhawk.poleams.webservices.client.Environment;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.io.IOUtils;
 
 /**
  * Given a directory processes the Excel spreadsheet and pole analysis XML files
@@ -31,43 +36,94 @@ import org.slf4j.LoggerFactory;
  */
 public final class FeederDataDirProcessor implements Constants {
     
-    // The directory should have one Excel spreadsheet (xlsx) that contains
-    // manually gathered data about poles.  We process this first.  It should
-    // Also contain a directory that follows the pattern feedername_feedernum_xml_pdf
-    // such as "nobhill_70662_xml_pdf".  This folder will contain output from pole
-    // foreman.  Specifically, it should contain the XML output as well as a report
-    // in PDF format for each pole.  The names should follow the format
-    // fplid_250C.pdf and fplid_250C.xml.  For example, 3652617_250C.pdf and
-    // 3652617_250C.xml respectively.  There will also be a folder for each pole
-    // which contains images associated with that pole.  Each of these folders will
-    // have a name that is either the FPL ID or the FPL ID followed by a "f" such as
-    // "3798819" or "3798819f".
+    private static final String FEEDER_MAP_DIR = "2. Feeder Map";
+    private static final Pattern FEEDER_MAP_REGEX = Pattern.compile("\\w*_\\d{5}\\.pdf");    
+    private static final FilenameFilter FEEDER_MAP_FILE_FILTER = new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+            return FEEDER_MAP_REGEX.matcher(name).matches();
+        }
+    };
     
-    private static final Logger LOGGER = LoggerFactory.getLogger(FeederDataDirProcessor.class);
+    private static final FilenameFilter IMAGES_DIR_FILTER = new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+            name = name.toLowerCase();
+            return name.startsWith("003.") && name.endsWith("_pictures");
+        }
+    };
     
-    private static final String POLE_DATA_SUBDIR = "Pole_Photos_and_PF_Project_V2";
-    
-    // nobhill_70662_xml_pdf
-    private static final Pattern POLE_FOREMAN_FILES_DIR_REGEX = Pattern.compile("\\w*_\\d{5}_xml_pdf");    
+    private static final String POLE_DATA_SUBDIR = "1. Pole Photos and PF Project";
+    private static final Pattern POLE_FOREMAN_FILES_DIR_REGEX = Pattern.compile("001.*\\w*_\\d{5}_xml_pdf");    
     private static final FilenameFilter POLE_FOREMAN_FILES_DIR_FILTER = new FilenameFilter() {
         @Override
         public boolean accept(File dir, String name) {
-            return POLE_FOREMAN_FILES_DIR_REGEX.matcher(name).matches();
+            name = name.toLowerCase();
+            return name.startsWith("001.") && name.endsWith("_xml_pdf");
         }
     };
+    
+    private static final String MASTER_SURVEY_TEMPL_DIR = "5. MASTER Survey Template";
+
+    //TODO: This code could probably be used elsewhere.  Refactor this and other places where we are searching for/creating resources
+    private static boolean ensureResource(Environment env, InspectionData data, ProcessListener listener, SubStation subStation, PoleInspection poleInspection, ResourceType resourceType, File f) {
+        try {
+            ResourceSearchParameters params = new ResourceSearchParameters();
+            params.setSubStationId(subStation.getId());
+            if (poleInspection != null) {
+                params.setPoleInspectionId(poleInspection.getId());
+            }
+            params.setType(resourceType);
+            ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(env.obtainWebService(ResourceWebService.class).query(env.obtainAccessToken(), params));
+            boolean isnew = false;
+            if (rmeta == null) {
+                String contentType = ContentTypeUtilities.guessContentType(f);
+                if (contentType == null) {
+                    listener.reportNonFatalError(String.format("Unable to determine content type for %s", f));
+                    return false;
+                }
+                rmeta = new ResourceMetadata();
+                rmeta.setContentType(contentType);
+                rmeta.setName(f.getName());
+                rmeta.setOrganizationId(subStation.getOrganizationId());
+                if (poleInspection != null) {
+                    rmeta.setPoleId(poleInspection.getPoleId());
+                    rmeta.setPoleInspectionId(poleInspection.getId());
+                }
+                rmeta.setResourceId(UUID.randomUUID().toString());
+                rmeta.setStatus(ResourceStatus.QueuedForUpload);
+                rmeta.setSubStationId(subStation.getId());
+                rmeta.setTimestamp(ZonedDateTime.now());
+                rmeta.setType(resourceType);
+                isnew = true;
+            }
+            data.addResourceMetadata(rmeta, f, isnew);
+            return true;
+        } catch (IOException ex) {
+            listener.reportNonFatalException("Error querying for existing resources.", ex);
+            return false;
+        }
+    }
     
     // no state
     private FeederDataDirProcessor() {};
 
     public static boolean process(Environment env, ImportProcessListener listener, File feederDir) {
         
+        boolean success;
         listener.setStatus(ImportProcessStatus.Initializing);
         InspectionData data = new InspectionData();
         
         // There should be an excel file for all poles.
-        boolean success = SurveyReportImport.processMasterSurveyTemplate(env, listener, data, feederDir);
-        if (!success) {
-            return success;
+        File mstDir = new File(feederDir, MASTER_SURVEY_TEMPL_DIR);
+        if (mstDir.isDirectory()) {
+            success = SurveyReportImport.processMasterSurveyTemplate(env, listener, data, mstDir);
+            if (!success) {
+                return success;
+            }
+        } else {
+            listener.reportFatalError(String.format("Master survey template directory \"%s\" does not exist, is not readable, or is not a directory.", mstDir));
+            return false;
         }
         
         File poleDataDir = new File(feederDir, POLE_DATA_SUBDIR);
@@ -84,12 +140,13 @@ public final class FeederDataDirProcessor implements Constants {
             }
             
             // Process pole directories which contain images.
-            String fplid;
-            for (File f : poleDataDir.listFiles()) {
-                if (f.isDirectory()) {
-                    fplid = f.getName();
-                    // Skip pole foreman files dir
-                    if (!POLE_FOREMAN_FILES_DIR_REGEX.matcher(fplid).matches()) {
+            File imagesDir = findImagesDir(listener, poleDataDir);
+            if (imagesDir != null) {
+                String fplid;
+                for (File f : imagesDir.listFiles()) {
+                    if (f.isDirectory()) {
+                        fplid = f.getName();
+                        // Skip pole foreman files dir
                         if (fplid.endsWith("f")) {
                             fplid = fplid.substring(0, fplid.length() -1);
                         }
@@ -98,14 +155,15 @@ public final class FeederDataDirProcessor implements Constants {
                         if (pole == null) {
                             listener.reportMessage(String.format("No pole found with FPL ID \"%s\".  The directory \"%s\" is being skipped.", fplid, f.getAbsolutePath()));
                         } else {
+                            listener.reportMessage(String.format("Processing images for pole %s", fplid));
                             success = PoleDataProcessor.processImagesForPole(env, listener, data, pole, f);
                             if (!success) {
                                 break;
                             }
                         }
+                    } else {
+                        listener.reportMessage(String.format("File \"%s\" is not a directory and is being skipped.", f));
                     }
-                } else {
-                    listener.reportMessage(String.format("File \"%s\" is not a directory and is being skipped.", f));
                 }
             }
         } else {
@@ -115,6 +173,23 @@ public final class FeederDataDirProcessor implements Constants {
         if (!success) {
             return success;
         }
+        
+        // Find feeder map
+        File fmDir = new File(feederDir, FEEDER_MAP_DIR);
+        if (fmDir.isDirectory()) {
+            File f = findFeederMapFile(listener, fmDir);
+            if (f != null) {
+                success = ensureResource(env, data, listener, data.getSubStation(), null, ResourceType.FeederMap, f);
+            }
+            if (!success) {
+                return false;
+            }
+        } else {
+            listener.reportFatalError(String.format("Feeder map directory \"%s\" does not exist, is not readable, or is not a directory.", fmDir));
+            return false;
+        }
+        
+        //TODO: Find and upload kml (kmz)
         
         try {
             listener.setStatus(ImportProcessStatus.PersistingData);
@@ -183,13 +258,39 @@ public final class FeederDataDirProcessor implements Constants {
         return success;
     }
 
-    private static File findPoleForemanFilesDir(ImportProcessListener listener, File feederDir) {
-        File[] files = feederDir.listFiles(POLE_FOREMAN_FILES_DIR_FILTER);
+    private static File findFeederMapFile(ImportProcessListener listener, File feederMapDir) {
+        File[] files = feederMapDir.listFiles(FEEDER_MAP_FILE_FILTER);
         if (files.length > 1) {
-            listener.reportFatalError(String.format("Multiple directories exist in directory \"%s\" which could contain pole forman files.", feederDir));
+            listener.reportFatalError(String.format("Multiple files exist in directory \"%s\" which could be the feeder map.", feederMapDir));
             return null;
         } else if (files.length == 0) {
-            listener.reportFatalError(String.format("No directory found in directory \"%s\" which contains pole foreman files.", feederDir));
+            listener.reportFatalError(String.format("No file found in directory \"%s\" which could e identified as the feeder map.", feederMapDir));
+            return null;
+        } else {
+            return files[0];
+        }
+    }
+
+    private static File findImagesDir(ImportProcessListener listener, File poleDataDir) {
+        File[] files = poleDataDir.listFiles(IMAGES_DIR_FILTER);
+        if (files.length > 1) {
+            listener.reportFatalError(String.format("Multiple directories exist in directory \"%s\" which could contain images.", poleDataDir));
+            return null;
+        } else if (files.length == 0) {
+            listener.reportFatalError(String.format("No directory found in directory \"%s\" which contain images.", poleDataDir));
+            return null;
+        } else {
+            return files[0];
+        }
+    }
+
+    private static File findPoleForemanFilesDir(ImportProcessListener listener, File poleDataDir) {
+        File[] files = poleDataDir.listFiles(POLE_FOREMAN_FILES_DIR_FILTER);
+        if (files.length > 1) {
+            listener.reportFatalError(String.format("Multiple directories exist in directory \"%s\" which could contain pole forman files.", poleDataDir));
+            return null;
+        } else if (files.length == 0) {
+            listener.reportFatalError(String.format("No directory found in directory \"%s\" which contains pole foreman files.", poleDataDir));
             return null;
         } else {
             return files[0];
@@ -199,9 +300,23 @@ public final class FeederDataDirProcessor implements Constants {
     private static boolean updateSurveyReport(Environment env, InspectionData data, ImportProcessListener listener) {
         listener.setStatus(ImportProcessStatus.GeneratingUpdatedSurveyReport);
         try {
-            File outFile = File.createTempFile(data.getSubStation().getFeederNumber(), "surveyrpt");
+            File inFile = File.createTempFile(data.getSubStation().getFeederNumber(), "surveyrptsource");
+            File outFile = File.createTempFile(data.getSubStation().getFeederNumber(), "surveyrptout");
+            // Copy from source to temp file.  I do this because I don't trust POI to not overwrite the original.  I've had it do strange things.
+            InputStream is = null;
+            OutputStream os = null;
+            try {
+                is = new FileInputStream(data.getMasterDataFile());
+                os = new FileOutputStream(inFile);
+                IOUtils.copy(is, os);
+            } finally {
+                IOUtils.closeQuietly(is);
+                IOUtils.closeQuietly(os);
+            }
+            // Populate summary into 2nd temp file
             SubStationSummary summary = env.obtainWebService(SubStationWebService.class).retrieveSummary(env.obtainAccessToken(), data.getSubStation().getId());
-            boolean success = SurveyReportGenerator.populateTemplate(env, listener, summary, data.getMasterDataFile(), outFile);
+            boolean success = SurveyReportGenerator.populateTemplate(env, listener, summary, inFile, outFile);
+            // Set up to upload temp file
             if (success) {
                 ResourceWebService svc = env.obtainWebService(ResourceWebService.class);
                 ResourceSearchParameters params = new ResourceSearchParameters();
@@ -227,7 +342,7 @@ public final class FeederDataDirProcessor implements Constants {
         } catch (IOException ioe) {
             listener.reportNonFatalException("Error creating temporary file for updated Survey Report", ioe);
         }
-        //TODO:
+
         return true;
     }
 }
