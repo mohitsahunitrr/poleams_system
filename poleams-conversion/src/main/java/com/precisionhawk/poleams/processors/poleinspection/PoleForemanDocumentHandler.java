@@ -335,12 +335,15 @@ class PoleForemanDocumentHandler extends AbstractDocumentHandler {
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-        if (TAG_ROOT == localName) {
+        if (TAG_ROOT.equals(localName)) {
             poleForemanXML = true;
         } else if (poleForemanXML) {
             switch (localName) {
                 case TAG_ANALYSIS:
                     String fplid = attributes.getValue(ATTR_FPL_ID);
+                    if (fplid != null) {
+                        fplid = fplid.trim();
+                    }
                     if (!Objects.equals(pole.getFPLId(), fplid)) {
                         throw new SAXException(String.format("The pole's FPL ID \"%s\" does not match the GIS_ID attribute \"%s\"", pole.getFPLId(), fplid));
                     }

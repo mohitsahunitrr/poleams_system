@@ -336,6 +336,7 @@ public final class FeederDataDirProcessor implements Constants {
                     rmeta.setType(params.getType());
                     data.addResourceMetadata(rmeta, outFile, true);
                 } else {
+                    rmeta.setStatus(ResourceStatus.QueuedForUpload);
                     data.addResourceMetadata(rmeta, outFile, false);
                 }
             }
