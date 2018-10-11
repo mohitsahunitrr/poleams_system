@@ -18,5 +18,7 @@ public interface ServicesConfig {
     /** The URL for services.  This is used for generating download URLs for resources. */
     public String getServicesURL();
     
+    public String getUsersListFile();
+    
     public String getVersion();
 }

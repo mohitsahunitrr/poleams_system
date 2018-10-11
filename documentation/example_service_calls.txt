@@ -182,3 +182,20 @@ java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workb
 #java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700338 -type FeederAnomalyReport /opt/poleams/feeder_files/Nobhill_706662_Report.pdf
 java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700338 -type EncroachmentShape /opt/poleams/feeder_files/Pinehurst\ 32.kmz
 java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar populateEncroachmentURL -env 'InspecTools Dev' -feeder 700338 -url "https://drive.google.com/open?id=1wkwPqRZiDZ5CCrPeIWYePfkRzSa4bZMj"
+
+
+# PrecisionHawkFPL2018
+curl -v -H "accept: application/json" -H "content-type: application/json" -XGET "http://localhost:7171/user/authenticate?login=p.chapman@precisionhawk.com&passhash=9691844250633c540d0774b5a577bc805123678578866a3a5f73ba67c5d5371c"
+
+curl -v -H "accept: application/json" -H "content-type: application/json" -XGET "http://localhost:7171/user/authenticate?login=pchapman@pcsw.us&passhash=9691844250633c540d0774b5a577bc805123678578866a3a5f73ba67c5d5371d"
+
+curl -v -H "accept: application/json" -H "content-type: application/json" -XGET "http://localhost:7171/user/authenticate?login=pchapman@pcsw.us&passhash=9691844250633c540d0774b5a577bc805123678578866a3a5f73ba67c5d5371c"
+
+
+curl -v -H "accept: application/json" -H "content-type: application/json" -XGET "https://servicesdev.inspectools.net/poleams/user/authenticate?login=p.chapman@precisionhawk.com&passhash=83d4b2d60829ec26ec90cb8754d01b83dc3cb2574f538fc8caa82f4207857355"
+
+curl -v -H "accept: application/json" -H "content-type: application/json" -XGET "https://servicesdev.inspectools.net/poleams/user/authenticate?login=pchapman@pcsw.us&passhash=9691844250633c540d0774b5a577bc805123678578866a3a5f73ba67c5d5371d"
+
+curl -v -H "accept: application/json" -H "content-type: application/json" -XGET "https://servicesdev.inspectools.net/poleams/user/authenticate?login=pchapman@pcsw.us&passhash=9691844250633c540d0774b5a577bc805123678578866a3a5f73ba67c5d5371c"
+
+curl -v -H "accept: application/json" -H "content-type: application/json" -XGET "https://servicesdev.inspectools.net/user/authenticate?login=barry%40focalpointgeo.com&passhash=ab78c491e0aafd9bf71eef90427733a106cb948c70c5fcc5ea2b5457019fa182"

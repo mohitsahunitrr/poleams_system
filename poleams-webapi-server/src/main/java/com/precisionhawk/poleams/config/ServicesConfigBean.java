@@ -50,6 +50,15 @@ public class ServicesConfigBean implements ServicesConfig {
     public void setServicesURL(String servicesURL) {
         this.servicesURL = servicesURL;
     }
+    
+    private String usersListFile;
+    @Override
+    public String getUsersListFile() {
+        return usersListFile;
+    }
+    public void setUsersListFile(String usersListFile) {
+        this.usersListFile = usersListFile;
+    }
 
     private String version;
     @Override
