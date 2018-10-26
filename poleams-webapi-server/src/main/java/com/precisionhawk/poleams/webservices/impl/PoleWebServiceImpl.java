@@ -1,11 +1,15 @@
 package com.precisionhawk.poleams.webservices.impl;
 
 import com.precisionhawk.poleams.bean.PoleAnalysisImportJobState;
+import com.precisionhawk.poleams.bean.PoleInspectionSearchParameters;
 import com.precisionhawk.poleams.bean.PoleSearchParameters;
 import com.precisionhawk.poleams.bean.PoleSummary;
+import com.precisionhawk.poleams.bean.ResourceSearchParameters;
 import com.precisionhawk.poleams.dao.DaoException;
 import com.precisionhawk.poleams.dao.PoleDao;
 import com.precisionhawk.poleams.domain.Pole;
+import com.precisionhawk.poleams.domain.PoleInspection;
+import com.precisionhawk.poleams.domain.ResourceMetadata;
 import com.precisionhawk.poleams.domain.poledata.CommunicationsCable;
 import com.precisionhawk.poleams.domain.poledata.PoleEquipment;
 import com.precisionhawk.poleams.domain.poledata.PoleLight;
@@ -13,7 +17,9 @@ import com.precisionhawk.poleams.domain.poledata.PoleSpan;
 import com.precisionhawk.poleams.domain.poledata.PrimaryCable;
 import com.precisionhawk.poleams.domain.poledata.SecondaryCable;
 import com.precisionhawk.poleams.util.CollectionsUtilities;
+import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
+import com.precisionhawk.poleams.webservices.ResourceWebService;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -32,6 +38,8 @@ import javax.ws.rs.NotFoundException;
 public class PoleWebServiceImpl extends AbstractWebService implements PoleWebService {
     
     @Inject private PoleDao poleDao;
+    @Inject private PoleInspectionWebService poleInspectionSvc;
+    @Inject private ResourceWebService resourceSvc;
 
     @Override
     public Pole create(String authToken, Pole pole) {
@@ -205,5 +213,35 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
             }
         }
         return cables;
+    }
+
+    @Override
+    public void delete(String authToken, String id) {
+        // First, see if we even have such a pole
+        Pole p = retrieve(authToken, id);
+        if (p != null) {
+            {
+                // Delete Inspections, which will delete any shared resources.
+                PoleInspectionSearchParameters params = new PoleInspectionSearchParameters();
+                params.setPoleId(id);
+                for (PoleInspection insp : poleInspectionSvc.search(authToken, params)) {
+                    poleInspectionSvc.delete(authToken, insp.getId());
+                }
+            }
+            {
+                // Delete any resources left that are related to the pole.
+                ResourceSearchParameters params = new ResourceSearchParameters();
+                params.setPoleId(id);
+                for (ResourceMetadata rmeta : resourceSvc.query(authToken, params)) {
+                    resourceSvc.delete(authToken, rmeta.getResourceId());
+                }
+            }
+            try {
+                // Finally, we can delete the pole.
+                poleDao.delete(id);
+            } catch (DaoException ex) {
+                throw new InternalServerErrorException(String.format("Error deleting the pole %s.\n", id), ex);
+            }
+        }
     }
 }

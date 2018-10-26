@@ -60,4 +60,6 @@ public interface PoleInspectionWebService extends WebService {
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
             PoleInspection inspection
     );
+
+    public void delete(String authToken, String id);
 }

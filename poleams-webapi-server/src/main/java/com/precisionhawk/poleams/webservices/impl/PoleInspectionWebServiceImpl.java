@@ -178,4 +178,26 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
         
         return summary;
     }
+
+    @Override
+    public void delete(String authToken, String id) {
+        // See if it even exists
+        PoleInspection insp = retrieve(authToken, id);
+        if (insp != null) {
+            {
+                // Delete any related resources
+                ResourceSearchParameters params = new ResourceSearchParameters();
+                params.setPoleInspectionId(insp.getId());
+                for (ResourceMetadata rmeta : resourceService.query(authToken, params)) {
+                    resourceService.delete(authToken, rmeta.getResourceId());
+                }
+            }
+            try {
+                // Delete the inspection itself.
+                piDao.delete(id);
+            } catch (DaoException ex) {
+                throw new InternalServerErrorException(String.format("Unable to delete pole inspection %s", id), ex);
+            }
+        }
+    }
 }
