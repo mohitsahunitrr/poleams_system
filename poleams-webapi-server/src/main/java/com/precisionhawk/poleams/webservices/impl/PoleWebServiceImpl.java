@@ -177,7 +177,9 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
     
     private static int countAttachments(Pole pole, CommunicationsCable.Type type) {
         int count = 0;
-        for (PoleSpan span : pole.getSpans()) {
+        if (!pole.getSpans().isEmpty()) {
+            // Only first span is desired as per Irina Denisenko 10/25/2018.
+            PoleSpan span = pole.getSpans().get(0);
             for (CommunicationsCable cable : span.getCommunications()) {
                 if (cable.getType() == type) {
                     count++;
@@ -192,7 +194,9 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
         )
     {
         List<CommunicationsCable> cables = new LinkedList<>();
-        for (PoleSpan span : pole.getSpans()) {
+        if (!pole.getSpans().isEmpty()) {
+            // Only first span is desired as per Irina Denisenko 10/25/2018.
+            PoleSpan span = pole.getSpans().get(0);
             List<CommunicationsCable> list = span.getCommunications();
             for (int i = 0; cables.size() < maxCount && i < list.size(); i++) {
                 if (type == list.get(i).getType()) {

@@ -13,7 +13,7 @@ import java.util.List;
 @Schema(description="A displayable summary of Pole information.")
 public class PoleSummary extends Pole {
 
-    @Schema(description="A list of up to 6 cable TV attachments.")
+    @Schema(description="A list of up to 6 cable TV attachments.  Only first span is desired.")
     private List<CommunicationsCable> caTVAttachments;
     public List<CommunicationsCable> getCaTVAttachments() {
         return caTVAttachments;
@@ -85,7 +85,7 @@ public class PoleSummary extends Pole {
         this.neutralWireType = nutralWireType;
     }
     
-    @Schema(description="Number of Cable TV Attachments")
+    @Schema(description="Number of Cable TV Attachments.  Only first span is desired.")
     private Integer numberOfCATVAttachments;
     public Integer getNumberOfCATVAttachments() {
         return numberOfCATVAttachments;
@@ -94,7 +94,7 @@ public class PoleSummary extends Pole {
         this.numberOfCATVAttachments = numberOfCATVAttachments;
     }
     
-    @Schema(description="Number of Cable TV Attachments")
+    @Schema(description="Number of Cable TV Attachments.  Only first span is desired.")
     private Integer numberOfTelComAttachments;
     public Integer getNumberOfTelComAttachments() {
         return numberOfTelComAttachments;
@@ -184,7 +184,7 @@ public class PoleSummary extends Pole {
         this.streetLight = streetLight;
     }
     
-    @Schema(description="A list of up to 6 telecommunications attachments.")
+    @Schema(description="A list of up to 6 telecommunications attachments.  Only first span is desired.")
     private List<CommunicationsCable> telCommAttachments;
     public List<CommunicationsCable> getTelCommAttachments() {
         return telCommAttachments;
@@ -193,7 +193,7 @@ public class PoleSummary extends Pole {
         this.telCommAttachments = telCommAttachments;
     }
     
-    @Schema(description="The total size of Cable TV")
+    @Schema(description="The total size of Cable TV.  Only first span is desired.")
     private Integer totalSizeCATV;
     public Integer getTotalSizeCATV() {
         return totalSizeCATV;
@@ -202,7 +202,7 @@ public class PoleSummary extends Pole {
         this.totalSizeCATV = totalSizeCATV;
     }
     
-    @Schema(description="The total size of Telecommunications")
+    @Schema(description="The total size of Telecommunications.  Only first span is desired.")
     private Integer totalSizeTelCom;
     public Integer getTotalSizeTelCom() {
         return totalSizeTelCom;
