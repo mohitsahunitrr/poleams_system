@@ -163,39 +163,22 @@ java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workb
 
 ***** Feeder Pinehurst 700338 *****
 
-#java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700338 -type FeederAnomalyMap /opt/poleams/feeder_files/POMPANO_00534_Map.pdf
-#java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700338 -type FeederAnomalyReport /opt/poleams/feeder_files/Nobhill_706662_Report.pdf
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700338 -type FeederAnomalyMap "/opt/cloudsync/Dropbox/FPLPolesforMalcolm/3. Pinehurst 700338/6. Anomaly Report and Map/PINEHURST_700338_Map.pdf"
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700338 -type FeederAnomalyReport "/opt/cloudsync/Dropbox/FPLPolesforMalcolm/3. Pinehurst 700338/6. Anomaly Report and Map/Pinehurst_700338_Report.pdf"
 java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700338 -type FeederSummaryReport /opt/poleams/feeder_files/PrecisionHawk\ Feeder\ Summary\ Report\ _PineHurst700338.pdf
 java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700338 -type EncroachmentShape /opt/poleams/feeder_files/Pinehurst\ 38.kmz
 java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar populateEncroachmentURL -env 'InspecTools Dev' -feeder 700338 -url "https://drive.google.com/open?id=1eXe6YhZ3wqWxpWYSf3PBNlAzWaE_tZtD"
 
 ***** Feeder Pompano 700534 *****
 
-#java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700534 -type FeederAnomalyMap /opt/poleams/feeder_files/POMPANO_00534_Map.pdf
-#java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700534 -type FeederAnomalyReport /opt/poleams/feeder_files/Nobhill_706662_Report.pdf
-#java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700534 -type EncroachmentShape /opt/poleams/feeder_files/Pompano.kmz
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700534 -type FeederAnomalyMap "/opt/cloudsync/Dropbox/FPLPolesforMalcolm/5. Pompano 700534/6. Anomaly Report and Map/Pompano_700534_Map.pdf"
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700534 -type FeederAnomalyReport "/opt/cloudsync/Dropbox/FPLPolesforMalcolm/5. Pompano 700534/6. Anomaly Report and Map/POMPANO_700534_Report.pdf"
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700534 -type EncroachmentShape /opt/poleams/feeder_files/Pompano.kmz
 java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar populateEncroachmentURL -env 'InspecTools Dev' -feeder 700534 -url "https://drive.google.com/open?id=1bDeUhQbDSU2EQhPwYZ9RCdTT8DqkNqml"
 
 ***** Feeder Pinehurst 700332 *****
 
-#java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700338 -type FeederAnomalyMap /opt/poleams/feeder_files/POMPANO_00534_Map.pdf
-#java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700338 -type FeederAnomalyReport /opt/poleams/feeder_files/Nobhill_706662_Report.pdf
-java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700338 -type EncroachmentShape /opt/poleams/feeder_files/Pinehurst\ 32.kmz
-java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar populateEncroachmentURL -env 'InspecTools Dev' -feeder 700338 -url "https://drive.google.com/open?id=1wkwPqRZiDZ5CCrPeIWYePfkRzSa4bZMj"
-
-
-# PrecisionHawkFPL2018
-curl -v -H "accept: application/json" -H "content-type: application/json" -XGET "http://localhost:7171/user/authenticate?login=p.chapman@precisionhawk.com&passhash=9691844250633c540d0774b5a577bc805123678578866a3a5f73ba67c5d5371c"
-
-curl -v -H "accept: application/json" -H "content-type: application/json" -XGET "http://localhost:7171/user/authenticate?login=pchapman@pcsw.us&passhash=9691844250633c540d0774b5a577bc805123678578866a3a5f73ba67c5d5371d"
-
-curl -v -H "accept: application/json" -H "content-type: application/json" -XGET "http://localhost:7171/user/authenticate?login=pchapman@pcsw.us&passhash=9691844250633c540d0774b5a577bc805123678578866a3a5f73ba67c5d5371c"
-
-
-curl -v -H "accept: application/json" -H "content-type: application/json" -XGET "https://servicesdev.inspectools.net/poleams/user/authenticate?login=p.chapman@precisionhawk.com&passhash=83d4b2d60829ec26ec90cb8754d01b83dc3cb2574f538fc8caa82f4207857355"
-
-curl -v -H "accept: application/json" -H "content-type: application/json" -XGET "https://servicesdev.inspectools.net/poleams/user/authenticate?login=pchapman@pcsw.us&passhash=9691844250633c540d0774b5a577bc805123678578866a3a5f73ba67c5d5371d"
-
-curl -v -H "accept: application/json" -H "content-type: application/json" -XGET "https://servicesdev.inspectools.net/poleams/user/authenticate?login=pchapman@pcsw.us&passhash=9691844250633c540d0774b5a577bc805123678578866a3a5f73ba67c5d5371c"
-
-curl -v -H "accept: application/json" -H "content-type: application/json" -XGET "https://servicesdev.inspectools.net/user/authenticate?login=barry%40focalpointgeo.com&passhash=ab78c491e0aafd9bf71eef90427733a106cb948c70c5fcc5ea2b5457019fa182"
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700332 -type FeederAnomalyMap "/opt/cloudsync/Dropbox/FPLPolesforMalcolm/4. Pinehurst 700332/6. Anomaly Report and Map/Pinehurst_700332_Map.pdf"
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700332 -type FeederAnomalyReport "/opt/cloudsync/Dropbox/FPLPolesforMalcolm/4. Pinehurst 700332/6. Anomaly Report and Map/Pinehurst_700332_Report.pdf"
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700332 -type EncroachmentShape /opt/poleams/feeder_files/Pinehurst\ 32.kmz
+java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar populateEncroachmentURL -env 'InspecTools Dev' -feeder 700332 -url "https://www.google.com/maps/d/viewer?mid=1wkwPqRZiDZ5CCrPeIWYePfkRzSa4bZMj&ll=26.08913023786791%2C-80.14933099999996&z=15"

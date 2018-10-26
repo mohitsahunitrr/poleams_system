@@ -194,6 +194,9 @@ public final class ImageUtilities {
     private static final DateTimeFormatter DATE_TIME_FORMATTER2 = DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss");
     private static final TagInfoAscii[] TIMESTAMP_FIELDS = {ExifTagConstants.EXIF_TAG_DATE_TIME_DIGITIZED, ExifTagConstants.EXIF_TAG_DATE_TIME_ORIGINAL, TiffTagConstants.TIFF_TAG_DATE_TIME};
     public static ZonedDateTime getTimestamp(TiffImageMetadata metadata, ZoneId defaultZoneId) throws ImageReadException {
+        if (metadata == null) {
+            return null;
+        }
         ZonedDateTime result = null;
         TiffField field;
         for (int i = 0; result == null && i < TIMESTAMP_FIELDS.length; i++) {
