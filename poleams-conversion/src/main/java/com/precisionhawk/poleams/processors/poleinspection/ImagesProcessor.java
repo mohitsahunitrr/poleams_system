@@ -31,7 +31,8 @@ import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
 final class ImagesProcessor implements Constants {
 
     private static final String DRONE_IMG = "rgb";
-    private static final String MANUAL_IMG = "phone";
+    private static final String MANUAL_IMG_1 = "phone";
+    private static final String MANUAL_IMG_2 = "IMG_";
     private static final String THERMAL_IMG = "thermal";
     //FIXME: We need a better way
     private static final ZoneId DEFAULT_TZ = ZoneId.of("America/New_York");
@@ -55,7 +56,7 @@ final class ImagesProcessor implements Constants {
             rmeta.setType(ResourceType.Other);
             if (name.startsWith(DRONE_IMG)) {
                 rmeta.setType(ResourceType.DroneInspectionImage);
-            } else if (name.startsWith(MANUAL_IMG)) {
+            } else if (name.startsWith(MANUAL_IMG_1) || name.toLowerCase().startsWith(MANUAL_IMG_2)) {
                 rmeta.setType(ResourceType.ManualInspectionImage);
             } else if (name.startsWith(THERMAL_IMG)) {
                 rmeta.setType(ResourceType.Thermal);
