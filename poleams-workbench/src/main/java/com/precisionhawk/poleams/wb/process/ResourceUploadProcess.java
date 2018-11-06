@@ -46,7 +46,7 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
             + " [" + ARG_RESOURCE_ID + " ResourceId] "
             + " [" + ARG_TYPE + " ResourceType]"
             + " [" + ARG_REPLACE + "]"
-            + " resourceType path/to/resource";
+            + " path/to/resource";
 
     private String contentType;
     private String feederId;
@@ -84,6 +84,13 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                     return fplId != null;
                 } else {
                     return false;
+                }
+            case ARG_REPLACE:
+                if (replace) {
+                    return false;
+                } else {
+                    replace = true;
+                    return true;
                 }
             case ARG_RESOURCE_ID:
                 if (resourceId == null) {
