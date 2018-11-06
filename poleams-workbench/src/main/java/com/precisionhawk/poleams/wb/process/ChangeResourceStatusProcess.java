@@ -79,10 +79,6 @@ public class ChangeResourceStatusProcess extends ServiceClientCommandProcess {
     @Override
     public void printHelp(PrintStream output) {
         output.println(HELP);
-        output.println("\tResource Types:");
-        for (ResourceType type : ResourceType.values()) {
-            output.printf("\t\t%s\n", type.name());
-        }
     }
     
 }

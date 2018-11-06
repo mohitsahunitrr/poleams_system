@@ -48,6 +48,7 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
             + " [" + ARG_REPLACE + "]"
             + " resourceType path/to/resource";
 
+    private String contentType;
     private String feederId;
     private String fplId;
     private String fileName;
@@ -57,7 +58,8 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
     
     public ResourceUploadProcess() {}
     
-    ResourceUploadProcess(String feederId, String fplId, String resourceId, ResourceType resourceType, boolean replace, String fileName) {
+    ResourceUploadProcess(String feederId, String fplId, String resourceId, ResourceType resourceType, boolean replace, String fileName, String contentType) {
+        this.contentType = contentType;
         this.feederId = feederId;
         this.fileName = fileName;
         this.fplId = fplId;
@@ -118,7 +120,9 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
             System.err.printf("The file \"%s\" either does not exist or cannot be read.\n", f);
         }
         
-        String contentType = ContentTypeUtilities.guessContentType(f);
+        if (contentType == null) {
+            contentType = ContentTypeUtilities.guessContentType(f);
+        }
         if (contentType == null) {
             System.err.printf("The file \"%s\" is an unrecognized file type.", f);
         } else {
@@ -196,6 +200,7 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                             rmeta.setOrganizationId(rsparams.getOrganizationId());
                             rmeta.setPoleId(rsparams.getPoleId());
                             rmeta.setPoleInspectionId(rsparams.getPoleInspectionId());
+                            rmeta.setResourceId(UUID.randomUUID().toString());
                             rmeta.setSubStationId(rsparams.getSubStationId());
                             rmeta.setType(rsparams.getType());
                         } else {
@@ -245,9 +250,9 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
     @Override
     public void printHelp(PrintStream output) {
         output.println(HELP);
-        output.println("\tResource Types:");
+        output.println("\t\tResource Types:");
         for (ResourceType type : ResourceType.values()) {
-            output.printf("\t\t%s\n", type.name());
+            output.printf("\t\t\t%s\n", type.name());
         }
     }
     

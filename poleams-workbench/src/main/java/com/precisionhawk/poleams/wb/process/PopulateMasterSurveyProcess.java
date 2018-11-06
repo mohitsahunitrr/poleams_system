@@ -27,10 +27,10 @@ public class PopulateMasterSurveyProcess extends ServiceClientCommandProcess {
             + ARG_IN_FILE + " path/to/in/file "
             + "[ " + ARG_OUT_FILE + " path/to/out/file ] "
             + "[ " + ARG_UPDATE + "]\n"
-            + "\t" + ARG_FEEDER_ID + " FeederId : The feeder to generate the master survey report for.\n"
-            + "\t" + ARG_IN_FILE + " path/to/in/file : The path to the master survey report template.\n"
-            + "\t" + ARG_OUT_FILE + " path/to/out/file : The path to which the survey report should be written, if desired.\n"
-            + "\t" + ARG_UPDATE + " Upload the master survey report into the repository.";
+            + "\t\t" + ARG_FEEDER_ID + " FeederId : The feeder to generate the master survey report for.\n"
+            + "\t\t" + ARG_IN_FILE + " path/to/in/file : The path to the master survey report template.\n"
+            + "\t\t" + ARG_OUT_FILE + " path/to/out/file : The path to which the survey report should be written, if desired.\n"
+            + "\t\t" + ARG_UPDATE + " Upload the master survey report into the repository.";
     
     private String feederId;
     private String inFile;
@@ -76,28 +76,28 @@ public class PopulateMasterSurveyProcess extends ServiceClientCommandProcess {
             public void setStatus(ImportProcessStatus processStatus) {
                 System.out.printf("Status: %s\n", processStatus);
             }
-
+            @Override
             public void reportFatalError(String message) {
                 System.err.println(message);
             }
-
+            @Override
             public void reportFatalException(String message, Throwable t) {
                 System.err.println(message);
                 t.printStackTrace(System.err);
             }
-
+            @Override
             public void reportFatalException(Exception ex) {
                 ex.printStackTrace(System.err);
             }
-
+            @Override
             public void reportMessage(String message) {
                 System.out.println(message);
             }
-
+            @Override
             public void reportNonFatalError(String message) {
                 System.err.println(message);
             }
-
+            @Override
             public void reportNonFatalException(String message, Throwable t) {
                 System.err.println(message);
                 t.printStackTrace(System.err);
@@ -110,10 +110,11 @@ public class PopulateMasterSurveyProcess extends ServiceClientCommandProcess {
             } else {
                 file = new File(outFile);
             }
+            System.out.printf("Updating survey report for feeder %s\n", feederId);
             boolean success = SurveyReportGenerator.process(env, listener, feederId, new File(inFile), file);
             System.out.printf("Import finished with %s\n", (success ? "success" : "errors"));
             if (success && uploadIntoRepo) {
-                ResourceUploadProcess uploadProc = new ResourceUploadProcess(feederId, null, null, ResourceType.SurveyReport, true, file.getAbsolutePath());
+                ResourceUploadProcess uploadProc = new ResourceUploadProcess(feederId, null, null, ResourceType.SurveyReport, true, file.getAbsolutePath(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
                 return uploadProc.execute(env);
             }
         } catch (IOException ex) {
