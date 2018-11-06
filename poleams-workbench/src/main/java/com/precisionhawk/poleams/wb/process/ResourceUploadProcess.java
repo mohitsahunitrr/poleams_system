@@ -2,6 +2,7 @@ package com.precisionhawk.poleams.wb.process;
 
 import com.precisionhawk.poleams.bean.PoleInspectionSearchParameters;
 import com.precisionhawk.poleams.bean.PoleSearchParameters;
+import com.precisionhawk.poleams.bean.ResourceSearchParameters;
 import com.precisionhawk.poleams.bean.SubStationSearchParameters;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
@@ -24,12 +25,6 @@ import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
 import java.util.Queue;
 import java.util.UUID;
-import org.apache.commons.imaging.ImageFormat;
-import org.apache.commons.imaging.ImageFormats;
-import org.apache.commons.imaging.ImageInfo;
-import org.apache.commons.imaging.ImageReadException;
-import org.apache.commons.imaging.Imaging;
-import org.apache.commons.imaging.common.ImageMetadata;
 
 /**
  *
@@ -40,6 +35,7 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
     private static final String ARG_FEEDER_ID = "-feeder";
     private static final String ARG_FPL_ID = "-fplid";
     private static final String ARG_RESOURCE_ID = "-resourceId";
+    private static final String ARG_REPLACE = "-replace";
     private static final String ARG_TYPE = "-type";
     private static final String COMMAND = "uploadResource";
 
@@ -47,15 +43,28 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
             "\t" + COMMAND
             + " [" + ARG_FEEDER_ID + " FeederId]"
             + " [" + ARG_FPL_ID + " FPL_Id]"
-            + " [" + ARG_TYPE + " ResourceType]"
             + " [" + ARG_RESOURCE_ID + " ResourceId] "
+            + " [" + ARG_TYPE + " ResourceType]"
+            + " [" + ARG_REPLACE + "]"
             + " resourceType path/to/resource";
 
     private String feederId;
     private String fplId;
     private String fileName;
+    private boolean replace = false;
     private String resourceId;
     private ResourceType resourceType;
+    
+    public ResourceUploadProcess() {}
+    
+    ResourceUploadProcess(String feederId, String fplId, String resourceId, ResourceType resourceType, boolean replace, String fileName) {
+        this.feederId = feederId;
+        this.fileName = fileName;
+        this.fplId = fplId;
+        this.replace = replace;
+        this.resourceId = resourceId;
+        this.resourceType = resourceType;
+    }
     
     @Override
     protected boolean processArg(String arg, Queue<String> args) {
@@ -117,11 +126,19 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                 ResourceWebService rsvc = env.obtainWebService(ResourceWebService.class);
                 SubStationWebService ssvc = env.obtainWebService(SubStationWebService.class);
 
-                ResourceMetadata rmeta;
-                SubStation ss;
+                ResourceSearchParameters rsparams = null;
+                ResourceMetadata rmeta = null;
+                boolean isNew = true;
                 
                 if (resourceId == null) {
                     rmeta = new ResourceMetadata();
+                    rmeta.setResourceId(UUID.randomUUID().toString());
+                    rmeta.setType(resourceType);
+                    if (replace) {
+                        // Attempt to locate the resource and overwrite it if it exists.
+                        rsparams = new ResourceSearchParameters();
+                        rsparams.setType(resourceType);
+                    }
                     
                     if (fplId != null) {
                         PoleWebService psvc = env.obtainWebService(PoleWebService.class);
@@ -140,34 +157,61 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                                 System.err.printf("No inspection for pole with FPL ID \"%s\" found.\n", fplId);
                                 return true;
                             } else {
+                                SubStation ss = ssvc.retrieve(env.obtainAccessToken(), p.getSubStationId());
+                                if (rsparams != null) {
+                                    rsparams.setOrganizationId(ss.getOrganizationId());
+                                    rsparams.setPoleId(p.getId());
+                                    rsparams.setPoleInspectionId(pi.getId());
+                                    rsparams.setSubStationId(ss.getId());
+                                }
+                                rmeta.setOrganizationId(ss.getOrganizationId());
                                 rmeta.setPoleId(p.getId());
                                 rmeta.setPoleInspectionId(pi.getId());
-                                ss = ssvc.retrieve(env.obtainAccessToken(), p.getSubStationId());
+                                rmeta.setSubStationId(ss.getId());
                             }
                         }
                     } else if (feederId != null) {
                         SubStationSearchParameters params = new SubStationSearchParameters();
                         params.setFeederNumber(feederId);
-                        ss = CollectionsUtilities.firstItemIn(ssvc.search(env.obtainAccessToken(), params));
+                        SubStation ss = CollectionsUtilities.firstItemIn(ssvc.search(env.obtainAccessToken(), params));
                         if (ss == null) {
                             System.err.printf("No substation found for feeder \"%s\".\n", feederId);
                             return true;
+                        }
+                        if (rsparams != null) {
+                            rsparams.setOrganizationId(ss.getOrganizationId());
+                            rsparams.setSubStationId(ss.getId());
                         }
                     } else {
                         // Shouldn't get here due to checks above
                         System.err.println("Either Resource ID, Feeder ID or FPL ID are required.");
                         return false;
                     }
+                    
+                    if (rsparams != null) {
+                        // Look for the resource metadata
+                        rmeta = CollectionsUtilities.firstItemIn(rsvc.query(env.obtainAccessToken(), rsparams));
+                        if (rmeta == null) {
+                            rmeta = new ResourceMetadata();
+                            rmeta.setOrganizationId(rsparams.getOrganizationId());
+                            rmeta.setPoleId(rsparams.getPoleId());
+                            rmeta.setPoleInspectionId(rsparams.getPoleInspectionId());
+                            rmeta.setSubStationId(rsparams.getSubStationId());
+                            rmeta.setType(rsparams.getType());
+                        } else {
+                            isNew = false;
+                        }
+                    }
 
                     rmeta.setContentType(contentType);
                     rmeta.setName(f.getName());
-                    rmeta.setOrganizationId(ss.getOrganizationId());
-                    rmeta.setResourceId(UUID.randomUUID().toString());
                     rmeta.setStatus(ResourceStatus.QueuedForUpload);
-                    rmeta.setSubStationId(ss.getId());
                     rmeta.setTimestamp(ZonedDateTime.now());
-                    rmeta.setType(resourceType);
-                    rsvc.insertResourceMetadata(env.obtainAccessToken(), rmeta);
+                    if (isNew) {
+                        rsvc.insertResourceMetadata(env.obtainAccessToken(), rmeta);
+                    } else {
+                        rsvc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
+                    }
                 } else {
                     rmeta = rsvc.retrieve(env.obtainAccessToken(), resourceId);
                     if (rmeta == null) {

@@ -202,13 +202,17 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
         )
     {
         List<CommunicationsCable> cables = new LinkedList<>();
-        if (!pole.getSpans().isEmpty()) {
-            // Only first span is desired as per Irina Denisenko 10/25/2018.
-            PoleSpan span = pole.getSpans().get(0);
-            List<CommunicationsCable> list = span.getCommunications();
-            for (int i = 0; cables.size() < maxCount && i < list.size(); i++) {
-                if (type == list.get(i).getType()) {
-                    cables.add(list.get(i));
+        for (int j = 0; j < pole.getSpans().size(); j++) {
+            if (j % 2 == 0) {
+                // Only first span is desired as per Irina Denisenko 10/25/2018.
+                // Only 1st, 3rd, (odd) spans are desired as per Irina Deniseko 11/05/2018.
+                //     Since the index is zero based, this means even idicies.
+                PoleSpan span = pole.getSpans().get(j);
+                List<CommunicationsCable> list = span.getCommunications();
+                for (int i = 0; cables.size() < maxCount && i < list.size(); i++) {
+                    if (type == list.get(i).getType()) {
+                        cables.add(list.get(i));
+                    }
                 }
             }
         }

@@ -1,10 +1,12 @@
 package com.precisionhawk.poleams.wb.process;
 
+import com.precisionhawk.poleams.domain.ResourceType;
 import com.precisionhawk.poleams.processors.poleinspection.SurveyReportGenerator;
 import com.precisionhawk.poleams.processors.poleinspection.ProcessListener;
 import com.precisionhawk.poleams.processors.poleinspection.ImportProcessStatus;
 import com.precisionhawk.poleams.webservices.client.Environment;
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Queue;
 
@@ -17,38 +19,48 @@ public class PopulateMasterSurveyProcess extends ServiceClientCommandProcess {
     private static final String ARG_FEEDER_ID = "-f";
     private static final String ARG_IN_FILE = "-i";
     private static final String ARG_OUT_FILE = "-o";
+    private static final String ARG_UPDATE = "-u";
     private static final String COMMAND = "populateMasterSurvey";
     private static final String HELP = "\t" + COMMAND + " "
             + ARGS_FOR_HELP + " " +
             ARG_FEEDER_ID + " FeederId "
-            + ARG_IN_FILE + " path/to/in/file"
-            + ARG_OUT_FILE + " path/to/out/file";
+            + ARG_IN_FILE + " path/to/in/file "
+            + "[ " + ARG_OUT_FILE + " path/to/out/file ] "
+            + "[ " + ARG_UPDATE + "]\n"
+            + "\t" + ARG_FEEDER_ID + " FeederId : The feeder to generate the master survey report for.\n"
+            + "\t" + ARG_IN_FILE + " path/to/in/file : The path to the master survey report template.\n"
+            + "\t" + ARG_OUT_FILE + " path/to/out/file : The path to which the survey report should be written, if desired.\n"
+            + "\t" + ARG_UPDATE + " Upload the master survey report into the repository.";
     
     private String feederId;
     private String inFile;
     private String outFile;
+    private boolean uploadIntoRepo = false;
 
     @Override
     protected boolean processArg(String arg, Queue<String> args) {
         if (ARG_FEEDER_ID.equals(arg)) {
-            feederId = args.poll();
-            if (feederId != null) {
-                return true;
+            if (feederId == null) {
+                feederId = args.poll();
+                return feederId != null;
             }
         } else if (ARG_IN_FILE.equals(arg)) {
             if (inFile == null) {
                 inFile = args.poll();
                 return inFile != null;
-            } else {
-                return false;
             }
         } else if (ARG_OUT_FILE.equals(arg)) {
             if (outFile == null) {
                 outFile = args.poll();
                 return outFile != null;
-            } else {
+            }
+        } else if (ARG_UPDATE.equals(arg)) {
+            if (uploadIntoRepo) {
+                // Already set once
                 return false;
             }
+            uploadIntoRepo = true;
+            return true;
         }
         return false;
     }
@@ -58,8 +70,6 @@ public class PopulateMasterSurveyProcess extends ServiceClientCommandProcess {
         if (feederId == null) {
             return false;
         } else if (inFile == null) {
-            return false;
-        } else if (outFile == null) {
             return false;
         }
         ProcessListener listener = new ProcessListener() {
@@ -93,8 +103,22 @@ public class PopulateMasterSurveyProcess extends ServiceClientCommandProcess {
                 t.printStackTrace(System.err);
             }
         };
-        boolean success = SurveyReportGenerator.process(env, listener, feederId, new File(inFile), new File(outFile));
-        System.out.printf("Import finished with %s\n", (success ? "success" : "errors"));
+        try {
+            File file;
+            if (outFile == null) {
+                file = File.createTempFile(feederId, "xlsx");
+            } else {
+                file = new File(outFile);
+            }
+            boolean success = SurveyReportGenerator.process(env, listener, feederId, new File(inFile), file);
+            System.out.printf("Import finished with %s\n", (success ? "success" : "errors"));
+            if (success && uploadIntoRepo) {
+                ResourceUploadProcess uploadProc = new ResourceUploadProcess(feederId, null, null, ResourceType.SurveyReport, true, file.getAbsolutePath());
+                return uploadProc.execute(env);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace(System.err);
+        }
         return true;
     }
 
