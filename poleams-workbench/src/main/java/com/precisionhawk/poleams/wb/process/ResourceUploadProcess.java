@@ -208,14 +208,12 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                         }
                     }
 
-                    rmeta.setContentType(contentType);
-                    rmeta.setName(f.getName());
-                    rmeta.setStatus(ResourceStatus.QueuedForUpload);
-                    rmeta.setTimestamp(ZonedDateTime.now());
                     if (isNew) {
+                        rmeta.setContentType(contentType);
+                        rmeta.setName(f.getName());
+                        rmeta.setStatus(ResourceStatus.QueuedForUpload);
+                        rmeta.setTimestamp(ZonedDateTime.now());
                         rsvc.insertResourceMetadata(env.obtainAccessToken(), rmeta);
-                    } else {
-                        rsvc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
                     }
                 } else {
                     rmeta = rsvc.retrieve(env.obtainAccessToken(), resourceId);
@@ -227,7 +225,7 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
 
                 HttpClientUtilities.postFile(env, rmeta.getResourceId(), contentType, f);
 
-                if (resourceId == null) {
+                if (resourceId == null && ResourceStatus.Released != rmeta.getStatus()) {
                     // If this is a new upload rather than a re-upload, switch status to Released.
                     rmeta.setStatus(ResourceStatus.Released);
                     rsvc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
