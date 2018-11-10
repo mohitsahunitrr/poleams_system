@@ -1,20 +1,20 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
-import com.precisionhawk.poleams.bean.ResourceSearchParameters;
-import com.precisionhawk.poleams.bean.SubStationSummary;
+import com.precisionhawk.ams.bean.ResourceSearchParams;
+import com.precisionhawk.poleams.bean.FeederSummary;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
-import com.precisionhawk.poleams.domain.ResourceMetadata;
-import com.precisionhawk.poleams.domain.ResourceStatus;
-import com.precisionhawk.poleams.domain.ResourceType;
-import com.precisionhawk.poleams.domain.SubStation;
-import com.precisionhawk.poleams.util.CollectionsUtilities;
-import com.precisionhawk.poleams.util.ContentTypeUtilities;
+import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.ams.domain.ResourceStatus;
+import com.precisionhawk.ams.domain.ResourceType;
+import com.precisionhawk.poleams.domain.ResourceTypes;
+import com.precisionhawk.poleams.domain.Feeder;
+import com.precisionhawk.ams.util.CollectionsUtilities;
+import com.precisionhawk.ams.util.ContentTypeUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.poleams.webservices.ResourceWebService;
-import com.precisionhawk.poleams.webservices.SubStationWebService;
-import com.precisionhawk.poleams.webservices.client.Environment;
+import com.precisionhawk.ams.webservices.client.Environment;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
+import com.precisionhawk.poleams.webservices.FeederWebService;
 
 /**
  * Given a directory processes the Excel spreadsheet and pole analysis XML files
@@ -66,12 +67,12 @@ public final class FeederDataDirProcessor implements Constants {
     private static final String MASTER_SURVEY_TEMPL_DIR = "5. MASTER Survey Template";
 
     //TODO: This code could probably be used elsewhere.  Refactor this and other places where we are searching for/creating resources
-    private static boolean ensureResource(Environment env, InspectionData data, ProcessListener listener, SubStation subStation, PoleInspection poleInspection, ResourceType resourceType, File f) {
+    private static boolean ensureResource(Environment env, InspectionData data, ProcessListener listener, Feeder subStation, PoleInspection poleInspection, ResourceType resourceType, File f) {
         try {
-            ResourceSearchParameters params = new ResourceSearchParameters();
-            params.setSubStationId(subStation.getId());
+            ResourceSearchParams params = new ResourceSearchParams();
+            params.setSiteId(subStation.getId());
             if (poleInspection != null) {
-                params.setPoleInspectionId(poleInspection.getId());
+                params.setAssetInspectionId(poleInspection.getId());
             }
             params.setType(resourceType);
             ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(env.obtainWebService(ResourceWebService.class).query(env.obtainAccessToken(), params));
@@ -87,12 +88,12 @@ public final class FeederDataDirProcessor implements Constants {
                 rmeta.setName(f.getName());
                 rmeta.setOrganizationId(subStation.getOrganizationId());
                 if (poleInspection != null) {
-                    rmeta.setPoleId(poleInspection.getPoleId());
-                    rmeta.setPoleInspectionId(poleInspection.getId());
+                    rmeta.setAssetId(poleInspection.getPoleId());
+                    rmeta.setAssetInspectionId(poleInspection.getId());
                 }
                 rmeta.setResourceId(UUID.randomUUID().toString());
                 rmeta.setStatus(ResourceStatus.QueuedForUpload);
-                rmeta.setSubStationId(subStation.getId());
+                rmeta.setSiteId(subStation.getId());
                 rmeta.setTimestamp(ZonedDateTime.now());
                 rmeta.setType(resourceType);
                 isnew = true;
@@ -179,7 +180,7 @@ public final class FeederDataDirProcessor implements Constants {
         if (fmDir.isDirectory()) {
             File f = findFeederMapFile(listener, fmDir);
             if (f != null) {
-                success = ensureResource(env, data, listener, data.getSubStation(), null, ResourceType.FeederMap, f);
+                success = ensureResource(env, data, listener, data.getSubStation(), null, ResourceTypes.FeederMap, f);
             }
             if (!success) {
                 return false;
@@ -196,7 +197,7 @@ public final class FeederDataDirProcessor implements Constants {
 
             // Save SubStation
             if (data.getSubStation() != null) {
-                SubStationWebService sssvc = env.obtainWebService(SubStationWebService.class);
+                FeederWebService sssvc = env.obtainWebService(FeederWebService.class);
                 if (data.getDomainObjectIsNew().get(data.getSubStation().getId())) {
                     sssvc.create(env.obtainAccessToken(), data.getSubStation());
                     listener.reportMessage(String.format("Inserted new sub station %s", data.getSubStation().getFeederNumber()));
@@ -212,10 +213,10 @@ public final class FeederDataDirProcessor implements Constants {
                 for (Pole pdata : data.getPoleDataByFPLId().values()) {
                     if (data.getDomainObjectIsNew().get(pdata.getId())) {
                         psvc.create(env.obtainAccessToken(), pdata);
-                        listener.reportMessage(String.format("Inserted new pole %s FPL ID %s", pdata.getId(), pdata.getFPLId()));
+                        listener.reportMessage(String.format("Inserted new pole %s FPL ID %s", pdata.getId(), pdata.getUtilityId()));
                     } else {
                         psvc.update(env.obtainAccessToken(), pdata);
-                        listener.reportMessage(String.format("Updated pole %s FPL ID %s", pdata.getId(), pdata.getFPLId()));
+                        listener.reportMessage(String.format("Updated pole %s FPL ID %s", pdata.getId(), pdata.getUtilityId()));
                     }
                 }
             }
@@ -314,15 +315,15 @@ public final class FeederDataDirProcessor implements Constants {
                 IOUtils.closeQuietly(os);
             }
             // Populate summary into 2nd temp file
-            SubStationSummary summary = env.obtainWebService(SubStationWebService.class).retrieveSummary(env.obtainAccessToken(), data.getSubStation().getId());
+            FeederSummary summary = env.obtainWebService(FeederWebService.class).retrieveSummary(env.obtainAccessToken(), data.getSubStation().getId());
             boolean success = SurveyReportGenerator.populateTemplate(env, listener, summary, inFile, outFile);
             // Set up to upload temp file
             if (success) {
                 ResourceWebService svc = env.obtainWebService(ResourceWebService.class);
-                ResourceSearchParameters params = new ResourceSearchParameters();
+                ResourceSearchParams params = new ResourceSearchParams();
                 params.setOrganizationId(data.getSubStation().getOrganizationId());
-                params.setSubStationId(data.getSubStation().getId());
-                params.setType(ResourceType.SurveyReport);
+                params.setSiteId(data.getSubStation().getId());
+                params.setType(ResourceTypes.SurveyReport);
                 ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(svc.query(env.obtainAccessToken(), params));
                 if (rmeta == null) {
                     rmeta = new ResourceMetadata();
@@ -331,7 +332,7 @@ public final class FeederDataDirProcessor implements Constants {
                     rmeta.setOrganizationId(params.getOrganizationId());
                     rmeta.setResourceId(UUID.randomUUID().toString());
                     rmeta.setStatus(ResourceStatus.QueuedForUpload);
-                    rmeta.setSubStationId(params.getSubStationId());
+                    rmeta.setSiteId(params.getSiteId());
                     rmeta.setTimestamp(ZonedDateTime.now());
                     rmeta.setType(params.getType());
                     data.addResourceMetadata(rmeta, outFile, true);

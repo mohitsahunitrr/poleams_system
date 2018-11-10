@@ -16,12 +16,10 @@
     <description>Common API for PoleAMS.</description>
 
     <dependencies>
-<!--
         <dependency>
-            <groupId>com.windams</groupId>
-            <artifactId>windams-common</artifactId>
+            <groupId>com.precisionhawk</groupId>
+            <artifactId>ams-common</artifactId>
         </dependency>
--->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>

@@ -4,6 +4,7 @@
 
 package com.precisionhawk.poleams.webservices;
 
+import com.precisionhawk.ams.webservices.WebService;
 import com.precisionhawk.poleams.bean.ExportState;
 import io.swagger.oas.annotations.Operation;
 import io.swagger.oas.annotations.Parameter;

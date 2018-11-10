@@ -1,19 +1,20 @@
 package com.precisionhawk.poleams.webservices.impl;
 
-import com.precisionhawk.poleams.bean.Dimension;
+import com.precisionhawk.poleams.webservices.AbstractWebService;
+import com.precisionhawk.ams.bean.Dimension;
 import com.precisionhawk.poleams.bean.ImageScaleRequest;
-import com.precisionhawk.poleams.bean.ResourceSearchParameters;
+import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.poleams.bean.ResourceSummary;
 import com.precisionhawk.poleams.config.ServicesConfig;
-import com.precisionhawk.poleams.dao.DaoException;
-import com.precisionhawk.poleams.dao.ResourceMetadataDao;
-import com.precisionhawk.poleams.domain.ResourceMetadata;
-import com.precisionhawk.poleams.domain.ResourceStatus;
-import com.precisionhawk.poleams.domain.ResourceType;
-import com.precisionhawk.poleams.repository.RepositoryException;
-import com.precisionhawk.poleams.repository.ResourceRepository;
-import com.precisionhawk.poleams.util.CollectionsUtilities;
-import com.precisionhawk.poleams.util.ImageUtilities;
+import com.precisionhawk.ams.dao.DaoException;
+import com.precisionhawk.ams.dao.ResourceMetadataDao;
+import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.ams.domain.ResourceStatus;
+import com.precisionhawk.poleams.domain.ResourceTypes;
+import com.precisionhawk.ams.repository.RepositoryException;
+import com.precisionhawk.ams.repository.ResourceRepository;
+import com.precisionhawk.ams.util.CollectionsUtilities;
+import com.precisionhawk.ams.util.ImageUtilities;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -67,7 +68,7 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
         try {
             ResourceMetadata rmeta = resourceDao.retrieveResourceMetadata(resourceId);
             if (rmeta == null) {
-                ResourceSearchParameters params = new ResourceSearchParameters();
+                ResourceSearchParams params = new ResourceSearchParams();
                 params.setZoomifyId(resourceId);
                 rmeta = CollectionsUtilities.firstItemIn(resourceDao.lookup(params));
                 if (rmeta == null) {
@@ -93,7 +94,7 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
     }
 
     @Override
-    public List<ResourceMetadata> query(String authToken, ResourceSearchParameters params) {
+    public List<ResourceMetadata> query(String authToken, ResourceSearchParams params) {
         ensureExists(params, "The search parameters are required.");
         try {
             return resourceDao.lookup(params);
@@ -167,7 +168,7 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
             ResourceMetadata rmeta = resourceDao.retrieveResourceMetadata(resourceId);
             if (rmeta == null) {
                 // This may be zoomify resource.
-                ResourceSearchParameters params = new ResourceSearchParameters();
+                ResourceSearchParams params = new ResourceSearchParams();
                 params.setZoomifyId(resourceId);
                 rmeta = CollectionsUtilities.firstItemIn(resourceDao.lookup(params));
                 if (rmeta == null) {
@@ -227,7 +228,7 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
             ResourceMetadata meta = resourceDao.retrieveResourceMetadata(resourceId);
             if (meta == null) {
                 // It may be a zoomify image.
-                ResourceSearchParameters rparms = new ResourceSearchParameters();
+                ResourceSearchParams rparms = new ResourceSearchParams();
                 rparms.setZoomifyId(resourceId);
                 meta = CollectionsUtilities.firstItemIn(resourceDao.lookup(rparms));
                 if (meta == null) {
@@ -339,10 +340,11 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
                     bytes = ((ByteArrayOutputStream)os).toByteArray();
                     os = null;
                     destMD = new ResourceMetadata();
-                    destMD.setPoleId(originalMD.getPoleId());
-                    destMD.setPoleInspectionId(originalMD.getPoleInspectionId());
+                    destMD.setAssetId(originalMD.getAssetId());
+                    destMD.setAssetInspectionId(originalMD.getAssetInspectionId());
                     destMD.setOrganizationId(originalMD.getOrganizationId());
-                    destMD.setSubStationId(originalMD.getSubStationId());
+                    destMD.setSiteId(originalMD.getSiteId());
+                    destMD.setSiteInspectionId(originalMD.getSiteInspectionId());
                     destMD.setContentType(ImageUtilities.ImageType.fromExtension(scaleRequest.getResultType().name()).getContentType());
                     destMD.setLocation(originalMD.getLocation());
                     destMD.setName(originalMD.getName());
@@ -351,7 +353,7 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
                     destMD.setSourceResourceId(originalMD.getResourceId());
                     destMD.setStatus(ResourceStatus.Released);
                     destMD.setTimestamp(originalMD.getTimestamp());
-                    destMD.setType(ResourceType.ThumbNail);
+                    destMD.setType(ResourceTypes.ThumbNail);
                     resourceDao.insertMetadata(destMD);
                     repo.storeResource(destMD, destMD.getResourceId(), destMD.getName(), destMD.getContentType(), new ByteArrayInputStream(bytes), Long.valueOf(bytes.length));
                 } catch (DaoException daoe) {
@@ -395,11 +397,11 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
         return url;
     }
     
-    public List<ResourceSummary> querySummaries(String authToken, ResourceSearchParameters params) {
+    public List<ResourceSummary> querySummaries(String authToken, ResourceSearchParams params) {
         return summaryFor(params);
     }
     
-    List<ResourceSummary> summaryFor(ResourceSearchParameters params) {
+    List<ResourceSummary> summaryFor(ResourceSearchParams params) {
         if (params == null) {
             return Collections.emptyList();
         }
@@ -411,7 +413,7 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
             
             // Search for and prepare possible thumbnails.
             Map<String, List<String>> thumbnailsBySourceId = new HashMap<>();
-            params.setType(ResourceType.ThumbNail);
+            params.setType(ResourceTypes.ThumbNail);
             List<String> ids;
             for (ResourceMetadata rmeta : resourceDao.lookup(params)) {
                 if (rmeta.getSourceResourceId() != null) {
@@ -458,9 +460,9 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
         String scaledImageURL = null;
         if (ImageUtilities.ImageType.fromContentType(rmeta.getContentType()) != null) {
             // Only images are scaled.
-            ResourceSearchParameters params = new ResourceSearchParameters();
+            ResourceSearchParams params = new ResourceSearchParams();
             params.setSourceResourceId(rmeta.getResourceId());
-            params.setType(ResourceType.ThumbNail);
+            params.setType(ResourceTypes.ThumbNail);
             try {
                 ResourceMetadata thumbnail = CollectionsUtilities.firstItemIn(resourceDao.lookup(params));
                 if (thumbnail != null) {

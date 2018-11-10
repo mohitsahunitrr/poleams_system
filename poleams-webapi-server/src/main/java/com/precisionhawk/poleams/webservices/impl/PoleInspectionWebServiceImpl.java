@@ -1,13 +1,14 @@
 package com.precisionhawk.poleams.webservices.impl;
 
-import com.precisionhawk.poleams.bean.PoleInspectionSearchParameters;
+import com.precisionhawk.poleams.webservices.AbstractWebService;
+import com.precisionhawk.poleams.bean.PoleInspectionSearchParams;
 import com.precisionhawk.poleams.bean.PoleInspectionSummary;
-import com.precisionhawk.poleams.bean.ResourceSearchParameters;
-import com.precisionhawk.poleams.dao.DaoException;
+import com.precisionhawk.ams.bean.ResourceSearchParams;
+import com.precisionhawk.ams.dao.DaoException;
 import com.precisionhawk.poleams.dao.PoleInspectionDao;
 import com.precisionhawk.poleams.domain.PoleInspection;
-import com.precisionhawk.poleams.domain.ResourceMetadata;
-import com.precisionhawk.poleams.domain.ResourceType;
+import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.poleams.domain.ResourceTypes;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +78,7 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
     }
 
     @Override
-    public List<PoleInspection> search(String authToken, PoleInspectionSearchParameters params) {
+    public List<PoleInspection> search(String authToken, PoleInspectionSearchParams params) {
         ensureExists(params, "Search parameters are required.");
         try {
             return piDao.search(params);
@@ -100,7 +101,7 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
     }
     
     
-    List<PoleInspectionSummary> retrieveSummary(String authToken, PoleInspectionSearchParameters params) {
+    List<PoleInspectionSummary> retrieveSummary(String authToken, PoleInspectionSearchParams params) {
         try {
             List<PoleInspection> inspections = piDao.search(params);
             List<PoleInspectionSummary> results = new ArrayList<>(inspections.size());
@@ -132,46 +133,46 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
     
     private PoleInspectionSummary populateSummary(String authToken, PoleInspectionSummary summary) {
 
-        ResourceSearchParameters rparams = new ResourceSearchParameters();
-        rparams.setPoleId(summary.getPoleId());
-        rparams.setPoleInspectionId(summary.getId());
+        ResourceSearchParams rparams = new ResourceSearchParams();
+        rparams.setAssetId(summary.getPoleId());
+        rparams.setAssetInspectionId(summary.getId());
         List<ResourceMetadata> resources;
         
         // find the design report, if any.
-        rparams.setType(ResourceType.PoleDesignReport);
+        rparams.setType(ResourceTypes.PoleDesignReport);
         resources = resourceService.query(authToken, rparams);
         if (!resources.isEmpty()) {
             summary.setDesignReportURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId(), false));
         }
         
         // find the analysis report, if any.
-        rparams.setType(ResourceType.PoleInspectionReport);
+        rparams.setType(ResourceTypes.PoleInspectionReport);
         resources = resourceService.query(authToken, rparams);
         if (!resources.isEmpty()) {
             summary.setAnalysisReportURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId(), false));
         }
 
         // Get URL for the analysis XML, if any.
-        rparams.setType(ResourceType.PoleInspectionAnalysisXML);
+        rparams.setType(ResourceTypes.PoleInspectionAnalysisXML);
         resources = resourceService.query(authToken, rparams);
         if (!resources.isEmpty()) {
             summary.setAnalysisResultURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId(), false));
         }
 
         // Flight Images
-        rparams.setType(ResourceType.DroneInspectionImage);
+        rparams.setType(ResourceTypes.DroneInspectionImage);
         summary.setFlightImages(resourceService.summaryFor(rparams));
 
         // Ground Images
-        rparams.setType(ResourceType.ManualInspectionImage);
+        rparams.setType(ResourceTypes.ManualInspectionImage);
         summary.setGroundImages(resourceService.summaryFor(rparams));
 
         // Thermal Images
-        rparams.setType(ResourceType.Thermal);
+        rparams.setType(ResourceTypes.Thermal);
         summary.setThermalImages(resourceService.summaryFor(rparams));
 
         // Other Resources
-        rparams.setType(ResourceType.Other);
+        rparams.setType(ResourceTypes.Other);
         summary.setOtherResources(resourceService.summaryFor(rparams));
 
         summary.setCriticality(calculateCriticality(summary));
@@ -186,8 +187,8 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
         if (insp != null) {
             {
                 // Delete any related resources
-                ResourceSearchParameters params = new ResourceSearchParameters();
-                params.setPoleInspectionId(insp.getId());
+                ResourceSearchParams params = new ResourceSearchParams();
+                params.setAssetInspectionId(insp.getId());
                 for (ResourceMetadata rmeta : resourceService.query(authToken, params)) {
                     resourceService.delete(authToken, rmeta.getResourceId());
                 }

@@ -1,9 +1,10 @@
 package com.precisionhawk.poleams.webservices;
 
+import com.precisionhawk.ams.webservices.WebService;
 import com.precisionhawk.poleams.bean.ImageScaleRequest;
-import com.precisionhawk.poleams.bean.ResourceSearchParameters;
+import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.poleams.bean.ResourceSummary;
-import com.precisionhawk.poleams.domain.ResourceMetadata;
+import com.precisionhawk.ams.domain.ResourceMetadata;
 import io.swagger.oas.annotations.Operation;
 import io.swagger.oas.annotations.Parameter;
 import java.util.List;
@@ -42,14 +43,14 @@ public interface ResourceWebService extends WebService {
     @Operation(summary = "Search Resources", description = "Retrieves resource metadata for resources that match the indicated criteria.")
     List<ResourceMetadata> query(
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
-            ResourceSearchParameters params);
+            ResourceSearchParams params);
     
     @POST
     @Path("/search/summary")
     @Operation(summary = "Search Resources", description = "Retrieves resource metadata for resources that match the indicated criteria.")
     List<ResourceSummary> querySummaries(
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
-            ResourceSearchParameters params);
+            ResourceSearchParams params);
 
     @PUT
     @Operation(summary = "Save new Metadata", description = "Saves the metadata for a resource.")

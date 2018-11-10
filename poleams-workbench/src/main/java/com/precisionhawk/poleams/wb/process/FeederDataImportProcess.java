@@ -3,7 +3,7 @@ package com.precisionhawk.poleams.wb.process;
 import com.precisionhawk.poleams.processors.poleinspection.FeederDataDirProcessor;
 import com.precisionhawk.poleams.processors.poleinspection.ImportProcessListener;
 import com.precisionhawk.poleams.processors.poleinspection.ImportProcessStatus;
-import com.precisionhawk.poleams.webservices.client.Environment;
+import com.precisionhawk.ams.webservices.client.Environment;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.Queue;

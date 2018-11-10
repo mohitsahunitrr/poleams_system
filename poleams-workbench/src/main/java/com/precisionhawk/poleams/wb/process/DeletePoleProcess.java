@@ -1,9 +1,9 @@
 package com.precisionhawk.poleams.wb.process;
 
-import com.precisionhawk.poleams.bean.PoleSearchParameters;
+import com.precisionhawk.poleams.bean.PoleSearchParams;
 import com.precisionhawk.poleams.domain.Pole;
-import com.precisionhawk.poleams.util.CollectionsUtilities;
-import com.precisionhawk.poleams.webservices.client.Environment;
+import com.precisionhawk.ams.util.CollectionsUtilities;
+import com.precisionhawk.ams.webservices.client.Environment;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashSet;
@@ -44,7 +44,7 @@ public class DeletePoleProcess extends ServiceClientCommandProcess {
     }
     
     private void deletePole(Environment env, String fplId) throws IOException {
-        PoleSearchParameters params = new PoleSearchParameters();
+        PoleSearchParams params = new PoleSearchParams();
         params.setFPLId(fplId);
         Pole p = CollectionsUtilities.firstItemIn(poleService(env).search(env.obtainAccessToken(), params));
         if (p == null) {

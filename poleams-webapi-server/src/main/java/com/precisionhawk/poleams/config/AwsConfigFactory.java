@@ -1,6 +1,6 @@
 package com.precisionhawk.poleams.config;
 
-import com.precisionhawk.poleams.support.aws.AwsConfig;
+import com.precisionhawk.ams.support.aws.AwsConfig;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;

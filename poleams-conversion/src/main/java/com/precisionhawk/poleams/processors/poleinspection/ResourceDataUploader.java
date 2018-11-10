@@ -1,13 +1,14 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
 import com.precisionhawk.poleams.bean.ImageScaleRequest;
-import com.precisionhawk.poleams.domain.ResourceMetadata;
-import com.precisionhawk.poleams.domain.ResourceStatus;
-import com.precisionhawk.poleams.domain.ResourceType;
-import com.precisionhawk.poleams.support.httpclient.HttpClientUtilities;
-import com.precisionhawk.poleams.util.ImageUtilities;
+import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.ams.domain.ResourceStatus;
+import com.precisionhawk.ams.domain.ResourceType;
+import com.precisionhawk.ams.support.httpclient.HttpClientUtilities;
+import com.precisionhawk.ams.util.ImageUtilities;
 import com.precisionhawk.poleams.webservices.ResourceWebService;
-import com.precisionhawk.poleams.webservices.client.Environment;
+import com.precisionhawk.ams.webservices.client.Environment;
+import com.precisionhawk.poleams.domain.ResourceTypes;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -101,7 +102,7 @@ public final class ResourceDataUploader {
                             }
                             svc.scale(env.obtainAccessToken(), rmeta.getResourceId(), SCALE_IMAGE_REQ);
                         }
-                        if (ResourceType.DroneInspectionImage == rmeta.getType()) {
+                        if (ResourceTypes.DroneInspectionImage.equals(rmeta.getType())) {
                             // Queue the image to be zoomified.
                             rmeta.setStatus(ResourceStatus.Processed);
                         } else {

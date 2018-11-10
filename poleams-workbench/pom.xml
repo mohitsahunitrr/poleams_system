@@ -41,7 +41,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>poleams-webapi-client</artifactId>
+            <artifactId>ams-webapi-client</artifactId>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>

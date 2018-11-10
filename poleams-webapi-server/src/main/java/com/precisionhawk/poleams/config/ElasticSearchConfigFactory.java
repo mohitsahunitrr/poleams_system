@@ -5,7 +5,7 @@
  */
 package com.precisionhawk.poleams.config;
 
-import com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConfig;
+import com.precisionhawk.ams.support.elasticsearch.ElasticSearchConfig;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;

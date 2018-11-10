@@ -1,13 +1,13 @@
 package com.precisionhawk.poleams.wb.process;
 
-import com.precisionhawk.poleams.bean.SubStationSearchParameters;
-import com.precisionhawk.poleams.domain.SubStation;
-import com.precisionhawk.poleams.util.CollectionsUtilities;
-import com.precisionhawk.poleams.webservices.SubStationWebService;
-import com.precisionhawk.poleams.webservices.client.Environment;
+import com.precisionhawk.poleams.bean.FeederSearchParams;
+import com.precisionhawk.poleams.domain.Feeder;
+import com.precisionhawk.ams.util.CollectionsUtilities;
+import com.precisionhawk.ams.webservices.client.Environment;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Queue;
+import com.precisionhawk.poleams.webservices.FeederWebService;
 
 /**
  *
@@ -53,11 +53,11 @@ public class PopulateEncroachmentGoogleEarthURL extends ServiceClientCommandProc
         if (feederId == null || feederId.isEmpty() || geURL == null || geURL.isEmpty()) {
             return false;
         }
-        SubStationWebService ssvc = env.obtainWebService(SubStationWebService.class);
-        SubStationSearchParameters params = new SubStationSearchParameters();
+        FeederWebService ssvc = env.obtainWebService(FeederWebService.class);
+        FeederSearchParams params = new FeederSearchParams();
         params.setFeederNumber(feederId);
         try {
-            SubStation ss = CollectionsUtilities.firstItemIn(ssvc.search(env.obtainAccessToken(), params));
+            Feeder ss = CollectionsUtilities.firstItemIn(ssvc.search(env.obtainAccessToken(), params));
             if (ss == null) {
                 System.err.printf("No Feeder found for feeder ID %s\n", feederId);
             } else {

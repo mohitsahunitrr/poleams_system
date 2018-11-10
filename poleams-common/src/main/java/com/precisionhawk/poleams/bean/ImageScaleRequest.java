@@ -4,6 +4,7 @@
 
 package com.precisionhawk.poleams.bean;
 
+import com.precisionhawk.ams.bean.Dimension;
 import io.swagger.oas.annotations.media.Schema;
 
 /**

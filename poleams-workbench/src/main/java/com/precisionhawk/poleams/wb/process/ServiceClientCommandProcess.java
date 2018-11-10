@@ -10,12 +10,12 @@ import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.poleams.webservices.ResourceWebService;
 import com.precisionhawk.poleams.webservices.StatusWebService;
-import com.precisionhawk.poleams.webservices.SubStationWebService;
-import com.precisionhawk.poleams.webservices.client.Environment;
-import com.precisionhawk.poleams.webservices.client.spring.EnvironmentsFactory;
+import com.precisionhawk.ams.webservices.client.Environment;
+import com.precisionhawk.ams.webservices.client.spring.EnvironmentsFactory;
 import java.io.File;
 import java.util.List;
 import java.util.Queue;
+import com.precisionhawk.poleams.webservices.FeederWebService;
 
 /**
  *
@@ -119,7 +119,7 @@ public abstract class ServiceClientCommandProcess extends CommandProcess {
         return env.obtainWebService(StatusWebService.class);
     }
 
-    protected SubStationWebService inspectionEventService(Environment env) {
-        return env.obtainWebService(SubStationWebService.class);
+    protected FeederWebService inspectionEventService(Environment env) {
+        return env.obtainWebService(FeederWebService.class);
     }
 }

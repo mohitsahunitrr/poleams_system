@@ -117,6 +117,7 @@
         </pluginManagement>
     </build>
     <properties>
+        <ams.version>1.0.0-SNAPSHOT</ams.version>
         <elasticsearch.version>2.1.2</elasticsearch.version>
         <jackson.version>1.9.13</jackson.version>
         <junit.version>4.12</junit.version>
@@ -126,7 +127,6 @@
         <slf4j.version>1.7.25</slf4j.version>
         <spring.version>3.2.18.RELEASE</spring.version>
         <swagger.version>2.0.0-rc2</swagger.version>
-        <windams.version>2.8.0-Pre25</windams.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -155,10 +155,31 @@
                 <artifactId>poleams-webapi</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>poleams-webapi-client</artifactId>
-                <version>${project.version}</version>
+                <artifactId>ams-common</artifactId>
+                <version>${ams.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>ams-dao</artifactId>
+                <version>${ams.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>ams-webapi</artifactId>
+                <version>${ams.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>ams-webapi-client</artifactId>
+                <version>${ams.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>ams-webapi-server</artifactId>
+                <version>${ams.version}</version>
             </dependency>
 
             <dependency>
@@ -416,7 +437,6 @@
         <module>poleams-reporting</module>
         <module>poleams-swagger</module>
         <module>poleams-webapi</module>
-        <module>poleams-webapi-client</module>
         <module>poleams-webapi-server</module>
         <module>poleams-workbench</module>
     </modules>

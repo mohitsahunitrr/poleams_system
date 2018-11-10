@@ -1,7 +1,8 @@
 package com.precisionhawk.poleams.bean;
 
-import com.precisionhawk.poleams.domain.ResourceMetadata;
-import com.precisionhawk.poleams.domain.ResourceType;
+import com.precisionhawk.ams.bean.GeoPoint;
+import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.ams.domain.ResourceType;
 import io.swagger.oas.annotations.media.Schema;
 import java.time.ZonedDateTime;
 
@@ -130,11 +131,11 @@ public class ResourceSummary {
         this.downloadURL = downloadURL;
         this.location = rmeta.getLocation();
         this.organizationId = rmeta.getOrganizationId();
-        this.poleId = rmeta.getPoleId();
-        this.poleInspectionId = rmeta.getPoleInspectionId();
+        this.poleId = rmeta.getAssetId();
+        this.poleInspectionId = rmeta.getAssetInspectionId();
         this.resourceId = rmeta.getResourceId();
         this.scaledImageURL = scaledImageURL;
-        this.subStationId = rmeta.getSubStationId();
+        this.subStationId = rmeta.getSiteId();
         this.timestamp = rmeta.getTimestamp();
         this.type = rmeta.getType();
         this.zoomifyURL = zoomifyURL;

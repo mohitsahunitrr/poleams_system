@@ -1,19 +1,19 @@
 package com.precisionhawk.poleams.wb.process;
 
 import com.precisionhawk.poleams.bean.PoleInspectionSummary;
-import com.precisionhawk.poleams.bean.ResourceSearchParameters;
-import com.precisionhawk.poleams.bean.SubStationSummary;
-import com.precisionhawk.poleams.domain.ResourceMetadata;
-import com.precisionhawk.poleams.domain.ResourceStatus;
-import com.precisionhawk.poleams.domain.ResourceType;
-import com.precisionhawk.poleams.domain.SubStation;
-import com.precisionhawk.poleams.support.httpclient.HttpClientUtilities;
-import com.precisionhawk.poleams.util.CollectionsUtilities;
+import com.precisionhawk.ams.bean.ResourceSearchParams;
+import com.precisionhawk.poleams.bean.FeederSummary;
+import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.ams.domain.ResourceStatus;
+import com.precisionhawk.ams.domain.ResourceType;
+import com.precisionhawk.poleams.domain.Feeder;
+import com.precisionhawk.ams.support.httpclient.HttpClientUtilities;
+import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.poleams.webservices.ResourceWebService;
-import com.precisionhawk.poleams.webservices.SubStationWebService;
-import com.precisionhawk.poleams.webservices.client.Environment;
+import com.precisionhawk.ams.webservices.client.Environment;
+import com.precisionhawk.poleams.domain.ResourceTypes;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.UUID;
+import com.precisionhawk.poleams.webservices.FeederWebService;
 
 /**
  *
@@ -63,14 +64,14 @@ public class UploadDesignReportsProcess extends ServiceClientCommandProcess {
         if (sampleFilePath == null || sampleFilePath.isEmpty()) {
             return false;
         }
-        SubStationWebService sssvc = env.obtainWebService(SubStationWebService.class);
+        FeederWebService sssvc = env.obtainWebService(FeederWebService.class);
         PoleWebService psvc = env.obtainWebService(PoleWebService.class);
         PoleInspectionWebService pisvc = env.obtainWebService(PoleInspectionWebService.class);
         ResourceWebService rsvc = env.obtainWebService(ResourceWebService.class);
         
         try {
             boolean success = true;
-            for (SubStation ss : sssvc.retrieveAll(env.obtainAccessToken())) {
+            for (Feeder ss : sssvc.retrieveAll(env.obtainAccessToken())) {
                 success = success && processSubStation(env, sssvc, psvc, pisvc, rsvc, ss);
                 if (!success) {
                     break;
@@ -94,13 +95,13 @@ public class UploadDesignReportsProcess extends ServiceClientCommandProcess {
     }
 
     private boolean processSubStation(
-        Environment env, SubStationWebService sssvc, PoleWebService psvc, PoleInspectionWebService pisvc,
-        ResourceWebService rsvc, SubStation ss
+        Environment env, FeederWebService sssvc, PoleWebService psvc, PoleInspectionWebService pisvc,
+        ResourceWebService rsvc, Feeder ss
     )
         throws IOException, URISyntaxException
     {
         PoleInspectionSummary pis;
-        SubStationSummary sss = sssvc.retrieveSummary(env.obtainAccessToken(), ss.getId());
+        FeederSummary sss = sssvc.retrieveSummary(env.obtainAccessToken(), ss.getId());
         for (String fplid : sss.getPoleInspectionsByFPLId().keySet()) {
             pis = sss.getPoleInspectionsByFPLId().get(fplid);
             if (designReportPaths.containsKey(fplid)) {
@@ -118,22 +119,22 @@ public class UploadDesignReportsProcess extends ServiceClientCommandProcess {
     {
         File f = new File(reportFilePath);
         // First, see if the rmeta exists
-        ResourceSearchParameters params = new ResourceSearchParameters();
-        params.setPoleInspectionId(smry.getId());
-        params.setType(ResourceType.PoleDesignReport);
+        ResourceSearchParams params = new ResourceSearchParams();
+        params.setAssetInspectionId(smry.getId());
+        params.setType(ResourceTypes.PoleDesignReport);
         ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(rsvc.query(env.obtainAccessToken(), params));
         if (rmeta == null) {
             rmeta = new ResourceMetadata();
             rmeta.setContentType("application/pdf");
             rmeta.setName(f.getName());
             rmeta.setOrganizationId(smry.getOrganizationId());
-            rmeta.setPoleId(smry.getPoleId());
-            rmeta.setPoleInspectionId(smry.getId());
+            rmeta.setAssetId(smry.getPoleId());
+            rmeta.setAssetInspectionId(smry.getId());
             rmeta.setResourceId(UUID.randomUUID().toString());
             rmeta.setStatus(ResourceStatus.QueuedForUpload);
-            rmeta.setSubStationId(smry.getSubStationId());
+            rmeta.setSiteId(smry.getSubStationId());
             rmeta.setTimestamp(ZonedDateTime.now());
-            rmeta.setType(ResourceType.PoleDesignReport);
+            rmeta.setType(ResourceTypes.PoleDesignReport);
             rsvc.insertResourceMetadata(env.obtainAccessToken(), rmeta);
         } else {
             rmeta.setStatus(ResourceStatus.QueuedForUpload);

@@ -2,8 +2,8 @@ package com.precisionhawk.poleams.processors.poleinspection;
 
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
-import com.precisionhawk.poleams.domain.ResourceMetadata;
-import com.precisionhawk.poleams.domain.SubStation;
+import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.poleams.domain.Feeder;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,11 +49,11 @@ public class InspectionData {
         return resourceDataFiles;
     }
 
-    private SubStation subStation;
-    public SubStation getSubStation() {
+    private Feeder subStation;
+    public Feeder getSubStation() {
         return subStation;
     }
-    public void setSubStation(SubStation subStation) {
+    public void setSubStation(Feeder subStation) {
         this.subStation = subStation;
     }
 
@@ -63,23 +63,23 @@ public class InspectionData {
     }
     
     public void addPole(Pole pole, boolean isNew) {
-        poleData.put(pole.getFPLId(), pole);
+        poleData.put(pole.getUtilityId(), pole);
         domainDataIsNew.put(pole.getId(), isNew);
     }
     
     public void addPoleInspection(Pole pole, PoleInspection inspection, boolean isNew) {
-        poleInspectionsByFPLId.put(pole.getFPLId(), inspection);
+        poleInspectionsByFPLId.put(pole.getUtilityId(), inspection);
         domainDataIsNew.put(inspection.getId(), isNew);
     }
     
     public void addResourceMetadata(ResourceMetadata rmeta, File dataFile, boolean isNew) {
-        if (rmeta.getPoleId() == null) {
+        if (rmeta.getAssetId() == null) {
             subStationResources.add(rmeta);
         } else {
-            List<ResourceMetadata> list = poleResources.get(rmeta.getPoleId());
+            List<ResourceMetadata> list = poleResources.get(rmeta.getAssetId());
             if (list == null) {
                 list = new ArrayList<>();
-                poleResources.put(rmeta.getPoleId(), list);
+                poleResources.put(rmeta.getAssetId(), list);
             }
             list.add(rmeta);
         }

@@ -1,5 +1,6 @@
 package com.precisionhawk.poleams.domain;
 
+import com.precisionhawk.ams.domain.Identifyable;
 import com.precisionhawk.poleams.bean.PoleAnalysisLoadCase;
 import io.swagger.oas.annotations.media.Schema;
 import java.time.LocalDate;

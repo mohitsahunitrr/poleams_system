@@ -344,8 +344,8 @@ class PoleForemanDocumentHandler extends AbstractDocumentHandler {
                     if (fplid != null) {
                         fplid = fplid.trim();
                     }
-                    if (!Objects.equals(pole.getFPLId(), fplid)) {
-                        throw new SAXException(String.format("The pole's FPL ID \"%s\" does not match the GIS_ID attribute \"%s\"", pole.getFPLId(), fplid));
+                    if (!Objects.equals(pole.getUtilityId(), fplid)) {
+                        throw new SAXException(String.format("The pole's FPL ID \"%s\" does not match the GIS_ID attribute \"%s\"", pole.getUtilityId(), fplid));
                     }
                     break;
                 case TAG_ANCHOR:

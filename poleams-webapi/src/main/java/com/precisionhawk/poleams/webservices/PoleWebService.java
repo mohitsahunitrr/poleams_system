@@ -1,7 +1,8 @@
 package com.precisionhawk.poleams.webservices;
 
+import com.precisionhawk.ams.webservices.WebService;
 import com.precisionhawk.poleams.bean.PoleAnalysisImportJobState;
-import com.precisionhawk.poleams.bean.PoleSearchParameters;
+import com.precisionhawk.poleams.bean.PoleSearchParams;
 import com.precisionhawk.poleams.bean.PoleSummary;
 import com.precisionhawk.poleams.domain.Pole;
 import io.swagger.oas.annotations.Operation;
@@ -73,7 +74,7 @@ public interface PoleWebService extends WebService {
     @Operation(summary = "Search poles", description = "Get a list of poles by search criteria.")
     List<Pole> search(
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
-            PoleSearchParameters searchParams);
+            PoleSearchParams searchParams);
     
     @POST
     @Operation(summary = "Updates a pole.", description = "Updates an existing pole record.")

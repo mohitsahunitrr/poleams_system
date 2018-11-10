@@ -1,46 +1,38 @@
 package com.precisionhawk.poleams.dao.elasticsearch;
 
-import com.precisionhawk.poleams.bean.PoleInspectionSearchParameters;
-import com.precisionhawk.poleams.dao.DaoException;
+import com.precisionhawk.ams.dao.DaoException;
+import com.precisionhawk.ams.dao.elasticsearch.AbstractEsDao;
+import com.precisionhawk.poleams.bean.PoleInspectionSearchParams;
 import com.precisionhawk.poleams.dao.PoleInspectionDao;
 import com.precisionhawk.poleams.domain.PoleInspection;
+import com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants;
 import static com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants.INDEX_NAME_POLEAMS;
 import java.util.List;
-import javax.annotation.PostConstruct;
 import javax.inject.Named;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import us.pcsw.es.util.ESUtils;
 
 /**
  *
  * @author Philip A. Chapman
  */
 @Named
-public class PoleInspectionEsDao extends AbstractEsDao implements PoleInspectionDao {
+public class PoleInspectionEsDao extends AbstractEsDao implements PoleInspectionDao, ElasticSearchConstants {
     
     private static final String COL_ID = "id";
     private static final String COL_ORG_ID = "organizationId";
-    private static final String COL_POLE_ID = "poleId";
-    private static final String COL_SS_ID = "subStationId";
+    private static final String COL_ASSET_ID = "assetId";
+    private static final String COL_SITE_ID = "siteId";
+    private static final String COL_SITE_INSP_ID = "siteInspectionId";
     private static final String DOCUMENT = "PoleInspection";
     private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch/PoleInspection_Mapping.json";
 
     @Override
     public String getMappingPath() {
         return MAPPING;
-    }
-
-    @PostConstruct
-    public void init() {
-        try {
-            ESUtils.ensureMapping(getClient(), INDEX_NAME_POLEAMS, DOCUMENT, MAPPING);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
     }
 
     @Override
@@ -103,13 +95,13 @@ public class PoleInspectionEsDao extends AbstractEsDao implements PoleInspection
     }
 
     @Override
-    public List<PoleInspection> search(PoleInspectionSearchParameters params) throws DaoException {
+    public List<PoleInspection> search(PoleInspectionSearchParams params) throws DaoException {
         if (params == null) {
             throw new IllegalArgumentException("Search parameters are required.");
         }
         BoolQueryBuilder query = addQueryMust(null, COL_ORG_ID, params.getOrganizationId());
-        query = addQueryMust(query, COL_POLE_ID, params.getPoleId());
-        query = addQueryMust(query, COL_SS_ID, params.getSubStationId());
+        query = addQueryMust(query, COL_ASSET_ID, params.getAssetId());
+        query = addQueryMust(query, COL_SITE_ID, params.getSiteId());
         
         TimeValue scrollLifeLimit = new TimeValue(getScrollLifespan());
         SearchRequestBuilder search =

@@ -1,9 +1,11 @@
 package com.precisionhawk.poleams.dao.elasticsearch;
 
-import com.precisionhawk.poleams.bean.PoleSearchParameters;
-import com.precisionhawk.poleams.dao.DaoException;
+import com.precisionhawk.ams.dao.DaoException;
+import com.precisionhawk.ams.dao.elasticsearch.AbstractEsDao;
+import com.precisionhawk.poleams.bean.PoleSearchParams;
 import com.precisionhawk.poleams.dao.PoleDao;
 import com.precisionhawk.poleams.domain.Pole;
+import com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants;
 import static com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants.INDEX_NAME_POLEAMS;
 import java.util.List;
 import javax.inject.Named;
@@ -18,12 +20,12 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
  * @author Philip A. Chapman
  */
 @Named
-public class PoleEsDao extends AbstractEsDao implements PoleDao {
+public class PoleEsDao extends AbstractEsDao implements PoleDao, ElasticSearchConstants {
     
     private static final String COL_ID = "id";
-    private static final String COL_FPL_ID = "fplid";
+    private static final String COL_UTILITY_ID = "utilityId";
     private static final String COL_ORG_ID = "organizationId";
-    private static final String COL_SS_ID = "subStationId";
+    private static final String COL_SITE_ID = "siteId";
     private static final String DOCUMENT = "Pole";
     private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch/Pole_Mapping.json";
 
@@ -82,13 +84,13 @@ public class PoleEsDao extends AbstractEsDao implements PoleDao {
     }
 
     @Override
-    public List<Pole> search(PoleSearchParameters params) throws DaoException {
+    public List<Pole> search(PoleSearchParams params) throws DaoException {
         if (params == null) {
             throw new IllegalArgumentException("Search parameters are required.");
         }
-        BoolQueryBuilder query = addQueryMust(null, COL_FPL_ID, params.getFPLId());
+        BoolQueryBuilder query = addQueryMust(null, COL_UTILITY_ID, params.getUtilityId());
         query = addQueryMust(query, COL_ORG_ID, params.getOrganizationId());
-        query = addQueryMust(query, COL_SS_ID, params.getSubStationId());
+        query = addQueryMust(query, COL_SITE_ID, params.getSiteId());
         if (query == null) {
             throw new IllegalArgumentException("Search parameters are required.");
         }

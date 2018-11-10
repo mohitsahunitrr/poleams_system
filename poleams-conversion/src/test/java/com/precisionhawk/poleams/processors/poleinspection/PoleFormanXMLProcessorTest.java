@@ -25,7 +25,7 @@ public class PoleFormanXMLProcessorTest
     @Test
     public void processTest() throws IOException, SAXException {
         Pole pole = new Pole();
-        pole.setFPLId("4009449");
+        pole.setUtilityId("4009449");
         PoleInspection inspection = new PoleInspection();
         InputStream is = getClass().getClassLoader().getResourceAsStream(TEST_XML_PATH);
         PoleForemanXMLProcessor.process(new ProcessListener() {

@@ -1,14 +1,14 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
-import com.precisionhawk.poleams.bean.ResourceSearchParameters;
+import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.poleams.domain.Pole;
-import com.precisionhawk.poleams.domain.ResourceMetadata;
-import com.precisionhawk.poleams.domain.ResourceStatus;
-import com.precisionhawk.poleams.domain.ResourceType;
-import com.precisionhawk.poleams.util.CollectionsUtilities;
-import com.precisionhawk.poleams.util.ImageUtilities;
+import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.ams.domain.ResourceStatus;
+import com.precisionhawk.poleams.domain.ResourceTypes;
+import com.precisionhawk.ams.util.CollectionsUtilities;
+import com.precisionhawk.ams.util.ImageUtilities;
 import com.precisionhawk.poleams.webservices.ResourceWebService;
-import com.precisionhawk.poleams.webservices.client.Environment;
+import com.precisionhawk.ams.webservices.client.Environment;
 import java.io.File;
 import java.io.IOException;
 import java.time.ZoneId;
@@ -45,21 +45,21 @@ final class ImagesProcessor implements Constants {
         
         ResourceWebService rsvc = environment.obtainWebService(ResourceWebService.class);
                 
-        ResourceSearchParameters params = new ResourceSearchParameters();
-        params.setPoleId(p.getId());
+        ResourceSearchParams params = new ResourceSearchParams();
+        params.setAssetId(p.getId());
         params.setName(f.getName());
         ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(rsvc.query(environment.obtainAccessToken(), params));
         if (rmeta == null) {
             rmeta = new ResourceMetadata();
             rmeta.setResourceId(UUID.randomUUID().toString());
             String name = f.getName().toLowerCase();
-            rmeta.setType(ResourceType.Other);
+            rmeta.setType(ResourceTypes.Other);
             if (name.startsWith(DRONE_IMG)) {
-                rmeta.setType(ResourceType.DroneInspectionImage);
+                rmeta.setType(ResourceTypes.DroneInspectionImage);
             } else if (name.startsWith(MANUAL_IMG_1) || name.toLowerCase().startsWith(MANUAL_IMG_2)) {
-                rmeta.setType(ResourceType.ManualInspectionImage);
+                rmeta.setType(ResourceTypes.ManualInspectionImage);
             } else if (name.startsWith(THERMAL_IMG)) {
-                rmeta.setType(ResourceType.Thermal);
+                rmeta.setType(ResourceTypes.Thermal);
             }
             ImageInfo info = Imaging.getImageInfo(f);
             ImageMetadata metadata = Imaging.getMetadata(f);
@@ -75,11 +75,11 @@ final class ImagesProcessor implements Constants {
             rmeta.setLocation(ImageUtilities.getLocation(exif));
             rmeta.setName(f.getName());
             rmeta.setOrganizationId(ORG_ID);
-            rmeta.setPoleId(p.getId());
-            rmeta.setPoleInspectionId(data.getPoleInspectionsByFPLId().get(p.getFPLId()).getId());
+            rmeta.setAssetId(p.getId());
+            rmeta.setAssetInspectionId(data.getPoleInspectionsByFPLId().get(p.getUtilityId()).getId());
             rmeta.setSize(ImageUtilities.getSize(info));
             rmeta.setStatus(ResourceStatus.QueuedForUpload);
-            rmeta.setSubStationId(data.getSubStation().getId());
+            rmeta.setSiteId(data.getSubStation().getId());
             rmeta.setTimestamp(ImageUtilities.getTimestamp(exif, DEFAULT_TZ));
             data.addResourceMetadata(rmeta, f, true);
         } else {

@@ -1,18 +1,18 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
-import com.precisionhawk.poleams.bean.GeoPoint;
-import com.precisionhawk.poleams.bean.PoleSearchParameters;
-import com.precisionhawk.poleams.bean.PoleInspectionSearchParameters;
-import com.precisionhawk.poleams.bean.SubStationSearchParameters;
+import com.precisionhawk.ams.bean.GeoPoint;
+import com.precisionhawk.ams.domain.AssetType;
+import com.precisionhawk.poleams.bean.PoleSearchParams;
+import com.precisionhawk.poleams.bean.PoleInspectionSearchParams;
+import com.precisionhawk.poleams.bean.FeederSearchParams;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
-import com.precisionhawk.poleams.domain.SubStation;
+import com.precisionhawk.poleams.domain.Feeder;
 import static com.precisionhawk.poleams.support.poi.ExcelUtilities.*;
-import com.precisionhawk.poleams.util.CollectionsUtilities;
+import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
-import com.precisionhawk.poleams.webservices.SubStationWebService;
-import com.precisionhawk.poleams.webservices.client.Environment;
+import com.precisionhawk.ams.webservices.client.Environment;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -29,6 +29,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbookFactory;
 import org.papernapkin.liana.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.precisionhawk.poleams.webservices.FeederWebService;
 
 /**
  *
@@ -102,7 +103,7 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
                     return false;
                 }
                 // Create a new substation.
-                data.setSubStation(new SubStation());
+                data.setSubStation(new Feeder());
                 data.getSubStation().setId(UUID.randomUUID().toString());
                 data.getSubStation().setHardeningLevel(getCellDataAsString(row, FEEDER_HARDENING_LVL.x));
                 data.getSubStation().setFeederNumber(feederId);
@@ -160,19 +161,19 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
                 listener.reportNonFatalError(String.format("The tower on row %d with FPL ID %s is marked \"N/A\" and is being skipped.", row.getRowNum() + 1, fplId));
                 return true;
             }
-            PoleSearchParameters pparams = new PoleSearchParameters();
+            PoleSearchParams pparams = new PoleSearchParams();
             pparams.setFPLId(fplId);
             Pole pole = CollectionsUtilities.firstItemIn(psvc.search(env.obtainAccessToken(), pparams));
             boolean isNew = false;
             if (pole == null) {   
                 pole = new Pole();
-                pole.setFPLId(fplId);
+                pole.setUtilityId(fplId);
                 pole.setId(UUID.randomUUID().toString());
-                pole.setOrganizationId(ORG_ID);
-                pole.setSubStationId(data.getSubStation().getId());
+                pole.setSiteId(data.getSubStation().getId());
                 isNew = true;
             }
-            pole.setType(getCellDataAsString(row, COL_POLE_TYPE));
+            String s = getCellDataAsString(row, COL_POLE_TYPE);
+            pole.setType(s == null ? null : new AssetType(s));
             pole.setSwitchNumber(getCellDataAsString(row, COL_POLE_SWITCH_NUM));
             pole.setTlnCoordinate(getCellDataAsString(row, COL_POLE_TLN_COORD));
             Double lat = getCellDataAsDouble(row, COL_POLE_LAT);
@@ -191,7 +192,7 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
             PoleInspection inspection = null;
             if (!isNew) {
                 // Attempt to find an existing inspection
-                PoleInspectionSearchParameters piparams = new PoleInspectionSearchParameters();
+                PoleInspectionSearchParams piparams = new PoleInspectionSearchParams();
                 piparams.setPoleId(pole.getId());
                 inspection = CollectionsUtilities.firstItemIn(pisvc.search(env.obtainAccessToken(), piparams));
             }
@@ -236,15 +237,15 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
         }
     }
     
-    private static SubStation lookupSubStationByFeederId(Environment env, String feederId) throws IOException {
-        SubStationSearchParameters params = new SubStationSearchParameters();
+    private static Feeder lookupSubStationByFeederId(Environment env, String feederId) throws IOException {
+        FeederSearchParams params = new FeederSearchParams();
         params.setFeederNumber(feederId);
-        List<SubStation> subStations = env.obtainWebService(SubStationWebService.class).search(env.obtainAccessToken(), params);
+        List<Feeder> subStations = env.obtainWebService(FeederWebService.class).search(env.obtainAccessToken(), params);
         return CollectionsUtilities.firstItemIn(subStations);
     }
 
     private static Pole lookupPoleByFPLId(Environment env, PoleWebService svc, String fplId) throws IOException {
-        PoleSearchParameters params = new PoleSearchParameters();
+        PoleSearchParams params = new PoleSearchParams();
         params.setFPLId(fplId);
         List<Pole> poles = svc.search(env.obtainAccessToken(), params);
         return CollectionsUtilities.firstItemIn(poles);

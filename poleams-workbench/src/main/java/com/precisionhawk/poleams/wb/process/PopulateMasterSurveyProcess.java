@@ -1,10 +1,10 @@
 package com.precisionhawk.poleams.wb.process;
 
-import com.precisionhawk.poleams.domain.ResourceType;
+import com.precisionhawk.poleams.domain.ResourceTypes;
 import com.precisionhawk.poleams.processors.poleinspection.SurveyReportGenerator;
 import com.precisionhawk.poleams.processors.poleinspection.ProcessListener;
 import com.precisionhawk.poleams.processors.poleinspection.ImportProcessStatus;
-import com.precisionhawk.poleams.webservices.client.Environment;
+import com.precisionhawk.ams.webservices.client.Environment;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -114,7 +114,7 @@ public class PopulateMasterSurveyProcess extends ServiceClientCommandProcess {
             boolean success = SurveyReportGenerator.process(env, listener, feederId, new File(inFile), file);
             System.out.printf("Import finished with %s\n", (success ? "success" : "errors"));
             if (success && uploadIntoRepo) {
-                ResourceUploadProcess uploadProc = new ResourceUploadProcess(feederId, null, null, ResourceType.SurveyReport, true, file.getAbsolutePath(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                ResourceUploadProcess uploadProc = new ResourceUploadProcess(feederId, null, null, ResourceTypes.SurveyReport, true, file.getAbsolutePath(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
                 return uploadProc.execute(env);
             }
         } catch (IOException ex) {

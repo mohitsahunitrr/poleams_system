@@ -1,6 +1,6 @@
 package com.precisionhawk.poleams.config;
 
-import com.precisionhawk.poleams.repository.RepositoryConfig;
+import com.precisionhawk.ams.repository.RepositoryConfig;
 
 /**
  *

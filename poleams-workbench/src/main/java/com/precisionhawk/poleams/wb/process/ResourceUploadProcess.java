@@ -1,23 +1,23 @@
 package com.precisionhawk.poleams.wb.process;
 
-import com.precisionhawk.poleams.bean.PoleInspectionSearchParameters;
-import com.precisionhawk.poleams.bean.PoleSearchParameters;
-import com.precisionhawk.poleams.bean.ResourceSearchParameters;
-import com.precisionhawk.poleams.bean.SubStationSearchParameters;
+import com.precisionhawk.poleams.bean.PoleInspectionSearchParams;
+import com.precisionhawk.poleams.bean.PoleSearchParams;
+import com.precisionhawk.ams.bean.ResourceSearchParams;
+import com.precisionhawk.poleams.bean.FeederSearchParams;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
-import com.precisionhawk.poleams.domain.ResourceMetadata;
-import com.precisionhawk.poleams.domain.ResourceStatus;
-import com.precisionhawk.poleams.domain.ResourceType;
-import com.precisionhawk.poleams.domain.SubStation;
-import com.precisionhawk.poleams.support.httpclient.HttpClientUtilities;
-import com.precisionhawk.poleams.util.CollectionsUtilities;
-import com.precisionhawk.poleams.util.ContentTypeUtilities;
+import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.ams.domain.ResourceStatus;
+import com.precisionhawk.ams.domain.ResourceType;
+import com.precisionhawk.poleams.domain.ResourceTypes;
+import com.precisionhawk.poleams.domain.Feeder;
+import com.precisionhawk.ams.support.httpclient.HttpClientUtilities;
+import com.precisionhawk.ams.util.CollectionsUtilities;
+import com.precisionhawk.ams.util.ContentTypeUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.poleams.webservices.ResourceWebService;
-import com.precisionhawk.poleams.webservices.SubStationWebService;
-import com.precisionhawk.poleams.webservices.client.Environment;
+import com.precisionhawk.ams.webservices.client.Environment;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -25,6 +25,7 @@ import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
 import java.util.Queue;
 import java.util.UUID;
+import com.precisionhawk.poleams.webservices.FeederWebService;
 
 /**
  *
@@ -101,7 +102,7 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                 }
             case ARG_TYPE:
                 if (resourceType == null) {
-                    resourceType = ResourceType.valueOf(args.poll());
+                    resourceType = ResourceTypes.valueOf(args.poll());
                     return resourceType != null;
                 } else {
                     return false;
@@ -135,9 +136,9 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
         } else {
             try {
                 ResourceWebService rsvc = env.obtainWebService(ResourceWebService.class);
-                SubStationWebService ssvc = env.obtainWebService(SubStationWebService.class);
+                FeederWebService ssvc = env.obtainWebService(FeederWebService.class);
 
-                ResourceSearchParameters rsparams = null;
+                ResourceSearchParams rsparams = null;
                 ResourceMetadata rmeta = null;
                 boolean isNew = true;
                 
@@ -147,13 +148,13 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                     rmeta.setType(resourceType);
                     if (replace) {
                         // Attempt to locate the resource and overwrite it if it exists.
-                        rsparams = new ResourceSearchParameters();
+                        rsparams = new ResourceSearchParams();
                         rsparams.setType(resourceType);
                     }
                     
                     if (fplId != null) {
                         PoleWebService psvc = env.obtainWebService(PoleWebService.class);
-                        PoleSearchParameters pparams = new PoleSearchParameters();
+                        PoleSearchParams pparams = new PoleSearchParams();
                         pparams.setFPLId(fplId);
                         Pole p = CollectionsUtilities.firstItemIn(psvc.search(env.obtainAccessToken(), pparams));
                         if (p == null) {
@@ -161,37 +162,37 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                             return true;
                         } else {
                             PoleInspectionWebService pisvc = env.obtainWebService(PoleInspectionWebService.class);
-                            PoleInspectionSearchParameters piparams = new PoleInspectionSearchParameters();
+                            PoleInspectionSearchParams piparams = new PoleInspectionSearchParams();
                             piparams.setPoleId(p.getId());
                             PoleInspection pi = CollectionsUtilities.firstItemIn(pisvc.search(env.obtainAccessToken(), piparams));
                             if (pi == null) {
                                 System.err.printf("No inspection for pole with FPL ID \"%s\" found.\n", fplId);
                                 return true;
                             } else {
-                                SubStation ss = ssvc.retrieve(env.obtainAccessToken(), p.getSubStationId());
+                                Feeder ss = ssvc.retrieve(env.obtainAccessToken(), p.getSiteId());
                                 if (rsparams != null) {
                                     rsparams.setOrganizationId(ss.getOrganizationId());
-                                    rsparams.setPoleId(p.getId());
-                                    rsparams.setPoleInspectionId(pi.getId());
-                                    rsparams.setSubStationId(ss.getId());
+                                    rsparams.setAssetId(p.getId());
+                                    rsparams.setAssetInspectionId(pi.getId());
+                                    rsparams.setSiteId(ss.getId());
                                 }
                                 rmeta.setOrganizationId(ss.getOrganizationId());
-                                rmeta.setPoleId(p.getId());
-                                rmeta.setPoleInspectionId(pi.getId());
-                                rmeta.setSubStationId(ss.getId());
+                                rmeta.setAssetId(p.getId());
+                                rmeta.setAssetInspectionId(pi.getId());
+                                rmeta.setSiteId(ss.getId());
                             }
                         }
                     } else if (feederId != null) {
-                        SubStationSearchParameters params = new SubStationSearchParameters();
+                        FeederSearchParams params = new FeederSearchParams();
                         params.setFeederNumber(feederId);
-                        SubStation ss = CollectionsUtilities.firstItemIn(ssvc.search(env.obtainAccessToken(), params));
+                        Feeder ss = CollectionsUtilities.firstItemIn(ssvc.search(env.obtainAccessToken(), params));
                         if (ss == null) {
                             System.err.printf("No substation found for feeder \"%s\".\n", feederId);
                             return true;
                         }
                         if (rsparams != null) {
                             rsparams.setOrganizationId(ss.getOrganizationId());
-                            rsparams.setSubStationId(ss.getId());
+                            rsparams.setSiteId(ss.getId());
                         }
                     } else {
                         // Shouldn't get here due to checks above
@@ -205,10 +206,10 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                         if (rmeta == null) {
                             rmeta = new ResourceMetadata();
                             rmeta.setOrganizationId(rsparams.getOrganizationId());
-                            rmeta.setPoleId(rsparams.getPoleId());
-                            rmeta.setPoleInspectionId(rsparams.getPoleInspectionId());
+                            rmeta.setAssetId(rsparams.getAssetId());
+                            rmeta.setAssetInspectionId(rsparams.getAssetInspectionId());
                             rmeta.setResourceId(UUID.randomUUID().toString());
-                            rmeta.setSubStationId(rsparams.getSubStationId());
+                            rmeta.setSiteId(rsparams.getSiteId());
                             rmeta.setType(rsparams.getType());
                         } else {
                             isNew = false;
@@ -256,8 +257,8 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
     public void printHelp(PrintStream output) {
         output.println(HELP);
         output.println("\t\tResource Types:");
-        for (ResourceType type : ResourceType.values()) {
-            output.printf("\t\t\t%s\n", type.name());
+        for (ResourceType type : ResourceTypes.values()) {
+            output.printf("\t\t\t%s\n", type.getValue());
         }
     }
     
