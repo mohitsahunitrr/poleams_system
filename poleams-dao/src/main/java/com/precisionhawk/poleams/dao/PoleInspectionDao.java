@@ -1,7 +1,7 @@
 package com.precisionhawk.poleams.dao;
 
+import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.dao.DaoException;
-import com.precisionhawk.poleams.bean.PoleInspectionSearchParams;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import java.util.List;
 
@@ -19,5 +19,5 @@ public interface PoleInspectionDao {
     
     PoleInspection retrieve(String id) throws DaoException;
     
-    List<PoleInspection> search(PoleInspectionSearchParams params) throws DaoException;
+    List<PoleInspection> search(AssetInspectionSearchParams params) throws DaoException;
 }

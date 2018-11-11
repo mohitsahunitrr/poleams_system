@@ -8,7 +8,7 @@ import com.precisionhawk.poleams.wb.Main;
 import com.precisionhawk.poleams.webservices.ExportWebService;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
-import com.precisionhawk.poleams.webservices.ResourceWebService;
+import com.precisionhawk.ams.webservices.ResourceWebService;
 import com.precisionhawk.poleams.webservices.StatusWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.ams.webservices.client.spring.EnvironmentsFactory;

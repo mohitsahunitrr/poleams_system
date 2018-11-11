@@ -1,8 +1,7 @@
 package com.precisionhawk.poleams.webservices.impl;
 
-import com.precisionhawk.poleams.webservices.AbstractWebService;
+import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.poleams.bean.PoleAnalysisImportJobState;
-import com.precisionhawk.poleams.bean.PoleInspectionSearchParams;
 import com.precisionhawk.poleams.bean.PoleSearchParams;
 import com.precisionhawk.poleams.bean.PoleSummary;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
@@ -18,9 +17,10 @@ import com.precisionhawk.poleams.domain.poledata.PoleSpan;
 import com.precisionhawk.poleams.domain.poledata.PrimaryCable;
 import com.precisionhawk.poleams.domain.poledata.SecondaryCable;
 import com.precisionhawk.ams.util.CollectionsUtilities;
+import com.precisionhawk.ams.webservices.AbstractWebService;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
-import com.precisionhawk.poleams.webservices.ResourceWebService;
+import com.precisionhawk.ams.webservices.ResourceWebService;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -227,8 +227,8 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
         if (p != null) {
             {
                 // Delete Inspections, which will delete any shared resources.
-                PoleInspectionSearchParams params = new PoleInspectionSearchParams();
-                params.setPoleId(id);
+                AssetInspectionSearchParams params = new AssetInspectionSearchParams();
+                params.setAssetId(id);
                 for (PoleInspection insp : poleInspectionSvc.search(authToken, params)) {
                     poleInspectionSvc.delete(authToken, insp.getId());
                 }

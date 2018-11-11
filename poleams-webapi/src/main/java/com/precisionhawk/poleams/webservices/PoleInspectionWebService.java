@@ -1,7 +1,7 @@
 package com.precisionhawk.poleams.webservices;
 
+import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.webservices.WebService;
-import com.precisionhawk.poleams.bean.PoleInspectionSearchParams;
 import com.precisionhawk.poleams.bean.PoleInspectionSummary;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import io.swagger.oas.annotations.Operation;
@@ -54,7 +54,7 @@ public interface PoleInspectionWebService extends WebService {
     @Operation(summary = "Search pole inspections", description = "Get a list of pole inspections by search criteria.")
     List<PoleInspection> search(
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
-            PoleInspectionSearchParams searchParams);
+            AssetInspectionSearchParams searchParams);
     
     @POST
     @Operation(summary = "Updates a pole inspection.", description = "Updates an existing pole inspection record.")

@@ -1,10 +1,11 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
-import com.precisionhawk.poleams.bean.PoleInspectionSearchParams;
+import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
+import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
 import com.precisionhawk.poleams.bean.PoleInspectionSummary;
 import com.precisionhawk.poleams.bean.PoleSummary;
 import com.precisionhawk.poleams.bean.FeederSearchParams;
-import com.precisionhawk.poleams.bean.FeederSummary;
+import com.precisionhawk.poleams.bean.FeederInspectionSummary;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.Feeder;
 import com.precisionhawk.poleams.domain.poledata.CommunicationsCable;
@@ -15,6 +16,8 @@ import static com.precisionhawk.poleams.support.poi.ExcelUtilities.*;
 import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
+import com.precisionhawk.poleams.domain.FeederInspection;
+import com.precisionhawk.poleams.webservices.FeederInspectionWebService;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -36,7 +39,7 @@ import com.precisionhawk.poleams.webservices.FeederWebService;
  */
 public class SurveyReportGenerator implements SurveyReportConstants {
 
-    public static boolean process(Environment env, ProcessListener listener, String feederId, File inFile, File outFile) {
+    public static boolean process(Environment env, ProcessListener listener, String feederId, String orderNumber, File inFile, File outFile) {
         FeederSearchParams params = new FeederSearchParams();
         params.setFeederNumber(feederId);
         FeederWebService svc = env.obtainWebService(FeederWebService.class);
@@ -47,7 +50,16 @@ public class SurveyReportGenerator implements SurveyReportConstants {
                 listener.reportFatalError(String.format("No substation with feeder ID %s found", feederId));
                 return false;
             }
-            FeederSummary summary = svc.retrieveSummary(env.obtainAccessToken(), ss.getId());
+            FeederInspectionWebService fisvc = env.obtainWebService(FeederInspectionWebService.class);
+            SiteInspectionSearchParams fiparams = new SiteInspectionSearchParams();
+            fiparams.setOrderNumber(orderNumber);
+            fiparams.setSiteId(ss.getId());
+            FeederInspection fi = CollectionsUtilities.firstItemIn(fisvc.search(env.obtainAccessToken(), fiparams));
+            if (fi == null) {
+                listener.reportFatalError(String.format("No feeder inspection found for feeder ID %s, work order number %s", feederId, orderNumber));
+                return false;
+            }
+            FeederInspectionSummary summary = fisvc.retrieveSummary(env.obtainAccessToken(), fi.getId());
             return populateTemplate(env, listener, summary, inFile, outFile);
         } catch (Throwable t) {
             listener.reportNonFatalException("", t);
@@ -55,7 +67,7 @@ public class SurveyReportGenerator implements SurveyReportConstants {
         }
     }
     
-    public static boolean populateTemplate(Environment env, ProcessListener listener, FeederSummary summary, File inFile, File outFile) {
+    public static boolean populateTemplate(Environment env, ProcessListener listener, FeederInspectionSummary summary, File inFile, File outFile) {
         if (inFile == null) {
             return false;
         }
@@ -96,10 +108,10 @@ public class SurveyReportGenerator implements SurveyReportConstants {
             //FIXME: This is a hack
             if (summary.getPoleInspectionsByFPLId().isEmpty()) {
                 PoleInspection pi;
-                PoleInspectionSearchParams params = new PoleInspectionSearchParams();
+                AssetInspectionSearchParams params = new AssetInspectionSearchParams();
                 PoleInspectionWebService wsvc = env.obtainWebService(PoleInspectionWebService.class);
                 for (PoleSummary p : summary.getPolesByFPLId().values()) {
-                    params.setPoleId(p.getId());
+                    params.setAssetId(p.getId());
                     pi = CollectionsUtilities.firstItemIn(wsvc.search(env.obtainAccessToken(), params));
                     if (pi != null) {
                         inspection = wsvc.retrieveSummary(env.obtainAccessToken(), pi.getId());

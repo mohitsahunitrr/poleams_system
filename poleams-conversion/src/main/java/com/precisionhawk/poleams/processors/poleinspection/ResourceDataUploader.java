@@ -1,12 +1,11 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
-import com.precisionhawk.poleams.bean.ImageScaleRequest;
+import com.precisionhawk.ams.bean.ImageScaleRequest;
 import com.precisionhawk.ams.domain.ResourceMetadata;
 import com.precisionhawk.ams.domain.ResourceStatus;
-import com.precisionhawk.ams.domain.ResourceType;
 import com.precisionhawk.ams.support.httpclient.HttpClientUtilities;
 import com.precisionhawk.ams.util.ImageUtilities;
-import com.precisionhawk.poleams.webservices.ResourceWebService;
+import com.precisionhawk.ams.webservices.ResourceWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.domain.ResourceTypes;
 import java.io.File;
@@ -29,6 +28,7 @@ public final class ResourceDataUploader {
     private static final ImageScaleRequest SCALE_IMAGE_REQ;
     static {
         SCALE_IMAGE_REQ = new ImageScaleRequest();
+        SCALE_IMAGE_REQ.setResourceType(ResourceTypes.ThumbNail);
         SCALE_IMAGE_REQ.setResultType(ImageScaleRequest.ContentType.JPEG);
         SCALE_IMAGE_REQ.setScaleOperation(ImageScaleRequest.ScaleOperation.ScaleToWidth);
         SCALE_IMAGE_REQ.setHeight(0.0);

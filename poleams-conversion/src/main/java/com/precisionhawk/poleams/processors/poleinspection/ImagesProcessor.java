@@ -7,7 +7,7 @@ import com.precisionhawk.ams.domain.ResourceStatus;
 import com.precisionhawk.poleams.domain.ResourceTypes;
 import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.ams.util.ImageUtilities;
-import com.precisionhawk.poleams.webservices.ResourceWebService;
+import com.precisionhawk.ams.webservices.ResourceWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
 import java.io.File;
 import java.io.IOException;
@@ -74,12 +74,12 @@ final class ImagesProcessor implements Constants {
             rmeta.setContentType(info.getMimeType());
             rmeta.setLocation(ImageUtilities.getLocation(exif));
             rmeta.setName(f.getName());
-            rmeta.setOrganizationId(ORG_ID);
+            rmeta.setOrderNumber(data.getOrderNumber());
             rmeta.setAssetId(p.getId());
             rmeta.setAssetInspectionId(data.getPoleInspectionsByFPLId().get(p.getUtilityId()).getId());
             rmeta.setSize(ImageUtilities.getSize(info));
             rmeta.setStatus(ResourceStatus.QueuedForUpload);
-            rmeta.setSiteId(data.getSubStation().getId());
+            rmeta.setSiteId(data.getFeeder().getId());
             rmeta.setTimestamp(ImageUtilities.getTimestamp(exif, DEFAULT_TZ));
             data.addResourceMetadata(rmeta, f, true);
         } else {

@@ -1,7 +1,7 @@
 package com.precisionhawk.poleams.webservices.impl;
 
-import com.precisionhawk.poleams.webservices.AbstractWebService;
 import com.esotericsoftware.yamlbeans.YamlReader;
+import com.precisionhawk.ams.webservices.AbstractWebService;
 import com.precisionhawk.bean.AuthenticatedUser;
 import com.precisionhawk.poleams.bean.User;
 import com.precisionhawk.poleams.config.ServicesConfig;

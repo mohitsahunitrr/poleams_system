@@ -1,8 +1,8 @@
 package com.precisionhawk.poleams.dao.elasticsearch;
 
+import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.dao.DaoException;
 import com.precisionhawk.ams.dao.elasticsearch.AbstractEsDao;
-import com.precisionhawk.poleams.bean.PoleInspectionSearchParams;
 import com.precisionhawk.poleams.dao.PoleInspectionDao;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants;
@@ -23,7 +23,6 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 public class PoleInspectionEsDao extends AbstractEsDao implements PoleInspectionDao, ElasticSearchConstants {
     
     private static final String COL_ID = "id";
-    private static final String COL_ORG_ID = "organizationId";
     private static final String COL_ASSET_ID = "assetId";
     private static final String COL_SITE_ID = "siteId";
     private static final String COL_SITE_INSP_ID = "siteInspectionId";
@@ -95,11 +94,11 @@ public class PoleInspectionEsDao extends AbstractEsDao implements PoleInspection
     }
 
     @Override
-    public List<PoleInspection> search(PoleInspectionSearchParams params) throws DaoException {
+    public List<PoleInspection> search(AssetInspectionSearchParams params) throws DaoException {
         if (params == null) {
             throw new IllegalArgumentException("Search parameters are required.");
         }
-        BoolQueryBuilder query = addQueryMust(null, COL_ORG_ID, params.getOrganizationId());
+        BoolQueryBuilder query = addQueryMust(null, COL_SITE_INSP_ID, params.getSiteInspectionId());
         query = addQueryMust(query, COL_ASSET_ID, params.getAssetId());
         query = addQueryMust(query, COL_SITE_ID, params.getSiteId());
         

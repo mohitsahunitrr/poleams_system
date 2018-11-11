@@ -40,15 +40,6 @@ public class ResourceSummary {
     public void setLocation(GeoPoint location) {
         this.location = location;
     }
-    
-    @Schema(description="The organization to which the substation and related poles belong.")
-    private String organizationId;
-    public String getOrganizationId() {
-        return organizationId;
-    }
-    public void setOrganizationId(String organizationId) {
-        this.organizationId = organizationId;
-    }
 
     @Schema(description="Unqiue ID of the pole that was inspected.")
     private String poleId;
@@ -130,7 +121,6 @@ public class ResourceSummary {
         this.contentType = rmeta.getContentType();
         this.downloadURL = downloadURL;
         this.location = rmeta.getLocation();
-        this.organizationId = rmeta.getOrganizationId();
         this.poleId = rmeta.getAssetId();
         this.poleInspectionId = rmeta.getAssetInspectionId();
         this.resourceId = rmeta.getResourceId();

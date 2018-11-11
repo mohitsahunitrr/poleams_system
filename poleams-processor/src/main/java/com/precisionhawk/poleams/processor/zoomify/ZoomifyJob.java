@@ -5,13 +5,13 @@
 package com.precisionhawk.poleams.processor.zoomify;
 
 import com.precisionhawk.ams.bean.ResourceSearchParams;
-import com.precisionhawk.poleams.bean.ResourceSummary;
 import com.precisionhawk.ams.domain.ResourceMetadata;
 import com.precisionhawk.ams.domain.ResourceStatus;
-import com.precisionhawk.poleams.processor.bean.JobInfo;
 import com.precisionhawk.ams.support.httpclient.HttpClientUtilities;
-import com.precisionhawk.poleams.webservices.ResourceWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
+import com.precisionhawk.poleams.bean.ResourceSummary;
+import com.precisionhawk.poleams.processor.bean.JobInfo;
+import com.precisionhawk.poleams.webservices.ResourceWebService;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;

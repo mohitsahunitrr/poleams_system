@@ -81,4 +81,34 @@ public class ResourceTypes {
     public static ResourceType[] values() {
         return types;
     }
+    
+    public static Class<?> relatedTo(ResourceType type) {
+        if (type != null) {
+            if (
+                    DroneInspectionImage.equals(type)
+                    || ManualInspectionImage.equals(type)
+                    || PoleDesignReport.equals(type)
+                    || PoleInspectionAnalysisXML.equals(type)
+                    || PoleInspectionReport.equals(type)
+                    || Thermal.equals(type)
+                    || ThumbNail.equals(type)
+               )
+            {
+                return PoleInspection.class;
+            } else if (
+                    EncroachmentReport.equals(type)
+                    || EncroachmentShape.equals(type)
+                    || FeederAnomalyMap.equals(type)
+                    || FeederAnomalyReport.equals(type)
+                    || FeederSummaryReport.equals(type)
+                    || SurveyReport.equals(type)
+               )
+            {
+                return FeederInspection.class;
+            } else if (FeederMap.equals(type)) {
+                return Feeder.class;
+            }
+        }
+        return null;
+    }
 }

@@ -2,7 +2,7 @@ package com.precisionhawk.poleams.webservices;
 
 import com.precisionhawk.ams.webservices.WebService;
 import com.precisionhawk.poleams.bean.FeederSearchParams;
-import com.precisionhawk.poleams.bean.FeederSummary;
+import com.precisionhawk.poleams.bean.FeederInspectionSummary;
 import com.precisionhawk.poleams.domain.Feeder;
 import io.swagger.oas.annotations.Operation;
 import io.swagger.oas.annotations.Parameter;

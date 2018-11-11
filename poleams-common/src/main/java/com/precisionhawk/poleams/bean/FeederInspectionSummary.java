@@ -1,6 +1,7 @@
 package com.precisionhawk.poleams.bean;
 
 import com.precisionhawk.poleams.domain.Feeder;
+import com.precisionhawk.poleams.domain.FeederInspection;
 import io.swagger.oas.annotations.media.Schema;
 import java.util.Collection;
 import java.util.HashMap;
@@ -11,8 +12,8 @@ import java.util.Map;
  * 
  * @author Philip A. Chapman
  */
-@Schema(description="A bean which summarizes SubStation data for display.")
-public class FeederSummary extends Feeder {
+@Schema(description="A bean which summarizes feeder inspection data for display.")
+public class FeederInspectionSummary extends Feeder {
     
     //TODO: Belongs to a SubStationInspection object
     @Schema(description="URL from which the anomaly map for the substation can be downloaded.")
@@ -102,15 +103,24 @@ public class FeederSummary extends Feeder {
         this.poleInspectionsByFPLId = polesByFPLId;
     }
     
-    public FeederSummary() {}
+    @Schema(description="URL from which the vegitation encroachment report for the feeder can be downloaded.")
+    private String vegitationEncroachmentGoogleEarthURL;
+    public String getVegitationEncroachmentGoogleEarthURL() {
+        return vegitationEncroachmentGoogleEarthURL;
+    }
+    public void setVegitationEncroachmentGoogleEarthURL(String vegitationEncroachmentGoogleEarthURL) {
+        this.vegitationEncroachmentGoogleEarthURL = vegitationEncroachmentGoogleEarthURL;
+    }
     
-    public FeederSummary(Feeder sub, Collection<PoleSummary> poleSummaries, Collection<PoleInspectionSummary> poleInspectionSummaries) {
+    public FeederInspectionSummary() {}
+    
+    public FeederInspectionSummary(Feeder sub, FeederInspection finsp, Collection<PoleSummary> poleSummaries, Collection<PoleInspectionSummary> poleInspectionSummaries) {
         setFeederNumber(sub.getFeederNumber());
         setHardeningLevel(sub.getHardeningLevel());
         setId(sub.getId());
         setName(sub.getName());
         setOrganizationId(sub.getOrganizationId());
-        setVegitationEncroachmentGoogleEarthURL(sub.getVegitationEncroachmentGoogleEarthURL());
+        setVegitationEncroachmentGoogleEarthURL(finsp.getVegitationEncroachmentGoogleEarthURL());
         setWindZone(sub.getWindZone());
         Map<String, String> fplidByPoleId = new HashMap<>();
         for (PoleSummary ps : poleSummaries) {
@@ -118,7 +128,7 @@ public class FeederSummary extends Feeder {
             polesByFPLId.put(ps.getUtilityId(), ps);
         }
         for (PoleInspectionSummary pis : poleInspectionSummaries) {
-            poleInspectionsByFPLId.put(fplidByPoleId.get(pis.getPoleId()), pis);
+            poleInspectionsByFPLId.put(fplidByPoleId.get(pis.getAssetId()), pis);
         }
     }
 }

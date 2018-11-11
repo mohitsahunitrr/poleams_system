@@ -1,9 +1,9 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
+import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.bean.GeoPoint;
 import com.precisionhawk.ams.domain.AssetType;
 import com.precisionhawk.poleams.bean.PoleSearchParams;
-import com.precisionhawk.poleams.bean.PoleInspectionSearchParams;
 import com.precisionhawk.poleams.bean.FeederSearchParams;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
@@ -13,6 +13,7 @@ import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
+import com.precisionhawk.poleams.domain.FeederInspection;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -30,6 +31,7 @@ import org.papernapkin.liana.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.precisionhawk.poleams.webservices.FeederWebService;
+import java.time.LocalDate;
 
 /**
  *
@@ -45,6 +47,10 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
             return name.endsWith(".xlsx");
         }
     };
+
+    private static void lookupFeederInspection(Environment env, InspectionData data) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
     // No state data
     private SurveyReportImport() {} 
@@ -94,26 +100,38 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
             }
             
             // We now have enough to lookup an existing sub station
-            data.setSubStation(lookupSubStationByFeederId(env, feederId));
-            if (data.getSubStation() == null) {
-            String subStationName = getCellDataAsString(row, FEEDER_NAME.x);
+            data.setFeeder(lookupSubStationByFeederId(env, feederId));
+            if (data.getFeeder() == null) {
+                String subStationName = getCellDataAsString(row, FEEDER_NAME.x);
                 if (subStationName == null || subStationName.isEmpty()) {
                     // We cannot create a nameless substation.
                     listener.reportFatalError("Master Survey Template spreadsheet is missing Feeder Name.");
                     return false;
                 }
                 // Create a new substation.
-                data.setSubStation(new Feeder());
-                data.getSubStation().setId(UUID.randomUUID().toString());
-                data.getSubStation().setHardeningLevel(getCellDataAsString(row, FEEDER_HARDENING_LVL.x));
-                data.getSubStation().setFeederNumber(feederId);
-                data.getSubStation().setName(subStationName);
-                data.getSubStation().setOrganizationId(ORG_ID);
-                data.getSubStation().setWindZone(StringUtil.getNullableString(getCellDataAsInteger(row, FEEDER_WIND_ZONE.x)));
-                data.getDomainObjectIsNew().put(data.getSubStation().getId(), true);
+                Feeder f = new Feeder();
+                f.setId(UUID.randomUUID().toString());
+                f.setHardeningLevel(getCellDataAsString(row, FEEDER_HARDENING_LVL.x));
+                f.setFeederNumber(feederId);
+                f.setName(subStationName);
+                f.setOrganizationId(ORG_ID);
+                f.setWindZone(StringUtil.getNullableString(getCellDataAsInteger(row, FEEDER_WIND_ZONE.x)));
+                data.setFeeder(f);
+                data.getDomainObjectIsNew().put(f.getId(), true);
             } else {
-                data.getDomainObjectIsNew().put(data.getSubStation().getId(), false);
-                //TODO: Update SubStation data?
+                data.getDomainObjectIsNew().put(data.getFeeder().getId(), false);
+            }
+            lookupFeederInspection(env, data);
+            if (data.getFeederInspection() == null) {
+                FeederInspection fi = new FeederInspection();
+                fi.setDateOfInspection(LocalDate.now());
+                fi.setId(UUID.randomUUID().toString());
+                fi.setOrderNumber(data.getOrderNumber());
+                fi.setSiteId(data.getFeeder().getId());
+                data.setFeederInspection(fi);
+                data.getDomainObjectIsNew().put(fi.getId(), true);
+            } else {
+                data.getDomainObjectIsNew().put(data.getFeederInspection().getId(), false);
             }
             
             // We may now process pole rows.
@@ -162,14 +180,14 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
                 return true;
             }
             PoleSearchParams pparams = new PoleSearchParams();
-            pparams.setFPLId(fplId);
+            pparams.setUtilityId(fplId);
             Pole pole = CollectionsUtilities.firstItemIn(psvc.search(env.obtainAccessToken(), pparams));
             boolean isNew = false;
             if (pole == null) {   
                 pole = new Pole();
                 pole.setUtilityId(fplId);
                 pole.setId(UUID.randomUUID().toString());
-                pole.setSiteId(data.getSubStation().getId());
+                pole.setSiteId(data.getFeeder().getId());
                 isNew = true;
             }
             String s = getCellDataAsString(row, COL_POLE_TYPE);
@@ -192,16 +210,15 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
             PoleInspection inspection = null;
             if (!isNew) {
                 // Attempt to find an existing inspection
-                PoleInspectionSearchParams piparams = new PoleInspectionSearchParams();
-                piparams.setPoleId(pole.getId());
+                AssetInspectionSearchParams piparams = new AssetInspectionSearchParams();
+                piparams.setAssetId(pole.getId());
                 inspection = CollectionsUtilities.firstItemIn(pisvc.search(env.obtainAccessToken(), piparams));
             }
             if (inspection == null) {
                 inspection = new PoleInspection();
                 inspection.setId(UUID.randomUUID().toString());
-                inspection.setOrganizationId(ORG_ID);
-                inspection.setPoleId(pole.getId());
-                inspection.setSubStationId(data.getSubStation().getId());
+                inspection.setAssetId(pole.getId());
+                inspection.setSiteId(data.getFeeder().getId());
                 data.addPoleInspection(pole, inspection, true);
             } else {
                 data.addPoleInspection(pole, inspection, false);
@@ -246,7 +263,7 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
 
     private static Pole lookupPoleByFPLId(Environment env, PoleWebService svc, String fplId) throws IOException {
         PoleSearchParams params = new PoleSearchParams();
-        params.setFPLId(fplId);
+        params.setUtilityId(fplId);
         List<Pole> poles = svc.search(env.obtainAccessToken(), params);
         return CollectionsUtilities.firstItemIn(poles);
     }

@@ -8,7 +8,7 @@ import com.precisionhawk.ams.domain.ResourceStatus;
 import com.precisionhawk.poleams.domain.ResourceTypes;
 import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.poleams.webservices.PoleWebService;
-import com.precisionhawk.poleams.webservices.ResourceWebService;
+import com.precisionhawk.ams.webservices.ResourceWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
 import java.io.File;
 import java.io.IOException;
@@ -112,7 +112,7 @@ final class PoleDataProcessor {
             Pole p = data.getPoleDataByFPLId().get(fplid);
             if (p == null) {
                 PoleSearchParams params = new PoleSearchParams();
-                params.setFPLId(fplid);
+                params.setUtilityId(fplid);
                 try {
                     p = CollectionsUtilities.firstItemIn(env.obtainWebService(PoleWebService.class).search(env.obtainAccessToken(), params));
                 } catch (IOException ioe) {
@@ -132,12 +132,12 @@ final class PoleDataProcessor {
         ResourceMetadata rmeta = new ResourceMetadata();
         rmeta.setContentType(contentType);
         rmeta.setName(f.getName());
-        rmeta.setOrganizationId(data.getSubStation().getOrganizationId());
+        rmeta.setOrderNumber(data.getOrderNumber());
         rmeta.setAssetId(params.getAssetId());
         rmeta.setAssetInspectionId(params.getAssetInspectionId());
         rmeta.setResourceId(UUID.randomUUID().toString());
         rmeta.setStatus(ResourceStatus.QueuedForUpload);
-        rmeta.setSiteId(data.getSubStation().getId());
+        rmeta.setSiteId(data.getFeeder().getId());
         rmeta.setTimestamp(ZonedDateTime.now());
         rmeta.setType(params.getType());
         return rmeta;

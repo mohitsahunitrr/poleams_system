@@ -27,8 +27,7 @@ public final class Main {
         new FeederDataImportProcess(),
         new PopulateEncroachmentGoogleEarthURL(),
         new PopulateMasterSurveyProcess(),
-        new ResourceUploadProcess(),
-        new UploadDesignReportsProcess()
+        new ResourceUploadProcess()
     };
     
     private Main() {}

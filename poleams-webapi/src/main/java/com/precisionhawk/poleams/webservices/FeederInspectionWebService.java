@@ -2,8 +2,7 @@ package com.precisionhawk.poleams.webservices;
 
 import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
 import com.precisionhawk.ams.webservices.WebService;
-import com.precisionhawk.poleams.bean.FeederSummary;
-import com.precisionhawk.poleams.domain.Feeder;
+import com.precisionhawk.poleams.bean.FeederInspectionSummary;
 import com.precisionhawk.poleams.domain.FeederInspection;
 import io.swagger.oas.annotations.Operation;
 import io.swagger.oas.annotations.Parameter;
@@ -32,7 +31,7 @@ public interface FeederInspectionWebService extends WebService {
     @Operation(summary = "Create a new substation record", description = "Creates a new substation.  If unique ID is not populated, it will be populated in the returned object.")
     FeederInspection create(
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
-            Feeder subStation
+            FeederInspection subStation
     );
     
     @GET
@@ -52,7 +51,7 @@ public interface FeederInspectionWebService extends WebService {
     @GET
     @Path("/{inspectionId}/summary")
     @Operation(summary = "Get feeder summary", description = "Gets a summary of a feeder inspection.")
-    FeederSummary retrieveSummary(
+    FeederInspectionSummary retrieveSummary(
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
             @PathParam("inspectionId") String id);
     

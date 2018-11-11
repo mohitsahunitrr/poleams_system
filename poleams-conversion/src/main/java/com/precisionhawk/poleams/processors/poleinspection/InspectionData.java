@@ -4,6 +4,7 @@ import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.ams.domain.ResourceMetadata;
 import com.precisionhawk.poleams.domain.Feeder;
+import com.precisionhawk.poleams.domain.FeederInspection;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,17 +50,25 @@ public class InspectionData {
         return resourceDataFiles;
     }
 
-    private Feeder subStation;
-    public Feeder getSubStation() {
-        return subStation;
+    private Feeder feeder;
+    public Feeder getFeeder() {
+        return feeder;
     }
-    public void setSubStation(Feeder subStation) {
-        this.subStation = subStation;
+    public void setFeeder(Feeder feeder) {
+        this.feeder = feeder;
+    }
+    
+    private FeederInspection feederInspection;
+    public FeederInspection getFeederInspection() {
+        return feederInspection;
+    }
+    public void setFeederInspection(FeederInspection feederInspection) {
+        this.feederInspection = feederInspection;
     }
 
-    private final List<ResourceMetadata> subStationResources = new ArrayList<>();
-    public List<ResourceMetadata> getSubStationResources() {
-        return subStationResources;
+    private final List<ResourceMetadata> feederResources = new ArrayList<>();
+    public List<ResourceMetadata> getFeederResources() {
+        return feederResources;
     }
     
     public void addPole(Pole pole, boolean isNew) {
@@ -74,7 +83,7 @@ public class InspectionData {
     
     public void addResourceMetadata(ResourceMetadata rmeta, File dataFile, boolean isNew) {
         if (rmeta.getAssetId() == null) {
-            subStationResources.add(rmeta);
+            feederResources.add(rmeta);
         } else {
             List<ResourceMetadata> list = poleResources.get(rmeta.getAssetId());
             if (list == null) {
@@ -87,4 +96,11 @@ public class InspectionData {
         resourceDataFiles.put(rmeta.getResourceId(), dataFile);
     }
  
+    private String orderNumber;
+    public String getOrderNumber() {
+        return orderNumber;
+    }
+    public void setOrderNumber(String orderNumber) {
+        this.orderNumber = orderNumber;
+    }
 }
