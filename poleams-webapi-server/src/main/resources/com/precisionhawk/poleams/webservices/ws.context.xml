@@ -18,19 +18,19 @@
     />
     <bean
         id="AwsConfig"
-        class="com.precisionhawk.poleams.support.aws.AwsConfig"
+        class="com.precisionhawk.ams.support.aws.AwsConfig"
         factory-bean="AppConfig"
         factory-method="getAwsConfig"
     />
     <bean
         id="ElasticSearchConfig"
-        class="com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConfig"
+        class="com.precisionhawk.ams.support.elasticsearch.ElasticSearchConfig"
         factory-bean="AppConfig"
         factory-method="getElasticSearchConfig"
     />
     <bean
         id="RepositoryConfig"
-        class="com.precisionhawk.poleams.repository.RepositoryConfig"
+        class="com.precisionhawk.ams.repository.RepositoryConfig"
         factory-bean="AppConfig"
         factory-method="getRepositoryConfig"
     />
@@ -58,7 +58,7 @@
     <!-- ElasticSearch -->
     <bean
         id="ElasticSearchClientFactory"
-        class="com.precisionhawk.poleams.support.elasticsearch.ElasticSearchClientFactory"
+        class="com.precisionhawk.ams.support.elasticsearch.ElasticSearchClientFactory"
     />
     <bean
         id="ElasticSearchClient"
@@ -70,7 +70,7 @@
     <!-- Jackson -->
     <bean
         id="ObjectMapperFactory"
-        class="com.precisionhawk.poleams.support.jackson.ObjectMapperFactory"
+        class="com.precisionhawk.ams.support.jackson.ObjectMapperFactory"
     />
     <bean
         id="ObjectMapper"
@@ -82,11 +82,11 @@
     <!-- Resource Repository -->    
     <bean
         id="ResourceRepositoryFactory"
-        class="com.precisionhawk.poleams.repository.RepositoryFactory"
+        class="com.precisionhawk.ams.repository.RepositoryFactory"
     />
     <bean
         id="ResourceRepository"
-        class="com.precisionhawk.poleams.repository.ResourceRepository"
+        class="com.precisionhawk.ams.repository.ResourceRepository"
         factory-bean="ResourceRepositoryFactory"
         factory-method="get"
     />

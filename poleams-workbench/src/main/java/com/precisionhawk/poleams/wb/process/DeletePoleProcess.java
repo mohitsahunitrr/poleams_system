@@ -45,7 +45,7 @@ public class DeletePoleProcess extends ServiceClientCommandProcess {
     
     private void deletePole(Environment env, String fplId) throws IOException {
         PoleSearchParams params = new PoleSearchParams();
-        params.setFPLId(fplId);
+        params.setUtilityId(fplId);
         Pole p = CollectionsUtilities.firstItemIn(poleService(env).search(env.obtainAccessToken(), params));
         if (p == null) {
             System.out.printf("No pole with FPL ID %s exists.  Nothing to delete.\n", fplId);

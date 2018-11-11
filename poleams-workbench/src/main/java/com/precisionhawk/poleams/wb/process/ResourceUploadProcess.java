@@ -3,7 +3,6 @@ package com.precisionhawk.poleams.wb.process;
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
-import com.precisionhawk.ams.bean.WorkOrderSearchParams;
 import com.precisionhawk.ams.domain.ResourceMetadata;
 import com.precisionhawk.ams.domain.ResourceStatus;
 import com.precisionhawk.ams.domain.ResourceType;
