@@ -1,5 +1,6 @@
 package com.precisionhawk.poleams.wb.process;
 
+import com.precisionhawk.poleams.bean.ImageScaleRequest;
 import com.precisionhawk.poleams.bean.PoleInspectionSearchParameters;
 import com.precisionhawk.poleams.bean.PoleSearchParameters;
 import com.precisionhawk.poleams.bean.ResourceSearchParameters;
@@ -13,6 +14,7 @@ import com.precisionhawk.poleams.domain.SubStation;
 import com.precisionhawk.poleams.support.httpclient.HttpClientUtilities;
 import com.precisionhawk.poleams.util.CollectionsUtilities;
 import com.precisionhawk.poleams.util.ContentTypeUtilities;
+import com.precisionhawk.poleams.util.ImageUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.poleams.webservices.ResourceWebService;
@@ -25,12 +27,28 @@ import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
 import java.util.Queue;
 import java.util.UUID;
+import org.apache.commons.imaging.ImageInfo;
+import org.apache.commons.imaging.ImageReadException;
+import org.apache.commons.imaging.Imaging;
+import org.apache.commons.imaging.common.ImageMetadata;
+import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
+import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
 
 /**
  *
  * @author pchapman
  */
 public class ResourceUploadProcess extends ServiceClientCommandProcess {
+    
+    private static final double SCALE_WIDTH = 100;
+    private static final ImageScaleRequest SCALE_IMAGE_REQ;
+    static {
+        SCALE_IMAGE_REQ = new ImageScaleRequest();
+        SCALE_IMAGE_REQ.setResultType(ImageScaleRequest.ContentType.JPEG);
+        SCALE_IMAGE_REQ.setScaleOperation(ImageScaleRequest.ScaleOperation.ScaleToWidth);
+        SCALE_IMAGE_REQ.setHeight(0.0);
+        SCALE_IMAGE_REQ.setWidth(SCALE_WIDTH);
+    }
     
     private static final String ARG_FEEDER_ID = "-feeder";
     private static final String ARG_FPL_ID = "-fplid";
@@ -230,6 +248,21 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                     }
                 }
 
+                if (ImageUtilities.ImageType.fromContentType(rmeta.getContentType()) != null) {
+                    ImageInfo info = Imaging.getImageInfo(f);
+                    TiffImageMetadata exif = null;
+                    ImageMetadata metadata = Imaging.getMetadata(f);
+                    if (metadata instanceof JpegImageMetadata) {
+                        exif = ((JpegImageMetadata)metadata).getExif();
+                    } else if (metadata instanceof TiffImageMetadata) {
+                        exif = (TiffImageMetadata)metadata;
+                    } else {
+                        exif = null;
+                    }
+                    rmeta.setLocation(ImageUtilities.getLocation(exif));
+                    rmeta.setSize(ImageUtilities.getSize(info));
+                }
+
                 HttpClientUtilities.postFile(env, rmeta.getResourceId(), contentType, f);
 
                 if (resourceId == null) {
@@ -242,8 +275,17 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                     rsvc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
                 }
                 
+                if (
+                        ImageUtilities.ImageType.fromContentType(rmeta.getContentType()) != null
+                        && rmeta.getSize() != null
+                        && rmeta.getSize().getWidth() > SCALE_WIDTH
+                    )
+                {
+                    rsvc.scale(env.obtainAccessToken(), rmeta.getResourceId(), SCALE_IMAGE_REQ);
+                }
+                
                 System.out.printf("The file \"%s\" of type %s has been uploaded to %s with resourceId %s\n", f, resourceType, feederId, rmeta.getResourceId());
-            } catch (IOException  | URISyntaxException ex) {
+            } catch (ImageReadException | IOException | URISyntaxException ex) {
                 ex.printStackTrace(System.err);
             }
         }
