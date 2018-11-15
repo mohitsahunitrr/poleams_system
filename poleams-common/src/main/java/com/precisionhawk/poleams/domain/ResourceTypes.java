@@ -34,6 +34,9 @@ public class ResourceTypes {
     @Schema(description="Map of feeder poles (PDF) per feeder")
     public static final ResourceType FeederMap = new ResourceType("FeederMap");
     
+    @Schema(description="Images highlighting identified components on a pole.")
+    public static final ResourceType IdentifiedComponents = new ResourceType("IdentifiedComponents");
+    
     @Schema(description="Images taken manually during inspection")
     public static final ResourceType ManualInspectionImage = new ResourceType("ManualInspectionImage");
     

@@ -66,6 +66,15 @@ public class PoleInspectionSummary extends PoleInspection {
     public void setGroundImages(List<ResourceSummary> groundImages) {
         this.groundImages = groundImages;
     }
+    
+    @Schema(description="A list of all images highlighting identified components on the pole, in no particular order.")
+    private List<ResourceSummary> identifiedComponentImages = new LinkedList<>();
+    public List<ResourceSummary> getIdentifiedComponentImages() {
+        return identifiedComponentImages;
+    }
+    public void setIdentifiedComponentImages(List<ResourceSummary> identifiedComponentImages) {
+        this.identifiedComponentImages = identifiedComponentImages;
+    }
 
     @Schema(description="A list of other resources related to the inspection, in no particular order.")
     private List<ResourceSummary> otherResources = new LinkedList<>();

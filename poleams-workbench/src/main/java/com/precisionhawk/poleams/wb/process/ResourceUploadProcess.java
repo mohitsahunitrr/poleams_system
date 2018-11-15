@@ -1,6 +1,7 @@
 package com.precisionhawk.poleams.wb.process;
 
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
+import com.precisionhawk.ams.bean.ImageScaleRequest;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
 import com.precisionhawk.ams.domain.ResourceMetadata;
@@ -10,6 +11,7 @@ import com.precisionhawk.ams.domain.WorkOrder;
 import com.precisionhawk.ams.support.httpclient.HttpClientUtilities;
 import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.ams.util.ContentTypeUtilities;
+import com.precisionhawk.ams.util.ImageUtilities;
 import com.precisionhawk.ams.webservices.ResourceWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.bean.PoleSearchParams;
@@ -20,24 +22,40 @@ import com.precisionhawk.poleams.domain.ResourceTypes;
 import com.precisionhawk.poleams.domain.Feeder;
 import com.precisionhawk.poleams.domain.FeederInspection;
 import com.precisionhawk.poleams.webservices.FeederInspectionWebService;
+import com.precisionhawk.poleams.webservices.FeederWebService;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
+import com.precisionhawk.poleams.webservices.WorkOrderWebService;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
-import com.precisionhawk.poleams.webservices.FeederWebService;
-import com.precisionhawk.poleams.webservices.WorkOrderWebService;
-import java.util.List;
+import org.apache.commons.imaging.ImageInfo;
+import org.apache.commons.imaging.ImageReadException;
+import org.apache.commons.imaging.Imaging;
+import org.apache.commons.imaging.common.ImageMetadata;
+import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
+import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
 
 /**
  *
  * @author pchapman
  */
 public class ResourceUploadProcess extends ServiceClientCommandProcess {
+    
+    private static final double SCALE_WIDTH = 100;
+    private static final ImageScaleRequest SCALE_IMAGE_REQ;
+    static {
+        SCALE_IMAGE_REQ = new ImageScaleRequest();
+        SCALE_IMAGE_REQ.setResultType(ImageScaleRequest.ContentType.JPEG);
+        SCALE_IMAGE_REQ.setScaleOperation(ImageScaleRequest.ScaleOperation.ScaleToWidth);
+        SCALE_IMAGE_REQ.setHeight(0.0);
+        SCALE_IMAGE_REQ.setWidth(SCALE_WIDTH);
+    }
     
     private static final String ARG_FEEDER_ID = "-feeder";
     private static final String ARG_FPL_ID = "-fplid";
@@ -284,30 +302,49 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                         return true;
                     }
                 }
-                uploadFile(env, rmeta, contentType, f);
-                if (ResourceStatus.QueuedForUpload == rmeta.getStatus()) {
-                    rmeta.setStatus(ResourceStatus.Released);
+
+                if (ImageUtilities.ImageType.fromContentType(rmeta.getContentType()) != null) {
+                    ImageInfo info = Imaging.getImageInfo(f);
+                    TiffImageMetadata exif = null;
+                    ImageMetadata metadata = Imaging.getMetadata(f);
+                    if (metadata instanceof JpegImageMetadata) {
+                        exif = ((JpegImageMetadata)metadata).getExif();
+                    } else if (metadata instanceof TiffImageMetadata) {
+                        exif = (TiffImageMetadata)metadata;
+                    } else {
+                        exif = null;
+                    }
+                    rmeta.setLocation(ImageUtilities.getLocation(exif));
+                    rmeta.setSize(ImageUtilities.getSize(info));
                 }
-            } catch (IOException | URISyntaxException ex) {
+
+                HttpClientUtilities.postFile(env, rmeta.getResourceId(), contentType, f);
+
+                if (resourceId == null) {
+                    if (ResourceTypes.IdentifiedComponents.equals(rmeta.getType())) {
+                        rmeta.setStatus(ResourceStatus.Processed);
+                    } else {
+                        // If this is a new upload rather than a re-upload, switch status to Released.
+                        rmeta.setStatus(ResourceStatus.Released);
+                    }
+                    rsvc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
+                }
+                
+                if (
+                        ImageUtilities.ImageType.fromContentType(rmeta.getContentType()) != null
+                        && rmeta.getSize() != null
+                        && rmeta.getSize().getWidth() > SCALE_WIDTH
+                    )
+                {
+                    rsvc.scale(env.obtainAccessToken(), rmeta.getResourceId(), SCALE_IMAGE_REQ);
+                }
+                
+                System.out.printf("The file \"%s\" of type %s has been uploaded to %s with resourceId %s\n", f, resourceType, feederId, rmeta.getResourceId());
+            } catch (ImageReadException | IOException | URISyntaxException ex) {
                 ex.printStackTrace(System.err);
             }
         }
 
-        return true;
-    }
-    
-    private boolean uploadFile(Environment env, ResourceMetadata rmeta, String contentType, File f)
-        throws IOException, URISyntaxException
-    {
-        HttpClientUtilities.postFile(env, rmeta.getResourceId(), contentType, f);
-
-        if (resourceId == null && ResourceStatus.Released != rmeta.getStatus()) {
-            // If this is a new upload rather than a re-upload, switch status to Released.
-            rmeta.setStatus(ResourceStatus.Released);
-            env.obtainWebService(ResourceWebService.class).updateResourceMetadata(env.obtainAccessToken(), rmeta);
-        }
-
-        System.out.printf("The file \"%s\" of type %s has been uploaded to %s with resourceId %s\n", f, resourceType, feederId, rmeta.getResourceId());
         return true;
     }
 
