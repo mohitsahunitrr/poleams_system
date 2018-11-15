@@ -30,6 +30,9 @@ public enum ResourceType {
     @Schema(description="Map of feeder poles (PDF) per feeder")
     FeederMap,
     
+    @Schema(description="Images highlighting identified components on a pole.")
+    IdentifiedComponents,
+    
     @Schema(description="Images taken manually during inspection")
     ManualInspectionImage,
     
