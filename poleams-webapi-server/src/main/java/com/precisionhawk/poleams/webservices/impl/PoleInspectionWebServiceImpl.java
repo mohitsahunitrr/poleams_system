@@ -168,7 +168,7 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
         
         // Identified Components Images
         rparams.setType(ResourceType.IdentifiedComponents);
-        summary.setGroundImages(resourceService.summaryFor(rparams));
+        summary.setIdentifiedComponentImages(resourceService.summaryFor(rparams));
 
         // Thermal Images
         rparams.setType(ResourceType.Thermal);

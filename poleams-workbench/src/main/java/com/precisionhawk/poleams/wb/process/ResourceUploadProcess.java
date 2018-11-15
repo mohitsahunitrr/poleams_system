@@ -232,9 +232,13 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
 
                 HttpClientUtilities.postFile(env, rmeta.getResourceId(), contentType, f);
 
-                if (resourceId == null && ResourceStatus.Released != rmeta.getStatus()) {
-                    // If this is a new upload rather than a re-upload, switch status to Released.
-                    rmeta.setStatus(ResourceStatus.Released);
+                if (resourceId == null) {
+                    if (rmeta.getType() == ResourceType.IdentifiedComponents) {
+                        rmeta.setStatus(ResourceStatus.Processed);
+                    } else {
+                        // If this is a new upload rather than a re-upload, switch status to Released.
+                        rmeta.setStatus(ResourceStatus.Released);
+                    }
                     rsvc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
                 }
                 
