@@ -26,7 +26,7 @@ public class PoleEsDao extends AbstractEsDao implements PoleDao, ElasticSearchCo
     private static final String COL_UTILITY_ID = "utilityId";
     private static final String COL_ORG_ID = "organizationId";
     private static final String COL_SITE_ID = "siteId";
-    private static final String DOCUMENT = "Pole";
+    private static final String DOCUMENT = "Asset";
     private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch/Pole_Mapping.json";
 
     @Override

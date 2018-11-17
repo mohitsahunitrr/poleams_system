@@ -26,7 +26,7 @@ public class PoleInspectionEsDao extends AbstractEsDao implements PoleInspection
     private static final String COL_ASSET_ID = "assetId";
     private static final String COL_SITE_ID = "siteId";
     private static final String COL_SITE_INSP_ID = "siteInspectionId";
-    private static final String DOCUMENT = "PoleInspection";
+    private static final String DOCUMENT = "AssetInspection";
     private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch/PoleInspection_Mapping.json";
 
     @Override

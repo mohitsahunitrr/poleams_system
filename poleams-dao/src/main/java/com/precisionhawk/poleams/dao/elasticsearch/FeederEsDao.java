@@ -27,7 +27,7 @@ public class FeederEsDao extends AbstractEsDao implements FeederDao, ElasticSear
     private static final String COL_ID = "id";
     private static final String COL_NAME = "name";
     private static final String COL_ORG_ID = "organizationId";
-    private static final String DOCUMENT = "feeder";
+    private static final String DOCUMENT = "Site";
     private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch/Feeder_Mapping.json";
 
     @Override

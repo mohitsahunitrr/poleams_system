@@ -12,7 +12,7 @@ import javax.inject.Named;
 @Named
 public class ResourceMetadataEsDao extends com.precisionhawk.ams.dao.elasticsearch.ResourceMetadataEsDao implements ElasticSearchConstants {
 
-    private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch/Resource_Mapping.json";
+    private static final String MAPPING = "com/precisionhawk/ams/dao/elasticsearch/Resource_Mapping.json";
 
     //TODO: Could this be done a differenet way?
     @Override

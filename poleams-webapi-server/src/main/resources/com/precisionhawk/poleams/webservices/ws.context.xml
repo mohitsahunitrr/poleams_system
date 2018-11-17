@@ -78,7 +78,13 @@
         factory-bean="ObjectMapperFactory"
         factory-method="get"
     />
-
+    
+    <!-- AWS -->
+    <bean
+        id="s3ClientFactory"
+        class="com.precisionhawk.ams.support.aws.S3ClientFactory"
+    />
+    
     <!-- Resource Repository -->    
     <bean
         id="ResourceRepositoryFactory"

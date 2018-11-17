@@ -1,5 +1,5 @@
 {
-  "SubStation" : {
+  "Site" : {
     "properties" : {
       "id" : {
         "include_in_all" : true,
