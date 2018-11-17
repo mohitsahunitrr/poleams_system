@@ -17,6 +17,18 @@
         factory-method="get"
     />
     <bean
+        id="LoggingConfigURI"
+        class="java.lang.String"
+        factory-bean="ServicesConfig"
+        factory-method="getLoggingConfigURI"
+    />
+    <bean
+        id="LoggingConfigBean"
+        class="us.pcsw.spring.logging.LogBackConfigBean"
+    >
+        <property name="configURL" ref="LoggingConfigURI"/>
+    </bean>
+    <bean
         id="AwsConfig"
         class="com.precisionhawk.ams.support.aws.AwsConfig"
         factory-bean="AppConfig"
@@ -40,20 +52,6 @@
         factory-bean="AppConfig"
         factory-method="getServicesConfig"
     />
-    
-    <!-- Logging -->
-    <bean
-        id="LoggingConfigURI"
-        class="java.lang.String"
-        factory-bean="ServicesConfig"
-        factory-method="getLoggingConfigURI"
-    />
-    <bean
-        id="LoggingConfigBean"
-        class="us.pcsw.spring.logging.LogBackConfigBean"
-    >
-        <property name="configURL" ref="LoggingConfigURI"/>
-    </bean>
     
     <!-- ElasticSearch -->
     <bean
