@@ -47,11 +47,8 @@ public class FeederEsDao extends AbstractEsDao implements FeederDao, ElasticSear
 
     @Override
     public boolean insert(Feeder substation) throws DaoException {
-        if (substation == null) {
-            throw new IllegalArgumentException("Feeder cannot be null.");
-        } else if (substation.getId() == null || substation.getId().isEmpty()) {
-            throw new IllegalArgumentException("Feeder ID is required.");
-        }
+        ensureExists(substation, "Feeder is required.");
+        ensureExists(substation.getId(), "Feeder ID is required.");
         Feeder ss = retrieve(substation.getId());
         if (ss == null) {
             indexObject(substation.getId(), substation);
@@ -63,11 +60,8 @@ public class FeederEsDao extends AbstractEsDao implements FeederDao, ElasticSear
 
     @Override
     public boolean update(Feeder substation) throws DaoException {
-        if (substation == null) {
-            throw new IllegalArgumentException("Feeder cannot be null.");
-        } else if (substation.getId() == null || substation.getId().isEmpty()) {
-            throw new IllegalArgumentException("Feeder ID is required.");
-        }
+        ensureExists(substation, "Feeder is required.");
+        ensureExists(substation.getId(), "Feeder ID is required.");
         Feeder ss = retrieve(substation.getId());
         if (ss == null) {
             return false;
@@ -79,18 +73,14 @@ public class FeederEsDao extends AbstractEsDao implements FeederDao, ElasticSear
 
     @Override
     public boolean delete(String id) throws DaoException {
-        if (id == null || id.isEmpty()) {
-            throw new IllegalArgumentException("Feeder ID is required.");
-        }
+        ensureExists(id, "Feeder ID is required.");
         deleteDocument(id);
         return true;
     }
 
     @Override
     public Feeder retrieve(String id) throws DaoException {
-        if (id == null || id.isEmpty()) {
-            throw new IllegalArgumentException("Feeder ID is required.");
-        }
+        ensureExists(id, "Feeder ID is required.");
         return retrieveObject(id, Feeder.class);
     }
 

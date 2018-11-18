@@ -10,16 +10,7 @@ import io.swagger.oas.annotations.media.Schema;
  */
 @Schema(description="Data related to power substation to which poles are related.")
 public class Feeder extends Site {
-    
-    @Schema(description="User friendly name for the substation.")
-    private String name;
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-    
+        
     @Schema(description="Unique ID associated with the feeder coming into the substation.")
     private String feederNumber;
     public String getFeederNumber() {

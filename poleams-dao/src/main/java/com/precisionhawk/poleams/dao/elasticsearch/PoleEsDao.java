@@ -36,11 +36,8 @@ public class PoleEsDao extends AbstractEsDao implements PoleDao, ElasticSearchCo
 
     @Override
     public boolean insert(Pole pole) throws DaoException {
-        if (pole == null) {
-            throw new IllegalArgumentException("Pole cannot be null.");
-        } else if (pole.getId() == null || pole.getId().isEmpty()) {
-            throw new IllegalArgumentException("Pole ID is required.");
-        }
+        ensureExists(pole, "Pole is required");
+        ensureExists(pole.getId(), "Pole ID is required");
         Pole p = retrieve(pole.getId());
         if (p == null) {
             indexObject(pole.getId(), pole);
@@ -52,11 +49,8 @@ public class PoleEsDao extends AbstractEsDao implements PoleDao, ElasticSearchCo
 
     @Override
     public boolean update(Pole pole) throws DaoException {
-        if (pole == null) {
-            throw new IllegalArgumentException("Pole cannot be null.");
-        } else if (pole.getId() == null || pole.getId().isEmpty()) {
-            throw new IllegalArgumentException("Pole ID is required.");
-        }
+        ensureExists(pole, "Pole is required");
+        ensureExists(pole.getId(), "Pole ID is required");
         Pole p = retrieve(pole.getId());
         if (p == null) {
             return false;
@@ -68,32 +62,26 @@ public class PoleEsDao extends AbstractEsDao implements PoleDao, ElasticSearchCo
 
     @Override
     public boolean delete(String id) throws DaoException {
-        if (id == null || id.isEmpty()) {
-            throw new IllegalArgumentException("Pole ID is required.");
-        }
+        ensureExists(id, "Pole ID is required");
         deleteDocument(id);
         return true;
     }
 
     @Override
     public Pole retrieve(String id) throws DaoException {
-        if (id == null || id.isEmpty()) {
-            throw new IllegalArgumentException("Pole ID is required.");
-        }
+        ensureExists(id, "Pole ID is required");
         return retrieveObject(id, Pole.class);
     }
 
     @Override
     public List<Pole> search(PoleSearchParams params) throws DaoException {
-        if (params == null) {
+        ensureExists(params, "Search parameters are required");
+        if (!params.hasCriteria()) {
             throw new IllegalArgumentException("Search parameters are required.");
         }
         BoolQueryBuilder query = addQueryMust(null, COL_UTILITY_ID, params.getUtilityId());
         query = addQueryMust(query, COL_ORG_ID, params.getOrganizationId());
         query = addQueryMust(query, COL_SITE_ID, params.getSiteId());
-        if (query == null) {
-            throw new IllegalArgumentException("Search parameters are required.");
-        }
         
         TimeValue scrollLifeLimit = new TimeValue(getScrollLifespan());
         SearchRequestBuilder search =

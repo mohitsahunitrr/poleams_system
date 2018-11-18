@@ -46,11 +46,8 @@ public class PoleInspectionEsDao extends AbstractEsDao implements PoleInspection
 
     @Override
     public boolean insert(PoleInspection poleInspection) throws DaoException {
-        if (poleInspection == null) {
-            throw new IllegalArgumentException("Pole inspection cannot be null.");
-        } else if (poleInspection.getId() == null || poleInspection.getId().isEmpty()) {
-            throw new IllegalArgumentException("Pole inspection ID is required.");
-        }
+        ensureExists(poleInspection, "Pole inspection cannot be null.");
+        ensureExists(poleInspection.getId(), "Pole inspection ID is required.");
         PoleInspection pi = retrieve(poleInspection.getId());
         if (pi == null) {
             indexObject(poleInspection.getId(), poleInspection);
@@ -62,11 +59,8 @@ public class PoleInspectionEsDao extends AbstractEsDao implements PoleInspection
 
     @Override
     public boolean update(PoleInspection poleInspection) throws DaoException {
-        if (poleInspection == null) {
-            throw new IllegalArgumentException("Pole inspection cannot be null.");
-        } else if (poleInspection.getId() == null || poleInspection.getId().isEmpty()) {
-            throw new IllegalArgumentException("Pole inspection ID is required.");
-        }
+        ensureExists(poleInspection, "Pole inspection cannot be null.");
+        ensureExists(poleInspection.getId(), "Pole inspection ID is required.");
         PoleInspection pi = retrieve(poleInspection.getId());
         if (pi == null) {
             return false;
@@ -78,25 +72,22 @@ public class PoleInspectionEsDao extends AbstractEsDao implements PoleInspection
 
     @Override
     public boolean delete(String id) throws DaoException {
-        if (id == null || id.isEmpty()) {
-            throw new IllegalArgumentException("Pole inspection ID is required.");
-        }
+        ensureExists(id, "Pole inspection ID is required.");
         deleteDocument(id);
         return true;
     }
 
     @Override
     public PoleInspection retrieve(String id) throws DaoException {
-        if (id == null || id.isEmpty()) {
-            throw new IllegalArgumentException("Pole inspection ID is required.");
-        }
+        ensureExists(id, "Pole inspection ID is required.");
         return retrieveObject(id, PoleInspection.class);
     }
 
     @Override
     public List<PoleInspection> search(AssetInspectionSearchParams params) throws DaoException {
-        if (params == null) {
-            throw new IllegalArgumentException("Search parameters are required.");
+        ensureExists(params, "Search parameters are required.");
+        if (!params.hasCriteria()) {
+            throw new DaoException("Search parameters are required.");
         }
         BoolQueryBuilder query = addQueryMust(null, COL_SITE_INSP_ID, params.getSiteInspectionId());
         query = addQueryMust(query, COL_ASSET_ID, params.getAssetId());
@@ -104,7 +95,7 @@ public class PoleInspectionEsDao extends AbstractEsDao implements PoleInspection
         
         TimeValue scrollLifeLimit = new TimeValue(getScrollLifespan());
         SearchRequestBuilder search =
-                getClient().prepareSearch(INDEX_NAME_POLEAMS)
+                getClient().prepareSearch(getIndexName())
                         .setSearchType(SearchType.QUERY_AND_FETCH)
                         .setTypes(DOCUMENT)
                         .setQuery(query)
