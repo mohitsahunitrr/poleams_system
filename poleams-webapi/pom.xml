@@ -31,6 +31,7 @@
             <artifactId>ams-webapi</artifactId>
         </dependency>
 
+<!--
         <dependency>
            <groupId>org.jboss.resteasy</groupId>
            <artifactId>resteasy-jackson-provider</artifactId>
@@ -47,6 +48,7 @@
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
+-->
 
         <!-- Testing -->
         <dependency>

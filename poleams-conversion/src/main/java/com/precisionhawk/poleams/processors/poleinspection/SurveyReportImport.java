@@ -2,7 +2,9 @@ package com.precisionhawk.poleams.processors.poleinspection;
 
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.bean.GeoPoint;
+import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
 import com.precisionhawk.ams.domain.AssetType;
+import com.precisionhawk.ams.domain.SiteInspection;
 import com.precisionhawk.poleams.bean.PoleSearchParams;
 import com.precisionhawk.poleams.bean.FeederSearchParams;
 import com.precisionhawk.poleams.domain.Pole;
@@ -14,6 +16,7 @@ import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.domain.FeederInspection;
+import com.precisionhawk.poleams.webservices.FeederInspectionWebService;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -48,8 +51,12 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
         }
     };
 
-    private static void lookupFeederInspection(Environment env, InspectionData data) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    private static void lookupFeederInspection(Environment env, InspectionData data) throws IOException {
+        SiteInspectionSearchParams params = new SiteInspectionSearchParams();
+        params.setOrderNumber(data.getOrderNumber());
+        params.setSiteId(data.getFeeder().getId());
+        data.setFeederInspection(CollectionsUtilities.firstItemIn(env.obtainWebService(FeederInspectionWebService.class).search(env.obtainAccessToken(), params)));
+        
     }
     
     // No state data
@@ -218,7 +225,9 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
                 inspection = new PoleInspection();
                 inspection.setId(UUID.randomUUID().toString());
                 inspection.setAssetId(pole.getId());
+                inspection.setOrderNumber(data.getOrderNumber());
                 inspection.setSiteId(data.getFeeder().getId());
+                inspection.setSiteInspectionId(data.getFeederInspection().getId());
                 data.addPoleInspection(pole, inspection, true);
             } else {
                 data.addPoleInspection(pole, inspection, false);

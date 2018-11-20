@@ -20,6 +20,7 @@
             <groupId>com.precisionhawk</groupId>
             <artifactId>ams-common</artifactId>
         </dependency>
+        <!--
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -68,6 +69,7 @@
             <artifactId>spring-context</artifactId>
             <scope>provided</scope>
         </dependency>
+        -->
     </dependencies>
     <build>
         <plugins>

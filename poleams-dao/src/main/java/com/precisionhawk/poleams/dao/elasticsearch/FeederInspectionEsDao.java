@@ -21,12 +21,12 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 @Named
 public class FeederInspectionEsDao extends AbstractEsDao implements FeederInspectionDao {
 
-    private static final String COL_ORDER_NUM = "OrderNumber";
-    private static final String COL_SITE_ID = "SiteId";
-    private static final String COL_STATUS = "Status";
-    private static final String COL_TYPE = "Type";
+    private static final String COL_ORDER_NUM = "orderNumber";
+    private static final String COL_SITE_ID = "siteId";
+    private static final String COL_STATUS = "status";
+    private static final String COL_TYPE = "type";
     private static final String DOCUMENT = "SiteInspection";
-    private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch/FeederInspeciton_Mapping.json";
+    private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch/FeederInspection_Mapping.json";
 
     @Override
     protected String getIndexName() {
@@ -90,7 +90,9 @@ public class FeederInspectionEsDao extends AbstractEsDao implements FeederInspec
         }
         BoolQueryBuilder query = addQueryMust(null, COL_ORDER_NUM, params.getOrderNumber());
         query = addQueryMust(query, COL_SITE_ID, params.getSiteId());
-        query = addQueryMust(query, COL_STATUS, params.getStatus().getValue());
+        if (params.getStatus() != null) {
+            query = addQueryMust(query, COL_STATUS, params.getStatus().getValue());
+        }
         query = addQueryMust(query, COL_TYPE, params.getType());
         TimeValue scrollLifeLimit = new TimeValue(getScrollLifespan());
         SearchRequestBuilder search =

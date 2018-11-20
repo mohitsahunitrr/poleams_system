@@ -1,5 +1,5 @@
 {
-    "AssetInspection": {
+    "SiteInspection": {
         "properties": {
             "id": {
                 "include_in_all": true,

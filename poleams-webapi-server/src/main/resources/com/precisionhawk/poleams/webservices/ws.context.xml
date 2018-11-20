@@ -95,11 +95,7 @@
         factory-method="get"
     />
     
-    <!-- Task executor -->
-<!--
-    <task:executor id="taskExecutor" pool-size="5"/>
--->
-
     <!-- Scan for other components and controllers. -->
+    <context:component-scan base-package="com.precisionhawk.ams.support.security"/>
     <context:component-scan base-package="com.precisionhawk.poleams"/>
 </beans>

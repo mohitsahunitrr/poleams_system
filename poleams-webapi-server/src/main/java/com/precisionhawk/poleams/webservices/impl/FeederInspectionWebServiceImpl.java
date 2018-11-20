@@ -86,7 +86,7 @@ public class FeederInspectionWebServiceImpl extends AbstractWebService implement
         FeederInspectionSummary sss = new FeederInspectionSummary(feeder, finsp, poleSummaries, poleInspectionSummaries);
 
         ResourceSearchParams rparams = new ResourceSearchParams();
-        rparams.setSiteId(feeder.getId());
+        rparams.setSiteInspectionId(id);
         List<ResourceMetadata> resources;
         
         // find the anomaly report, if any.

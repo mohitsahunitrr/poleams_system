@@ -15,6 +15,7 @@ import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.ams.webservices.ResourceWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
+import com.precisionhawk.poleams.domain.FeederInspection;
 import com.precisionhawk.poleams.webservices.FeederInspectionWebService;
 import java.io.File;
 import java.io.FileInputStream;
@@ -68,10 +69,10 @@ public final class FeederDataDirProcessor implements Constants {
     private static final String MASTER_SURVEY_TEMPL_DIR = "5. MASTER Survey Template";
 
     //TODO: This code could probably be used elsewhere.  Refactor this and other places where we are searching for/creating resources
-    private static boolean ensureResource(Environment env, InspectionData data, ProcessListener listener, Feeder subStation, PoleInspection poleInspection, ResourceType resourceType, File f) {
+    private static boolean ensureResource(Environment env, InspectionData data, ProcessListener listener, FeederInspection feederInspection, PoleInspection poleInspection, ResourceType resourceType, File f) {
         try {
             ResourceSearchParams params = new ResourceSearchParams();
-            params.setSiteId(subStation.getId());
+            params.setSiteId(feederInspection.getSiteId());
             if (poleInspection != null) {
                 params.setAssetInspectionId(poleInspection.getId());
             }
@@ -94,7 +95,8 @@ public final class FeederDataDirProcessor implements Constants {
                 }
                 rmeta.setResourceId(UUID.randomUUID().toString());
                 rmeta.setStatus(ResourceStatus.QueuedForUpload);
-                rmeta.setSiteId(subStation.getId());
+                rmeta.setSiteId(feederInspection.getSiteId());
+                rmeta.setSiteInspectionId(feederInspection.getId());
                 rmeta.setTimestamp(ZonedDateTime.now());
                 rmeta.setType(resourceType);
                 isnew = true;
@@ -182,7 +184,7 @@ public final class FeederDataDirProcessor implements Constants {
         if (fmDir.isDirectory()) {
             File f = findFeederMapFile(listener, fmDir);
             if (f != null) {
-                success = ensureResource(env, data, listener, data.getFeeder(), null, ResourceTypes.FeederMap, f);
+                success = ensureResource(env, data, listener, data.getFeederInspection(), null, ResourceTypes.FeederMap, f);
             }
             if (!success) {
                 return false;
@@ -197,15 +199,27 @@ public final class FeederDataDirProcessor implements Constants {
         try {
             listener.setStatus(ImportProcessStatus.PersistingData);
 
-            // Save SubStation
+            // Save Feeder
             if (data.getFeeder() != null) {
                 FeederWebService sssvc = env.obtainWebService(FeederWebService.class);
                 if (data.getDomainObjectIsNew().get(data.getFeeder().getId())) {
                     sssvc.create(env.obtainAccessToken(), data.getFeeder());
-                    listener.reportMessage(String.format("Inserted new sub station %s", data.getFeeder().getFeederNumber()));
+                    listener.reportMessage(String.format("Inserted new feeder %s", data.getFeeder().getFeederNumber()));
                 } else {
                     sssvc.update(env.obtainAccessToken(), data.getFeeder());
-                    listener.reportMessage(String.format("Updating sub station %s", data.getFeeder().getFeederNumber()));
+                    listener.reportMessage(String.format("Updated feeder %s", data.getFeeder().getFeederNumber()));
+                }
+            }
+            
+            // Save Feeder Inspection
+            if (data.getFeederInspection() != null) {
+                FeederInspectionWebService svc = env.obtainWebService(FeederInspectionWebService.class);
+                if (data.getDomainObjectIsNew().get(data.getFeederInspection().getId())) {
+                    svc.create(env.obtainAccessToken(), data.getFeederInspection());
+                    listener.reportMessage(String.format("Inserted new feeder inspection %s", data.getFeederInspection().getId()));
+                } else {
+                    svc.update(env.obtainAccessToken(), data.getFeederInspection());
+                    listener.reportMessage(String.format("Updated feeder inspection %s", data.getFeederInspection().getId()));
                 }
             }
 
@@ -242,7 +256,7 @@ public final class FeederDataDirProcessor implements Constants {
 
             listener.setStatus(ImportProcessStatus.UploadingResources);
             // Save Resources
-            listener.reportMessage("Uploading SubStation resources.");
+            listener.reportMessage("Uploading Feeder resources.");
             ResourceWebService rsvc = env.obtainWebService(ResourceWebService.class);
             for (ResourceMetadata rmeta : data.getFeederResources()) {
                 ResourceDataUploader.uploadResources(env, listener, data, data.getFeederResources(), data.getResourceDataFiles(), 2);
@@ -324,7 +338,8 @@ public final class FeederDataDirProcessor implements Constants {
                 ResourceWebService svc = env.obtainWebService(ResourceWebService.class);
                 ResourceSearchParams params = new ResourceSearchParams();
                 params.setOrderNumber(data.getOrderNumber());
-                params.setSiteId(data.getFeeder().getId());
+                params.setSiteId(data.getFeederInspection().getSiteId());
+                params.setSiteInspectionId(data.getFeederInspection().getId());
                 params.setType(ResourceTypes.SurveyReport);
                 ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(svc.query(env.obtainAccessToken(), params));
                 if (rmeta == null) {
@@ -335,6 +350,7 @@ public final class FeederDataDirProcessor implements Constants {
                     rmeta.setResourceId(UUID.randomUUID().toString());
                     rmeta.setStatus(ResourceStatus.QueuedForUpload);
                     rmeta.setSiteId(params.getSiteId());
+                    rmeta.setSiteInspectionId(params.getSiteInspectionId());
                     rmeta.setTimestamp(ZonedDateTime.now());
                     rmeta.setType(params.getType());
                     data.addResourceMetadata(rmeta, outFile, true);
