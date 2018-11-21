@@ -166,12 +166,10 @@
             <groupId>us.pcsw</groupId>
             <artifactId>pcsw-spring-tools</artifactId>
     	</dependency>
-<!--
         <dependency>
             <groupId>us.pcsw</groupId>
             <artifactId>pcsw-websvcs-libs</artifactId>
         </dependency>
--->
         <!-- Testing -->
         <dependency>
             <groupId>junit</groupId>

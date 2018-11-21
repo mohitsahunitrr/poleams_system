@@ -50,6 +50,9 @@ public class AppConfig {
     public SecurityConfigBean getSecurityConfig() {
         return securityConfig;
     }
+    public void setSecurityConfig(SecurityConfigBean config) {
+        this.securityConfig = config;
+    }
 
     private ServicesConfigBean servicesConfig;
     public ServicesConfigBean getServicesConfig() {

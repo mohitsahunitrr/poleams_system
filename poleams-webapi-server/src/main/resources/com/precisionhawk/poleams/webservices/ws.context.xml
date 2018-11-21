@@ -113,11 +113,16 @@
         class="com.precisionhawk.ams.dao.rdbms.DataSourceFactory"
     />
     <bean
-        id="DataSource"
+        id="dataSource"
         class="javax.sql.DataSource"
         factory-bean="DataSourceFactory"
         factory-method="get"
     />
+
+    <!-- Transaction Support -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
 
     <!-- Configurator Of Database -->
     <bean id="dbVersionUpdater" class="us.pcsw.support.jdbc.DBVersionUpdater" init-method="updateDb" lazy-init="false">
@@ -158,7 +163,7 @@
     />
     <bean
         id="SecurityService"
-        class="com.precisionhawk.ams.service.SecruityService"
+        class="com.precisionhawk.ams.service.SecurityService"
         factory-bean="SecurityServiceFactory"
         factory-method="get"
     />
