@@ -7,6 +7,12 @@
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+    
+    <!-- Caching -->
+    <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+        <property name="configLocation" value="classpath:com/precisionhawk/ams/webservices/ehcache.xml"/>
+        <property name="shared" value="true"/>
+    </bean>
    
     <!-- Configuration beans -->
     <bean id="AppConfigFactory" class="com.precisionhawk.poleams.config.AppConfigFactory"/>
@@ -35,6 +41,18 @@
         factory-method="getAwsConfig"
     />
     <bean
+        id="DbConfig"
+        class="com.precisionhawk.ams.config.DbConfig"
+        factory-bean="AppConfig"
+        factory-method="getDbConfig"
+    />
+    <bean
+        id="CacheConfig"
+        class="com.precisionhawk.ams.config.CacheConfig"
+        factory-bean="AppConfig"
+        factory-method="getCacheConfig"
+    />
+    <bean
         id="ElasticSearchConfig"
         class="com.precisionhawk.ams.support.elasticsearch.ElasticSearchConfig"
         factory-bean="AppConfig"
@@ -45,6 +63,12 @@
         class="com.precisionhawk.ams.repository.RepositoryConfig"
         factory-bean="AppConfig"
         factory-method="getRepositoryConfig"
+    />
+    <bean
+        id="SecurityConfig"
+        class="com.precisionhawk.ams.config.SecurityConfig"
+        factory-bean="AppConfig"
+        factory-method="getSecurityConfig"
     />
     <bean
         id="ServicesConfig"
@@ -83,6 +107,26 @@
         class="com.precisionhawk.ams.support.aws.S3ClientFactory"
     />
     
+    <!-- DataSource -->
+    <bean
+        id="DataSourceFactory"
+        class="com.precisionhawk.ams.dao.rdbms.DataSourceFactory"
+    />
+    <bean
+        id="DataSource"
+        class="javax.sql.DataSource"
+        factory-bean="DataSourceFactory"
+        factory-method="get"
+    />
+
+    <!-- Configurator Of Database -->
+    <bean id="dbVersionUpdater" class="us.pcsw.support.jdbc.DBVersionUpdater" init-method="updateDb" lazy-init="false">
+        <property name="changesFileResourcePath" value="com/precisionhawk/ams/dao/versions/"/>
+        <property name="versionsFileResourcePath" value="com/precisionhawk/ams/dao/versions/versions.xml"/>
+        <property name="dataSource" ref="dataSource"/>
+        <property name="transactionManager" ref="transactionManager"/>
+    </bean>
+    
     <!-- Resource Repository -->    
     <bean
         id="ResourceRepositoryFactory"
@@ -92,6 +136,30 @@
         id="ResourceRepository"
         class="com.precisionhawk.ams.repository.ResourceRepository"
         factory-bean="ResourceRepositoryFactory"
+        factory-method="get"
+    />
+    
+    <!-- SecurityTokenCache -->
+    <bean
+        id="SecurityTokenCacheFactory"
+        class="com.precisionhawk.ams.cache.SecurityTokenCacheFactory"
+    />
+    <bean
+        id="SecurityTokenCache"
+        class="com.precisionhawk.ams.cache.SecurityTokenCache"
+        factory-bean="SecurityTokenCacheFactory"
+        factory-method="get"
+    />
+    
+    <!-- SecurityService -->
+    <bean
+        id="SecurityServiceFactory"
+        class="com.precisionhawk.ams.service.SecurityServiceFactory"
+    />
+    <bean
+        id="SecurityService"
+        class="com.precisionhawk.ams.service.SecruityService"
+        factory-bean="SecurityServiceFactory"
         factory-method="get"
     />
     

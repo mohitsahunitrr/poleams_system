@@ -155,6 +155,14 @@
             <artifactId>resteasy-spring</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>us.pcsw</groupId>
+            <artifactId>pcsw-mybatis</artifactId>
+        </dependency>
+        <dependency>
             <groupId>us.pcsw</groupId>
             <artifactId>pcsw-spring-tools</artifactId>
     	</dependency>
