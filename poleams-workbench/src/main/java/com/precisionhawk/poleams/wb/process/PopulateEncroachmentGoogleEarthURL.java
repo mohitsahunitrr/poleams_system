@@ -1,6 +1,5 @@
 package com.precisionhawk.poleams.wb.process;
 
-import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
 import com.precisionhawk.poleams.bean.FeederSearchParams;
 import com.precisionhawk.poleams.domain.Feeder;

@@ -1,7 +1,10 @@
 package com.precisionhawk.poleams.dao.elasticsearch;
 
+import com.precisionhawk.ams.bean.SiteSearchParams;
 import com.precisionhawk.ams.dao.DaoException;
+import com.precisionhawk.ams.dao.SiteProvider;
 import com.precisionhawk.ams.dao.elasticsearch.AbstractEsDao;
+import com.precisionhawk.ams.domain.Site;
 import com.precisionhawk.poleams.bean.FeederSearchParams;
 import com.precisionhawk.poleams.domain.Feeder;
 import com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants;
@@ -15,13 +18,14 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import com.precisionhawk.poleams.dao.FeederDao;
+import java.util.LinkedList;
 
 /**
  *
  * @author Philip A. Chapman
  */
 @Named
-public class FeederEsDao extends AbstractEsDao implements FeederDao, ElasticSearchConstants {
+public class FeederEsDao extends AbstractEsDao implements FeederDao, ElasticSearchConstants, SiteProvider {
     
     private static final String COL_FEEDER_NUM = "feederNumber";
     private static final String COL_ID = "id";
@@ -123,5 +127,24 @@ public class FeederEsDao extends AbstractEsDao implements FeederDao, ElasticSear
         SearchResponse response = search.execute().actionGet();
 
         return loadFromScrolledSearch(Feeder.class, response, scrollLifeLimit);
+    }
+
+    @Override
+    public List<Site> retrieve(SiteSearchParams params) throws DaoException {
+        return (List<Site>)((List<? extends Site>)search(new FeederSearchParams(params)));
+    }
+    
+    @Override
+    public List<Site> retrieveAllSites() throws DaoException {
+        return (List<Site>)((List<? extends Site>)retrieveAll());
+    }
+
+    @Override
+    public List<Site> retrieveByIDs(List<String> siteIDs) throws DaoException {
+        List<Site> list = new LinkedList<>();
+        for (String id : siteIDs) {
+            list.add(retrieve(id));
+        }
+        return list;
     }
 }

@@ -8,7 +8,6 @@ import com.precisionhawk.ams.domain.ResourceMetadata;
 import com.precisionhawk.ams.domain.ResourceStatus;
 import com.precisionhawk.ams.domain.ResourceType;
 import com.precisionhawk.poleams.domain.ResourceTypes;
-import com.precisionhawk.poleams.domain.Feeder;
 import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.ams.util.ContentTypeUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
