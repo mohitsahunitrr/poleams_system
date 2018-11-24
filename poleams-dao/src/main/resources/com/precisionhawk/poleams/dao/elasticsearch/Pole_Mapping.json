@@ -1,57 +1,94 @@
 {
-  "Asset" : {
-    "properties" : {
-      "id" : {
-        "include_in_all" : true,
-        "index" : "not_analyzed",
-        "type" : "string"
-      },
-      "organizationId" : {
-        "include_in_all" : true,
-        "index" : "not_analyzed",
-        "type" : "string"
-      },
-      "subStationId" : {
-        "include_in_all" : true,
-        "index" : "not_analyzed",
-        "type" : "string"
-      },
-      "fplid" : {
-        "include_in_all" : true,
-        "index" : "not_analyzed",
-        "type" : "string"
-      },
-      "length" : {
-        "include_in_all" : false,
-        "index" : "not_analyzed",
-        "type" : "string"
-      },
-      "poleClass" : {
-        "include_in_all" : false,
-        "index" : "not_analyzed",
-        "type" : "string"
-      },
-      "type" : {
-        "include_in_all" : false,
-        "index" : "not_analyzed",
-        "type" : "string"
-      },
-      "location" : {
-        "properties" : {
-            "accuracy" : {
-                "type" : "double"
+    "Asset": {
+        "properties": {
+            "id": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
             },
-            "altitude" : {
-                "type" : "double"
+            "dateOfInstall": {
+                "include_in_all": false,
+                "type": "date",
+                "format": "yyyyMMdd"
             },
-            "latitude" : {
-                "type" : "double"
+            "description": {
+                "type": "string"
             },
-            "longitude" : {
-                "type" : "double"
+            "length": {
+                "include_in_all": false,
+                "type": "integer"
+            },
+            "location": {
+                "properties": {
+                    "accuracy": {
+                        "type": "double"
+                    },
+                    "altitude": {
+                        "type": "double"
+                    },
+                    "latitude": {
+                        "type": "double"
+                    },
+                    "longitude": {
+                        "type": "double"
+                    }
+                }
+            },
+            "make": {
+                "include_in_all": false,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "model": {
+                "include_in_all": false,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "name": {
+                "include_in_all": false,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "poleClass": {
+                "include_in_all": false,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "serialNumber": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "siteId": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "switchNumber": {
+                "include_in_all": false,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "tlnCoordinate": {
+                "include_in_all": false,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "utilityId": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "type": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "utilityId": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
             }
         }
-      }
     }
-  }
 }
