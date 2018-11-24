@@ -144,8 +144,8 @@ public class FeederInspectionWebServiceImpl extends AbstractWebService implement
 
     @Override
     public void update(String authToken, FeederInspection inspection) {
-        ensureExists(inspection, "The SubStation is required.");
-        ensureExists(inspection.getId(), "Substation ID is required.");
+        ensureExists(inspection, "The feeder inspection is required.");
+        ensureExists(inspection.getId(), "Feeder inspection ID is required.");
         try {
             if (!dao.update(inspection)) {
                 throw new BadRequestException(String.format("The feeder inspection %s already exists.", inspection.getId()));

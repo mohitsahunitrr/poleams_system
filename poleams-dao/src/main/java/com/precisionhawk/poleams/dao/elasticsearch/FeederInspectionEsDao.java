@@ -71,14 +71,14 @@ public class FeederInspectionEsDao extends AbstractEsDao implements FeederInspec
 
     @Override
     public boolean delete(String id) throws DaoException {
-        ensureExists(id, "Unique ID required for asset inspection.");
+        ensureExists(id, "Unique ID required for site inspection.");
         super.deleteDocument(id);
         return true;
     }
 
     @Override
     public FeederInspection retrieve(String id) throws DaoException {
-        ensureExists(id, "Unique ID required for asset inspection.");
+        ensureExists(id, "Unique ID required for site inspection.");
         return super.retrieveObject(id, FeederInspection.class);
     }
 
