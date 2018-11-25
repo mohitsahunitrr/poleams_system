@@ -66,5 +66,5 @@ public interface PoleInspectionWebService extends WebService {
     @DELETE
     @Path("/{inspectionId}")
     @Operation(summary = "Delete pole inspection by ID", description = "Deletes pole inspection by unique ID")
-    public void delete(String authToken, String id);
+    public void delete(String authToken, @PathParam("id") String id);
 }

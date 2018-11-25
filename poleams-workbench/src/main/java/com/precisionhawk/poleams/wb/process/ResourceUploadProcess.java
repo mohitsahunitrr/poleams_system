@@ -25,7 +25,7 @@ import com.precisionhawk.poleams.webservices.FeederInspectionWebService;
 import com.precisionhawk.poleams.webservices.FeederWebService;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
-import com.precisionhawk.poleams.webservices.WorkOrderWebService;
+import com.precisionhawk.ams.webservices.WorkOrderWebService;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;

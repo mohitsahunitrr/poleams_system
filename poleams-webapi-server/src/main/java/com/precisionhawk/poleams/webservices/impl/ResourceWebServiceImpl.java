@@ -4,6 +4,7 @@ import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.poleams.bean.ResourceSummary;
 import com.precisionhawk.ams.dao.DaoException;
 import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.ams.service.ResourceService;
 import com.precisionhawk.poleams.domain.ResourceTypes;
 import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.ams.util.ImageUtilities;
@@ -22,7 +23,7 @@ import javax.inject.Named;
  * @author Philip A. Chapman
  */
 @Named
-public class ResourceWebServiceImpl extends com.precisionhawk.ams.webservices.impl.ResourceWebServiceImpl implements ResourceWebService
+public class ResourceWebServiceImpl extends com.precisionhawk.ams.webservices.impl.ResourceWebServiceImpl implements ResourceWebService, ResourceService
 {
     @Override
     public List<ResourceSummary> querySummaries(String authToken, ResourceSearchParams params) {
@@ -104,7 +105,7 @@ public class ResourceWebServiceImpl extends com.precisionhawk.ams.webservices.im
         return new ResourceSummary(rmeta, downloadURL, scaledImageURL, zoomifyURL);
     }
 
-    String getResourceDownloadURL(String resourceId) {
+    public String getResourceDownloadURL(String resourceId) {
         return super.getResourceDownloadURL(resourceId, false);
     }
 }
