@@ -4,6 +4,7 @@ import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
 import com.precisionhawk.poleams.bean.FeederSearchParams;
 import com.precisionhawk.poleams.domain.Feeder;
 import com.precisionhawk.ams.util.CollectionsUtilities;
+import com.precisionhawk.ams.wb.process.ServiceClientCommandProcess;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.domain.FeederInspection;
 import com.precisionhawk.poleams.webservices.FeederInspectionWebService;

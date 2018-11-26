@@ -2,6 +2,7 @@ package com.precisionhawk.poleams.wb.process;
 
 import com.precisionhawk.ams.domain.ResourceMetadata;
 import com.precisionhawk.ams.domain.ResourceStatus;
+import com.precisionhawk.ams.wb.process.ServiceClientCommandProcess;
 import com.precisionhawk.ams.webservices.ResourceWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
 import java.io.IOException;

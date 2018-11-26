@@ -12,6 +12,7 @@ import com.precisionhawk.ams.support.httpclient.HttpClientUtilities;
 import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.ams.util.ContentTypeUtilities;
 import com.precisionhawk.ams.util.ImageUtilities;
+import com.precisionhawk.ams.wb.process.ServiceClientCommandProcess;
 import com.precisionhawk.ams.webservices.ResourceWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.bean.PoleSearchParams;

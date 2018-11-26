@@ -1,5 +1,6 @@
 package com.precisionhawk.poleams.wb.process;
 
+import com.precisionhawk.ams.wb.process.ServiceClientCommandProcess;
 import com.precisionhawk.poleams.processors.poleinspection.FeederDataDirProcessor;
 import com.precisionhawk.poleams.processors.poleinspection.ImportProcessListener;
 import com.precisionhawk.poleams.processors.poleinspection.ImportProcessStatus;

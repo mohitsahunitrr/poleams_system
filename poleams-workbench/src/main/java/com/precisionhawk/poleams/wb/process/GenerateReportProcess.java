@@ -1,5 +1,7 @@
 package com.precisionhawk.poleams.wb.process;
 
+import com.precisionhawk.ams.wb.config.WorkbenchConfig;
+import com.precisionhawk.ams.wb.process.CommandProcess;
 import com.precisionhawk.poleams.reporting.ReportService;
 import com.precisionhawk.poleams.reporting.ReportingConfig;
 import com.precisionhawk.poleams.reporting.ReportingException;
@@ -44,7 +46,7 @@ public class GenerateReportProcess extends CommandProcess {
     }
 
     @Override
-    public boolean process(Queue<String> args) {
+    public boolean process(WorkbenchConfig config, Queue<String> args) {
         String apikey = null;
         String infile = null;
         String outfile = null;
