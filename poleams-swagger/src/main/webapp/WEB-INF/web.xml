@@ -12,7 +12,11 @@
     <!-- Servlets -->
     <servlet>
         <servlet-name>specServlet</servlet-name>
-        <servlet-class>com.precisionhawk.poleams.webapi.swagger.OpenAPISpecServlet</servlet-class>
+        <servlet-class>com.precisionhawk.ams.webapi.swagger.OpenAPISpecServlet</servlet-class>
+        <init-param>
+            <param-name>ams.swagger.config.uri</param-name>
+            <param-value>com/precisionhawk/poleams/webapi/swagger/config.yaml</param-value>
+        </init-param>
     </servlet>
     
     <servlet-mapping>
