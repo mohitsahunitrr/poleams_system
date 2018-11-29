@@ -21,7 +21,7 @@ resourceClasses:
     - com.precisionhawk.poleams.webservices.PoleWebService
     - com.precisionhawk.poleams.webservices.ResourceWebWebService
     - com.precisionhawk.poleams.webservices.TransmissionLineWebService
-    - com.precisionhawk.poleams.webservices.TransmissionLineInspectionService
+    - com.precisionhawk.poleams.webservices.TransmissionLineInspectionWebService
     - com.precisionhawk.poleams.webservices.TransmissionStructureWebService
     - com.precisionhawk.poleams.webservices.TransmissionStructureInspectionWebService
 prettyPrint: true
