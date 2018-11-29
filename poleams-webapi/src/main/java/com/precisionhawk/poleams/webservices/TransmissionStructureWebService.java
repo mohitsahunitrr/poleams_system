@@ -7,7 +7,6 @@ import com.precisionhawk.poleams.domain.TransmissionStructure;
 import io.swagger.oas.annotations.Operation;
 import io.swagger.oas.annotations.Parameter;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -24,7 +23,7 @@ import javax.ws.rs.core.MediaType;
  *
  * @author Philip A. Chapman
  */
-@Path("/pole")
+@Path("/transmissionStructure")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public interface TransmissionStructureWebService extends WebService {

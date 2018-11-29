@@ -21,7 +21,7 @@ import javax.ws.rs.core.MediaType;
  *
  * @author pchapman
  */
-@Path("/feederInspection")
+@Path("/transmissionLineInspection")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public interface TransmissionLineInspectionWebService extends WebService {

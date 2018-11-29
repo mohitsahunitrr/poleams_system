@@ -23,7 +23,7 @@ import javax.ws.rs.core.MediaType;
  *
  * @author Philip A. Chapman
  */
-@Path("/poleInspection")
+@Path("/transmissionStructureInspection")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public interface TransmissionStructureInspectionWebService extends WebService {
