@@ -3,8 +3,8 @@ package com.precisionhawk.poleams.dao.elasticsearch;
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.dao.DaoException;
 import com.precisionhawk.ams.dao.elasticsearch.AbstractEsDao;
-import com.precisionhawk.poleams.dao.PoleInspectionDao;
-import com.precisionhawk.poleams.domain.PoleInspection;
+import com.precisionhawk.poleams.dao.TransmissionStructureInspectionDao;
+import com.precisionhawk.poleams.domain.TransmissionStructureInspection;
 import com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants;
 import static com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants.INDEX_NAME_POLEAMS;
 import java.util.List;
@@ -20,7 +20,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
  * @author Philip A. Chapman
  */
 @Named
-public class PoleInspectionEsDao extends AbstractEsDao implements PoleInspectionDao, ElasticSearchConstants {
+public class TransmissionStructureInspectionEsDao extends AbstractEsDao implements TransmissionStructureInspectionDao, ElasticSearchConstants {
     
     private static final String COL_ID = "id";
     private static final String COL_ASSET_ID = "assetId";
@@ -28,8 +28,8 @@ public class PoleInspectionEsDao extends AbstractEsDao implements PoleInspection
     private static final String COL_SITE_ID = "siteId";
     private static final String COL_SITE_INSP_ID = "siteInspectionId";
     private static final String COL_STATUS = "status";
-    private static final String DOCUMENT = "PoleInspection";
-    private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch/PoleInspection_Mapping.json";
+    private static final String DOCUMENT = "TransmissionStructureInspection";
+    private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch/TransmissionStructureInspection_Mapping.json";
 
     @Override
     public String getMappingPath() {
@@ -47,12 +47,12 @@ public class PoleInspectionEsDao extends AbstractEsDao implements PoleInspection
     }
 
     @Override
-    public boolean insert(PoleInspection poleInspection) throws DaoException {
-        ensureExists(poleInspection, "Pole inspection cannot be null.");
-        ensureExists(poleInspection.getId(), "Pole inspection ID is required.");
-        PoleInspection pi = retrieve(poleInspection.getId());
+    public boolean insert(TransmissionStructureInspection inspection) throws DaoException {
+        ensureExists(inspection, "Transmission Structure inspection cannot be null.");
+        ensureExists(inspection.getId(), "Transmission Structure inspection ID is required.");
+        TransmissionStructureInspection pi = retrieve(inspection.getId());
         if (pi == null) {
-            indexObject(poleInspection.getId(), poleInspection);
+            indexObject(inspection.getId(), inspection);
             return true;
         } else {
             return false;
@@ -60,33 +60,33 @@ public class PoleInspectionEsDao extends AbstractEsDao implements PoleInspection
     }
 
     @Override
-    public boolean update(PoleInspection poleInspection) throws DaoException {
-        ensureExists(poleInspection, "Pole inspection cannot be null.");
-        ensureExists(poleInspection.getId(), "Pole inspection ID is required.");
-        PoleInspection pi = retrieve(poleInspection.getId());
+    public boolean update(TransmissionStructureInspection inspection) throws DaoException {
+        ensureExists(inspection, "Transmission Structure inspection cannot be null.");
+        ensureExists(inspection.getId(), "Transmission Structure inspection ID is required.");
+        TransmissionStructureInspection pi = retrieve(inspection.getId());
         if (pi == null) {
             return false;
         } else {
-            indexObject(poleInspection.getId(), poleInspection);
+            indexObject(inspection.getId(), inspection);
             return true;
         }
     }
 
     @Override
     public boolean delete(String id) throws DaoException {
-        ensureExists(id, "Pole inspection ID is required.");
+        ensureExists(id, "Transmission Structure inspection ID is required.");
         deleteDocument(id);
         return true;
     }
 
     @Override
-    public PoleInspection retrieve(String id) throws DaoException {
-        ensureExists(id, "Pole inspection ID is required.");
-        return retrieveObject(id, PoleInspection.class);
+    public TransmissionStructureInspection retrieve(String id) throws DaoException {
+        ensureExists(id, "Transmission Structure inspection ID is required.");
+        return retrieveObject(id, TransmissionStructureInspection.class);
     }
 
     @Override
-    public List<PoleInspection> search(AssetInspectionSearchParams params) throws DaoException {
+    public List<TransmissionStructureInspection> search(AssetInspectionSearchParams params) throws DaoException {
         ensureExists(params, "Search parameters are required.");
         if (!params.hasCriteria()) {
             throw new DaoException("Search parameters are required.");
@@ -107,6 +107,6 @@ public class PoleInspectionEsDao extends AbstractEsDao implements PoleInspection
                         .setSize(getScrollSize());
 
         SearchResponse response = search.execute().actionGet();
-        return loadFromScrolledSearch(PoleInspection.class, response, scrollLifeLimit);
+        return loadFromScrolledSearch(TransmissionStructureInspection.class, response, scrollLifeLimit);
     }
 }

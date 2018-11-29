@@ -5,7 +5,7 @@ import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
 import com.precisionhawk.ams.dao.DaoException;
 import com.precisionhawk.ams.domain.ResourceMetadata;
-import com.precisionhawk.ams.webservices.AbstractWebService;
+import com.precisionhawk.ams.webservices.impl.AbstractWebService;
 import com.precisionhawk.poleams.bean.FeederInspectionSummary;
 import com.precisionhawk.poleams.bean.PoleInspectionSummary;
 import com.precisionhawk.poleams.bean.PoleSearchParams;

@@ -7,7 +7,7 @@ import com.precisionhawk.ams.dao.DaoException;
 import com.precisionhawk.poleams.dao.PoleInspectionDao;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.ams.domain.ResourceMetadata;
-import com.precisionhawk.ams.webservices.AbstractWebService;
+import com.precisionhawk.ams.webservices.impl.AbstractWebService;
 import com.precisionhawk.poleams.domain.ResourceTypes;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import java.util.ArrayList;

@@ -29,6 +29,6 @@ public class FeederSearchParams extends SiteSearchParams {
     
     @Override
     public boolean hasCriteria() {
-        return super.hasCriteria() || testField(feederNumber);
+        return super.hasCriteria() || hasValue(feederNumber);
     }
 }

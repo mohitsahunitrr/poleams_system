@@ -11,6 +11,7 @@ import java.time.ZonedDateTime;
  *
  * @author Philip A. Chapman
  */
+@Schema(description="A displayable summary of a resource.")
 public class ResourceSummary {
     
     @Schema(description="The media type of the resource. See https://en.wikipedia.org/wiki/Media_type")

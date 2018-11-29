@@ -10,6 +10,9 @@ openAPI:
             name: 'Proprietary: All Rights Reserved'
 readAllResources: true
 resourceClasses:
+    - com.precisionhawk.aws.webservices.AuthenticationWebService
+    - com.precisionhawk.ams.webservices.InspectionEventResourceWebService
+    - com.precisionhawk.ams.webservices.InspectionEventWebService
     - com.precisionhawk.ams.webservices.OrganizationWebService
     - com.precisionhawk.ams.webservices.WorkOrderWebService
     - com.precisionhawk.poleams.webservices.FeederInspectionWebService
@@ -17,5 +20,8 @@ resourceClasses:
     - com.precisionhawk.poleams.webservices.PoleInspectionWebService
     - com.precisionhawk.poleams.webservices.PoleWebService
     - com.precisionhawk.poleams.webservices.ResourceWebWebService
-    - com.precisionhawk.poleams.webservices.UserWebService
+    - com.precisionhawk.poleams.webservices.TransmissionLineWebService
+    - com.precisionhawk.poleams.webservices.TransmissionLineInspectionService
+    - com.precisionhawk.poleams.webservices.TransmissionStructureWebService
+    - com.precisionhawk.poleams.webservices.TransmissionStructureInspectionWebService
 prettyPrint: true

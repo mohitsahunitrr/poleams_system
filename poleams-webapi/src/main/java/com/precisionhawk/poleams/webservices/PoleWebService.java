@@ -1,14 +1,12 @@
 package com.precisionhawk.poleams.webservices;
 
 import com.precisionhawk.ams.webservices.WebService;
-import com.precisionhawk.poleams.bean.PoleAnalysisImportJobState;
 import com.precisionhawk.poleams.bean.PoleSearchParams;
 import com.precisionhawk.poleams.bean.PoleSummary;
 import com.precisionhawk.poleams.domain.Pole;
 import io.swagger.oas.annotations.Operation;
 import io.swagger.oas.annotations.Parameter;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -18,7 +16,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -36,23 +33,6 @@ public interface PoleWebService extends WebService {
     Pole create(
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
             Pole pole
-    );
-    
-    @POST
-    @Path("/{poleId}/importAnalysisExcel")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Operation(summary = "Import analysis data from Excel report.", description = "Imports analysis data from Excel report.")
-    PoleAnalysisImportJobState importAnalysisExcel(
-            @Parameter(required = true) @HeaderParam("Authorization") String authToken,
-            @Context HttpServletRequest request
-    );
-    
-    @POST
-    @Path("/{poleId}/importAnalysisXML")
-    @Operation(summary = "Import analysis data from XML.", description = "Imports analysis data from XML.")
-    PoleAnalysisImportJobState importAnalysisXML(
-            @Parameter(required = true) @HeaderParam("Authorization") String authToken,
-            @Context HttpServletRequest request
     );
     
     @GET

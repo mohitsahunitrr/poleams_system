@@ -168,6 +168,13 @@
         factory-method="get"
     />
     
+    <!-- AMS Services -->
+    <bean id="AuthenticationWebService" class="com.precisionhawk.aws.webservices.impl.AuthenticationWebServiceImpl"/>
+    <bean id="InspectionEventResourceWebService" class="com.precisionhawk.aws.webservices.impl.InspectionEventResourceWebServiceImpl"/>
+    <bean id="InspectionEventWebService" class="com.precisionhawk.aws.webservices.impl.InspectionEventWebServiceImpl"/>
+    <bean id="OrganizationWebService" class="com.precisionhawk.aws.webservices.impl.OrganizationWebServiceImpl"/>
+    <bean id="WorkOrderWebService" class="com.precisionhawk.aws.webservices.impl.WorkOrderResourceWebServiceImpl"/>
+    
     <!-- Scan for other components and controllers. -->
     <context:component-scan base-package="com.precisionhawk.ams.support.security"/>
     <context:component-scan base-package="com.precisionhawk.poleams"/>

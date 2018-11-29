@@ -1,7 +1,6 @@
 package com.precisionhawk.poleams.webservices.impl;
 
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
-import com.precisionhawk.poleams.bean.PoleAnalysisImportJobState;
 import com.precisionhawk.poleams.bean.PoleSearchParams;
 import com.precisionhawk.poleams.bean.PoleSummary;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
@@ -17,7 +16,7 @@ import com.precisionhawk.poleams.domain.poledata.PoleSpan;
 import com.precisionhawk.poleams.domain.poledata.PrimaryCable;
 import com.precisionhawk.poleams.domain.poledata.SecondaryCable;
 import com.precisionhawk.ams.util.CollectionsUtilities;
-import com.precisionhawk.ams.webservices.AbstractWebService;
+import com.precisionhawk.ams.webservices.impl.AbstractWebService;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.ams.webservices.ResourceWebService;
@@ -57,16 +56,6 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
         } catch (DaoException ex) {
             throw new InternalServerErrorException("Error persisting pole.", ex);
         }
-    }
-
-    @Override
-    public PoleAnalysisImportJobState importAnalysisExcel(String authToken, HttpServletRequest arg1) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public PoleAnalysisImportJobState importAnalysisXML(String authToken, HttpServletRequest arg1) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

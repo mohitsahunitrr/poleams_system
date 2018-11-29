@@ -1,6 +1,6 @@
 package com.precisionhawk.poleams.webservices.impl;
 
-import com.precisionhawk.ams.webservices.AbstractWebService;
+import com.precisionhawk.ams.webservices.impl.AbstractWebService;
 import com.precisionhawk.poleams.bean.FeederSearchParams;
 import com.precisionhawk.ams.dao.DaoException;
 import com.precisionhawk.poleams.domain.Feeder;

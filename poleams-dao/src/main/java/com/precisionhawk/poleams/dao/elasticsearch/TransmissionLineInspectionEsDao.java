@@ -3,8 +3,8 @@ package com.precisionhawk.poleams.dao.elasticsearch;
 import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
 import com.precisionhawk.ams.dao.DaoException;
 import com.precisionhawk.ams.dao.elasticsearch.AbstractEsDao;
-import com.precisionhawk.poleams.dao.FeederInspectionDao;
-import com.precisionhawk.poleams.domain.FeederInspection;
+import com.precisionhawk.poleams.dao.TransmissionLineInspectionDao;
+import com.precisionhawk.poleams.domain.TransmissionLineInspection;
 import com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants;
 import java.util.List;
 import javax.inject.Named;
@@ -19,14 +19,14 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
  * @author pchapman
  */
 @Named
-public class FeederInspectionEsDao extends AbstractEsDao implements FeederInspectionDao {
+public class TransmissionLineInspectionEsDao extends AbstractEsDao implements TransmissionLineInspectionDao {
 
     private static final String COL_ORDER_NUM = "orderNumber";
     private static final String COL_SITE_ID = "siteId";
     private static final String COL_STATUS = "status";
     private static final String COL_TYPE = "type";
-    private static final String DOCUMENT = "FeederInspection";
-    private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch/FeederInspection_Mapping.json";
+    private static final String DOCUMENT = "TransmissionLineInspection";
+    private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch/TransmissionLineInspection_Mapping.json";
 
     @Override
     protected String getIndexName() {
@@ -44,10 +44,10 @@ public class FeederInspectionEsDao extends AbstractEsDao implements FeederInspec
     }
 
     @Override
-    public boolean insert(FeederInspection inspection) throws DaoException {
-        ensureExists(inspection, "Feeder inspection required.");
-        ensureExists(inspection.getId(), "Unique ID required for asset inspection.");
-        FeederInspection pi = retrieve(inspection.getId());
+    public boolean insert(TransmissionLineInspection inspection) throws DaoException {
+        ensureExists(inspection, "Transmission Line inspection required.");
+        ensureExists(inspection.getId(), "Unique ID required for transmission line inspection.");
+        TransmissionLineInspection pi = retrieve(inspection.getId());
         if (pi == null) {
             super.indexObject(inspection.getId(), inspection);
             return true;
@@ -57,10 +57,10 @@ public class FeederInspectionEsDao extends AbstractEsDao implements FeederInspec
     }
 
     @Override
-    public boolean update(FeederInspection inspection) throws DaoException {
-        ensureExists(inspection, "Feeder inspection required.");
-        ensureExists(inspection.getId(), "Unique ID required for asset inspection.");
-        FeederInspection pi = retrieve(inspection.getId());
+    public boolean update(TransmissionLineInspection inspection) throws DaoException {
+        ensureExists(inspection, "Transmission Line inspection required.");
+        ensureExists(inspection.getId(), "Unique ID required for transmission line inspection.");
+        TransmissionLineInspection pi = retrieve(inspection.getId());
         if (pi == null) {
             return false;
         } else {
@@ -71,19 +71,19 @@ public class FeederInspectionEsDao extends AbstractEsDao implements FeederInspec
 
     @Override
     public boolean delete(String id) throws DaoException {
-        ensureExists(id, "Unique ID required for site inspection.");
+        ensureExists(id, "Unique ID required for transmission line inspection.");
         super.deleteDocument(id);
         return true;
     }
 
     @Override
-    public FeederInspection retrieve(String id) throws DaoException {
-        ensureExists(id, "Unique ID required for site inspection.");
-        return super.retrieveObject(id, FeederInspection.class);
+    public TransmissionLineInspection retrieve(String id) throws DaoException {
+        ensureExists(id, "Unique ID required for transmission line inspection.");
+        return super.retrieveObject(id, TransmissionLineInspection.class);
     }
 
     @Override
-    public List<FeederInspection> search(SiteInspectionSearchParams params) throws DaoException {
+    public List<TransmissionLineInspection> search(SiteInspectionSearchParams params) throws DaoException {
         ensureExists(params, "Search parameters are required.");
         if (!params.hasCriteria()) {
             throw new DaoException("Search parameters are required.");
@@ -104,6 +104,6 @@ public class FeederInspectionEsDao extends AbstractEsDao implements FeederInspec
                         .setSize(getScrollSize());
 
         SearchResponse response = search.execute().actionGet();
-        return loadFromScrolledSearch(FeederInspection.class, response, scrollLifeLimit);
+        return loadFromScrolledSearch(TransmissionLineInspection.class, response, scrollLifeLimit);
     }    
 }

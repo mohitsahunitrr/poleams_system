@@ -11,9 +11,9 @@ import java.util.List;
  */
 public interface FeederInspectionDao {
         
-    boolean insert(FeederInspection poleInspection) throws DaoException;
+    boolean insert(FeederInspection inspection) throws DaoException;
     
-    boolean update(FeederInspection poleInspection) throws DaoException;
+    boolean update(FeederInspection inspection) throws DaoException;
 
     boolean delete(String id) throws DaoException;
     

@@ -6,7 +6,7 @@ package com.precisionhawk.poleams.webservices.impl;
 
 import com.precisionhawk.poleams.config.ServicesConfig;
 import com.precisionhawk.ams.repository.RepositoryConfig;
-import com.precisionhawk.ams.webservices.AbstractWebService;
+import com.precisionhawk.ams.webservices.impl.AbstractWebService;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.inject.Inject;
