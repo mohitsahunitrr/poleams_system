@@ -29,7 +29,7 @@ import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
  * @author Philip A. Chapman
  */
 //TODO: handle identified components images.  Their names look like:  rgb_DJI_3949917_ML1.jpg identified by the "rgb_DJI" and the "ML" portions of the name.
-public final class ImagesProcessor implements Constants {
+final class ImagesProcessor implements Constants {
 
     private static final String DRONE_IMG = "rgb";
     private static final String MANUAL_IMG_1 = "phone";
@@ -55,14 +55,14 @@ public final class ImagesProcessor implements Constants {
     };
     
     private TypeIdentifier identifier = DEFAULT_RESOURCE_TYPE_IDENTIFIER;
-    public TypeIdentifier getIdentifier() {
+    TypeIdentifier getIdentifier() {
         return identifier;
     }
-    public void setIdentifier(TypeIdentifier identifier) {
+    void setIdentifier(TypeIdentifier identifier) {
         this.identifier = identifier;
     }
 
-    public ResourceMetadata process(Environment environment, ProcessListener listener, InspectionData data, Pole p, File f, ImageFormat format)
+    ResourceMetadata process(Environment environment, ProcessListener listener, InspectionData data, Pole p, File f, ImageFormat format)
         throws IOException, ImageReadException
     {
         
@@ -89,7 +89,7 @@ public final class ImagesProcessor implements Constants {
             rmeta.setContentType(info.getMimeType());
             rmeta.setLocation(ImageUtilities.getLocation(exif));
             rmeta.setName(f.getName());
-            rmeta.setOrganizationId(ORG_ID);
+            rmeta.setOrganizationId(p.getOrganizationId());
             rmeta.setPoleId(p.getId());
             rmeta.setPoleInspectionId(data.getPoleInspectionsByFPLId().get(p.getFPLId()).getId());
             rmeta.setSize(ImageUtilities.getSize(info));

@@ -22,7 +22,7 @@ import java.util.UUID;
  *
  * @author Philip A Chapman
  */
-public final class ResourceDataUploader {
+final class ResourceDataUploader {
     
     private static final double SCALE_WIDTH = 100;
     private static final ImageScaleRequest SCALE_IMAGE_REQ;
@@ -34,7 +34,7 @@ public final class ResourceDataUploader {
         SCALE_IMAGE_REQ.setWidth(SCALE_WIDTH);
     }
     
-    public static void uploadResources(
+    static void uploadResources(
         Environment env, ProcessListener listener, InspectionData inspdata, Collection<ResourceMetadata> metadata, Map<String, File> data, int retryCount
     )
     {
@@ -45,7 +45,7 @@ public final class ResourceDataUploader {
         _uploadResources(env, listener, inspdata, map, data, retryCount);
     }
     
-    private static void _uploadResources(
+    static void _uploadResources(
         Environment env, ProcessListener listener, InspectionData inspdata, Map<String, ResourceMetadata> metadata, Map<String, File> data, int retryCount
     )
     {

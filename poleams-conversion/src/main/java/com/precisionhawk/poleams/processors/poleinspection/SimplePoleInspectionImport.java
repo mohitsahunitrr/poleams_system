@@ -1,4 +1,4 @@
-package com.precisionhawk.poleams.processors.poleinspection.simple;
+package com.precisionhawk.poleams.processors.poleinspection;
 
 import com.precisionhawk.poleams.bean.GeoPoint;
 import com.precisionhawk.poleams.bean.PoleInspectionSearchParameters;
@@ -8,12 +8,6 @@ import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.ResourceMetadata;
 import com.precisionhawk.poleams.domain.ResourceType;
-import com.precisionhawk.poleams.processors.poleinspection.AbstractInspectionImport;
-import com.precisionhawk.poleams.processors.poleinspection.ImagesProcessor;
-import com.precisionhawk.poleams.processors.poleinspection.ImportProcessListener;
-import com.precisionhawk.poleams.processors.poleinspection.ImportProcessStatus;
-import com.precisionhawk.poleams.processors.poleinspection.InspectionData;
-import com.precisionhawk.poleams.processors.poleinspection.TypeIdentifier;
 import com.precisionhawk.poleams.util.CollectionsUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
@@ -134,7 +128,7 @@ public final class SimplePoleInspectionImport extends AbstractInspectionImport {
 
     private static boolean processPoleDirectory(Environment env, ImportProcessListener listener, File poleDir, InspectionData data) {
         try {
-            String utilityId = poleDir.getName();
+            String utilityId = poleDir.getName().replace("Pole ", "");
             PoleSearchParameters pparams = new PoleSearchParameters();
             pparams.setFPLId(utilityId);
             PoleInspection insp = null;
@@ -143,6 +137,7 @@ public final class SimplePoleInspectionImport extends AbstractInspectionImport {
                 pole = new Pole();
                 pole.setFPLId(utilityId);
                 pole.setId(UUID.randomUUID().toString());
+                pole.setOrganizationId("5042b09b-519d-4351-ad55-313fa085ec33"); //FIXME:
                 pole.setSubStationId(data.getSubStation().getId());
                 data.addPole(pole, true);
             } else {
@@ -156,6 +151,7 @@ public final class SimplePoleInspectionImport extends AbstractInspectionImport {
                 insp = new PoleInspection();
                 insp.setDateOfAnalysis(LocalDate.of(2018, 12, 4)); //FIXME: Hardcoded
                 insp.setId(UUID.randomUUID().toString());
+                insp.setOrganizationId("5042b09b-519d-4351-ad55-313fa085ec33"); //FIXME:
                 insp.setPoleId(pole.getId());
                 insp.setSubStationId(data.getSubStation().getId());
                 data.addPoleInspection(pole, insp, true);
@@ -177,6 +173,7 @@ public final class SimplePoleInspectionImport extends AbstractInspectionImport {
     }
 
     private static boolean lookupSite(Environment env, ImportProcessListener listener, String feederId, InspectionData data) {
+        // We expect the substation to already exist
         try {
             SubStationSearchParameters params = new SubStationSearchParameters();
             params.setFeederNumber(feederId);
@@ -188,6 +185,11 @@ public final class SimplePoleInspectionImport extends AbstractInspectionImport {
         } catch (IOException ex) {
             listener.reportFatalException("Error obtaining access token.", ex);
         }
-        return data.getSubStation() != null;
+        if (data.getSubStation() == null) {
+            return false;
+        } else {
+            data.getDomainObjectIsNew().put(data.getSubStation().getId(), false);
+            return true;
+        }
     }
 }

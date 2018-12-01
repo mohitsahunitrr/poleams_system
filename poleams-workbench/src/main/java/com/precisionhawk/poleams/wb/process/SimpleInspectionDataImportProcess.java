@@ -2,7 +2,7 @@ package com.precisionhawk.poleams.wb.process;
 
 import com.precisionhawk.poleams.processors.poleinspection.ImportProcessListener;
 import com.precisionhawk.poleams.processors.poleinspection.ImportProcessStatus;
-import com.precisionhawk.poleams.processors.poleinspection.simple.SimplePoleInspectionImport;
+import com.precisionhawk.poleams.processors.poleinspection.SimplePoleInspectionImport;
 import com.precisionhawk.poleams.webservices.client.Environment;
 import java.io.File;
 import java.io.PrintStream;

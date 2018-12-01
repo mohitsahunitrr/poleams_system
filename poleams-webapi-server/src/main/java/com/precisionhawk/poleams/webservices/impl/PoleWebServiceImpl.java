@@ -154,7 +154,12 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
         }
         summary.setMultiplexType(multiplexType);
         summary.setOpenWireType(openWireType);
-        summary.setOwner("FLorida Light and Power"); //TODO: From org
+        //TODO: From org
+        if ("5042b09b-519d-4351-ad55-313fa085ec33".equals(data.getOrganizationId())) {
+            summary.setOwner("Duke Energy");
+        } else if ("9d718b1e-ca84-4e78-a1cb-1393ceecc927".equals(data.getOrganizationId())) {
+            summary.setOwner("FLorida Light and Power");
+        }
         summary.setNeutralWireType((s == null || s.getPowerCircuit() == null || s.getPowerCircuit().getNeutral() == null) ? null : s.getPowerCircuit().getNeutral().getConductor());
         summary.setNumberOfOpenWires(scable == null ? null : scable.getWireCount());
         
