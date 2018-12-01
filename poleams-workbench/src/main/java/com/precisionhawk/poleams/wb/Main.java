@@ -23,6 +23,7 @@ public final class Main {
     private static final String USER_LOGGING_COFIG = "workbench.logback.groovy";
     private final CommandProcess[] COMMANDS = new CommandProcess[] {
         new ChangeResourceStatusProcess(),
+        new DeleteDataProcess(),
         new DeletePoleProcess(),
         new FeederDataImportProcess(),
         new PopulateEncroachmentGoogleEarthURL(),
