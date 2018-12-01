@@ -34,7 +34,7 @@ import org.apache.commons.io.IOUtils;
  *
  * @author Philip A. Chapman
  */
-public final class FeederDataDirProcessor implements Constants {
+public final class FeederDataDirProcessor extends AbstractInspectionImport implements Constants {
     
     private static final String FEEDER_MAP_DIR = "2. Feeder Map";
     private static final Pattern FEEDER_MAP_REGEX = Pattern.compile("\\w*_\\d{5}\\.pdf");    
@@ -194,61 +194,14 @@ public final class FeederDataDirProcessor implements Constants {
         try {
             listener.setStatus(ImportProcessStatus.PersistingData);
 
-            // Save SubStation
-            if (data.getSubStation() != null) {
-                SubStationWebService sssvc = env.obtainWebService(SubStationWebService.class);
-                if (data.getDomainObjectIsNew().get(data.getSubStation().getId())) {
-                    sssvc.create(env.obtainAccessToken(), data.getSubStation());
-                    listener.reportMessage(String.format("Inserted new sub station %s", data.getSubStation().getFeederNumber()));
-                } else {
-                    sssvc.update(env.obtainAccessToken(), data.getSubStation());
-                    listener.reportMessage(String.format("Updating sub station %s", data.getSubStation().getFeederNumber()));
-                }
-            }
-
-            // Save Poles
-            if (!data.getPoleDataByFPLId().isEmpty()) {
-                PoleWebService psvc = env.obtainWebService(PoleWebService.class);
-                for (Pole pdata : data.getPoleDataByFPLId().values()) {
-                    if (data.getDomainObjectIsNew().get(pdata.getId())) {
-                        psvc.create(env.obtainAccessToken(), pdata);
-                        listener.reportMessage(String.format("Inserted new pole %s FPL ID %s", pdata.getId(), pdata.getFPLId()));
-                    } else {
-                        psvc.update(env.obtainAccessToken(), pdata);
-                        listener.reportMessage(String.format("Updated pole %s FPL ID %s", pdata.getId(), pdata.getFPLId()));
-                    }
-                }
-            }
-
-            // Save Pole Inspections
-            if (!data.getPoleInspectionsByFPLId().isEmpty()) {
-                PoleInspectionWebService pisvc = env.obtainWebService(PoleInspectionWebService.class);
-                for (PoleInspection pi : data.getPoleInspectionsByFPLId().values()) {
-                    if (data.getDomainObjectIsNew().get(pi.getId())) {
-                        pisvc.create(env.obtainAccessToken(), pi);
-                        listener.reportMessage(String.format("Inserted new inspection for pole %s", pi.getPoleId()));
-                    } else {
-                        pisvc.update(env.obtainAccessToken(), pi);
-                        listener.reportMessage(String.format("updated inspection for pole %s", pi.getPoleId()));
-                    }
-                }
-            }
+            savePoleData(env, listener, data);
 
             // Now that we've saved all the data, we can update the survey report.
             updateSurveyReport(env, data, listener);
 
             listener.setStatus(ImportProcessStatus.UploadingResources);
-            // Save Resources
-            listener.reportMessage("Uploading SubStation resources.");
-            ResourceWebService rsvc = env.obtainWebService(ResourceWebService.class);
-            for (ResourceMetadata rmeta : data.getSubStationResources()) {
-                ResourceDataUploader.uploadResources(env, listener, data, data.getSubStationResources(), data.getResourceDataFiles(), 2);
-            }
-            int index = 1;
-            for (List<ResourceMetadata> list : data.getPoleResources().values()) {
-                listener.reportMessage(String.format("Uploading Pole resources ( %d of %d poles).", index++, data.getPoleResources().size()));
-                ResourceDataUploader.uploadResources(env, listener, data, list, data.getResourceDataFiles(), 2);
-            }
+            
+            saveAndUploadResources(env, listener, data);
         } catch (Throwable t) {
             listener.reportFatalException("Error persisting inspection data.", t);
         }

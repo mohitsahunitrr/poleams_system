@@ -28,6 +28,7 @@ public final class Main {
         new PopulateEncroachmentGoogleEarthURL(),
         new PopulateMasterSurveyProcess(),
         new ResourceUploadProcess(),
+        new SimpleInspectionDataImportProcess(),
         new UploadDesignReportsProcess()
     };
     

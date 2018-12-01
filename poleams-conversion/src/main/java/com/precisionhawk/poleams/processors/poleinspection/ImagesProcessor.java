@@ -29,7 +29,7 @@ import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
  * @author Philip A. Chapman
  */
 //TODO: handle identified components images.  Their names look like:  rgb_DJI_3949917_ML1.jpg identified by the "rgb_DJI" and the "ML" portions of the name.
-final class ImagesProcessor implements Constants {
+public final class ImagesProcessor implements Constants {
 
     private static final String DRONE_IMG = "rgb";
     private static final String MANUAL_IMG_1 = "phone";
@@ -37,10 +37,32 @@ final class ImagesProcessor implements Constants {
     private static final String THERMAL_IMG = "thermal";
     //FIXME: We need a better way
     private static final ZoneId DEFAULT_TZ = ZoneId.of("America/New_York");
+    
+    private static final TypeIdentifier DEFAULT_RESOURCE_TYPE_IDENTIFIER = new TypeIdentifier() {
+        @Override
+        public ResourceType identifyType(String name) {
+            name = name.toLowerCase();
+            if (name.startsWith(DRONE_IMG)) {
+                return ResourceType.DroneInspectionImage;
+            } else if (name.startsWith(MANUAL_IMG_1) || name.toLowerCase().startsWith(MANUAL_IMG_2)) {
+                return ResourceType.ManualInspectionImage;
+            } else if (name.startsWith(THERMAL_IMG)) {
+                return ResourceType.Thermal;
+            } else {
+                return ResourceType.Other;
+            }
+        }
+    };
+    
+    private TypeIdentifier identifier = DEFAULT_RESOURCE_TYPE_IDENTIFIER;
+    public TypeIdentifier getIdentifier() {
+        return identifier;
+    }
+    public void setIdentifier(TypeIdentifier identifier) {
+        this.identifier = identifier;
+    }
 
-    private ImagesProcessor() {}
-
-    static void process(Environment environment, ProcessListener listener, InspectionData data, Pole p, File f, ImageFormat format)
+    public ResourceMetadata process(Environment environment, ProcessListener listener, InspectionData data, Pole p, File f, ImageFormat format)
         throws IOException, ImageReadException
     {
         
@@ -53,18 +75,10 @@ final class ImagesProcessor implements Constants {
         if (rmeta == null) {
             rmeta = new ResourceMetadata();
             rmeta.setResourceId(UUID.randomUUID().toString());
-            String name = f.getName().toLowerCase();
-            rmeta.setType(ResourceType.Other);
-            if (name.startsWith(DRONE_IMG)) {
-                rmeta.setType(ResourceType.DroneInspectionImage);
-            } else if (name.startsWith(MANUAL_IMG_1) || name.toLowerCase().startsWith(MANUAL_IMG_2)) {
-                rmeta.setType(ResourceType.ManualInspectionImage);
-            } else if (name.startsWith(THERMAL_IMG)) {
-                rmeta.setType(ResourceType.Thermal);
-            }
+            rmeta.setType(identifier.identifyType(f.getName()));
             ImageInfo info = Imaging.getImageInfo(f);
             ImageMetadata metadata = Imaging.getMetadata(f);
-            TiffImageMetadata exif = null;
+            TiffImageMetadata exif;
             if (metadata instanceof JpegImageMetadata) {
                 exif = ((JpegImageMetadata)metadata).getExif();
             } else if (metadata instanceof TiffImageMetadata) {
@@ -96,6 +110,7 @@ final class ImagesProcessor implements Constants {
                 data.addResourceMetadata(rmeta, f, false);
             }
         }
+        return rmeta;
     }
     
 }

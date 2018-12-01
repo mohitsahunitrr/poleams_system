@@ -91,6 +91,15 @@ public class GeoPoint implements Serializable {
         }
     }
     
+    public GeoPoint(GeoPoint source) {
+        if (source != null) {
+            this.accuracy = source.accuracy;
+            this.altitude = source.altitude;
+            this.latitude = source.latitude;
+            this.longitude = source.longitude;
+        }
+    }
+    
     @Override
     public String toString() {
         return toStringLongForm();
