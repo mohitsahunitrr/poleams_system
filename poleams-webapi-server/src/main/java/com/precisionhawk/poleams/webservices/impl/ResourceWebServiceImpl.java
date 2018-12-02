@@ -473,4 +473,10 @@ public class ResourceWebServiceImpl extends AbstractWebService implements Resour
         
         return new ResourceSummary(rmeta, downloadURL, scaledImageURL, zoomifyURL);
     }
+
+    @Override
+    public ResourceSummary retrieveSummary(String authToken, String id) {
+        ResourceMetadata rmeta = retrieve(authToken, id);
+        return summaryFor(rmeta);
+    }
 }

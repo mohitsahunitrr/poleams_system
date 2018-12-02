@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @author <a href="mailto:pchapman@pcsw.us">Philip A. Chapman</a>
  */
 @Controller
+@RequestMapping("/status")
 public class JobStatusController implements MAVConstants {
     
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
@@ -49,7 +50,7 @@ public class JobStatusController implements MAVConstants {
         return showAppStatus();
     }
     
-    @RequestMapping(value="/status", method=RequestMethod.GET)
+    @RequestMapping(method=RequestMethod.GET)
     @ResponseBody
     public Map<String, Object> showAppStatus() {
         Map<String, Object> status = new HashMap();

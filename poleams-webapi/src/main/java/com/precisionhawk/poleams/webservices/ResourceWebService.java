@@ -37,6 +37,13 @@ public interface ResourceWebService extends WebService {
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
             @PathParam("resourceId") String id);
     
+    @GET
+    @Path("{resourceId}/summary")
+    @Operation(summary = "Retrieve the summary for a Resource", description = "Retrieve the the summary of a resource by unique ID.")
+    ResourceSummary retrieveSummary(
+            @Parameter(required = true) @HeaderParam("Authorization") String authToken,
+            @PathParam("resourceId") String id);
+    
     @POST
     @Path("/search")
     @Operation(summary = "Search Resources", description = "Retrieves resource metadata for resources that match the indicated criteria.")

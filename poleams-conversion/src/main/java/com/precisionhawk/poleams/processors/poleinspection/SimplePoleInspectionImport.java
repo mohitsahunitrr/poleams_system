@@ -16,11 +16,15 @@ import com.precisionhawk.poleams.webservices.client.Environment;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.UUID;
 import org.apache.commons.imaging.ImageFormat;
 import org.apache.commons.imaging.ImageFormats;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
 /**
  * A very simplistic pole inspection that ingests images for poles and nothing more.
@@ -94,6 +98,8 @@ public final class SimplePoleInspectionImport extends AbstractInspectionImport {
             listener.setStatus(ImportProcessStatus.UploadingResources);
             
             saveAndUploadResources(env, listener, data);
+            
+            zoomifyImages(env, listener, data);
         } catch (Throwable t) {
             listener.reportFatalException("Error persisting inspection data.", t);
         }
@@ -191,5 +197,33 @@ public final class SimplePoleInspectionImport extends AbstractInspectionImport {
             data.getDomainObjectIsNew().put(data.getSubStation().getId(), false);
             return true;
         }
+    }
+    
+    private static final String ZOOMIFY_URL = "http://processor.inspectools.net/poleams/zoomify";
+    
+    private static boolean zoomifyImages(Environment env, ImportProcessListener listener, InspectionData data) throws IOException {
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpPost req = new HttpPost(ZOOMIFY_URL);
+        req.getParams().setParameter("env", env.getName());
+        boolean success = true;
+        for (String utilityId : data.getPoleResources().keySet()) {
+            success = success && zoomifyImages(env, listener, client, req, data.getPoleResources().get(utilityId));
+        }
+        success = success && zoomifyImages(env, listener, client, req, data.getSubStationResources());
+        return success;
+    }
+    
+    private static boolean zoomifyImages(Environment env, ImportProcessListener listener, CloseableHttpClient client, HttpPost req, Collection<ResourceMetadata> resources) throws IOException {
+        for (ResourceMetadata rmeta : resources) {
+            try {
+                req.getParams().setParameter("resource", rmeta.getResourceId());
+                req.setHeader("Authorized", "Bearer " + env.obtainAccessToken());
+                client.execute(req);
+                listener.reportMessage(String.format("The resource \"%s\" has been zoomified.", rmeta.getResourceId()));
+            } finally {
+                req.reset();
+            }
+        }
+        return true;
     }
 }

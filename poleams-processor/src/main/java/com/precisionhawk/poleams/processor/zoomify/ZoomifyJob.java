@@ -109,123 +109,18 @@ public class ZoomifyJob {
                 }
                 LOGGER.info("Found {} resources in environment {} that may need to be zoomified.", resources.size(), env.getName());
                 for (ResourceSummary smry : resources) {
-                    if (smry.getContentType().startsWith("image/")) {
-                        LOGGER.info("Downloading image {} to zoomify it", smry.getResourceId());
-                        File sourceFile = createSourceFile(smry);
-                        File targetFile = createTargetFile(smry);
-                        try {
-                            // Download resource into temporary file.
-                            String location = smry.getDownloadURL();
-                            URL url;
-                            HttpURLConnection conn = null;
-                            url = new URL(location);
-                            // It may redirect to AWS, so account for that
-                            boolean searching = true;
-                            boolean found = false;
-                            while (searching) {
-                                LOGGER.info("Downloading resource from {}", url);
-                                conn = (HttpURLConnection)url.openConnection();
-                                conn.setConnectTimeout(15000);
-                                conn.setReadTimeout(15000);
-                                conn.setInstanceFollowRedirects(false);
-                                conn.setRequestProperty("User-Agent", "Mozilla/5.0...");
-                                switch (conn.getResponseCode())
-                                {
-                                    case HttpURLConnection.HTTP_OK:
-                                        searching = false;
-                                        found = true;
-                                        break;
-                                    case HttpURLConnection.HTTP_NOT_FOUND:
-                                        LOGGER.error("Image for resource {} not found.", smry.getResourceId());
-                                        searching = false;
-                                        found = false;
-                                        break;
-                                    case HttpURLConnection.HTTP_MOVED_PERM:
-                                    case HttpURLConnection.HTTP_MOVED_TEMP:
-                                    case 307: // Temporary redirect
-                                        location = conn.getHeaderField("Location");
-                                        url = new URL(url, location);  // Deal with relative URLs
-                                        LOGGER.info("Redirected to {}", url);
-                                        break;
-                                    default:
-                                        LOGGER.error("Unexpected HTTP response {} downloading resource {}.", conn.getResponseCode(), smry.getResourceId());
-                                        searching = false;
-                                        found = false;
-                                        break;
-                                }
-                            }
-                            if (found && conn != null) {
-                                InputStream is = null;
-                                OutputStream os = null;
-                                try {
-                                    os = new BufferedOutputStream(new FileOutputStream(sourceFile));
-                                    is = conn.getInputStream();
-                                    IOUtils.copy(is, os);
-                                } finally {
-                                    IOUtils.closeQuietly(is);
-                                    IOUtils.closeQuietly(os);
-                                    is = null;
-                                }
-                                LOGGER.info("Zoomifying image {} from {} into {}", smry.getResourceId(), sourceFile.getAbsolutePath(), targetFile.getAbsolutePath());
-                                ProcessBuilder pb = new ProcessBuilder(getExecutablePath(), "-Z", "-o", targetFile.getAbsolutePath(), sourceFile.getAbsolutePath());
-                                Process proc = pb.start();
-                                if (proc == null) {
-                                    // Invalid state.  Possibly too many open file handles.
-                                    LOGGER.error("ProcessBuilder returned NULL from starting zoomify process.  Aborting this run.");
-                                    getJobInfo().update(start, ZonedDateTime.now(), count, "ProcessBuilder returned NULL from starting zoomify process.  Run aborted.");
-                                    searching = false;
-                                    return;
-                                }
-                                if (proc.waitFor(ZOOMIFY_PROCESS_TIMEOUT, TimeUnit.SECONDS)) {
-                                    int resp = proc.exitValue();
-                                    if (resp == 0) {
-                                        // Prepare metadata
-                                        rmeta = svc.retrieve(env.obtainAccessToken(), smry.getResourceId());
-                                        if (rmeta.getZoomifyId() == null) {
-                                            zoomifyId = UUID.randomUUID().toString();
-                                            rmeta.setZoomifyId(zoomifyId);
-                                            LOGGER.info("Storing zoomify data of image {} with resource ID {}", rmeta.getResourceId(), rmeta.getZoomifyId());
-                                            svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
-                                        }
-                                        // Upload zoomify resource
-                                        HttpClientUtilities.postFile(env, rmeta.getZoomifyId(), "image/zif", targetFile);
-                                        LOGGER.info("Zoomify data of image {} saved with zoonify ID {}", rmeta.getResourceId(), rmeta.getZoomifyId());
-                                        rmeta.setStatus(ResourceStatus.Released);
-                                        svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
-                                        LOGGER.info("Status \"{}\" and zoomify ID of image {} saved", rmeta.getStatus(), rmeta.getResourceId());
-                                        LOGGER.info("Zoomify of image {} completed", smry.getResourceId());
-                                        sourceFile.delete();
-                                        targetFile.delete();
-                                        LOGGER.info("Source file {} and target file {} has been deleted", sourceFile.getAbsolutePath(), targetFile.getAbsoluteFile());
-                                        count++;
-                                        subcount++;
-                                        getJobInfo().update(start, null, count, String.format("Processing %s", env.getName()));
-                                    } else {
-                                        LOGGER.error("Unable to zoomify resource {}, received return code {}. See http://www.zoomify.com/converters.htm#converterCommand for details.", smry.getResourceId());
-                                        LOGGER.info("Source file {} and target file {} retained", sourceFile.getAbsolutePath(), targetFile.getAbsoluteFile());
-                                    }
-                                } else {
-                                    // Zoomify did not exit before the timeout
-                                    LOGGER.error("Zoomify was not able to process resource with ID {} within {} seconds. ABORTING", smry.getResourceId(), ZOOMIFY_PROCESS_TIMEOUT);
-                                    // Clean up
-                                    proc.destroyForcibly();
-                                    getJobInfo().update(start, null, count, String.format("Zoomify was not able to process resource with ID %s within %s seconds. ABORTED", smry.getResourceId(), ZOOMIFY_PROCESS_TIMEOUT));
-                                    return;
-                                }
-                            }
-                        } catch (Throwable t) {
-                            LOGGER.error("Unable to zoomify resource {}", smry.getResourceId(), t);
-                            LOGGER.info("Source file {} and target file {} retained, if they where created", sourceFile.getAbsolutePath(), targetFile.getAbsoluteFile());
-                        } finally {
-        //                    if (sourceFile != null && sourceFile.exists()) {
-        //                        sourceFile.delete();
-        //                    }
-        //                    if (targetFile != null && targetFile.exists()) {
-        //                        targetFile.delete();
-        //                    }
+                    try {
+                        if (zoomifyResource(env, smry)) {
+                            count++;
+                            subcount++;
+                            getJobInfo().update(start, null, count, String.format("Processing %s", env.getName()));
+                        } else {
+                            getJobInfo().update(start, null, count, String.format("Zoomify was not able to process resource with ID %s within %s seconds. ABORTED", smry.getResourceId(), ZOOMIFY_PROCESS_TIMEOUT));
                         }
-                    } else {
-                        LOGGER.info("Resource {} is not an image.", smry.getResourceId());
+                    } catch (ZoomifyProcessException ex) {
+                        LOGGER.error("ProcessBuilder returned NULL from starting zoomify process.  Aborting this run.");
+                        getJobInfo().update(start, ZonedDateTime.now(), count, "ProcessBuilder returned NULL from starting zoomify process.  Run aborted.");
+                        break;
                     }
                 }
                 LOGGER.info("{} resources zoomified in environment {}.", subcount, env.getName());
@@ -236,6 +131,121 @@ public class ZoomifyJob {
         getJobInfo().update(start, ZonedDateTime.now(), count, "Last run successful");
         
         LOGGER.info("Finished job {}", jobInfo.getJobName());
+    }
+    
+    public boolean zoomifyResource(Environment env, ResourceSummary smry) throws ZoomifyProcessException {
+        if (smry.getContentType().startsWith("image/")) {
+            LOGGER.info("Downloading image {} to zoomify it", smry.getResourceId());
+            ResourceWebService svc = env.obtainWebService(ResourceWebService.class);
+            File sourceFile = createSourceFile(smry);
+            File targetFile = createTargetFile(smry);
+            try {
+                // Download resource into temporary file.
+                String location = smry.getDownloadURL();
+                URL url;
+                HttpURLConnection conn = null;
+                url = new URL(location);
+                // It may redirect to AWS, so account for that
+                boolean searching = true;
+                boolean found = false;
+                while (searching) {
+                    LOGGER.info("Downloading resource from {}", url);
+                    conn = (HttpURLConnection)url.openConnection();
+                    conn.setConnectTimeout(15000);
+                    conn.setReadTimeout(15000);
+                    conn.setInstanceFollowRedirects(false);
+                    conn.setRequestProperty("User-Agent", "Mozilla/5.0...");
+                    switch (conn.getResponseCode())
+                    {
+                        case HttpURLConnection.HTTP_OK:
+                            searching = false;
+                            found = true;
+                            break;
+                        case HttpURLConnection.HTTP_NOT_FOUND:
+                            LOGGER.error("Image for resource {} not found.", smry.getResourceId());
+                            searching = false;
+                            found = false;
+                            break;
+                        case HttpURLConnection.HTTP_MOVED_PERM:
+                        case HttpURLConnection.HTTP_MOVED_TEMP:
+                        case 307: // Temporary redirect
+                            location = conn.getHeaderField("Location");
+                            url = new URL(url, location);  // Deal with relative URLs
+                            LOGGER.info("Redirected to {}", url);
+                            break;
+                        default:
+                            LOGGER.error("Unexpected HTTP response {} downloading resource {}.", conn.getResponseCode(), smry.getResourceId());
+                            searching = false;
+                            found = false;
+                            break;
+                    }
+                }
+                if (found && conn != null) {
+                    InputStream is = null;
+                    OutputStream os = null;
+                    try {
+                        os = new BufferedOutputStream(new FileOutputStream(sourceFile));
+                        is = conn.getInputStream();
+                        IOUtils.copy(is, os);
+                    } finally {
+                        IOUtils.closeQuietly(is);
+                        IOUtils.closeQuietly(os);
+                        is = null;
+                    }
+                    LOGGER.info("Zoomifying image {} from {} into {}", smry.getResourceId(), sourceFile.getAbsolutePath(), targetFile.getAbsolutePath());
+                    ProcessBuilder pb = new ProcessBuilder(getExecutablePath(), "-Z", "-o", targetFile.getAbsolutePath(), sourceFile.getAbsolutePath());
+                    Process proc = pb.start();
+                    if (proc == null) {
+                        // Invalid state.  Possibly too many open file handles.
+                        throw new ZoomifyProcessException();
+                    }
+                    if (proc.waitFor(ZOOMIFY_PROCESS_TIMEOUT, TimeUnit.SECONDS)) {
+                        int resp = proc.exitValue();
+                        if (resp == 0) {
+                            // Prepare metadata
+                            ResourceMetadata rmeta = svc.retrieve(env.obtainAccessToken(), smry.getResourceId());
+                            if (rmeta.getZoomifyId() == null) {
+                                rmeta.setZoomifyId(UUID.randomUUID().toString());
+                                LOGGER.info("Storing zoomify data of image {} with resource ID {}", rmeta.getResourceId(), rmeta.getZoomifyId());
+                                svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
+                            }
+                            // Upload zoomify resource
+                            HttpClientUtilities.postFile(env, rmeta.getZoomifyId(), "image/zif", targetFile);
+                            LOGGER.info("Zoomify data of image {} saved with zoonify ID {}", rmeta.getResourceId(), rmeta.getZoomifyId());
+                            rmeta.setStatus(ResourceStatus.Released);
+                            svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
+                            LOGGER.info("Status \"{}\" and zoomify ID of image {} saved", rmeta.getStatus(), rmeta.getResourceId());
+                            LOGGER.info("Zoomify of image {} completed", smry.getResourceId());
+                            sourceFile.delete();
+                            targetFile.delete();
+                            LOGGER.info("Source file {} and target file {} has been deleted", sourceFile.getAbsolutePath(), targetFile.getAbsoluteFile());
+                            return true;
+                        } else {
+                            LOGGER.error("Unable to zoomify resource {}, received return code {}. See http://www.zoomify.com/converters.htm#converterCommand for details.", smry.getResourceId());
+                            LOGGER.info("Source file {} and target file {} retained", sourceFile.getAbsolutePath(), targetFile.getAbsoluteFile());
+                        }
+                    } else {
+                        // Zoomify did not exit before the timeout
+                        LOGGER.error("Zoomify was not able to process resource with ID {} within {} seconds. ABORTING", smry.getResourceId(), ZOOMIFY_PROCESS_TIMEOUT);
+                        // Clean up
+                        proc.destroyForcibly();
+                    }
+                }
+            } catch (Throwable t) {
+                LOGGER.error("Unable to zoomify resource {}", smry.getResourceId(), t);
+                LOGGER.info("Source file {} and target file {} retained, if they where created", sourceFile.getAbsolutePath(), targetFile.getAbsoluteFile());
+            } finally {
+//                if (sourceFile != null && sourceFile.exists()) {
+//                    sourceFile.delete();
+//                }
+//                if (targetFile != null && targetFile.exists()) {
+//                    targetFile.delete();
+//                }
+            }
+        } else {
+            LOGGER.info("Resource {} is not an image.", smry.getResourceId());
+        }
+        return false;
     }
     
     private File createSourceFile(ResourceSummary res) {
