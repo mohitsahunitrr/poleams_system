@@ -29,7 +29,7 @@ public abstract class ServiceClientCommandProcess extends CommandProcess {
     protected static final String ARGS_FOR_HELP = "[" + ARG_CONFIG + " environments/config/file.yaml] " + ARG_ENV + " environment";
     
     public final boolean process(Queue<String> args) {
-        String configURI = "file://" + new File(new File(new File(System.getProperty("user.home")), Main.USER_COFIG_DIR), DEFAULT_CFG_FILE).getAbsolutePath();
+        String configURI = "file://" + new File(new File(new File(new File(System.getProperty("user.home")), ".ph"), Main.USER_COFIG_DIR), DEFAULT_CFG_FILE).getAbsolutePath();
         String envStr = null;
         
         String s;

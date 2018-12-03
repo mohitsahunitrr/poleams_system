@@ -8,6 +8,7 @@ import java.io.Reader;
 import javax.inject.Named;
 import javax.inject.Provider;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -24,7 +25,7 @@ public class AppConfigFactory implements Provider<AppConfig> {
     
     private static final String[] PATHS = {
         "/etc/poleams/webservices.yaml",
-        "{" + PARAM_USER_HOME + "}/.poleams/webservices.yaml"
+        "{" + PARAM_USER_HOME + "}/.ph/poleams/webservices.yaml"
     };
     
     private AppConfig config;
@@ -41,6 +42,8 @@ public class AppConfigFactory implements Provider<AppConfig> {
                     f = new File(path);
                     if (f.canRead()) {
                         config = loadConfiguration(f);
+                    } else {
+                        LoggerFactory.getLogger(getClass()).warn("Unable to find configuration in %s.", f.getAbsolutePath());
                     }
                 }
                 if (config == null) {

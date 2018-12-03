@@ -87,5 +87,5 @@ public interface PoleWebService extends WebService {
     @Operation(summary = "Delete pole By ID", description = "Deletes pole by unique ID")
     void delete(
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
-            @PathParam("poleId") String id);
+            @Parameter(required = true) @PathParam("poleId") String id);
 }

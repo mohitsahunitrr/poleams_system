@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 public final class Main {
 
     private static final String DEFAULT_LOGGING_CONFIG = "com/precisionhawk/poleams/wb/workbench.logback.groovy";
-    public static final String USER_COFIG_DIR = ".poleams";
+    public static final String USER_COFIG_DIR = "poleams";
     private static final String USER_LOGGING_COFIG = "workbench.logback.groovy";
     private final CommandProcess[] COMMANDS = new CommandProcess[] {
         new ChangeResourceStatusProcess(),
@@ -72,7 +72,7 @@ public final class Main {
         // If there is a file in $home/.windams/workbench.logback.groovy, use that
         // Otherwise, use classpath://com.windams.wb.workbench.logback.groovy
         URL config = null;
-        File f = new File(new File(new File(System.getProperty("user.home")), USER_COFIG_DIR), USER_LOGGING_COFIG);
+        File f = new File(new File(new File(new File(System.getProperty("user.home")), ".ph"), USER_COFIG_DIR), USER_LOGGING_COFIG);
         if (f.canRead()) {
             try {
                 config = f.toURI().toURL();

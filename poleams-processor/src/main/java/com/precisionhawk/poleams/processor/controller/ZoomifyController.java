@@ -6,12 +6,9 @@ import com.precisionhawk.poleams.processor.zoomify.ZoomifyProcessException;
 import com.precisionhawk.poleams.webservices.ResourceWebService;
 import com.precisionhawk.poleams.webservices.client.Environment;
 import java.io.IOException;
-import java.util.List;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,13 +21,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("/zoomify")
 public class ZoomifyController {
-    
-    @Inject
+            
     private ZoomifyJob zoomifyJob;
-    
+    public ZoomifyJob getZoomifyJob() {
+        return zoomifyJob;
+    }
     @Inject
-    @Named("environments")
-    private List<Environment> environments;
+    public void setZoomifyJob(ZoomifyJob zoomifyJob) {
+        this.zoomifyJob = zoomifyJob;
+    }
     
     @RequestMapping(method = RequestMethod.POST)
     public void zoomifyResource(
@@ -40,7 +39,7 @@ public class ZoomifyController {
     {
         try {
             Environment env = null;
-            for (Environment e : environments) {
+            for (Environment e : zoomifyJob.getEnvironments()) {
                 if (e.getName().equals(envName)) {
                     env = e;
                     break;
