@@ -116,7 +116,7 @@ public final class SimplePoleInspectionImport extends AbstractInspectionImport {
                 listener.reportNonFatalError(String.format("Unexpected file \"%s\" is being skipped.", imageFile.getAbsolutePath()));
             } else {
                 ResourceMetadata rmeta = IMAGES_PROCESSOR.process(env, listener, data, pole, imageFile, format);
-                if (rmeta != null && imageFile.getName().startsWith("1.")) {
+                if (rmeta != null && imageFile.getName().startsWith("1_")) {
                     // Use this image to set GPS coordinates for pole
                     if (rmeta.getLocation() == null || rmeta.getLocation().getLatitude() == null || rmeta.getLocation().getLongitude() == null) {
                         listener.reportNonFatalError(String.format("The image \"%s\" does not contain GPS coordinates.  GPS coordinates not set for pole %s.", imageFile.getAbsoluteFile(), pole.getFPLId()));
