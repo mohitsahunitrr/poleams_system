@@ -1,5 +1,5 @@
 {
-    "Pole": {
+    "TransmissionStructure": {
         "properties": {
             "id": {
                 "include_in_all": true,
@@ -10,13 +10,6 @@
                 "include_in_all": false,
                 "type": "date",
                 "format": "yyyyMMdd"
-            },
-            "description": {
-                "type": "string"
-            },
-            "length": {
-                "include_in_all": false,
-                "type": "integer"
             },
             "location": {
                 "properties": {
@@ -49,11 +42,6 @@
                 "index": "not_analyzed",
                 "type": "string"
             },
-            "poleClass": {
-                "include_in_all": false,
-                "index": "not_analyzed",
-                "type": "string"
-            },
             "serialNumber": {
                 "include_in_all": true,
                 "index": "not_analyzed",
@@ -64,27 +52,12 @@
                 "index": "not_analyzed",
                 "type": "string"
             },
-            "switchNumber": {
-                "include_in_all": false,
-                "index": "not_analyzed",
-                "type": "string"
-            },
-            "tlnCoordinate": {
-                "include_in_all": false,
-                "index": "not_analyzed",
-                "type": "string"
-            },
-            "utilityId": {
-                "include_in_all": true,
-                "index": "not_analyzed",
-                "type": "string"
-            },
             "type": {
                 "include_in_all": true,
                 "index": "not_analyzed",
                 "type": "string"
             },
-            "utilityId": {
+            "structureNumber": {
                 "include_in_all": true,
                 "index": "not_analyzed",
                 "type": "string"

@@ -1,70 +1,25 @@
 {
-    "PoleInspection": {
+    "TransmissionStructureInspection": {
         "properties": {
             "id": {
                 "include_in_all": true,
                 "index": "not_analyzed",
                 "type": "string"
             },
-            "access": {
-                "type": "boolean"
-            },
-            "anchorsPass": {
-                "type": "boolean"
-            },
             "assetId": {
                 "include_in_all": true,
                 "index": "not_analyzed",
                 "type": "string"
-            },
-            "bracketsPass": {
-                "type": "boolean"
-            },
-            "dateOfAnalysis": {
-                "include_in_all": false,
-                "type": "date",
-                "format": "yyyyMMdd"
             },
             "dateOfInspection": {
                 "include_in_all": false,
                 "type": "date",
                 "format": "yyyyMMdd"
             },
-            "downGuysPass": {
-                "type": "boolean"
-            },
-            "horizontalLoadingPercent": {
-                "type": "long"
-            },
-            "insulatorsPass": {
-                "type": "boolean"
-            },
-            "latLongDelta": {
-                "type": "double"
-            },
-            "loadCase": {
-                "properties": {
-                    "wind": {
-                        "type": "string"
-                    },
-                    "ice": {
-                        "type": "string"
-                    },
-                    "nescRule": {
-                        "type": "string"
-                    },
-                    "temperature": {
-                        "type": "string"
-                    }
-                }
-            },
             "orderNumber": {
                 "include_in_all": true,
                 "index": "not_analyzed",
                 "type": "string"
-            },
-            "passedAnalysis": {
-                "type": "boolean"
             },
             "processedBy": {
                 "include_in_all": false,
@@ -90,9 +45,6 @@
                 "include_in_all": true,
                 "index": "not_analyzed",
                 "type": "string"
-            },
-            "verticalLoadingPercent": {
-                "type": "long"
             }
         }
     }

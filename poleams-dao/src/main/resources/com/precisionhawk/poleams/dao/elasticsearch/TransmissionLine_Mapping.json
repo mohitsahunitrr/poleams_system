@@ -1,27 +1,17 @@
 {
-  "Feeder" : {
+  "TransmissionLine" : {
     "properties" : {
       "id" : {
         "include_in_all" : true,
         "index" : "not_analyzed",
         "type" : "string"
       },
+      "lineNumber" : {
+        "include_in_all" : true,
+        "index" : "not_analyzed",
+        "type" : "string"
+      },
       "name" : {
-        "include_in_all" : true,
-        "index" : "not_analyzed",
-        "type" : "string"
-      },
-      "feederNumber" : {
-        "include_in_all" : true,
-        "index" : "not_analyzed",
-        "type" : "string"
-      },
-      "hardeningLevel" : {
-        "include_in_all" : true,
-        "index" : "not_analyzed",
-        "type" : "string"
-      },
-      "windZone" : {
         "include_in_all" : true,
         "index" : "not_analyzed",
         "type" : "string"

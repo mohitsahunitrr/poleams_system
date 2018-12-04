@@ -131,6 +131,21 @@
         <property name="dataSource" ref="dataSource"/>
         <property name="transactionManager" ref="transactionManager"/>
     </bean>
+
+    <!-- MyBatis -->
+    <bean id="sqlSessionFactoryBean" class="us.pcsw.mybatis.support.SqlSessionFactoryBean">
+        <property name="configLocation"
+                  value="classpath:com/precisionhawk/ams/dao/mybatis/SqlMapConfig.xml"/>
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <bean id="sqlSessionFactory" factory-bean="sqlSessionFactoryBean" factory-method="getObject"/>
+    <bean id="sqlSession"  class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0"  ref="sqlSessionFactory"/>
+    </bean>
+        
+    <!-- DAOs -->
+    <bean id="securityDao" class="com.precisionhawk.ams.dao.rdbms.SecurityDaoImpl"/>
+    <bean id="translationsAndValidationsDao" class="com.precisionhawk.ams.dao.rdbms.TranslationsAndValidationsDaoImpl"/>
     
     <!-- Resource Repository -->    
     <bean
@@ -169,11 +184,11 @@
     />
     
     <!-- AMS Services -->
-    <bean id="AuthenticationWebService" class="com.precisionhawk.aws.webservices.impl.AuthenticationWebServiceImpl"/>
-    <bean id="InspectionEventResourceWebService" class="com.precisionhawk.aws.webservices.impl.InspectionEventResourceWebServiceImpl"/>
-    <bean id="InspectionEventWebService" class="com.precisionhawk.aws.webservices.impl.InspectionEventWebServiceImpl"/>
-    <bean id="OrganizationWebService" class="com.precisionhawk.aws.webservices.impl.OrganizationWebServiceImpl"/>
-    <bean id="WorkOrderWebService" class="com.precisionhawk.aws.webservices.impl.WorkOrderResourceWebServiceImpl"/>
+    <bean id="AuthenticationWebService" class="com.precisionhawk.ams.webservices.impl.AuthenticationWebServiceImpl"/>
+    <bean id="InspectionEventResourceWebService" class="com.precisionhawk.ams.webservices.impl.InspectionEventResourceWebServiceImpl"/>
+    <bean id="InspectionEventWebService" class="com.precisionhawk.ams.webservices.impl.InspectionEventWebServiceImpl"/>
+    <bean id="OrganizationWebService" class="com.precisionhawk.ams.webservices.impl.OrganizationWebServiceImpl"/>
+    <bean id="WorkOrderWebService" class="com.precisionhawk.ams.webservices.impl.WorkOrderWebServiceImpl"/>
     
     <!-- Scan for other components and controllers. -->
     <context:component-scan base-package="com.precisionhawk.ams.support.security"/>

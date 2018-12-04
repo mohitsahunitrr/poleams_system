@@ -1,5 +1,5 @@
 {
-    "FeederInspection": {
+    "TransmissionLineInspection": {
         "properties": {
             "id": {
                 "include_in_all": true,
@@ -33,10 +33,6 @@
             },
             "type": {
                 "include_in_all": true,
-                "index": "not_analyzed",
-                "type": "string"
-            },
-            "vegitationEncroachmentGoogleEarthURL": {
                 "index": "not_analyzed",
                 "type": "string"
             }
