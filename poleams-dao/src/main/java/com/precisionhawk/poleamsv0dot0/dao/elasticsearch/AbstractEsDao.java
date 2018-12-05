@@ -33,10 +33,24 @@ import us.pcsw.es.util.ESUtils;
  */
 public abstract class AbstractEsDao implements ElasticSearchConstants {
 
+    protected final Logger LOGGER;
+
     @Inject protected Client client;
     @Inject protected ElasticSearchConfig config;
     @Inject protected ObjectMapper mapper;
-    protected final Logger LOGGER;
+
+    public ElasticSearchConfig getConfig() {
+        return config;
+    }
+    public void setConfig(ElasticSearchConfig config) {
+        this.config = config;
+    }
+    public ObjectMapper getMapper() {
+        return mapper;
+    }
+    public void setMapper(ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
     
     protected AbstractEsDao() {
         LOGGER = LoggerFactory.getLogger(getClass());
@@ -46,8 +60,11 @@ public abstract class AbstractEsDao implements ElasticSearchConstants {
         return config.getBulkSize();
     }
     
-    protected Client getClient() {
+    public Client getClient() {
         return client;
+    }
+    public void setClient(Client client) {
+        this.client = client;
     }
     
     public long getScrollLifespan() {

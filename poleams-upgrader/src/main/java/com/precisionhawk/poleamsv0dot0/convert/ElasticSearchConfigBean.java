@@ -1,12 +1,13 @@
 package com.precisionhawk.poleamsv0dot0.convert;
 
-import com.precisionhawk.ams.support.elasticsearch.ElasticSearchConfig;
-
 /**
  *
  * @author pchapman
  */
-public class ElasticSearchConfigBean implements ElasticSearchConfig {
+public class ElasticSearchConfigBean implements
+    com.precisionhawk.ams.support.elasticsearch.ElasticSearchConfig,
+    com.precisionhawk.poleamsv0dot0.support.elasticsearch.ElasticSearchConfig
+{
 
     @Override
     public Integer getBulkSize() {
