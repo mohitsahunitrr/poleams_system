@@ -7,7 +7,7 @@
     <artifactId>poleams-core</artifactId>
     <packaging>pom</packaging>
     <name>PoleAMS - Core</name>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.0.0-SNAPSHOT</version>
 
     <organization>
         <name>Precision Hawk</name>

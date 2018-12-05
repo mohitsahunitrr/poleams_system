@@ -9,12 +9,12 @@
     <parent>
       <groupId>com.precisionhawk</groupId>
       <artifactId>poleams-core</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>0.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.precisionhawk</groupId>
     <artifactId>poleams-reporting</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.0.0-SNAPSHOT</version>
     <name>PoleAMS - Reporting</name>
     <packaging>jar</packaging>
 
