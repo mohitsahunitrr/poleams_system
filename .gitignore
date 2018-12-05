@@ -3,3 +3,4 @@ nbactions.xml
 .idea
 *.iml
 nb-configuration.xml
+*.versionsBackup

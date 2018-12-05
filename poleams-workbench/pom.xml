@@ -19,7 +19,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <main.class>com.precisionhawk.ams.wb.Main</main.class>
+        <main.class>com.precisionhawk.poleams.wb.Main</main.class>
     </properties>
 
     <dependencies>
