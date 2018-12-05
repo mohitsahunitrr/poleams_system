@@ -1,5 +1,7 @@
 package com.precisionhawk.poleamsv0dot0.convert;
 
+import com.precisionhawk.poleamsv0dot0.dao.DaoException;
+import com.precisionhawk.poleamsv0dot0.domain.SubStation;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -69,5 +71,22 @@ public class Main {
             System.err.println("Invalid or missing config for target ES cluster.");
             System.exit(1);
         }
+        SourceDAOs sourceDAOs = new SourceDAOs(sourceESConfig);
+        TargetDAOs targetDAOs = new TargetDAOs(targetESConfig);
+        
+        try {
+            for (SubStation ss : sourceDAOs.getSubStationDao().retrieveAll()) {
+                processFeeder(sourceDAOs, targetDAOs, ss);
+            }
+        } catch (DaoException ex) {
+            ex.printStackTrace(System.err);
+            System.exit(1);
+        }
+    }
+
+    private static void processFeeder(SourceDAOs sourceDAOs, TargetDAOs targetDAOs, SubStation ss)
+        throws DaoException
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
