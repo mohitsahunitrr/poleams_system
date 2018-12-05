@@ -1,4 +1,4 @@
-package com.precisionhawk.poleams.support.aws;
+package com.precisionhawk.poleamsv0dot0.support.aws;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;

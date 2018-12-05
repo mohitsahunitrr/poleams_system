@@ -1,4 +1,4 @@
-package com.precisionhawk.poleams.support.jackson;
+package com.precisionhawk.poleamsv0dot0.support.jackson;
 
 import java.io.IOException;
 import org.codehaus.jackson.JsonGenerator;

@@ -1,7 +1,7 @@
-package com.precisionhawk.poleams.dao;
+package com.precisionhawk.poleamsv0dot0.dao;
 
-import com.precisionhawk.poleams.bean.ResourceSearchParameters;
-import com.precisionhawk.poleams.domain.ResourceMetadata;
+import com.precisionhawk.poleamsv0dot0.bean.ResourceSearchParameters;
+import com.precisionhawk.poleamsv0dot0.domain.ResourceMetadata;
 import java.util.List;
 
 /**

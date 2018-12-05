@@ -1,4 +1,4 @@
-package com.precisionhawk.poleams.repository.s3;
+package com.precisionhawk.poleamsv0dot0.repository.s3;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.HttpMethod;
@@ -10,9 +10,9 @@ import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
-import com.precisionhawk.poleams.domain.ResourceMetadata;
-import com.precisionhawk.poleams.repository.RepositoryException;
-import com.precisionhawk.poleams.repository.ResourceRepository;
+import com.precisionhawk.poleamsv0dot0.domain.ResourceMetadata;
+import com.precisionhawk.poleamsv0dot0.repository.RepositoryException;
+import com.precisionhawk.poleamsv0dot0.repository.ResourceRepository;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

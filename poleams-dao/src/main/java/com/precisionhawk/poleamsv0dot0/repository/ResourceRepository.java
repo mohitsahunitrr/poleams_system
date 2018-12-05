@@ -1,6 +1,6 @@
-package com.precisionhawk.poleams.repository;
+package com.precisionhawk.poleamsv0dot0.repository;
 
-import com.precisionhawk.poleams.domain.ResourceMetadata;
+import com.precisionhawk.poleamsv0dot0.domain.ResourceMetadata;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.List;

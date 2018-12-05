@@ -2,10 +2,10 @@
  * All rights reserved.
  */
 
-package com.precisionhawk.poleams.util;
+package com.precisionhawk.poleamsv0dot0.util;
 
-import com.precisionhawk.poleams.bean.Dimension;
-import com.precisionhawk.poleams.bean.GeoPoint;
+import com.precisionhawk.poleamsv0dot0.bean.Dimension;
+import com.precisionhawk.poleamsv0dot0.bean.GeoPoint;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;

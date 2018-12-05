@@ -1,4 +1,4 @@
-package com.precisionhawk.poleams.bean;
+package com.precisionhawk.poleamsv0dot0.bean;
 
 import io.swagger.oas.annotations.media.Schema;
 import java.io.Serializable;

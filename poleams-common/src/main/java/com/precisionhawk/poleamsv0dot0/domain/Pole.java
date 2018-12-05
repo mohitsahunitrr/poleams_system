@@ -1,10 +1,10 @@
-package com.precisionhawk.poleams.domain;
+package com.precisionhawk.poleamsv0dot0.domain;
 
-import com.precisionhawk.poleams.bean.GeoPoint;
-import com.precisionhawk.poleams.domain.poledata.PoleAnchor;
-import com.precisionhawk.poleams.domain.poledata.PoleEquipment;
-import com.precisionhawk.poleams.domain.poledata.PoleLight;
-import com.precisionhawk.poleams.domain.poledata.PoleSpan;
+import com.precisionhawk.poleamsv0dot0.bean.GeoPoint;
+import com.precisionhawk.poleamsv0dot0.domain.poledata.PoleAnchor;
+import com.precisionhawk.poleamsv0dot0.domain.poledata.PoleEquipment;
+import com.precisionhawk.poleamsv0dot0.domain.poledata.PoleLight;
+import com.precisionhawk.poleamsv0dot0.domain.poledata.PoleSpan;
 import io.swagger.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.LinkedList;

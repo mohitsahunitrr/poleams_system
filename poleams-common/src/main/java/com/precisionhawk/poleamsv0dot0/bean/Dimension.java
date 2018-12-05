@@ -2,7 +2,7 @@
  * All rights reserved.
  */
 
-package com.precisionhawk.poleams.bean;
+package com.precisionhawk.poleamsv0dot0.bean;
 
 import java.io.Serializable;
 

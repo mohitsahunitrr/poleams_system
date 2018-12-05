@@ -1,10 +1,10 @@
-package com.precisionhawk.poleams.dao.elasticsearch;
+package com.precisionhawk.poleamsv0dot0.dao.elasticsearch;
 
-import com.precisionhawk.poleams.bean.PoleInspectionSearchParameters;
-import com.precisionhawk.poleams.dao.DaoException;
-import com.precisionhawk.poleams.dao.PoleInspectionDao;
-import com.precisionhawk.poleams.domain.PoleInspection;
-import static com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants.INDEX_NAME_POLEAMS;
+import com.precisionhawk.poleamsv0dot0.bean.PoleInspectionSearchParameters;
+import com.precisionhawk.poleamsv0dot0.dao.DaoException;
+import com.precisionhawk.poleamsv0dot0.dao.PoleInspectionDao;
+import com.precisionhawk.poleamsv0dot0.domain.PoleInspection;
+import static com.precisionhawk.poleamsv0dot0.support.elasticsearch.ElasticSearchConstants.INDEX_NAME_POLEAMS;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Named;

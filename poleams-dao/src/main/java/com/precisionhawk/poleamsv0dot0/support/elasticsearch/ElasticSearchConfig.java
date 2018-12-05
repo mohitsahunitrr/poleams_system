@@ -1,4 +1,4 @@
-package com.precisionhawk.poleams.support.elasticsearch;
+package com.precisionhawk.poleamsv0dot0.support.elasticsearch;
 
 /**
  * Implemented by a class that provides configuration for DAOs making use of

@@ -1,4 +1,4 @@
-package com.precisionhawk.poleams.domain;
+package com.precisionhawk.poleamsv0dot0.domain;
 
 import io.swagger.oas.annotations.media.Schema;
 

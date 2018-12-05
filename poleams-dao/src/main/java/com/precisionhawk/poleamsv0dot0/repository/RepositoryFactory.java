@@ -1,8 +1,8 @@
-package com.precisionhawk.poleams.repository;
+package com.precisionhawk.poleamsv0dot0.repository;
 
-import com.precisionhawk.poleams.repository.filesystem.FSResourceRepository;
-import com.precisionhawk.poleams.repository.s3.S3ResourceRepository;
-import com.precisionhawk.poleams.support.aws.S3ClientFactory;
+import com.precisionhawk.poleamsv0dot0.repository.filesystem.FSResourceRepository;
+import com.precisionhawk.poleamsv0dot0.repository.s3.S3ResourceRepository;
+import com.precisionhawk.poleamsv0dot0.support.aws.S3ClientFactory;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;

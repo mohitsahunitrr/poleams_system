@@ -1,6 +1,6 @@
-package com.precisionhawk.poleams.support.jackson;
+package com.precisionhawk.poleamsv0dot0.support.jackson;
 
-import com.precisionhawk.poleams.support.time.TimeFormattingConstants;
+import com.precisionhawk.poleamsv0dot0.support.time.TimeFormattingConstants;
 import java.io.IOException;
 import java.time.LocalDate;
 import org.codehaus.jackson.JsonParser;

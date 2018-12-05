@@ -2,7 +2,7 @@
  * All rights reserved.
  */
 
-package com.precisionhawk.poleams.domain;
+package com.precisionhawk.poleamsv0dot0.domain;
 
 /**
  *

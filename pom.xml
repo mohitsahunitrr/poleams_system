@@ -3,11 +3,11 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.precisionhawk</groupId>
+    <groupId>com.precisionhawk.v0dot0</groupId>
     <artifactId>poleams-core</artifactId>
     <packaging>pom</packaging>
     <name>PoleAMS - Core</name>
-    <version>0.0.0-SNAPSHOT</version>
+    <version>0.0.0-CONVERT</version>
 
     <organization>
         <name>Precision Hawk</name>
@@ -137,27 +137,7 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>poleams-conversion</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>poleams-dao</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>poleams-reporting</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>poleams-webapi</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>poleams-webapi-client</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -410,14 +390,7 @@
     </dependencyManagement>
     <modules>
         <module>poleams-common</module>
-        <module>poleams-conversion</module>
         <module>poleams-dao</module>
-        <module>poleams-processor</module>
-        <module>poleams-reporting</module>
-        <module>poleams-swagger</module>
-        <module>poleams-webapi</module>
-        <module>poleams-webapi-client</module>
-        <module>poleams-webapi-server</module>
-        <module>poleams-workbench</module>
+        <module>poleams-upgrader</module>
     </modules>
 </project>

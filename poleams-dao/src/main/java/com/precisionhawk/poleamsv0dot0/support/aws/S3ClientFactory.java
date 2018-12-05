@@ -1,4 +1,4 @@
-package com.precisionhawk.poleams.support.aws;
+package com.precisionhawk.poleamsv0dot0.support.aws;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;

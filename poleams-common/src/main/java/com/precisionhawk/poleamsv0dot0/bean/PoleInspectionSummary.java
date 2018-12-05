@@ -1,6 +1,6 @@
-package com.precisionhawk.poleams.bean;
+package com.precisionhawk.poleamsv0dot0.bean;
 
-import com.precisionhawk.poleams.domain.PoleInspection;
+import com.precisionhawk.poleamsv0dot0.domain.PoleInspection;
 import io.swagger.oas.annotations.media.Schema;
 import java.util.LinkedList;
 import java.util.List;

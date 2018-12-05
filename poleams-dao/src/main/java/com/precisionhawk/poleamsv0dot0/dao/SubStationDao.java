@@ -1,7 +1,7 @@
-package com.precisionhawk.poleams.dao;
+package com.precisionhawk.poleamsv0dot0.dao;
 
-import com.precisionhawk.poleams.bean.SubStationSearchParameters;
-import com.precisionhawk.poleams.domain.SubStation;
+import com.precisionhawk.poleamsv0dot0.bean.SubStationSearchParameters;
+import com.precisionhawk.poleamsv0dot0.domain.SubStation;
 import java.util.List;
 
 /**

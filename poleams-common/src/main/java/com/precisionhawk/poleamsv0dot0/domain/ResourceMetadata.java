@@ -1,7 +1,7 @@
-package com.precisionhawk.poleams.domain;
+package com.precisionhawk.poleamsv0dot0.domain;
 
-import com.precisionhawk.poleams.bean.Dimension;
-import com.precisionhawk.poleams.bean.GeoPoint;
+import com.precisionhawk.poleamsv0dot0.bean.Dimension;
+import com.precisionhawk.poleamsv0dot0.bean.GeoPoint;
 import io.swagger.oas.annotations.media.Schema;
 import java.time.ZonedDateTime;
 

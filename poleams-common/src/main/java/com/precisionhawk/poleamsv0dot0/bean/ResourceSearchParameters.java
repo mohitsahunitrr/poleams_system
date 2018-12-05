@@ -2,10 +2,10 @@
  * All rights reserved.
  */
 
-package com.precisionhawk.poleams.bean;
+package com.precisionhawk.poleamsv0dot0.bean;
 
-import com.precisionhawk.poleams.domain.ResourceStatus;
-import com.precisionhawk.poleams.domain.ResourceType;
+import com.precisionhawk.poleamsv0dot0.domain.ResourceStatus;
+import com.precisionhawk.poleamsv0dot0.domain.ResourceType;
 import io.swagger.oas.annotations.media.Schema;
 
 /**

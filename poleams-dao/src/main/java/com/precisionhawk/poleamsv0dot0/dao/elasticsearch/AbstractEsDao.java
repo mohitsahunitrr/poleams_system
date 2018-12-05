@@ -1,8 +1,8 @@
-package com.precisionhawk.poleams.dao.elasticsearch;
+package com.precisionhawk.poleamsv0dot0.dao.elasticsearch;
 
-import com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConfig;
-import com.precisionhawk.poleams.dao.DaoException;
-import com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants;
+import com.precisionhawk.poleamsv0dot0.support.elasticsearch.ElasticSearchConfig;
+import com.precisionhawk.poleamsv0dot0.dao.DaoException;
+import com.precisionhawk.poleamsv0dot0.support.elasticsearch.ElasticSearchConstants;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;

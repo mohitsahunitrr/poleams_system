@@ -2,7 +2,7 @@
  * All rights reserved.
  */
 
-package com.precisionhawk.poleams.support.jackson;
+package com.precisionhawk.poleamsv0dot0.support.jackson;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

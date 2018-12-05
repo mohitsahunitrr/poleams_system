@@ -1,8 +1,8 @@
-package com.precisionhawk.poleams.repository.filesystem;
+package com.precisionhawk.poleamsv0dot0.repository.filesystem;
 
-import com.precisionhawk.poleams.domain.ResourceMetadata;
-import com.precisionhawk.poleams.repository.RepositoryException;
-import com.precisionhawk.poleams.repository.ResourceRepository;
+import com.precisionhawk.poleamsv0dot0.domain.ResourceMetadata;
+import com.precisionhawk.poleamsv0dot0.repository.RepositoryException;
+import com.precisionhawk.poleamsv0dot0.repository.ResourceRepository;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
