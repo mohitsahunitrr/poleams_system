@@ -3,7 +3,6 @@ package com.precisionhawk.poleams.processors.poleinspection;
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.bean.GeoPoint;
 import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
-import com.precisionhawk.ams.bean.WorkOrderSearchParams;
 import com.precisionhawk.ams.domain.AssetType;
 import com.precisionhawk.ams.domain.WorkOrder;
 import com.precisionhawk.poleams.bean.PoleSearchParams;
@@ -143,6 +142,17 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
                 data.setWorkOrder(wo);
                 data.getDomainObjectIsNew().put(wo.getOrderNumber(), true);
             } else {
+                boolean found = false;
+                for (String id : data.getWorkOrder().getSiteIds()) {
+                    if (data.getFeeder().getId().equals(id)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    // Add this site to those for the work order.
+                    data.getWorkOrder().getSiteIds().add(data.getFeeder().getId());
+                }
                 data.getDomainObjectIsNew().put(data.getWorkOrder().getOrderNumber(), false);
             }
             
