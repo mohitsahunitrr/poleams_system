@@ -200,12 +200,38 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                             System.err.printf("No work order found for order number %s\n", orderNum);
                             return true;
                         }
+                        if (workOrder.getSiteIds().isEmpty()) {
+                            System.err.printf("The work order %s has no feeders related to it.\n", orderNum);
+                            return true;
+                        }
                         if (feeder == null) {
-                            feeder = env.obtainWebService(FeederWebService.class).retrieve(env.obtainAccessToken(), workOrder.getSiteId());
+                            if (workOrder.getSiteIds().size() == 1) {
+                                feederId = workOrder.getSiteIds().get(0);
+                                feeder = env.obtainWebService(FeederWebService.class).retrieve(env.obtainAccessToken(), feederId);
+                                if (feeder == null) {
+                                    System.err.printf("No feeder %s found\n", feederId);
+                                    return true;
+                                }
+                            } else {
+                                System.err.printf("There are multiple feeders associated with work order %s.  No idea which one to assign the resource to.\n", orderNum);
+                                return true;
+                            }
+                        } else {
+                            boolean found = false;
+                            for (String id : workOrder.getSiteIds()) {
+                                if (feeder.getId().equals(id)) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                System.err.printf("The work order %s is not related to the feeder %s.\n", orderNum, feeder.getFeederNumber());
+                                return true;
+                            }
                         }
                         SiteInspectionSearchParams params = new SiteInspectionSearchParams();
                         params.setOrderNumber(orderNum);
-                        params.setSiteId(workOrder.getSiteId());
+                        params.setSiteId(feeder.getId());
                         List<FeederInspection> list = env.obtainWebService(FeederInspectionWebService.class).search(env.obtainAccessToken(), params);
                         feederInspection = CollectionsUtilities.firstItemIn(list);
                     }
@@ -306,7 +332,7 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
 
                 if (ImageUtilities.ImageType.fromContentType(rmeta.getContentType()) != null) {
                     ImageInfo info = Imaging.getImageInfo(f);
-                    TiffImageMetadata exif = null;
+                    TiffImageMetadata exif;
                     ImageMetadata metadata = Imaging.getMetadata(f);
                     if (metadata instanceof JpegImageMetadata) {
                         exif = ((JpegImageMetadata)metadata).getExif();

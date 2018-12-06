@@ -150,6 +150,11 @@
                 <artifactId>poleams-webapi</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>poleams-webapi-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <modules>
@@ -160,6 +165,7 @@
         <module>poleams-reporting</module>
         <module>poleams-swagger</module>
         <module>poleams-webapi</module>
+        <module>poleams-webapi-client</module>
         <module>poleams-webapi-server</module>
         <module>poleams-workbench</module>
     </modules>

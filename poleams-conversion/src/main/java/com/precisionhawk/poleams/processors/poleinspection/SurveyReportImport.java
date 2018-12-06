@@ -3,7 +3,9 @@ package com.precisionhawk.poleams.processors.poleinspection;
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.bean.GeoPoint;
 import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
+import com.precisionhawk.ams.bean.WorkOrderSearchParams;
 import com.precisionhawk.ams.domain.AssetType;
+import com.precisionhawk.ams.domain.WorkOrder;
 import com.precisionhawk.poleams.bean.PoleSearchParams;
 import com.precisionhawk.poleams.bean.FeederSearchParams;
 import com.precisionhawk.poleams.domain.Pole;
@@ -11,10 +13,13 @@ import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.Feeder;
 import static com.precisionhawk.poleams.support.poi.ExcelUtilities.*;
 import com.precisionhawk.ams.util.CollectionsUtilities;
+import com.precisionhawk.ams.webservices.WorkOrderWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.poleams.domain.FeederInspection;
+import com.precisionhawk.poleams.domain.WorkOrderStatuses;
+import com.precisionhawk.poleams.domain.WorkOrderTypes;
 import com.precisionhawk.poleams.webservices.FeederInspectionWebService;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -57,7 +62,7 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
         data.setFeederInspection(CollectionsUtilities.firstItemIn(env.obtainWebService(FeederInspectionWebService.class).search(env.obtainAccessToken(), params)));
         
     }
-    
+
     // No state data
     private SurveyReportImport() {} 
 
@@ -127,6 +132,20 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
             } else {
                 data.getDomainObjectIsNew().put(data.getFeeder().getId(), false);
             }
+            
+            data.setWorkOrder(env.obtainWebService(WorkOrderWebService.class).retrieveById(env.obtainAccessToken(), data.getOrderNumber()));
+            if (data.getWorkOrder() == null) {
+                WorkOrder wo = new WorkOrder();
+                wo.setOrderNumber(data.getOrderNumber());
+                wo.getSiteIds().add(data.getFeeder().getId());
+                wo.setStatus(WorkOrderStatuses.Requested);
+                wo.setType(WorkOrderTypes.DistributionLineInspection);
+                data.setWorkOrder(wo);
+                data.getDomainObjectIsNew().put(wo.getOrderNumber(), true);
+            } else {
+                data.getDomainObjectIsNew().put(data.getWorkOrder().getOrderNumber(), false);
+            }
+            
             lookupFeederInspection(env, data);
             if (data.getFeederInspection() == null) {
                 FeederInspection fi = new FeederInspection();

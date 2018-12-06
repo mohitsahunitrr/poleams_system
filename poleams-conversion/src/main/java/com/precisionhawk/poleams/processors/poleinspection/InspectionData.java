@@ -3,6 +3,7 @@ package com.precisionhawk.poleams.processors.poleinspection;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.ams.domain.WorkOrder;
 import com.precisionhawk.poleams.domain.Feeder;
 import com.precisionhawk.poleams.domain.FeederInspection;
 import java.io.File;
@@ -102,5 +103,13 @@ public class InspectionData {
     }
     public void setOrderNumber(String orderNumber) {
         this.orderNumber = orderNumber;
+    }
+    
+    private WorkOrder workOrder;
+    public WorkOrder getWorkOrder() {
+        return workOrder;
+    }
+    public void setWorkOrder(WorkOrder workOrder) {
+        this.workOrder = workOrder;
     }
 }

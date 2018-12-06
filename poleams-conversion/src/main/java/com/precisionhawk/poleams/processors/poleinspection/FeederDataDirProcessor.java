@@ -13,6 +13,7 @@ import com.precisionhawk.ams.util.ContentTypeUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.ams.webservices.ResourceWebService;
+import com.precisionhawk.ams.webservices.WorkOrderWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.domain.FeederInspection;
 import com.precisionhawk.poleams.webservices.FeederInspectionWebService;
@@ -207,6 +208,18 @@ public final class FeederDataDirProcessor implements Constants {
                 } else {
                     sssvc.update(env.obtainAccessToken(), data.getFeeder());
                     listener.reportMessage(String.format("Updated feeder %s", data.getFeeder().getFeederNumber()));
+                }
+            }
+            
+            // Save Work Order
+            if (data.getWorkOrder() != null) {
+                WorkOrderWebService svc = env.obtainWebService(WorkOrderWebService.class);
+                if (data.getDomainObjectIsNew().get(data.getWorkOrder().getOrderNumber())) {
+                    svc.create(env.obtainAccessToken(), data.getWorkOrder());
+                    listener.reportMessage(String.format("Inserted new work order %s", data.getWorkOrder().getOrderNumber()));
+                } else {
+                    svc.update(env.obtainAccessToken(), data.getWorkOrder());
+                    listener.reportMessage(String.format("Updated work order %s", data.getWorkOrder().getOrderNumber()));
                 }
             }
             
