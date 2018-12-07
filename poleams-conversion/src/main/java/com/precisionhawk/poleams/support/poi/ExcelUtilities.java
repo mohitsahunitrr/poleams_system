@@ -1,5 +1,6 @@
 package com.precisionhawk.poleams.support.poi;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -13,6 +14,8 @@ import org.apache.poi.ss.usermodel.Sheet;
  * @author pchapman
  */
 public class ExcelUtilities {
+    
+    private static final DecimalFormat LONG_INT = new DecimalFormat("########0");    
     
     public static Boolean getCellDataAsBoolean(Row row, int col) {
         Cell cell = row.getCell(col);
@@ -43,6 +46,28 @@ public class ExcelUtilities {
             } catch (NumberFormatException ex) {
                 throw new IllegalArgumentException(String.format("The value %s in row %d, column %d cannot be parsed as a numeric value.", value, row.getRowNum(), col));
             }
+        }
+    }
+    
+    public static String getCellDataAsId(Row row, int col) {
+        Cell cell = row.getCell(col);
+        if (cell == null) {
+            return null;
+        } else {
+            Object value = null;
+            CellType ctype = cell.getCellType();
+            switch (ctype) {
+                case BOOLEAN:
+                    value = cell.getBooleanCellValue();
+                    break;
+                case FORMULA:
+                case NUMERIC:
+                    Double d = cell.getNumericCellValue();
+                    return d == null ? null : LONG_INT.format(d);
+                case STRING:
+                    value = cell.getStringCellValue();
+            }
+            return value == null ? null : String.valueOf(value);
         }
     }
     
@@ -136,7 +161,7 @@ public class ExcelUtilities {
         }
     }
     
-    private static Date getCellDataAsDate(Row row, int col) {
+    public static Date getCellDataAsDate(Row row, int col) {
         Cell cell = row.getCell(col);
         if (cell == null) {
             return null;
@@ -210,6 +235,9 @@ public class ExcelUtilities {
     }
     
     public static String getCellDataAsString(Row row, int col) {
+        if (row == null) {
+            return null;
+        }
         Cell cell = row.getCell(col);
         if (cell == null) {
             return null;

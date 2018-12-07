@@ -10,4 +10,13 @@ import io.swagger.oas.annotations.media.Schema;
 @Schema(description="An inspection of a transmission structure.")
 public class TransmissionStructureInspection extends AssetInspection {
     
+    @Schema(description="The reason a structure was not inspected.")
+    private String reasonNotInspected;
+    public String getReasonNotInspected() {
+        return reasonNotInspected;
+    }
+    public void setReasonNotInspected(String reasonNotInspected) {
+        this.reasonNotInspected = reasonNotInspected;
+    }
+    
 }

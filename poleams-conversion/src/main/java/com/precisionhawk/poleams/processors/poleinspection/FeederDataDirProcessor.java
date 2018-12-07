@@ -1,5 +1,7 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
+import com.precisionhawk.poleams.processors.ResourceDataUploader;
+import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.poleams.bean.FeederInspectionSummary;
 import com.precisionhawk.poleams.domain.Pole;
@@ -112,12 +114,13 @@ public final class FeederDataDirProcessor implements Constants {
     // no state
     private FeederDataDirProcessor() {};
 
-    public static boolean process(Environment env, ImportProcessListener listener, File feederDir, String orderNumber) {
+    public static boolean process(Environment env, ImportProcessListener listener, File feederDir, String orgId, String orderNumber) {
         
         boolean success;
         listener.setStatus(ImportProcessStatus.Initializing);
         InspectionData data = new InspectionData();
         data.setOrderNumber(orderNumber);
+        data.setOrganizationId(orgId);
         
         // There should be an excel file for all poles.
         File mstDir = new File(feederDir, MASTER_SURVEY_TEMPL_DIR);

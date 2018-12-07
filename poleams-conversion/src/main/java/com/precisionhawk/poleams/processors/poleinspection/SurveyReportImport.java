@@ -1,5 +1,6 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
+import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.bean.GeoPoint;
 import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
@@ -19,16 +20,13 @@ import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.poleams.domain.FeederInspection;
 import com.precisionhawk.poleams.domain.WorkOrderStatuses;
 import com.precisionhawk.poleams.domain.WorkOrderTypes;
+import com.precisionhawk.poleams.processors.FilenameFilters;
 import com.precisionhawk.poleams.webservices.FeederInspectionWebService;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.UUID;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -46,13 +44,6 @@ import java.time.LocalDate;
 final class SurveyReportImport implements Constants, SurveyReportConstants {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(SurveyReportImport.class);
-    
-    private static final FilenameFilter EXCEL_SPREADSHEET_FILTER = new FilenameFilter() {
-        @Override
-        public boolean accept(File dir, String name) {
-            return name.endsWith(".xlsx");
-        }
-    };
 
     private static void lookupFeederInspection(Environment env, InspectionData data) throws IOException {
         SiteInspectionSearchParams params = new SiteInspectionSearchParams();
@@ -66,8 +57,7 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
     private SurveyReportImport() {} 
 
     private static File findMasterSurveyTemplate(ImportProcessListener listener, File feederDir) {
-        File[] files = feederDir.listFiles(EXCEL_SPREADSHEET_FILTER);
-        File excelFile = null;
+        File[] files = feederDir.listFiles(FilenameFilters.EXCEL_SPREADSHEET_FILTER);
         if (files.length > 1) {
             listener.reportFatalError(String.format("Multiple excel files exist in directory \"%s\"", feederDir));
             return null;
@@ -124,7 +114,7 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
                 f.setHardeningLevel(getCellDataAsString(row, FEEDER_HARDENING_LVL.x));
                 f.setFeederNumber(feederId);
                 f.setName(subStationName);
-                f.setOrganizationId(ORG_ID);
+                f.setOrganizationId(data.getOrganizationId());
                 f.setWindZone(StringUtil.getNullableString(getCellDataAsInteger(row, FEEDER_WIND_ZONE.x)));
                 data.setFeeder(f);
                 data.getDomainObjectIsNew().put(f.getId(), true);
@@ -264,30 +254,6 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
             inspection.setLatLongDelta(getCellDataAsDouble(row, COL_LAT_LONG_DELTA));
             
             return true;
-        }
-    }
-    
-    private static final DecimalFormat LONG_INT = new DecimalFormat("########0");
-    
-    public static String getCellDataAsId(Row row, int col) {
-        Cell cell = row.getCell(col);
-        if (cell == null) {
-            return null;
-        } else {
-            Object value = null;
-            CellType ctype = cell.getCellType();
-            switch (ctype) {
-                case BOOLEAN:
-                    value = cell.getBooleanCellValue();
-                    break;
-                case FORMULA:
-                case NUMERIC:
-                    Double d = cell.getNumericCellValue();
-                    return d == null ? null : LONG_INT.format(d);
-                case STRING:
-                    value = cell.getStringCellValue();
-            }
-            return value == null ? null : String.valueOf(value);
         }
     }
     

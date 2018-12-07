@@ -1,5 +1,6 @@
 package com.precisionhawk.poleams.webservices.impl;
 
+import com.precisionhawk.ams.bean.security.ServicesSessionBean;
 import com.precisionhawk.ams.webservices.impl.AbstractWebService;
 import com.precisionhawk.poleams.bean.FeederSearchParams;
 import com.precisionhawk.ams.dao.DaoException;
@@ -27,12 +28,14 @@ public class FeederWebServiceImpl extends AbstractWebService implements FeederWe
     
     @Override
     public Feeder create(String authToken, Feeder substation) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(substation, "The feeder is required.");
         if (substation.getId() == null) {
             substation.setId(UUID.randomUUID().toString());
         }
         try {
             if (substationDao.insert(substation)) {
+                securityService.addSiteToCredentials(sess, substation);
                 return substation;
             } else {
                 throw new BadRequestException(String.format("The feeder %s already exists.", substation.getId()));

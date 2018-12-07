@@ -1,4 +1,4 @@
-package com.precisionhawk.poleams.processors.poleinspection;
+package com.precisionhawk.poleams.processors;
 
 import com.precisionhawk.ams.bean.ImageScaleRequest;
 import com.precisionhawk.ams.domain.ResourceMetadata;
@@ -36,7 +36,7 @@ public final class ResourceDataUploader {
     }
     
     public static void uploadResources(
-        Environment env, ProcessListener listener, InspectionData inspdata, Collection<ResourceMetadata> metadata, Map<String, File> data, int retryCount
+        Environment env, ProcessListener listener, InspectionDataInterface inspdata, Collection<ResourceMetadata> metadata, Map<String, File> data, int retryCount
     )
     {
         Map<String, ResourceMetadata> map = new HashMap<>();
@@ -47,7 +47,7 @@ public final class ResourceDataUploader {
     }
     
     private static void _uploadResources(
-        Environment env, ProcessListener listener, InspectionData inspdata, Map<String, ResourceMetadata> metadata, Map<String, File> data, int retryCount
+        Environment env, ProcessListener listener, InspectionDataInterface inspdata, Map<String, ResourceMetadata> metadata, Map<String, File> data, int retryCount
     )
     {
         Boolean b;

@@ -7,6 +7,7 @@ import com.precisionhawk.poleams.wb.process.FeederDataImportProcess;
 import com.precisionhawk.poleams.wb.process.PopulateEncroachmentGoogleEarthURL;
 import com.precisionhawk.poleams.wb.process.PopulateMasterSurveyProcess;
 import com.precisionhawk.poleams.wb.process.ResourceUploadProcess;
+import com.precisionhawk.poleams.wb.process.TransmissionLineInspectionImportProcess;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class WorkbenchConfigBean implements WorkbenchConfig {
         COMMANDS.add(new PopulateEncroachmentGoogleEarthURL());
         COMMANDS.add(new PopulateMasterSurveyProcess());
         COMMANDS.add(new ResourceUploadProcess());
+        COMMANDS.add(new TransmissionLineInspectionImportProcess());
     };
     
     @Override

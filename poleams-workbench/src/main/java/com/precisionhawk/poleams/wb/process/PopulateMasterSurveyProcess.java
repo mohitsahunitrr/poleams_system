@@ -3,7 +3,7 @@ package com.precisionhawk.poleams.wb.process;
 import com.precisionhawk.ams.wb.process.ServiceClientCommandProcess;
 import com.precisionhawk.poleams.domain.ResourceTypes;
 import com.precisionhawk.poleams.processors.poleinspection.SurveyReportGenerator;
-import com.precisionhawk.poleams.processors.poleinspection.ProcessListener;
+import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.poleams.processors.poleinspection.ImportProcessStatus;
 import com.precisionhawk.ams.webservices.client.Environment;
 import java.io.File;

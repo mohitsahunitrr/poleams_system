@@ -1,11 +1,11 @@
-package com.precisionhawk.poleams.processors.poleinspection;
+package com.precisionhawk.poleams.processors.translineinspection;
 
-import com.precisionhawk.poleams.domain.Pole;
-import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.ams.domain.ResourceMetadata;
 import com.precisionhawk.ams.domain.WorkOrder;
-import com.precisionhawk.poleams.domain.Feeder;
-import com.precisionhawk.poleams.domain.FeederInspection;
+import com.precisionhawk.poleams.domain.TransmissionLine;
+import com.precisionhawk.poleams.domain.TransmissionLineInspection;
+import com.precisionhawk.poleams.domain.TransmissionStructure;
+import com.precisionhawk.poleams.domain.TransmissionStructureInspection;
 import com.precisionhawk.poleams.processors.InspectionDataInterface;
 import java.io.File;
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import java.util.Map;
 
 /**
  *
- * @author Philip A. Chapman
+ * @author pchapman
  */
 public class InspectionData implements InspectionDataInterface {
     
@@ -25,30 +25,14 @@ public class InspectionData implements InspectionDataInterface {
         return domainDataIsNew;
     }
 
-    private File masterDataFile;
-    public File getMasterDataFile() {
-        return masterDataFile;
-    }
-    public void setMasterDataFile(File masterDataFile) {
-        this.masterDataFile = masterDataFile;
+    private final Map<String, TransmissionStructure> structureData = new HashMap<>();
+    public Map<String, TransmissionStructure> getStructureDataByStructureNum() {
+        return structureData;
     }
     
-    private String organizationId;
-    public String getOrganizationId() {
-        return organizationId;
-    }
-    public void setOrganizationId(String organizationId) {
-        this.organizationId = organizationId;
-    }
-
-    private final Map<String, Pole> poleData = new HashMap<>();
-    public Map<String, Pole> getPoleDataByFPLId() {
-        return poleData;
-    }
-    
-    private final Map<String, PoleInspection> poleInspectionsByFPLId = new HashMap<>();
-    public Map<String, PoleInspection> getPoleInspectionsByFPLId() {
-        return poleInspectionsByFPLId;
+    private final Map<String, TransmissionStructureInspection> structureInspectionsByStructureNum = new HashMap<>();
+    public Map<String, TransmissionStructureInspection> getStructureInspectionsByStructureNum() {
+        return structureInspectionsByStructureNum;
     }
 
     private final Map<String, List<ResourceMetadata>> poleResources = new HashMap<>();
@@ -61,20 +45,20 @@ public class InspectionData implements InspectionDataInterface {
         return resourceDataFiles;
     }
 
-    private Feeder feeder;
-    public Feeder getFeeder() {
-        return feeder;
+    private TransmissionLine line;
+    public TransmissionLine getLine() {
+        return line;
     }
-    public void setFeeder(Feeder feeder) {
-        this.feeder = feeder;
+    public void setLine(TransmissionLine line) {
+        this.line = line;
     }
     
-    private FeederInspection feederInspection;
-    public FeederInspection getFeederInspection() {
-        return feederInspection;
+    private TransmissionLineInspection lineInspection;
+    public TransmissionLineInspection getLineInspection() {
+        return lineInspection;
     }
-    public void setFeederInspection(FeederInspection feederInspection) {
-        this.feederInspection = feederInspection;
+    public void setLineInspection(TransmissionLineInspection lineInspection) {
+        this.lineInspection = lineInspection;
     }
 
     private final List<ResourceMetadata> feederResources = new ArrayList<>();
@@ -82,13 +66,13 @@ public class InspectionData implements InspectionDataInterface {
         return feederResources;
     }
     
-    public void addPole(Pole pole, boolean isNew) {
-        poleData.put(pole.getUtilityId(), pole);
-        domainDataIsNew.put(pole.getId(), isNew);
+    public void addTransmissionStruture(TransmissionStructure struct, boolean isNew) {
+        structureData.put(struct.getStructureNumber(), struct);
+        domainDataIsNew.put(struct.getId(), isNew);
     }
     
-    public void addPoleInspection(Pole pole, PoleInspection inspection, boolean isNew) {
-        poleInspectionsByFPLId.put(pole.getUtilityId(), inspection);
+    public void addTransmissionStructureInspection(TransmissionStructure struct, TransmissionStructureInspection inspection, boolean isNew) {
+        structureInspectionsByStructureNum.put(struct.getStructureNumber(), inspection);
         domainDataIsNew.put(inspection.getId(), isNew);
     }
     
@@ -113,6 +97,14 @@ public class InspectionData implements InspectionDataInterface {
     }
     public void setOrderNumber(String orderNumber) {
         this.orderNumber = orderNumber;
+    }
+    
+    private String organizationId;
+    public String getOrganizationId() {
+        return organizationId;
+    }
+    public void setOrganizationId(String organizationId) {
+        this.organizationId = organizationId;
     }
     
     private WorkOrder workOrder;

@@ -1,23 +1,22 @@
 package com.precisionhawk.poleams.wb.process;
 
 import com.precisionhawk.ams.wb.process.ServiceClientCommandProcess;
-import com.precisionhawk.poleams.processors.poleinspection.FeederDataDirProcessor;
-import com.precisionhawk.poleams.processors.poleinspection.ImportProcessListener;
-import com.precisionhawk.poleams.processors.poleinspection.ImportProcessStatus;
 import com.precisionhawk.ams.webservices.client.Environment;
+import com.precisionhawk.poleams.processors.ProcessListener;
+import com.precisionhawk.poleams.processors.translineinspection.TransmissionLineInspectionImport;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.Queue;
 
 /**
  *
- * @author Philip A. Chapman
+ * @author pchapman
  */
-public class FeederDataImportProcess extends ServiceClientCommandProcess {
+public class TransmissionLineInspectionImportProcess extends ServiceClientCommandProcess {
     
     private static final String ARG_ORDER_NUM = "-orderNum";
     private static final String ARG_ORG_ID = "-orgId";
-    private static final String COMMAND = "importFeederInspection";
+    private static final String COMMAND = "importLineInspection";
     private static final String HELP = "\t" + COMMAND + " " + ARGS_FOR_HELP + " " + ARG_ORDER_NUM + " WorkOrderNumber " + ARG_ORG_ID + " organizationId path/to/inspection/data/dir";
     
     private String dirPath;
@@ -50,14 +49,10 @@ public class FeederDataImportProcess extends ServiceClientCommandProcess {
 
     @Override
     protected boolean execute(Environment env) {
-        if (dirPath == null || orderNumber == null) {
+        if (dirPath == null || orderNumber == null || orgId == null) {
             return false;
         }
-        ImportProcessListener listener = new ImportProcessListener() {
-            @Override
-            public void setStatus(ImportProcessStatus processStatus) {
-                System.out.printf("Status: %s\n", processStatus);
-            }
+        ProcessListener listener = new ProcessListener() {
             @Override
             public void reportFatalError(String message) {
                 System.err.println(message);
@@ -85,8 +80,7 @@ public class FeederDataImportProcess extends ServiceClientCommandProcess {
                 t.printStackTrace(System.err);
             }
         };
-        boolean success = FeederDataDirProcessor.process(env, listener, new File(dirPath), orgId, orderNumber);
-        System.out.printf("Import finished with %s\n", (success ? "success" : "errors"));
+        new TransmissionLineInspectionImport().process(env, listener, orgId, orderNumber, new File(dirPath));
         return true;
     }
 

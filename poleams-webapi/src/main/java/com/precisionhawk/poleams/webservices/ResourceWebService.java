@@ -5,14 +5,20 @@ import com.precisionhawk.poleams.bean.ResourceSummary;
 import io.swagger.oas.annotations.Operation;
 import io.swagger.oas.annotations.Parameter;
 import java.util.List;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 /**
  *
  * @author pchapman
  */
+@Path("/resource")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public interface ResourceWebService extends com.precisionhawk.ams.webservices.ResourceWebService
 {
     @POST

@@ -38,6 +38,7 @@ public class TransmissionLineWebServiceImpl extends AbstractWebService implement
             if (!dao.insert(line)) {
                 throw new BadRequestException(String.format("A transmission line with the ID %s already exists.", line.getId()));
             }
+            securityService.addSiteToCredentials(sess, line);
             return line;
         } catch (DaoException ex) {
             throw new InternalServerErrorException("Error storing the transmission line data.", ex);

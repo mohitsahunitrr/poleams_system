@@ -26,7 +26,7 @@
         </dependency>
         <dependency>
             <groupId>com.precisionhawk</groupId>
-            <artifactId>ams-webapi-client</artifactId>
+            <artifactId>poleams-webapi-client</artifactId>
         </dependency>
 
         <dependency>

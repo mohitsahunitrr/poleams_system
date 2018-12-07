@@ -1,5 +1,6 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
+import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
 import com.precisionhawk.poleams.bean.PoleInspectionSummary;
@@ -11,7 +12,6 @@ import com.precisionhawk.poleams.domain.Feeder;
 import com.precisionhawk.poleams.domain.poledata.CommunicationsCable;
 import com.precisionhawk.poleams.domain.poledata.PoleAnchor;
 import static com.precisionhawk.poleams.processors.poleinspection.SurveyReportConstants.COL_FPL_ID;
-import static com.precisionhawk.poleams.processors.poleinspection.SurveyReportImport.getCellDataAsId;
 import static com.precisionhawk.poleams.support.poi.ExcelUtilities.*;
 import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.ams.webservices.client.Environment;
