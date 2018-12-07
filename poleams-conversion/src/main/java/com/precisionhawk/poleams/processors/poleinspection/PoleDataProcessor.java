@@ -1,15 +1,16 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
-import com.precisionhawk.poleams.bean.PoleSearchParameters;
-import com.precisionhawk.poleams.bean.ResourceSearchParameters;
+import com.precisionhawk.poleams.processors.ProcessListener;
+import com.precisionhawk.poleams.bean.PoleSearchParams;
+import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.poleams.domain.Pole;
-import com.precisionhawk.poleams.domain.ResourceMetadata;
-import com.precisionhawk.poleams.domain.ResourceStatus;
-import com.precisionhawk.poleams.domain.ResourceType;
-import com.precisionhawk.poleams.util.CollectionsUtilities;
+import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.ams.domain.ResourceStatus;
+import com.precisionhawk.poleams.domain.ResourceTypes;
+import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.poleams.webservices.PoleWebService;
-import com.precisionhawk.poleams.webservices.ResourceWebService;
-import com.precisionhawk.poleams.webservices.client.Environment;
+import com.precisionhawk.ams.webservices.ResourceWebService;
+import com.precisionhawk.ams.webservices.client.Environment;
 import java.io.File;
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -54,23 +55,23 @@ final class PoleDataProcessor {
     static boolean processPoleForemanOutput(Environment env, ProcessListener listener, InspectionData data, File dir) {
         ResourceWebService rsvc = env.obtainWebService(ResourceWebService.class);
         Pole p;
-        ResourceSearchParameters params;
+        ResourceSearchParams params;
         ResourceMetadata rmeta;
         for (File f : dir.listFiles()) {
             p = poleForPoleForemanOutFile(env, listener, data, f);
             if (p != null) {
                 try {
                     String fname = f.getName().toUpperCase();
-                    params = new ResourceSearchParameters();
-                    params.setPoleId(p.getId());
-                    params.setPoleInspectionId(data.getPoleInspectionsByFPLId().get(p.getFPLId()).getId());
+                    params = new ResourceSearchParams();
+                    params.setAssetId(p.getId());
+                    params.setAssetInspectionId(data.getPoleInspectionsByFPLId().get(p.getUtilityId()).getId());
                     if (fname.endsWith("_250C.XML")) {
                         // We have the PoleForeman data file.
-                        PoleForemanXMLProcessor.process(listener, p, data.getPoleInspectionsByFPLId().get(p.getFPLId()), f);
-                        params = new ResourceSearchParameters();
-                        params.setPoleId(p.getId());
-                        params.setPoleInspectionId(data.getPoleInspectionsByFPLId().get(p.getFPLId()).getId());
-                        params.setType(ResourceType.PoleInspectionAnalysisXML);
+                        PoleForemanXMLProcessor.process(listener, p, data.getPoleInspectionsByFPLId().get(p.getUtilityId()), f);
+                        params = new ResourceSearchParams();
+                        params.setAssetId(p.getId());
+                        params.setAssetInspectionId(data.getPoleInspectionsByFPLId().get(p.getUtilityId()).getId());
+                        params.setType(ResourceTypes.PoleInspectionAnalysisXML);
                         rmeta = CollectionsUtilities.firstItemIn(rsvc.query(env.obtainAccessToken(), params));
                         if (rmeta == null) {
                             rmeta = createMetadata(data, params, f, "application/xml");
@@ -80,7 +81,7 @@ final class PoleDataProcessor {
                         }
                     } else if (fname.endsWith("_250C.PDF")) {
                         // Assume it's the Pole Foreman report
-                        params.setType(ResourceType.PoleInspectionReport);
+                        params.setType(ResourceTypes.PoleInspectionReport);
                         rmeta = CollectionsUtilities.firstItemIn(rsvc.query(env.obtainAccessToken(), params));
                         if (rmeta == null) {
                             rmeta = createMetadata(data, params, f, "application/pdf");
@@ -111,8 +112,8 @@ final class PoleDataProcessor {
             String fplid = pfFile.getName().split("_")[0];
             Pole p = data.getPoleDataByFPLId().get(fplid);
             if (p == null) {
-                PoleSearchParameters params = new PoleSearchParameters();
-                params.setFPLId(fplid);
+                PoleSearchParams params = new PoleSearchParams();
+                params.setUtilityId(fplid);
                 try {
                     p = CollectionsUtilities.firstItemIn(env.obtainWebService(PoleWebService.class).search(env.obtainAccessToken(), params));
                 } catch (IOException ioe) {
@@ -128,16 +129,16 @@ final class PoleDataProcessor {
         }
     }
     
-    private static ResourceMetadata createMetadata(InspectionData data, ResourceSearchParameters params, File f, String contentType) {
+    private static ResourceMetadata createMetadata(InspectionData data, ResourceSearchParams params, File f, String contentType) {
         ResourceMetadata rmeta = new ResourceMetadata();
         rmeta.setContentType(contentType);
         rmeta.setName(f.getName());
-        rmeta.setOrganizationId(data.getSubStation().getOrganizationId());
-        rmeta.setPoleId(params.getPoleId());
-        rmeta.setPoleInspectionId(params.getPoleInspectionId());
+        rmeta.setOrderNumber(data.getOrderNumber());
+        rmeta.setAssetId(params.getAssetId());
+        rmeta.setAssetInspectionId(params.getAssetInspectionId());
         rmeta.setResourceId(UUID.randomUUID().toString());
         rmeta.setStatus(ResourceStatus.QueuedForUpload);
-        rmeta.setSubStationId(data.getSubStation().getId());
+        rmeta.setSiteId(data.getFeeder().getId());
         rmeta.setTimestamp(ZonedDateTime.now());
         rmeta.setType(params.getType());
         return rmeta;

@@ -2,8 +2,11 @@ package com.precisionhawk.poleams.processors.poleinspection;
 
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
-import com.precisionhawk.poleams.domain.ResourceMetadata;
-import com.precisionhawk.poleams.domain.SubStation;
+import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.ams.domain.WorkOrder;
+import com.precisionhawk.poleams.domain.Feeder;
+import com.precisionhawk.poleams.domain.FeederInspection;
+import com.precisionhawk.poleams.processors.InspectionDataInterface;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,9 +17,10 @@ import java.util.Map;
  *
  * @author Philip A. Chapman
  */
-public class InspectionData {
+public class InspectionData implements InspectionDataInterface {
     
     private final Map<String, Boolean> domainDataIsNew = new HashMap<>();
+    @Override
     public Map<String, Boolean> getDomainObjectIsNew() {
         return domainDataIsNew;
     }
@@ -27,6 +31,14 @@ public class InspectionData {
     }
     public void setMasterDataFile(File masterDataFile) {
         this.masterDataFile = masterDataFile;
+    }
+    
+    private String organizationId;
+    public String getOrganizationId() {
+        return organizationId;
+    }
+    public void setOrganizationId(String organizationId) {
+        this.organizationId = organizationId;
     }
 
     private final Map<String, Pole> poleData = new HashMap<>();
@@ -49,37 +61,45 @@ public class InspectionData {
         return resourceDataFiles;
     }
 
-    private SubStation subStation;
-    public SubStation getSubStation() {
-        return subStation;
+    private Feeder feeder;
+    public Feeder getFeeder() {
+        return feeder;
     }
-    public void setSubStation(SubStation subStation) {
-        this.subStation = subStation;
+    public void setFeeder(Feeder feeder) {
+        this.feeder = feeder;
+    }
+    
+    private FeederInspection feederInspection;
+    public FeederInspection getFeederInspection() {
+        return feederInspection;
+    }
+    public void setFeederInspection(FeederInspection feederInspection) {
+        this.feederInspection = feederInspection;
     }
 
-    private final List<ResourceMetadata> subStationResources = new ArrayList<>();
-    public List<ResourceMetadata> getSubStationResources() {
-        return subStationResources;
+    private final List<ResourceMetadata> feederResources = new ArrayList<>();
+    public List<ResourceMetadata> getFeederResources() {
+        return feederResources;
     }
     
     public void addPole(Pole pole, boolean isNew) {
-        poleData.put(pole.getFPLId(), pole);
+        poleData.put(pole.getUtilityId(), pole);
         domainDataIsNew.put(pole.getId(), isNew);
     }
     
     public void addPoleInspection(Pole pole, PoleInspection inspection, boolean isNew) {
-        poleInspectionsByFPLId.put(pole.getFPLId(), inspection);
+        poleInspectionsByFPLId.put(pole.getUtilityId(), inspection);
         domainDataIsNew.put(inspection.getId(), isNew);
     }
     
     public void addResourceMetadata(ResourceMetadata rmeta, File dataFile, boolean isNew) {
-        if (rmeta.getPoleId() == null) {
-            subStationResources.add(rmeta);
+        if (rmeta.getAssetId() == null) {
+            feederResources.add(rmeta);
         } else {
-            List<ResourceMetadata> list = poleResources.get(rmeta.getPoleId());
+            List<ResourceMetadata> list = poleResources.get(rmeta.getAssetId());
             if (list == null) {
                 list = new ArrayList<>();
-                poleResources.put(rmeta.getPoleId(), list);
+                poleResources.put(rmeta.getAssetId(), list);
             }
             list.add(rmeta);
         }
@@ -87,4 +107,19 @@ public class InspectionData {
         resourceDataFiles.put(rmeta.getResourceId(), dataFile);
     }
  
+    private String orderNumber;
+    public String getOrderNumber() {
+        return orderNumber;
+    }
+    public void setOrderNumber(String orderNumber) {
+        this.orderNumber = orderNumber;
+    }
+    
+    private WorkOrder workOrder;
+    public WorkOrder getWorkOrder() {
+        return workOrder;
+    }
+    public void setWorkOrder(WorkOrder workOrder) {
+        this.workOrder = workOrder;
+    }
 }

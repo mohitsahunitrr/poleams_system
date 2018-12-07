@@ -1,5 +1,7 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
+import com.precisionhawk.poleams.processors.ProcessListener;
+
 /**
  *
  * @author pchapman

@@ -4,14 +4,14 @@
 
 package com.precisionhawk.poleams.processor.zoomify;
 
-import com.precisionhawk.poleams.bean.ResourceSearchParameters;
+import com.precisionhawk.ams.bean.ResourceSearchParams;
+import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.ams.domain.ResourceStatus;
+import com.precisionhawk.ams.support.httpclient.HttpClientUtilities;
+import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.bean.ResourceSummary;
-import com.precisionhawk.poleams.domain.ResourceMetadata;
-import com.precisionhawk.poleams.domain.ResourceStatus;
 import com.precisionhawk.poleams.processor.bean.JobInfo;
-import com.precisionhawk.poleams.support.httpclient.HttpClientUtilities;
 import com.precisionhawk.poleams.webservices.ResourceWebService;
-import com.precisionhawk.poleams.webservices.client.Environment;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -89,7 +89,7 @@ public class ZoomifyJob {
         int subcount;
         String zoomifyId;
         getJobInfo().update(start, null, count, "Running.");
-        ResourceSearchParameters criteria = new ResourceSearchParameters();
+        ResourceSearchParams criteria = new ResourceSearchParams();
         criteria.setStatus(ResourceStatus.Processed);
         ResourceWebService svc;
         LOGGER.info("Executing Zoomify task.  There are {} enviornments being monitored.", environments.size());

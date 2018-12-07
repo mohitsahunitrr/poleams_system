@@ -74,6 +74,15 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>poleams-webapi</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ams-dao</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ams-webapi-server</artifactId>
+        </dependency>
         
         <dependency>
             <groupId>com.esotericsoftware.yamlbeans</groupId>
@@ -146,15 +155,21 @@
             <artifactId>resteasy-spring</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>us.pcsw</groupId>
+            <artifactId>pcsw-mybatis</artifactId>
+        </dependency>
+        <dependency>
             <groupId>us.pcsw</groupId>
             <artifactId>pcsw-spring-tools</artifactId>
     	</dependency>
-<!--
         <dependency>
             <groupId>us.pcsw</groupId>
             <artifactId>pcsw-websvcs-libs</artifactId>
         </dependency>
--->
         <!-- Testing -->
         <dependency>
             <groupId>junit</groupId>

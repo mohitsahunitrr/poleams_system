@@ -1,20 +1,24 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
-import com.precisionhawk.poleams.bean.ResourceSearchParameters;
-import com.precisionhawk.poleams.bean.SubStationSummary;
+import com.precisionhawk.poleams.processors.ResourceDataUploader;
+import com.precisionhawk.poleams.processors.ProcessListener;
+import com.precisionhawk.ams.bean.ResourceSearchParams;
+import com.precisionhawk.poleams.bean.FeederInspectionSummary;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
-import com.precisionhawk.poleams.domain.ResourceMetadata;
-import com.precisionhawk.poleams.domain.ResourceStatus;
-import com.precisionhawk.poleams.domain.ResourceType;
-import com.precisionhawk.poleams.domain.SubStation;
-import com.precisionhawk.poleams.util.CollectionsUtilities;
-import com.precisionhawk.poleams.util.ContentTypeUtilities;
+import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.ams.domain.ResourceStatus;
+import com.precisionhawk.ams.domain.ResourceType;
+import com.precisionhawk.poleams.domain.ResourceTypes;
+import com.precisionhawk.ams.util.CollectionsUtilities;
+import com.precisionhawk.ams.util.ContentTypeUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
-import com.precisionhawk.poleams.webservices.ResourceWebService;
-import com.precisionhawk.poleams.webservices.SubStationWebService;
-import com.precisionhawk.poleams.webservices.client.Environment;
+import com.precisionhawk.ams.webservices.ResourceWebService;
+import com.precisionhawk.ams.webservices.WorkOrderWebService;
+import com.precisionhawk.ams.webservices.client.Environment;
+import com.precisionhawk.poleams.domain.FeederInspection;
+import com.precisionhawk.poleams.webservices.FeederInspectionWebService;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -27,6 +31,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
+import com.precisionhawk.poleams.webservices.FeederWebService;
 
 /**
  * Given a directory processes the Excel spreadsheet and pole analysis XML files
@@ -66,12 +71,12 @@ public final class FeederDataDirProcessor implements Constants {
     private static final String MASTER_SURVEY_TEMPL_DIR = "5. MASTER Survey Template";
 
     //TODO: This code could probably be used elsewhere.  Refactor this and other places where we are searching for/creating resources
-    private static boolean ensureResource(Environment env, InspectionData data, ProcessListener listener, SubStation subStation, PoleInspection poleInspection, ResourceType resourceType, File f) {
+    private static boolean ensureResource(Environment env, InspectionData data, ProcessListener listener, FeederInspection feederInspection, PoleInspection poleInspection, ResourceType resourceType, File f) {
         try {
-            ResourceSearchParameters params = new ResourceSearchParameters();
-            params.setSubStationId(subStation.getId());
+            ResourceSearchParams params = new ResourceSearchParams();
+            params.setSiteId(feederInspection.getSiteId());
             if (poleInspection != null) {
-                params.setPoleInspectionId(poleInspection.getId());
+                params.setAssetInspectionId(poleInspection.getId());
             }
             params.setType(resourceType);
             ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(env.obtainWebService(ResourceWebService.class).query(env.obtainAccessToken(), params));
@@ -85,14 +90,15 @@ public final class FeederDataDirProcessor implements Constants {
                 rmeta = new ResourceMetadata();
                 rmeta.setContentType(contentType);
                 rmeta.setName(f.getName());
-                rmeta.setOrganizationId(subStation.getOrganizationId());
+                rmeta.setOrderNumber(data.getOrderNumber());
                 if (poleInspection != null) {
-                    rmeta.setPoleId(poleInspection.getPoleId());
-                    rmeta.setPoleInspectionId(poleInspection.getId());
+                    rmeta.setAssetId(poleInspection.getAssetId());
+                    rmeta.setAssetInspectionId(poleInspection.getId());
                 }
                 rmeta.setResourceId(UUID.randomUUID().toString());
                 rmeta.setStatus(ResourceStatus.QueuedForUpload);
-                rmeta.setSubStationId(subStation.getId());
+                rmeta.setSiteId(feederInspection.getSiteId());
+                rmeta.setSiteInspectionId(feederInspection.getId());
                 rmeta.setTimestamp(ZonedDateTime.now());
                 rmeta.setType(resourceType);
                 isnew = true;
@@ -108,11 +114,13 @@ public final class FeederDataDirProcessor implements Constants {
     // no state
     private FeederDataDirProcessor() {};
 
-    public static boolean process(Environment env, ImportProcessListener listener, File feederDir) {
+    public static boolean process(Environment env, ImportProcessListener listener, File feederDir, String orgId, String orderNumber) {
         
         boolean success;
         listener.setStatus(ImportProcessStatus.Initializing);
         InspectionData data = new InspectionData();
+        data.setOrderNumber(orderNumber);
+        data.setOrganizationId(orgId);
         
         // There should be an excel file for all poles.
         File mstDir = new File(feederDir, MASTER_SURVEY_TEMPL_DIR);
@@ -179,7 +187,7 @@ public final class FeederDataDirProcessor implements Constants {
         if (fmDir.isDirectory()) {
             File f = findFeederMapFile(listener, fmDir);
             if (f != null) {
-                success = ensureResource(env, data, listener, data.getSubStation(), null, ResourceType.FeederMap, f);
+                success = ensureResource(env, data, listener, data.getFeederInspection(), null, ResourceTypes.FeederMap, f);
             }
             if (!success) {
                 return false;
@@ -194,15 +202,39 @@ public final class FeederDataDirProcessor implements Constants {
         try {
             listener.setStatus(ImportProcessStatus.PersistingData);
 
-            // Save SubStation
-            if (data.getSubStation() != null) {
-                SubStationWebService sssvc = env.obtainWebService(SubStationWebService.class);
-                if (data.getDomainObjectIsNew().get(data.getSubStation().getId())) {
-                    sssvc.create(env.obtainAccessToken(), data.getSubStation());
-                    listener.reportMessage(String.format("Inserted new sub station %s", data.getSubStation().getFeederNumber()));
+            // Save Feeder
+            if (data.getFeeder() != null) {
+                FeederWebService sssvc = env.obtainWebService(FeederWebService.class);
+                if (data.getDomainObjectIsNew().get(data.getFeeder().getId())) {
+                    sssvc.create(env.obtainAccessToken(), data.getFeeder());
+                    listener.reportMessage(String.format("Inserted new feeder %s", data.getFeeder().getFeederNumber()));
                 } else {
-                    sssvc.update(env.obtainAccessToken(), data.getSubStation());
-                    listener.reportMessage(String.format("Updating sub station %s", data.getSubStation().getFeederNumber()));
+                    sssvc.update(env.obtainAccessToken(), data.getFeeder());
+                    listener.reportMessage(String.format("Updated feeder %s", data.getFeeder().getFeederNumber()));
+                }
+            }
+            
+            // Save Work Order
+            if (data.getWorkOrder() != null) {
+                WorkOrderWebService svc = env.obtainWebService(WorkOrderWebService.class);
+                if (data.getDomainObjectIsNew().get(data.getWorkOrder().getOrderNumber())) {
+                    svc.create(env.obtainAccessToken(), data.getWorkOrder());
+                    listener.reportMessage(String.format("Inserted new work order %s", data.getWorkOrder().getOrderNumber()));
+                } else {
+                    svc.update(env.obtainAccessToken(), data.getWorkOrder());
+                    listener.reportMessage(String.format("Updated work order %s", data.getWorkOrder().getOrderNumber()));
+                }
+            }
+            
+            // Save Feeder Inspection
+            if (data.getFeederInspection() != null) {
+                FeederInspectionWebService svc = env.obtainWebService(FeederInspectionWebService.class);
+                if (data.getDomainObjectIsNew().get(data.getFeederInspection().getId())) {
+                    svc.create(env.obtainAccessToken(), data.getFeederInspection());
+                    listener.reportMessage(String.format("Inserted new feeder inspection %s", data.getFeederInspection().getId()));
+                } else {
+                    svc.update(env.obtainAccessToken(), data.getFeederInspection());
+                    listener.reportMessage(String.format("Updated feeder inspection %s", data.getFeederInspection().getId()));
                 }
             }
 
@@ -212,10 +244,10 @@ public final class FeederDataDirProcessor implements Constants {
                 for (Pole pdata : data.getPoleDataByFPLId().values()) {
                     if (data.getDomainObjectIsNew().get(pdata.getId())) {
                         psvc.create(env.obtainAccessToken(), pdata);
-                        listener.reportMessage(String.format("Inserted new pole %s FPL ID %s", pdata.getId(), pdata.getFPLId()));
+                        listener.reportMessage(String.format("Inserted new pole %s FPL ID %s", pdata.getId(), pdata.getUtilityId()));
                     } else {
                         psvc.update(env.obtainAccessToken(), pdata);
-                        listener.reportMessage(String.format("Updated pole %s FPL ID %s", pdata.getId(), pdata.getFPLId()));
+                        listener.reportMessage(String.format("Updated pole %s FPL ID %s", pdata.getId(), pdata.getUtilityId()));
                     }
                 }
             }
@@ -226,10 +258,10 @@ public final class FeederDataDirProcessor implements Constants {
                 for (PoleInspection pi : data.getPoleInspectionsByFPLId().values()) {
                     if (data.getDomainObjectIsNew().get(pi.getId())) {
                         pisvc.create(env.obtainAccessToken(), pi);
-                        listener.reportMessage(String.format("Inserted new inspection for pole %s", pi.getPoleId()));
+                        listener.reportMessage(String.format("Inserted new inspection for pole %s", pi.getAssetId()));
                     } else {
                         pisvc.update(env.obtainAccessToken(), pi);
-                        listener.reportMessage(String.format("updated inspection for pole %s", pi.getPoleId()));
+                        listener.reportMessage(String.format("updated inspection for pole %s", pi.getAssetId()));
                     }
                 }
             }
@@ -239,10 +271,10 @@ public final class FeederDataDirProcessor implements Constants {
 
             listener.setStatus(ImportProcessStatus.UploadingResources);
             // Save Resources
-            listener.reportMessage("Uploading SubStation resources.");
+            listener.reportMessage("Uploading Feeder resources.");
             ResourceWebService rsvc = env.obtainWebService(ResourceWebService.class);
-            for (ResourceMetadata rmeta : data.getSubStationResources()) {
-                ResourceDataUploader.uploadResources(env, listener, data, data.getSubStationResources(), data.getResourceDataFiles(), 2);
+            for (ResourceMetadata rmeta : data.getFeederResources()) {
+                ResourceDataUploader.uploadResources(env, listener, data, data.getFeederResources(), data.getResourceDataFiles(), 2);
             }
             int index = 1;
             for (List<ResourceMetadata> list : data.getPoleResources().values()) {
@@ -300,8 +332,8 @@ public final class FeederDataDirProcessor implements Constants {
     private static boolean updateSurveyReport(Environment env, InspectionData data, ImportProcessListener listener) {
         listener.setStatus(ImportProcessStatus.GeneratingUpdatedSurveyReport);
         try {
-            File inFile = File.createTempFile(data.getSubStation().getFeederNumber(), "surveyrptsource");
-            File outFile = File.createTempFile(data.getSubStation().getFeederNumber(), "surveyrptout");
+            File inFile = File.createTempFile(data.getFeeder().getFeederNumber(), "surveyrptsource");
+            File outFile = File.createTempFile(data.getFeeder().getFeederNumber(), "surveyrptout");
             // Copy from source to temp file.  I do this because I don't trust POI to not overwrite the original.  I've had it do strange things.
             InputStream is = null;
             OutputStream os = null;
@@ -314,24 +346,26 @@ public final class FeederDataDirProcessor implements Constants {
                 IOUtils.closeQuietly(os);
             }
             // Populate summary into 2nd temp file
-            SubStationSummary summary = env.obtainWebService(SubStationWebService.class).retrieveSummary(env.obtainAccessToken(), data.getSubStation().getId());
+            FeederInspectionSummary summary = env.obtainWebService(FeederInspectionWebService.class).retrieveSummary(env.obtainAccessToken(), data.getFeederInspection().getId());
             boolean success = SurveyReportGenerator.populateTemplate(env, listener, summary, inFile, outFile);
             // Set up to upload temp file
             if (success) {
                 ResourceWebService svc = env.obtainWebService(ResourceWebService.class);
-                ResourceSearchParameters params = new ResourceSearchParameters();
-                params.setOrganizationId(data.getSubStation().getOrganizationId());
-                params.setSubStationId(data.getSubStation().getId());
-                params.setType(ResourceType.SurveyReport);
+                ResourceSearchParams params = new ResourceSearchParams();
+                params.setOrderNumber(data.getOrderNumber());
+                params.setSiteId(data.getFeederInspection().getSiteId());
+                params.setSiteInspectionId(data.getFeederInspection().getId());
+                params.setType(ResourceTypes.SurveyReport);
                 ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(svc.query(env.obtainAccessToken(), params));
                 if (rmeta == null) {
                     rmeta = new ResourceMetadata();
                     rmeta.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-                    rmeta.setName(String.format("%s-%s_Survey_Report.xlsx", data.getSubStation().getName(), data.getSubStation().getFeederNumber()));
-                    rmeta.setOrganizationId(params.getOrganizationId());
+                    rmeta.setName(String.format("%s-%s_Survey_Report.xlsx", data.getFeeder().getName(), data.getFeeder().getFeederNumber()));
+                    rmeta.setOrderNumber(params.getOrderNumber());
                     rmeta.setResourceId(UUID.randomUUID().toString());
                     rmeta.setStatus(ResourceStatus.QueuedForUpload);
-                    rmeta.setSubStationId(params.getSubStationId());
+                    rmeta.setSiteId(params.getSiteId());
+                    rmeta.setSiteInspectionId(params.getSiteInspectionId());
                     rmeta.setTimestamp(ZonedDateTime.now());
                     rmeta.setType(params.getType());
                     data.addResourceMetadata(rmeta, outFile, true);

@@ -4,6 +4,7 @@
 
 package com.precisionhawk.poleams.webservices;
 
+import com.precisionhawk.ams.webservices.WebService;
 import java.util.Map;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;

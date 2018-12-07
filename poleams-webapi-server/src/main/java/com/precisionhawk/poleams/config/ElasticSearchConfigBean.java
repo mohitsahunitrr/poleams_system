@@ -1,12 +1,10 @@
 package com.precisionhawk.poleams.config;
 
-import com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConfig;
-
 /**
  *
  * @author Philip A. Chapman
  */
-public class ElasticSearchConfigBean implements ElasticSearchConfig {
+public class ElasticSearchConfigBean implements com.precisionhawk.ams.support.elasticsearch.ElasticSearchConfig {
 
     private Integer bulkSize;
     @Override

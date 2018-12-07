@@ -23,8 +23,8 @@ public class AppConfigFactory implements Provider<AppConfig> {
     private static final String PARAM_USER_HOME = "user.home";
     
     private static final String[] PATHS = {
-        "/etc/poleams/webservices.yaml",
-        "{" + PARAM_USER_HOME + "}/.poleams/webservices.yaml"
+        "/etc/ph/poleams/webservices.yaml",
+        "{" + PARAM_USER_HOME + "}/.ph/poleams/webservices.yaml"
     };
     
     private AppConfig config;

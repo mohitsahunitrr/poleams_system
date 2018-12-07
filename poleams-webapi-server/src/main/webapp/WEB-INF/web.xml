@@ -32,7 +32,7 @@
     <!-- Filters -->
     <filter>
 	<filter-name>CORSFilter</filter-name>
-   	<filter-class>com.precisionhawk.poleams.support.security.CORSFilter</filter-class>
+   	<filter-class>com.precisionhawk.ams.support.security.CORSFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>CORSFilter</filter-name>

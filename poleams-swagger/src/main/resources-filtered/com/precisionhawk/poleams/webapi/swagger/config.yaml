@@ -1,0 +1,27 @@
+openAPI:
+    info :
+        title: ${project.name}
+        description: This is documentation for the PoleAMS web services.
+        contact:
+            name: Philip A Chapman
+            email: p.chapman@precisionhawk.com
+        version: ${project.version}
+        license:
+            name: 'Proprietary: All Rights Reserved'
+readAllResources: true
+resourceClasses:
+    - com.precisionhawk.aws.webservices.AuthenticationWebService
+    - com.precisionhawk.ams.webservices.InspectionEventResourceWebService
+    - com.precisionhawk.ams.webservices.InspectionEventWebService
+    - com.precisionhawk.ams.webservices.OrganizationWebService
+    - com.precisionhawk.ams.webservices.WorkOrderWebService
+    - com.precisionhawk.poleams.webservices.FeederInspectionWebService
+    - com.precisionhawk.poleams.webservices.FeederWebService
+    - com.precisionhawk.poleams.webservices.PoleInspectionWebService
+    - com.precisionhawk.poleams.webservices.PoleWebService
+    - com.precisionhawk.poleams.webservices.ResourceWebWebService
+    - com.precisionhawk.poleams.webservices.TransmissionLineWebService
+    - com.precisionhawk.poleams.webservices.TransmissionLineInspectionWebService
+    - com.precisionhawk.poleams.webservices.TransmissionStructureWebService
+    - com.precisionhawk.poleams.webservices.TransmissionStructureInspectionWebService
+prettyPrint: true

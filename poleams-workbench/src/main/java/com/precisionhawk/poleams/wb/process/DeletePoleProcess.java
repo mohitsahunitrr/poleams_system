@@ -1,9 +1,11 @@
 package com.precisionhawk.poleams.wb.process;
 
-import com.precisionhawk.poleams.bean.PoleSearchParameters;
+import com.precisionhawk.poleams.bean.PoleSearchParams;
 import com.precisionhawk.poleams.domain.Pole;
-import com.precisionhawk.poleams.util.CollectionsUtilities;
-import com.precisionhawk.poleams.webservices.client.Environment;
+import com.precisionhawk.ams.util.CollectionsUtilities;
+import com.precisionhawk.ams.wb.process.ServiceClientCommandProcess;
+import com.precisionhawk.ams.webservices.client.Environment;
+import com.precisionhawk.poleams.webservices.PoleWebService;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashSet;
@@ -44,13 +46,14 @@ public class DeletePoleProcess extends ServiceClientCommandProcess {
     }
     
     private void deletePole(Environment env, String fplId) throws IOException {
-        PoleSearchParameters params = new PoleSearchParameters();
-        params.setFPLId(fplId);
-        Pole p = CollectionsUtilities.firstItemIn(poleService(env).search(env.obtainAccessToken(), params));
+        PoleWebService poleService = env.obtainWebService(PoleWebService.class);
+        PoleSearchParams params = new PoleSearchParams();
+        params.setUtilityId(fplId);
+        Pole p = CollectionsUtilities.firstItemIn(poleService.search(env.obtainAccessToken(), params));
         if (p == null) {
             System.out.printf("No pole with FPL ID %s exists.  Nothing to delete.\n", fplId);
         } else {
-            poleService(env).delete(env.obtainAccessToken(), p.getId());
+            poleService.delete(env.obtainAccessToken(), p.getId());
             System.out.printf("Pole with FPL ID %s deleteed.\n", fplId);
         }
     }

@@ -23,6 +23,12 @@
         </dependency>
 
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ams-dao</artifactId>
+        </dependency>
+
+        <!--
+        <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk</artifactId>
         </dependency>
@@ -54,6 +60,7 @@
             <groupId>us.pcsw</groupId>
             <artifactId>pcsw-es-util</artifactId>
         </dependency>
+        -->
 
         <!-- Testing -->
         <dependency>

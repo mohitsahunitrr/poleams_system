@@ -1,25 +1,25 @@
 package com.precisionhawk.poleams.webservices.impl;
 
-import com.precisionhawk.poleams.bean.PoleAnalysisImportJobState;
-import com.precisionhawk.poleams.bean.PoleInspectionSearchParameters;
-import com.precisionhawk.poleams.bean.PoleSearchParameters;
+import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
+import com.precisionhawk.poleams.bean.PoleSearchParams;
 import com.precisionhawk.poleams.bean.PoleSummary;
-import com.precisionhawk.poleams.bean.ResourceSearchParameters;
-import com.precisionhawk.poleams.dao.DaoException;
+import com.precisionhawk.ams.bean.ResourceSearchParams;
+import com.precisionhawk.ams.dao.DaoException;
 import com.precisionhawk.poleams.dao.PoleDao;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
-import com.precisionhawk.poleams.domain.ResourceMetadata;
+import com.precisionhawk.ams.domain.ResourceMetadata;
 import com.precisionhawk.poleams.domain.poledata.CommunicationsCable;
 import com.precisionhawk.poleams.domain.poledata.PoleEquipment;
 import com.precisionhawk.poleams.domain.poledata.PoleLight;
 import com.precisionhawk.poleams.domain.poledata.PoleSpan;
 import com.precisionhawk.poleams.domain.poledata.PrimaryCable;
 import com.precisionhawk.poleams.domain.poledata.SecondaryCable;
-import com.precisionhawk.poleams.util.CollectionsUtilities;
+import com.precisionhawk.ams.util.CollectionsUtilities;
+import com.precisionhawk.ams.webservices.impl.AbstractWebService;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
-import com.precisionhawk.poleams.webservices.ResourceWebService;
+import com.precisionhawk.ams.webservices.ResourceWebService;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -59,16 +59,6 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
     }
 
     @Override
-    public PoleAnalysisImportJobState importAnalysisExcel(String authToken, HttpServletRequest arg1) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public PoleAnalysisImportJobState importAnalysisXML(String authToken, HttpServletRequest arg1) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public Pole retrieve(String authToken, String poleId) {
         ensureExists(poleId, "The pole ID is required.");
         try {
@@ -90,7 +80,7 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
         }
     }
     
-    List<PoleSummary> retrieveSummaries(String authToken, PoleSearchParameters params) {
+    List<PoleSummary> retrieveSummaries(String authToken, PoleSearchParams params) {
         ensureExists(params, "Search parameters are required.");
         try {
             List<PoleSummary> results = new LinkedList<>();
@@ -104,7 +94,7 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
     }
 
     @Override
-    public List<Pole> search(String authToken, PoleSearchParameters params) {
+    public List<Pole> search(String authToken, PoleSearchParams params) {
         ensureExists(params, "Search parameters are required.");
         try {
             return poleDao.search(params);
@@ -226,16 +216,16 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
         if (p != null) {
             {
                 // Delete Inspections, which will delete any shared resources.
-                PoleInspectionSearchParameters params = new PoleInspectionSearchParameters();
-                params.setPoleId(id);
+                AssetInspectionSearchParams params = new AssetInspectionSearchParams();
+                params.setAssetId(id);
                 for (PoleInspection insp : poleInspectionSvc.search(authToken, params)) {
                     poleInspectionSvc.delete(authToken, insp.getId());
                 }
             }
             {
                 // Delete any resources left that are related to the pole.
-                ResourceSearchParameters params = new ResourceSearchParameters();
-                params.setPoleId(id);
+                ResourceSearchParams params = new ResourceSearchParams();
+                params.setAssetId(id);
                 for (ResourceMetadata rmeta : resourceSvc.query(authToken, params)) {
                     resourceSvc.delete(authToken, rmeta.getResourceId());
                 }

@@ -1,10 +1,10 @@
 package com.precisionhawk.poleams.wb.process;
 
-import com.precisionhawk.poleams.domain.ResourceMetadata;
-import com.precisionhawk.poleams.domain.ResourceStatus;
-import com.precisionhawk.poleams.domain.ResourceType;
-import com.precisionhawk.poleams.webservices.ResourceWebService;
-import com.precisionhawk.poleams.webservices.client.Environment;
+import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.ams.domain.ResourceStatus;
+import com.precisionhawk.ams.wb.process.ServiceClientCommandProcess;
+import com.precisionhawk.ams.webservices.ResourceWebService;
+import com.precisionhawk.ams.webservices.client.Environment;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Queue;

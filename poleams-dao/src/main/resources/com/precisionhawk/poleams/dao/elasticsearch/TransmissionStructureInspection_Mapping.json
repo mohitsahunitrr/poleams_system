@@ -1,0 +1,55 @@
+{
+    "TransmissionStructureInspection": {
+        "properties": {
+            "id": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "assetId": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "dateOfInspection": {
+                "include_in_all": false,
+                "type": "date",
+                "format": "yyyyMMdd"
+            },
+            "orderNumber": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "processedBy": {
+                "include_in_all": false,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "reasonNotInspected": {
+                "include_in_all": false,
+                "type": "string"
+            },
+            "siteId": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "siteInspectionId": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "status": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "type": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            }
+        }
+    }
+}

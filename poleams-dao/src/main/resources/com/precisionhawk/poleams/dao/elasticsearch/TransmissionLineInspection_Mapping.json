@@ -1,0 +1,41 @@
+{
+    "TransmissionLineInspection": {
+        "properties": {
+            "id": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "dateOfInspection": {
+                "include_in_all": false,
+                "type": "date",
+                "format": "yyyyMMdd"
+            },
+            "orderNumber": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "processedBy": {
+                "include_in_all": false,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "siteId": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "status": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "type": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            }
+        }
+    }
+}

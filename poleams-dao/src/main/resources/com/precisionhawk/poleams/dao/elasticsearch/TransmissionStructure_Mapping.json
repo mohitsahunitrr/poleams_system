@@ -1,0 +1,67 @@
+{
+    "TransmissionStructure": {
+        "properties": {
+            "id": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "dateOfInstall": {
+                "include_in_all": false,
+                "type": "date",
+                "format": "yyyyMMdd"
+            },
+            "location": {
+                "properties": {
+                    "accuracy": {
+                        "type": "double"
+                    },
+                    "altitude": {
+                        "type": "double"
+                    },
+                    "latitude": {
+                        "type": "double"
+                    },
+                    "longitude": {
+                        "type": "double"
+                    }
+                }
+            },
+            "make": {
+                "include_in_all": false,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "model": {
+                "include_in_all": false,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "name": {
+                "include_in_all": false,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "serialNumber": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "siteId": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "type": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "structureNumber": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            }
+        }
+    }
+}

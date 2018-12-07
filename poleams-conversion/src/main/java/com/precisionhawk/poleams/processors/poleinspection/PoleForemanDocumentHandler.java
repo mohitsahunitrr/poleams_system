@@ -1,5 +1,6 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
+import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.poleams.bean.PoleAnalysisLoadCase;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
@@ -344,8 +345,8 @@ class PoleForemanDocumentHandler extends AbstractDocumentHandler {
                     if (fplid != null) {
                         fplid = fplid.trim();
                     }
-                    if (!Objects.equals(pole.getFPLId(), fplid)) {
-                        throw new SAXException(String.format("The pole's FPL ID \"%s\" does not match the GIS_ID attribute \"%s\"", pole.getFPLId(), fplid));
+                    if (!Objects.equals(pole.getUtilityId(), fplid)) {
+                        throw new SAXException(String.format("The pole's FPL ID \"%s\" does not match the GIS_ID attribute \"%s\"", pole.getUtilityId(), fplid));
                     }
                     break;
                 case TAG_ANCHOR:

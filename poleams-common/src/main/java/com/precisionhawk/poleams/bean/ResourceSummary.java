@@ -1,7 +1,8 @@
 package com.precisionhawk.poleams.bean;
 
-import com.precisionhawk.poleams.domain.ResourceMetadata;
-import com.precisionhawk.poleams.domain.ResourceType;
+import com.precisionhawk.ams.bean.GeoPoint;
+import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.ams.domain.ResourceType;
 import io.swagger.oas.annotations.media.Schema;
 import java.time.ZonedDateTime;
 
@@ -10,6 +11,7 @@ import java.time.ZonedDateTime;
  *
  * @author Philip A. Chapman
  */
+@Schema(description="A displayable summary of a resource.")
 public class ResourceSummary {
     
     @Schema(description="The media type of the resource. See https://en.wikipedia.org/wiki/Media_type")
@@ -38,15 +40,6 @@ public class ResourceSummary {
     }
     public void setLocation(GeoPoint location) {
         this.location = location;
-    }
-    
-    @Schema(description="The organization to which the substation and related poles belong.")
-    private String organizationId;
-    public String getOrganizationId() {
-        return organizationId;
-    }
-    public void setOrganizationId(String organizationId) {
-        this.organizationId = organizationId;
     }
 
     @Schema(description="Unqiue ID of the pole that was inspected.")
@@ -129,12 +122,11 @@ public class ResourceSummary {
         this.contentType = rmeta.getContentType();
         this.downloadURL = downloadURL;
         this.location = rmeta.getLocation();
-        this.organizationId = rmeta.getOrganizationId();
-        this.poleId = rmeta.getPoleId();
-        this.poleInspectionId = rmeta.getPoleInspectionId();
+        this.poleId = rmeta.getAssetId();
+        this.poleInspectionId = rmeta.getAssetInspectionId();
         this.resourceId = rmeta.getResourceId();
         this.scaledImageURL = scaledImageURL;
-        this.subStationId = rmeta.getSubStationId();
+        this.subStationId = rmeta.getSiteId();
         this.timestamp = rmeta.getTimestamp();
         this.type = rmeta.getType();
         this.zoomifyURL = zoomifyURL;

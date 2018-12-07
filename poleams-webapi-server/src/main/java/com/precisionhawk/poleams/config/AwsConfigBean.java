@@ -1,6 +1,6 @@
 package com.precisionhawk.poleams.config;
 
-import com.precisionhawk.poleams.support.aws.AwsConfig;
+import com.precisionhawk.ams.support.aws.AwsConfig;
 
 /**
  *

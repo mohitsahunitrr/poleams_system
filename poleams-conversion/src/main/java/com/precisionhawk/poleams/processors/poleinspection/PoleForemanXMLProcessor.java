@@ -1,5 +1,6 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
+import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import org.apache.commons.io.IOUtils;

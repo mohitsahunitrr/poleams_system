@@ -1,0 +1,43 @@
+{
+  "TransmissionLine" : {
+    "properties" : {
+      "id" : {
+        "include_in_all" : true,
+        "index" : "not_analyzed",
+        "type" : "string"
+      },
+      "lineNumber" : {
+        "include_in_all" : true,
+        "index" : "not_analyzed",
+        "type" : "string"
+      },
+      "name" : {
+        "include_in_all" : true,
+        "index" : "not_analyzed",
+        "type" : "string"
+      },
+      "physicalAddress" : {
+          "properties" : {
+              "city": {
+                  "type" : "string"
+              },
+              "country": {
+                  "type" : "string"
+              },
+              "line1": {
+                  "type" : "string"
+              },
+              "line2": {
+                  "type" : "string"
+              },
+              "postalCode": {
+                  "type" : "string"
+              },
+              "region": {
+                  "type" : "string"
+              }
+          }
+      }
+    }
+  }
+}

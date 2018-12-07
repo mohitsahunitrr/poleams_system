@@ -1,5 +1,6 @@
 package com.precisionhawk.poleams.domain;
 
+import com.precisionhawk.ams.domain.AssetInspection;
 import com.precisionhawk.poleams.bean.PoleAnalysisLoadCase;
 import io.swagger.oas.annotations.media.Schema;
 import java.time.LocalDate;
@@ -10,17 +11,7 @@ import java.time.LocalDate;
  * @author Philip A. Chapman
  */
 @Schema(description="A class representing the inspection of a pole.")
-public class PoleInspection implements Identifyable {
-    
-    @Schema(description="Unique internal ID of the inspection.")
-    private String id;
-    @Override
-    public String getId() {
-        return id;
-    }
-    public void setId(String id) {
-        this.id = id;
-    }
+public class PoleInspection extends AssetInspection {
     
     @Schema(description="If the technician had access to the tower.")
     private Boolean access;
@@ -102,15 +93,6 @@ public class PoleInspection implements Identifyable {
         this.loadCase = loadCase;
     }
     
-    @Schema(description="The organization to which the substation and related poles belong.")
-    private String organizationId;
-    public String getOrganizationId() {
-        return organizationId;
-    }
-    public void setOrganizationId(String organizationId) {
-        this.organizationId = organizationId;
-    }
-    
     @Schema(description="Pass or fail judgement on analysis results.")
     private Boolean passedAnalysis;
     public Boolean getPassedAnalysis() {
@@ -118,24 +100,6 @@ public class PoleInspection implements Identifyable {
     }
     public void setPassedAnalysis(Boolean passedAnalysis) {
         this.passedAnalysis = passedAnalysis;
-    }
-
-    @Schema(description="Unqiue ID of the pole that was inspected.")
-    private String poleId;
-    public String getPoleId() {
-        return poleId;
-    }
-    public void setPoleId(String poleId) {
-        this.poleId = poleId;
-    }
-
-    @Schema(description="The substation to which the inspected pole is related.")
-    private String subStationId;
-    public String getSubStationId() {
-        return subStationId;
-    }
-    public void setSubStationId(String subStationId) {
-        this.subStationId = subStationId;
     }
 
     @Schema(description="Vertical loading percent result of the analysis.")
@@ -150,6 +114,7 @@ public class PoleInspection implements Identifyable {
     protected void populateFrom(PoleInspection pi) {
         setAccess(pi.getAccess());
         setAnchorsPass(pi.getAnchorsPass());
+        setAssetId(pi.getAssetId());
         setBracketsPass(pi.getBracketsPass());
         setDateOfAnalysis(pi.getDateOfAnalysis());
         setDownGuysPass(pi.getDownGuysPass());
@@ -158,10 +123,9 @@ public class PoleInspection implements Identifyable {
         setInsulatorsPass(pi.getInsulatorsPass());
         setLatLongDelta(pi.getLatLongDelta());
         setLoadCase(pi.getLoadCase());
-        setOrganizationId(pi.getOrganizationId());
         setPassedAnalysis(pi.passedAnalysis);
-        setPoleId(pi.getPoleId());
-        setSubStationId(pi.getSubStationId());
+        setSiteId(pi.getSiteId());
+        setSiteInspectionId(pi.getSiteInspectionId());
         setVerticalLoadingPercent(pi.getVerticalLoadingPercent());
     }
 }
