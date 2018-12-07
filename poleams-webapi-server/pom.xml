@@ -7,13 +7,13 @@
     <parent>
         <groupId>com.precisionhawk</groupId>
         <artifactId>poleams-core</artifactId>
-        <version>0.0.0-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <groupId>com.precisionhawk</groupId>
     <artifactId>poleams-webapi-server</artifactId>
     <name>PoleAMS - WebAPI Server</name>
     <packaging>war</packaging>
-    <version>0.0.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <build>
       <finalName>poleams-services</finalName>
