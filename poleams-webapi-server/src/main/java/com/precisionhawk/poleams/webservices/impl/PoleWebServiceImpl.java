@@ -4,6 +4,7 @@ import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.poleams.bean.PoleSearchParams;
 import com.precisionhawk.poleams.bean.PoleSummary;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
+import com.precisionhawk.ams.bean.security.ServicesSessionBean;
 import com.precisionhawk.ams.dao.DaoException;
 import com.precisionhawk.poleams.dao.PoleDao;
 import com.precisionhawk.poleams.domain.Pole;
@@ -25,7 +26,6 @@ import java.util.List;
 import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
@@ -43,7 +43,9 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
 
     @Override
     public Pole create(String authToken, Pole pole) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(pole, "The pole is required.");
+        authorize(sess, pole);
         if (pole.getId() == null) {
             pole.setId(UUID.randomUUID().toString());
         }
@@ -60,9 +62,10 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
 
     @Override
     public Pole retrieve(String authToken, String poleId) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(poleId, "The pole ID is required.");
         try {
-            return poleDao.retrieve(poleId);
+            return authorize(sess, validateFound(poleDao.retrieve(poleId)));
         } catch (DaoException ex) {
             throw new InternalServerErrorException("Error retrieving pole.", ex);
         }
@@ -70,10 +73,11 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
 
     @Override
     public PoleSummary retrieveSummary(String authToken, String poleId) {
-        ensureExists(poleId, "The pole ID is required.");
-        
+        ServicesSessionBean sess = lookupSessionBean(authToken);
+        ensureExists(poleId, "The pole ID is required.");        
         try {
             Pole pole = poleDao.retrieve(poleId);
+            authorize(sess, pole);
             return summaryFromPoleData(pole);
         } catch (DaoException ex) {
             throw new InternalServerErrorException("Error retrieving pole.", ex);
@@ -81,10 +85,11 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
     }
     
     List<PoleSummary> retrieveSummaries(String authToken, PoleSearchParams params) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(params, "Search parameters are required.");
         try {
             List<PoleSummary> results = new LinkedList<>();
-            for (Pole p : poleDao.search(params)) {
+            for (Pole p : authorize(sess, poleDao.search(params))) {
                 results.add(summaryFromPoleData(p));
             }
             return results;
@@ -95,9 +100,11 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
 
     @Override
     public List<Pole> search(String authToken, PoleSearchParams params) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(params, "Search parameters are required.");
+        authorize(sess, params);
         try {
-            return poleDao.search(params);
+            return authorize(sess, poleDao.search(params));
         } catch (DaoException ex) {
             throw new InternalServerErrorException("Error retrieving poles based on search criteria.", ex);
         }
@@ -105,10 +112,17 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
 
     @Override
     public void update(String authToken, Pole pole) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(pole, "The pole is required.");
         ensureExists(pole.getId(), "The pole ID is required.");
         try {
-            if (!poleDao.update(pole)) {
+            boolean updated = false;
+            Pole p = poleDao.retrieve(pole.getId());
+            if (p != null) {
+                authorize(sess, p);
+                updated = poleDao.update(pole);
+            }
+            if (!updated) {
                 throw new NotFoundException(String.format("No pole with ID %s exists.", pole.getId()));
             }
         } catch (DaoException ex) {
@@ -211,8 +225,11 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
 
     @Override
     public void delete(String authToken, String id) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
+        ensureExists(id, "Pole ID is required");
         // First, see if we even have such a pole
         Pole p = retrieve(authToken, id);
+        authorize(sess, p);
         if (p != null) {
             {
                 // Delete Inspections, which will delete any shared resources.

@@ -105,6 +105,7 @@ public class ResourceWebServiceImpl extends com.precisionhawk.ams.webservices.im
         return new ResourceSummary(rmeta, downloadURL, scaledImageURL, zoomifyURL);
     }
 
+    @Override
     public String getResourceDownloadURL(String resourceId) {
         return super.getResourceDownloadURL(resourceId, false);
     }

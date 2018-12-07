@@ -50,11 +50,7 @@ public class TransmissionLineWebServiceImpl extends AbstractWebService implement
         ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(id, "Transmission line ID is required.");
         try {
-            TransmissionLine l = dao.retrieve(id);
-            if (l == null) {
-                throw new BadRequestException(String.format("A transmission line with the ID %s not found.", id));
-            }
-            return SiteWebServiceUtilities.authorizeSite(sess, l);
+            return SiteWebServiceUtilities.authorizeSite(sess, validateFound(dao.retrieve(id)));
         } catch (DaoException ex) {
             throw new InternalServerErrorException("Error retrieving the transmission line data.", ex);
         }
@@ -89,7 +85,12 @@ public class TransmissionLineWebServiceImpl extends AbstractWebService implement
         ensureExists(line, "Transmission line is required.");
         SiteWebServiceUtilities.authorizeSite(sess, line);
         try {
-            if (!dao.update(line)) {
+            boolean updated = false;
+            TransmissionLine l = dao.retrieve(line.getId());
+            if (l != null) {
+                updated = dao.update(line);
+            }
+            if (!updated) {
                 throw new NotFoundException(String.format("A transmission line with the ID %s was not found.", line.getId()));
             }
         } catch (DaoException ex) {

@@ -4,6 +4,7 @@ import com.precisionhawk.ams.bean.security.ServicesSessionBean;
 import com.precisionhawk.ams.webservices.impl.AbstractWebService;
 import com.precisionhawk.poleams.bean.FeederSearchParams;
 import com.precisionhawk.ams.dao.DaoException;
+import com.precisionhawk.ams.webservices.impl.SiteWebServiceUtilities;
 import com.precisionhawk.poleams.domain.Feeder;
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +31,7 @@ public class FeederWebServiceImpl extends AbstractWebService implements FeederWe
     public Feeder create(String authToken, Feeder substation) {
         ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(substation, "The feeder is required.");
+        SiteWebServiceUtilities.authorizeSite(sess, substation);
         if (substation.getId() == null) {
             substation.setId(UUID.randomUUID().toString());
         }
@@ -47,9 +49,10 @@ public class FeederWebServiceImpl extends AbstractWebService implements FeederWe
 
     @Override
     public Feeder retrieve(String authToken, String substationId) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(substationId, "Feeder ID is required.");
         try {
-            return substationDao.retrieve(substationId);
+            return SiteWebServiceUtilities.authorizeSite(sess, validateFound(substationDao.retrieve(substationId)));
         } catch (DaoException ex) {
             throw new InternalServerErrorException("Error retrieving feeder.", ex);
         }
@@ -57,8 +60,9 @@ public class FeederWebServiceImpl extends AbstractWebService implements FeederWe
 
     @Override
     public List<Feeder> retrieveAll(String authToken) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
         try {
-            return substationDao.retrieveAll();
+            return SiteWebServiceUtilities.authorizeSites(sess, substationDao.retrieveAll());
         } catch (DaoException ex) {
             throw new InternalServerErrorException("Error retrieving feeders.", ex);
         }
@@ -66,10 +70,17 @@ public class FeederWebServiceImpl extends AbstractWebService implements FeederWe
 
     @Override
     public void update(String authToken, Feeder substation) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(substation, "The Feeder is required.");
         ensureExists(substation.getId(), "Feeder ID is required.");
         try {
-            if (!substationDao.update(substation)) {
+            boolean updated = false;
+            Feeder f = substationDao.retrieve(substation.getId());
+            if (f != null) {
+                SiteWebServiceUtilities.authorizeSite(sess, f);
+                updated = substationDao.update(substation);
+            }
+            if (!updated) {
                 throw new BadRequestException(String.format("The feeder %s already exists.", substation.getId()));
             }
         } catch (DaoException ex) {
@@ -79,9 +90,10 @@ public class FeederWebServiceImpl extends AbstractWebService implements FeederWe
 
     @Override
     public List<Feeder> search(String authToken, FeederSearchParams searchParams) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(searchParams, "Search parameters are required.");
         try {
-            return substationDao.search(searchParams);
+            return SiteWebServiceUtilities.cleanseUnAuthorizedSites(sess, substationDao.search(searchParams));
         } catch (DaoException ex) {
             throw new InternalServerErrorException("Unable to search for feeders.", ex);
         }

@@ -1,13 +1,14 @@
 package com.precisionhawk.poleams.webservices.impl;
 
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
+import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.ams.bean.security.ServicesSessionBean;
 import com.precisionhawk.ams.dao.DaoException;
 import com.precisionhawk.ams.webservices.impl.AbstractWebService;
 import com.precisionhawk.poleams.bean.TransmissionStructureInspectionSummary;
 import com.precisionhawk.poleams.dao.TransmissionStructureInspectionDao;
-import com.precisionhawk.poleams.domain.TransmissionStructure;
 import com.precisionhawk.poleams.domain.TransmissionStructureInspection;
+import com.precisionhawk.poleams.webservices.ResourceWebService;
 import com.precisionhawk.poleams.webservices.TransmissionStructureInspectionWebService;
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +27,9 @@ public class TransmissionStructureInspectionWebServiceImpl extends AbstractWebSe
 
     @Inject
     private TransmissionStructureInspectionDao dao;
+    
+    @Inject
+    private ResourceWebService resourceSvc;
     
     @Override
     public TransmissionStructureInspection create(String authToken, TransmissionStructureInspection inspection) {
@@ -50,11 +54,7 @@ public class TransmissionStructureInspectionWebServiceImpl extends AbstractWebSe
         ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(id, "Transmission structure inspection ID is required.");
         try {
-            TransmissionStructureInspection i = dao.retrieve(id);
-            if (i == null) {
-                throw new NotFoundException(String.format("No transmission structure inspection with ID %s found.", id));
-            }
-            return authorize(sess, i);
+            return authorize(sess, validateFound(dao.retrieve(id)));
         } catch (DaoException ex) {
             throw new InternalServerErrorException("Error loading the transmission structure inspection data.", ex);
         }
@@ -62,7 +62,17 @@ public class TransmissionStructureInspectionWebServiceImpl extends AbstractWebSe
 
     @Override
     public TransmissionStructureInspectionSummary retrieveSummary(String authToken, String id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ServicesSessionBean sess = lookupSessionBean(authToken);
+        ensureExists(id, "Transmission structure inspection ID is required.");
+        TransmissionStructureInspection insp = retrieve(authToken, id);
+        authorize(sess, insp);
+        TransmissionStructureInspectionSummary summary = new TransmissionStructureInspectionSummary(insp);
+        ResourceSearchParams params = new ResourceSearchParams();
+        params.setAssetInspectionId(insp.getId());
+        summary.setFlightImages(
+            resourceSvc.querySummaries(authToken, params)
+        );
+        return summary;
     }
 
     @Override
@@ -86,7 +96,13 @@ public class TransmissionStructureInspectionWebServiceImpl extends AbstractWebSe
         ensureExists(inspection.getId(), "Transmission structure inspection ID is required.");
         authorize(sess, inspection);
         try {
-            if (!dao.insert(inspection)) {
+            boolean updated = false;
+            TransmissionStructureInspection i = dao.retrieve(inspection.getId());
+            if (i != null) {
+                authorize(sess, i);
+                updated = dao.update(inspection);
+            }
+            if (!updated) {
                 throw new BadRequestException(String.format("A transmission structure inspection with the ID %s does not exist.", inspection.getId()));
             }
         } catch (DaoException ex) {

@@ -3,6 +3,7 @@ package com.precisionhawk.poleams.webservices.impl;
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
+import com.precisionhawk.ams.bean.security.ServicesSessionBean;
 import com.precisionhawk.ams.dao.DaoException;
 import com.precisionhawk.ams.domain.ResourceMetadata;
 import com.precisionhawk.ams.webservices.impl.AbstractWebService;
@@ -36,7 +37,9 @@ public class FeederInspectionWebServiceImpl extends AbstractWebService implement
 
     @Override
     public FeederInspection create(String authToken, FeederInspection inspection) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(inspection, "The feeder inspection is required.");
+        authorize(sess, inspection);
         try {
             if (dao.insert(inspection)) {
                 return inspection;
@@ -50,9 +53,10 @@ public class FeederInspectionWebServiceImpl extends AbstractWebService implement
 
     @Override
     public FeederInspection retrieve(String authToken, String id) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(id, "Feeder inspection ID is required.");
         try {
-            return dao.retrieve(id);
+            return authorize(sess, validateFound(dao.retrieve(id)));
         } catch (DaoException ex) {
             throw new InternalServerErrorException(String.format("Error retrieving feeder inspection %s.", id), ex);
         }
@@ -60,9 +64,11 @@ public class FeederInspectionWebServiceImpl extends AbstractWebService implement
 
     @Override
     public List<FeederInspection> search(String authToken, SiteInspectionSearchParams searchParams) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(searchParams, "Search parameters are required.");
+        authorize(sess, searchParams);
         try {
-            return dao.search(searchParams);
+            return authorize(sess, dao.search(searchParams));
         } catch (DaoException ex) {
             throw new InternalServerErrorException("Error retrieving feeder inspections.", ex);
         }
@@ -70,7 +76,9 @@ public class FeederInspectionWebServiceImpl extends AbstractWebService implement
 
     @Override
     public FeederInspectionSummary retrieveSummary(String authToken, String id) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
         FeederInspection finsp = retrieve(authToken, id);
+        authorize(sess, finsp);
         Feeder feeder = feederService.retrieve(authToken, finsp.getSiteId());
 
         // Load pole Summaries
@@ -144,11 +152,19 @@ public class FeederInspectionWebServiceImpl extends AbstractWebService implement
 
     @Override
     public void update(String authToken, FeederInspection inspection) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(inspection, "The feeder inspection is required.");
         ensureExists(inspection.getId(), "Feeder inspection ID is required.");
+        authorize(sess, inspection);
         try {
-            if (!dao.update(inspection)) {
-                throw new BadRequestException(String.format("The feeder inspection %s already exists.", inspection.getId()));
+            boolean updated = false;
+            FeederInspection i = dao.retrieve(inspection.getId());
+            if (i != null) {
+                authorize(sess, i);
+                updated = dao.update(inspection);
+            }
+            if (!updated) {
+                throw new BadRequestException(String.format("The feeder inspection %s does not exist.", inspection.getId()));
             }
         } catch (DaoException ex) {
             throw new InternalServerErrorException("Error persisting feeder inspection.", ex);

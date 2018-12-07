@@ -49,11 +49,7 @@ public class TransmissionStructureWebServiceImpl extends AbstractWebService impl
         ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(id, "Transmission structure ID is required.");
         try {
-            TransmissionStructure s = dao.retrieve(id);
-            if (s == null) {
-                throw new NotFoundException(String.format("No transmission structure with ID %s found.", id));
-            }
-            return authorize(sess, s);
+            return authorize(sess, validateFound(dao.retrieve(id)));
         } catch (DaoException ex) {
             throw new InternalServerErrorException("Error loading the transmission structure data.", ex);
         }
@@ -85,7 +81,13 @@ public class TransmissionStructureWebServiceImpl extends AbstractWebService impl
         ensureExists(structure.getId(), "Transmission structure ID is required.");
         authorize(sess, structure);
         try {
-            if (!dao.update(structure)) {
+            boolean updated = false;
+            TransmissionStructure s = dao.retrieve(structure.getId());
+            if (s != null) {
+                authorize(sess, s);
+                updated = dao.update(structure);
+            }
+            if (!updated) {
                 throw new BadRequestException(String.format("A transmission structure with the ID %s does not exist.", structure.getId()));
             }
         } catch (DaoException ex) {

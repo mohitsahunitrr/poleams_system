@@ -3,6 +3,7 @@ package com.precisionhawk.poleams.webservices.impl;
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.poleams.bean.PoleInspectionSummary;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
+import com.precisionhawk.ams.bean.security.ServicesSessionBean;
 import com.precisionhawk.ams.dao.DaoException;
 import com.precisionhawk.poleams.dao.PoleInspectionDao;
 import com.precisionhawk.poleams.domain.PoleInspection;
@@ -34,7 +35,9 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
 
     @Override
     public PoleInspection create(String authToken, PoleInspection inspection) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(inspection, "The pole inspection is required.");
+        authorize(sess, inspection);
         if (inspection.getId() == null) {
             inspection.setId(UUID.randomUUID().toString());
         }
@@ -51,9 +54,10 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
 
     @Override
     public PoleInspection retrieve(String authToken, String inspectionId) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(inspectionId, "The pole inspection ID is required.");
         try {
-            return piDao.retrieve(inspectionId);
+            return authorize(sess, validateFound(piDao.retrieve(inspectionId)));
         } catch (DaoException ex) {
             throw new InternalServerErrorException("Error retrieving pole inspection.", ex);
         }
@@ -64,9 +68,11 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
     
     @Override
     public PoleInspectionSummary retrieveSummary(String authToken, String inspectionId) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(inspectionId, "The pole inspection ID is required.");
         try {
             PoleInspection inspection = piDao.retrieve(inspectionId);
+            authorize(sess, inspection);
             if (inspection == null) {
                 return null;
             }
@@ -79,9 +85,11 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
 
     @Override
     public List<PoleInspection> search(String authToken, AssetInspectionSearchParams params) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(params, "Search parameters are required.");
+        authorize(sess, params);
         try {
-            return piDao.search(params);
+            return authorize(sess, validateFound(piDao.search(params)));
         } catch (DaoException ex) {
             throw new InternalServerErrorException("Error retrieving pole inspections based on search criteria.", ex);
         }
@@ -89,10 +97,17 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
 
     @Override
     public void update(String authToken, PoleInspection inspection) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
         ensureExists(inspection, "The pole inspection is required.");
         ensureExists(inspection.getId(), "The pole inspection ID is required.");
         try {
-            if (!piDao.update(inspection)) {
+            boolean updated = false;
+            PoleInspection p = piDao.retrieve(inspection.getId());
+            if (p != null) {
+                authorize(sess, p);
+                updated = piDao.update(inspection);
+            }
+            if (!updated) {
                 throw new NotFoundException(String.format("No pole inspection with ID %s exists.", inspection.getId()));
             }
         } catch (DaoException ex) {
@@ -186,9 +201,11 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
 
     @Override
     public void delete(String authToken, String id) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
         // See if it even exists
         PoleInspection insp = retrieve(authToken, id);
         if (insp != null) {
+            authorize(sess, insp);
             {
                 // Delete any related resources
                 ResourceSearchParams params = new ResourceSearchParams();
