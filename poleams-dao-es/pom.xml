@@ -11,9 +11,9 @@
       <version>1.0.0-SNAPSHOT</version>
     </parent>
     
-    <artifactId>poleams-dao</artifactId>
-    <name>PoleAMS - Dao</name>
-    <description>Data access API for PoleAMS</description>
+    <artifactId>poleams-dao-es</artifactId>
+    <name>PoleAMS - Dao - ES</name>
+    <description>ElasticSearch DAO Impl for PoleAMS</description>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -21,10 +21,13 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>poleams-common</artifactId>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ams-dao</artifactId>
+            <artifactId>poleams-dao</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ams-dao-es</artifactId>
         </dependency>
 
         <!-- Testing -->
