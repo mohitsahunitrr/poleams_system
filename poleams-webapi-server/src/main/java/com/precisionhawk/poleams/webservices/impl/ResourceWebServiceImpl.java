@@ -35,7 +35,7 @@ public class ResourceWebServiceImpl extends com.precisionhawk.ams.webservices.im
             return Collections.emptyList();
         }
         try {
-            List<ResourceMetadata> resources = resourceDao.lookup(params);
+            List<ResourceMetadata> resources = resourceDao.search(params);
             if (resources == null || resources.isEmpty()) {
                 return Collections.emptyList();
             }
@@ -44,7 +44,7 @@ public class ResourceWebServiceImpl extends com.precisionhawk.ams.webservices.im
             Map<String, List<String>> thumbnailsBySourceId = new HashMap<>();
             params.setType(ResourceTypes.ThumbNail);
             List<String> ids;
-            for (ResourceMetadata rmeta : resourceDao.lookup(params)) {
+            for (ResourceMetadata rmeta : resourceDao.search(params)) {
                 if (rmeta.getSourceResourceId() != null) {
                     ids = thumbnailsBySourceId.get(rmeta.getSourceResourceId());
                     if (ids == null) {
@@ -93,7 +93,7 @@ public class ResourceWebServiceImpl extends com.precisionhawk.ams.webservices.im
             params.setSourceResourceId(rmeta.getResourceId());
             params.setType(ResourceTypes.ThumbNail);
             try {
-                ResourceMetadata thumbnail = CollectionsUtilities.firstItemIn(resourceDao.lookup(params));
+                ResourceMetadata thumbnail = CollectionsUtilities.firstItemIn(resourceDao.search(params));
                 if (thumbnail != null) {
                     scaledImageURL = getResourceDownloadURL(thumbnail.getResourceId(), false);
                 }
