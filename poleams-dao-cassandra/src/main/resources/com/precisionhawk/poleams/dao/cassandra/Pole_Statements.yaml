@@ -1,0 +1,21 @@
+# Table pole
+deleteStmt: DELETE FROM pole WHERE id = ?;
+initStmts:
+  - >
+      "CREATE TABLE IF NOT EXISTS pole (
+        id TEXT PRIMARY KEY, site_id TEXT, name TEXT, serial_num TEXT, type TEXT, utility_id TEXT, obj_json JSONB
+      ) WITH transactions = { 'enabled' : true };"
+  - CREATE INDEX IF NOT EXISTS pole_idx_site       ON pole (site_id)    INCLUDE (obj_json);
+  - CREATE INDEX IF NOT EXISTS pole_meta_idx_name  ON pole (name)       INCLUDE (obj_json);
+  - CREATE INDEX IF NOT EXISTS pole_idx_serial_num ON pole (serial_num) INCLUDE (obj_json);
+  - CREATE INDEX IF NOT EXISTS pole_idx_type       ON pole (type)       INCLUDE (obj_json);
+  - CREATE INDEX IF NOT EXISTS pole_idx_utility_id ON pole (utility_id) INCLUDE (obj_json);
+insertStmt: >
+    INSERT INTO pole (
+      site_id, name, serial_num, type, utility_id, obj_json, id
+    ) VALUES (?, ?, ?, ?, ?, ?, ?);
+updateStmt: >
+    UPDATE pole SET
+      site_id = ?, name = ?, serial_num = ?, type = ?, utility_id = ?, obj_json = ?
+    WHERE id = ?;
+selectTemplate: SELECT obj_json FROM pole {where_clause};

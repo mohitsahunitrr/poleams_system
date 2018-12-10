@@ -1,0 +1,9 @@
+# Table feeder
+deleteStmt: DELETE FROM feeder WHERE id = ?;
+initStmts:
+  - "CREATE TABLE IF NOT EXISTS feeder (id TEXT PRIMARY KEY, org_id TEXT, site_name TEXT, feeder_num TEXT, obj_json JSONB) WITH transactions = { 'enabled' : true };"
+  - CREATE UNIQUE INDEX IF NOT EXISTS feeder_idx_org_name   ON feeder (org_id, site_name)  INCLUDE (obj_json);
+  - CREATE UNIQUE INDEX IF NOT EXISTS feeder_idx_org_feeder ON feeder (org_id, feeder_num) INCLUDE (obj_json);
+insertStmt: INSERT INTO feeder (org_id, site_name, feeder_num, obj_json, id) VALUES (?, ?, ?, ?, ?);
+updateStmt: UPDATE feeder SET org_id = ?, site_name = ?, feeder_num = ?, obj_json = ? WHERE id = ?;
+selectTemplate: SELECT obj_json FROM feeder {where_clause};

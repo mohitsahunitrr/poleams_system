@@ -53,11 +53,19 @@
         factory-method="getCacheConfig"
     />
     <bean
+        id="CassandraConfig"
+        class="com.precisionhawk.ams.support.cassandra.CassandraConfig"
+        factory-bean="AppConfig"
+        factory-method="getCassandraConfig"
+    />
+<!--
+    <bean
         id="ElasticSearchConfig"
         class="com.precisionhawk.ams.support.elasticsearch.ElasticSearchConfig"
         factory-bean="AppConfig"
         factory-method="getElasticSearchConfig"
     />
+-->
     <bean
         id="RepositoryConfig"
         class="com.precisionhawk.ams.repository.RepositoryConfig"
@@ -77,7 +85,24 @@
         factory-method="getServicesConfig"
     />
     
+    <!-- Cassandra -->
+    <bean
+        id="daoClientLifecycleListener"
+        class="com.precisionhawk.ams.support.cassandra.LoggingClientLifecycleListener"
+    />
+    <bean
+        id="CassandraClientFactory"
+        class="com.precisionhawk.ams.support.cassandra.CassandraClientFactory"
+    />
+    <bean
+        id="CassandraSession"
+        class="com.datastax.driver.core.Session"
+        factory-bean="CassandraClientFactory"
+        factory-method="get"
+    />
+    
     <!-- ElasticSearch -->
+<!--
     <bean
         id="ElasticSearchClientFactory"
         class="com.precisionhawk.ams.support.elasticsearch.ElasticSearchClientFactory"
@@ -88,6 +113,7 @@
         factory-bean="ElasticSearchClientFactory"
         factory-method="get"
     />
+-->
     
     <!-- Jackson -->
     <bean
@@ -145,7 +171,13 @@
         
     <!-- DAOs -->
     <bean id="securityDao" class="com.precisionhawk.ams.dao.rdbms.SecurityDaoImpl"/>
+<!--
     <bean id="translationsAndValidationsDao" class="com.precisionhawk.ams.dao.rdbms.TranslationsAndValidationsDaoImpl"/>
+-->
+    <bean id="inspectionEventDao" class="com.precisionhawk.ams.dao.cassandra.InspectionEventCassDao"/>
+    <bean id="inspectionEventResourceDao" class="com.precisionhawk.ams.dao.cassandra.InspectionEventResourceCassDao"/>
+    <bean id="resourceMetadataDao" class="com.precisionhawk.ams.dao.cassandra.ResourceMetadataCassDao"/>
+    <bean id="translationsAndValidationsDao" class="com.precisionhawk.ams.dao.cassandra.TranslationsAndValidationsCassDao"/>
     
     <!-- Resource Repository -->    
     <bean

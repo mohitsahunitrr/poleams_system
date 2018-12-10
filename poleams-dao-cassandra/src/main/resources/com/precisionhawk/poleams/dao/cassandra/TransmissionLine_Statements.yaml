@@ -1,0 +1,9 @@
+# Table trans_line
+deleteStmt: DELETE FROM trans_line WHERE id = ?;
+initStmts:
+  - "CREATE TABLE IF NOT EXISTS trans_line (id TEXT PRIMARY KEY, org_id TEXT, site_name TEXT, line_num TEXT, obj_json JSONB) WITH transactions = { 'enabled' : true };"
+  - CREATE UNIQUE INDEX IF NOT EXISTS trans_line_idx_org_name ON trans_line (org_id, site_name) INCLUDE (obj_json);
+  - CREATE UNIQUE INDEX IF NOT EXISTS trans_line_idx_org_line ON trans_line (org_id, line_num)  INCLUDE (obj_json);
+insertStmt: INSERT INTO trans_line (org_id, site_name, line_num, obj_json, id) VALUES (?, ?, ?, ?, ?);
+updateStmt: UPDATE trans_line SET org_id = ?, site_name = ?, line_num = ?, obj_json = ? WHERE id = ?;
+selectTemplate: SELECT obj_json FROM trans_line {where_clause};

@@ -1,0 +1,11 @@
+# Table trans_line_insp
+deleteStmt: DELETE FROM trans_line_insp WHERE id = ?;
+initStmts:
+  - #CREATE TABLE IF NOT EXISTS trans_line_insp (id TEXT PRIMARY KEY, site_id TEXT, ord_num TEXT, status TEXT, type TEXT, obj_json JSONB) WITH transactions = { 'enabled' : true };"
+  - CREATE UNIQUE INDEX IF NOT EXISTS trans_line_insp_idx_site    ON trans_line_insp (site_id) INCLUDE (obj_json);
+  - CREATE UNIQUE INDEX IF NOT EXISTS trans_line_insp_idx_workOrd ON trans_line_insp (ord_id)  INCLUDE (obj_json);
+  - CREATE UNIQUE INDEX IF NOT EXISTS trans_line_insp_idx_status  ON trans_line_insp (status)  INCLUDE (obj_json);
+  - CREATE UNIQUE INDEX IF NOT EXISTS trans_line_insp_idx_type    ON trans_line_insp (status)  INCLUDE (obj_json);
+insertStmt: INSERT INTO trans_line_insp (site_id, ord_num, status, type, obj_json, id) VALUES (?, ?, ?, ?, ?, ?);
+updateStmt: UPDATE trans_line_insp SET site_id = ?, ord_num = ?, status = ?, type = ?, obj_json = ? WHERE id = ?;
+selectTemplate: SELECT obj_json FROM trans_line_insp {where_clause};

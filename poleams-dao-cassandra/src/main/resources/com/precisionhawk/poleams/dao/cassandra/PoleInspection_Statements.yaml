@@ -1,0 +1,12 @@
+# Table pole_insp
+deleteStmt: DELETE FROM pole_insp WHERE id = ?;
+initStmts:
+  - "CREATE TABLE IF NOT EXISTS pole_insp (id TEXT PRIMARY KEY, site_id TEXT, ord_num TEXT, site_insp_id TEXT, asset_id TEXT, status TEXT, obj_json JSONB) WITH transactions = { 'enabled' : true };"
+  - CREATE UNIQUE INDEX IF NOT EXISTS pole_insp_idx_site     ON site_insp (site_id)      INCLUDE (obj_json);
+  - CREATE UNIQUE INDEX IF NOT EXISTS pole_insp_idx_workOrd  ON site_insp (ord_num)      INCLUDE (obj_json);
+  - CREATE UNIQUE INDEX IF NOT EXISTS pole_insp_idx_siteInsp ON site_insp (site_insp_id) INCLUDE (obj_json);
+  - CREATE UNIQUE INDEX IF NOT EXISTS pole_insp_idx_asset    ON site_insp (asset_id)     INCLUDE (obj_json);
+  - CREATE UNIQUE INDEX IF NOT EXISTS pole_insp_idx_status   ON site_insp (status)       INCLUDE (obj_json);
+insertStmt: INSERT INTO pole_insp (site_id, ord_num, site_insp_id, asset_id, status, obj_json, id) VALUES (?, ?, ?, ?, ?, ?, ?);
+updateStmt: UPDATE pole_insp SET site_id = ?, ord_num = ?, site_insp = ?, asset_id = ?, status = ?, obj_json = ? WHERE id = ?;
+selectTemplate: SELECT obj_json FROM pole_insp {where_clause};
