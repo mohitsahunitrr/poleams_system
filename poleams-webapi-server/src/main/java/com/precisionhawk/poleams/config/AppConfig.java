@@ -22,13 +22,13 @@ public class AppConfig {
         this.cacheConfig = cacheConfig;
     }
     
-    private CassandraConfigBean cassandraConfig;
-    public CassandraConfigBean getCassandraConfig() {
-        return cassandraConfig;
-    }
-    public void setCassandraConfig(CassandraConfigBean cassandraConfig) {
-        this.cassandraConfig = cassandraConfig;
-    }
+//    private CassandraConfigBean cassandraConfig;
+//    public CassandraConfigBean getCassandraConfig() {
+//        return cassandraConfig;
+//    }
+//    public void setCassandraConfig(CassandraConfigBean cassandraConfig) {
+//        this.cassandraConfig = cassandraConfig;
+//    }
     
     private DbConfigBean dbConfig;
     public DbConfigBean getDbConfig() {
@@ -38,13 +38,13 @@ public class AppConfig {
         this.dbConfig = config;
     }
 
-//    private ElasticSearchConfigBean elasticSearchConfig;
-//    public ElasticSearchConfigBean getElasticSearchConfig() {
-//        return elasticSearchConfig;
-//    }
-//    public void setElasticSearchConfig(ElasticSearchConfigBean elasticSearchConfig) {
-//        this.elasticSearchConfig = elasticSearchConfig;
-//    }
+    private ElasticSearchConfigBean elasticSearchConfig;
+    public ElasticSearchConfigBean getElasticSearchConfig() {
+        return elasticSearchConfig;
+    }
+    public void setElasticSearchConfig(ElasticSearchConfigBean elasticSearchConfig) {
+        this.elasticSearchConfig = elasticSearchConfig;
+    }
 
     private RepositoryConfigBean repositoryConfig;
     public RepositoryConfigBean getRepositoryConfig() {
