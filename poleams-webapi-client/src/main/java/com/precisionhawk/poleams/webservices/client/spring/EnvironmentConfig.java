@@ -10,6 +10,14 @@ package com.precisionhawk.poleams.webservices.client.spring;
  */
 public class EnvironmentConfig {
 
+    private String accessTokenProvider;
+    public String getAccessTokenProvider() {
+        return accessTokenProvider;
+    }
+    public void setAccessTokenProvider(String accessTokenProvider) {
+        this.accessTokenProvider = accessTokenProvider;
+    }
+
     private String name;
     public String getName() {
         return name;

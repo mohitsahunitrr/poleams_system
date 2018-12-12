@@ -70,6 +70,7 @@ public abstract class ServiceClientCommandProcess extends CommandProcess {
             environments = factory.getEnvironments();
         } catch (Exception ex) {
             System.err.printf("Unable to configure environments from URI %s\n", configURI);
+            ex.printStackTrace(System.err);
             return false;
         }
         

@@ -26,6 +26,7 @@ public final class Main {
         new DeleteDataProcess(),
         new DeletePoleProcess(),
         new FeederDataImportProcess(),
+        new GeoJsonMasterDataImportProcess(),
         new PopulateEncroachmentGoogleEarthURL(),
         new PopulateMasterSurveyProcess(),
         new ResourceUploadProcess(),
