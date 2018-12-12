@@ -289,10 +289,16 @@ public class GeoJsonMasterDataImport {
                 JsonToken token = parser.nextToken();
                 if (token == JsonToken.VALUE_NUMBER_FLOAT) {
                     lon = parser.getFloatValue();
+                    if (Float.isInfinite(lon)) {
+                        lon = 0f;
+                    }
                 }
                 token = parser.nextValue();
                 if (token == JsonToken.VALUE_NUMBER_FLOAT) {
                     lat = parser.getFloatValue();
+                    if (Float.isInfinite(lat)) {
+                        lat = 0f;
+                    }
                 }
                 if (advanceToObjectEnd(parser)) {
                     if (lat != null && lon != null) {
