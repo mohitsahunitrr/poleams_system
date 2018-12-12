@@ -12,11 +12,11 @@ readAllResources: true
 resourceClasses:
     - com.precisionhawk.aws.webservices.AuthenticationWebService
     - com.precisionhawk.ams.webservices.InspectionEventResourceWebService
-    - com.precisionhawk.ams.webservices.InspectionEventWebService
     - com.precisionhawk.ams.webservices.OrganizationWebService
     - com.precisionhawk.ams.webservices.WorkOrderWebService
     - com.precisionhawk.poleams.webservices.FeederInspectionWebService
     - com.precisionhawk.poleams.webservices.FeederWebService
+    - com.precisionhawk.poleams.webservices.InspectionEventWebService
     - com.precisionhawk.poleams.webservices.PoleInspectionWebService
     - com.precisionhawk.poleams.webservices.PoleWebService
     - com.precisionhawk.poleams.webservices.ResourceWebWebService

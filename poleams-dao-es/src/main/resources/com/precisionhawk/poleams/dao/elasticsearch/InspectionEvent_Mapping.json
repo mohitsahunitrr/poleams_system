@@ -1,0 +1,73 @@
+{
+    "InspectionEvent": {
+        "properties": {
+            "componentId": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "comment": {
+                "type": "string"
+            },
+            "date": {
+                "type": "date",
+                "format": "yyyyMMdd"
+            },
+            "findingType": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "id": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "name": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "orderNumber": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "severity": {
+                "type": "long"
+            },
+            "siteId": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "size": {
+                "properties": {
+                    "depth": {
+                        "type": "double"  
+                    },
+                    "height": {
+                        "type": "double"
+                    },
+                    "width": {
+                        "type": "double"
+                    }
+                }
+            },
+            "assetId": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "userId": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "position": {
+                "include_in_all": false,
+                "type": "string"
+            }
+        }
+    }
+}
