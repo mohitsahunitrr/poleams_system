@@ -4,7 +4,6 @@ import com.precisionhawk.ams.wb.process.ServiceClientCommandProcess;
 import com.precisionhawk.poleams.domain.ResourceTypes;
 import com.precisionhawk.poleams.processors.poleinspection.SurveyReportGenerator;
 import com.precisionhawk.poleams.processors.ProcessListener;
-import com.precisionhawk.poleams.processors.poleinspection.ImportProcessStatus;
 import com.precisionhawk.ams.webservices.client.Environment;
 import java.io.File;
 import java.io.IOException;
@@ -81,9 +80,6 @@ public class PopulateMasterSurveyProcess extends ServiceClientCommandProcess {
             return false;
         }
         ProcessListener listener = new ProcessListener() {
-            public void setStatus(ImportProcessStatus processStatus) {
-                System.out.printf("Status: %s\n", processStatus);
-            }
             @Override
             public void reportFatalError(String message) {
                 System.err.println(message);

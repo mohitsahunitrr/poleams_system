@@ -1,9 +1,12 @@
 package com.precisionhawk.poleams.webservices.impl;
 
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
+import com.precisionhawk.ams.bean.InspectionEventSearchParams;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.ams.bean.security.ServicesSessionBean;
 import com.precisionhawk.ams.dao.DaoException;
+import com.precisionhawk.ams.domain.InspectionEvent;
+import com.precisionhawk.ams.webservices.InspectionEventWebService;
 import com.precisionhawk.ams.webservices.impl.AbstractWebService;
 import com.precisionhawk.poleams.bean.TransmissionStructureInspectionSummary;
 import com.precisionhawk.poleams.dao.TransmissionStructureInspectionDao;
@@ -16,7 +19,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotFoundException;
 
 /**
  *
@@ -27,6 +29,9 @@ public class TransmissionStructureInspectionWebServiceImpl extends AbstractWebSe
 
     @Inject
     private TransmissionStructureInspectionDao dao;
+    
+    @Inject
+    private InspectionEventWebService insEvtSvc;
     
     @Inject
     private ResourceWebService resourceSvc;
@@ -67,11 +72,21 @@ public class TransmissionStructureInspectionWebServiceImpl extends AbstractWebSe
         TransmissionStructureInspection insp = retrieve(authToken, id);
         authorize(sess, insp);
         TransmissionStructureInspectionSummary summary = new TransmissionStructureInspectionSummary(insp);
-        ResourceSearchParams params = new ResourceSearchParams();
-        params.setAssetInspectionId(insp.getId());
+        ResourceSearchParams rparams = new ResourceSearchParams();
+        rparams.setAssetInspectionId(insp.getId());
         summary.setFlightImages(
-            resourceSvc.querySummaries(authToken, params)
+            resourceSvc.querySummaries(authToken, rparams)
         );
+        InspectionEventSearchParams ieparams = new InspectionEventSearchParams();
+        ieparams.setAssetId(insp.getAssetId());
+        ieparams.setOrderNumber(insp.getOrderNumber());
+        Integer severity = null;
+        for (InspectionEvent evt : insEvtSvc.search(authToken, ieparams)) {
+            if (severity == null || evt.getSeverity() > severity) {
+                severity = evt.getSeverity();
+            }
+        }
+        summary.setSeverity(severity);
         return summary;
     }
 

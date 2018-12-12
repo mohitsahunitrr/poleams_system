@@ -1,5 +1,6 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
+import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.poleams.domain.Pole;

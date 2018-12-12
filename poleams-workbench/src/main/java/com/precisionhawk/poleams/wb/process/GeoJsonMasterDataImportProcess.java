@@ -1,55 +1,58 @@
 package com.precisionhawk.poleams.wb.process;
 
 import com.precisionhawk.ams.wb.process.ServiceClientCommandProcess;
-import com.precisionhawk.poleams.processors.poleinspection.FeederDataDirProcessor;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.processors.ProcessListener;
+import com.precisionhawk.poleams.processors.poleinspection.GeoJsonMasterDataImport;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.Queue;
 
 /**
  *
- * @author Philip A. Chapman
+ * @author pchapman
  */
-public class FeederDataImportProcess extends ServiceClientCommandProcess {
+public class GeoJsonMasterDataImportProcess extends ServiceClientCommandProcess {
     
+    private static final String ARG_FEEDER_ID = "-feederId";
     private static final String ARG_ORDER_NUM = "-orderNum";
-    private static final String ARG_ORG_ID = "-orgId";
-    private static final String COMMAND = "importFeederInspection";
-    private static final String HELP = "\t" + COMMAND + " " + ARGS_FOR_HELP + " " + ARG_ORDER_NUM + " WorkOrderNumber " + ARG_ORG_ID + " organizationId path/to/inspection/data/dir";
+    private static final String COMMAND = "importLineMasterData";
+    private static final String HELP = "\t" + COMMAND + " " + ARGS_FOR_HELP + " " + ARG_FEEDER_ID + " FeederId " + ARG_ORDER_NUM + " WorkOrderNumber path/to/inspection/data/dir";
     
     private String dirPath;
-    private String orderNumber;
-    private String orgId;
+    private String feederId;
+    private String orderNum;
 
     @Override
     protected boolean processArg(String arg, Queue<String> args) {
-        if (ARG_ORDER_NUM.equals(arg)) {
-            if (orderNumber == null) {
-                orderNumber = args.poll();
-                return orderNumber != null;
-            } else {
-                return false;
-            }
-        } else if (ARG_ORG_ID.equals(arg)) {
-            if (orgId == null) {
-                orgId = args.poll();
-                return orgId != null;
-            } else {
-                return false;
-            }
-        } else if (dirPath == null) {
-            dirPath = arg;
-            return true;
-        } else {
-            return false;
+        switch (arg) {
+            case ARG_FEEDER_ID:
+                if (feederId == null) {
+                    feederId = args.poll();
+                    return feederId != null;
+                } else {
+                    return false;
+                }
+            case ARG_ORDER_NUM:
+                if (orderNum == null) {
+                    orderNum = args.poll();
+                    return orderNum != null;
+                } else {
+                    return false;
+                }
+            default:
+                if (dirPath == null) {
+                    dirPath = arg;
+                    return dirPath != null;
+                } else {
+                    return false;
+                }
         }
     }
 
     @Override
     protected boolean execute(Environment env) {
-        if (dirPath == null || orderNumber == null) {
+        if (dirPath == null || feederId == null || orderNum == null) {
             return false;
         }
         ProcessListener listener = new ProcessListener() {
@@ -80,8 +83,8 @@ public class FeederDataImportProcess extends ServiceClientCommandProcess {
                 t.printStackTrace(System.err);
             }
         };
-        boolean success = FeederDataDirProcessor.process(env, listener, new File(dirPath), orgId, orderNumber);
-        System.out.printf("Import finished with %s\n", (success ? "success" : "errors"));
+        GeoJsonMasterDataImport importer = new GeoJsonMasterDataImport();
+        importer.process(env, listener, feederId, orderNum, new File(dirPath));
         return true;
     }
 
@@ -94,4 +97,5 @@ public class FeederDataImportProcess extends ServiceClientCommandProcess {
     public void printHelp(PrintStream output) {
         output.println(HELP);
     }
+    
 }

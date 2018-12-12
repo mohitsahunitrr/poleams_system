@@ -1,5 +1,6 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
+import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.bean.GeoPoint;
@@ -56,7 +57,7 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
     // No state data
     private SurveyReportImport() {} 
 
-    private static File findMasterSurveyTemplate(ImportProcessListener listener, File feederDir) {
+    private static File findMasterSurveyTemplate(ProcessListener listener, File feederDir) {
         File[] files = feederDir.listFiles(FilenameFilters.EXCEL_SPREADSHEET_FILTER);
         if (files.length > 1) {
             listener.reportFatalError(String.format("Multiple excel files exist in directory \"%s\"", feederDir));
@@ -69,14 +70,13 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
         }
     }
     
-    static boolean processMasterSurveyTemplate(Environment env, ImportProcessListener listener, InspectionData data, File feederDir) {
+    static boolean processMasterSurveyTemplate(Environment env, ProcessListener listener, InspectionData data, File feederDir) {
         File masterDataFile = findMasterSurveyTemplate(listener, feederDir);
         if (masterDataFile == null) {
             return false;
         }
         Workbook workbook = null;
         try {
-            listener.setStatus(ImportProcessStatus.ProcessingMasterSurveyTemplate);
             workbook = XSSFWorkbookFactory.createWorkbook(masterDataFile, true);
             
             // Find the "Survey Data" sheet.

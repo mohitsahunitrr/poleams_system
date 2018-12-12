@@ -1,6 +1,7 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
-import com.precisionhawk.poleams.processors.ResourceDataUploader;
+import com.precisionhawk.poleams.processors.InspectionData;
+import com.precisionhawk.poleams.processors.DataImportUtilities;
 import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.poleams.bean.FeederInspectionSummary;
@@ -12,10 +13,7 @@ import com.precisionhawk.ams.domain.ResourceType;
 import com.precisionhawk.poleams.domain.ResourceTypes;
 import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.ams.util.ContentTypeUtilities;
-import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
-import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.ams.webservices.ResourceWebService;
-import com.precisionhawk.ams.webservices.WorkOrderWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.domain.FeederInspection;
 import com.precisionhawk.poleams.webservices.FeederInspectionWebService;
@@ -27,11 +25,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
-import com.precisionhawk.poleams.webservices.FeederWebService;
+import com.precisionhawk.poleams.webservices.client.WSClientHelper;
 
 /**
  * Given a directory processes the Excel spreadsheet and pole analysis XML files
@@ -114,10 +111,9 @@ public final class FeederDataDirProcessor implements Constants {
     // no state
     private FeederDataDirProcessor() {};
 
-    public static boolean process(Environment env, ImportProcessListener listener, File feederDir, String orgId, String orderNumber) {
+    public static boolean process(Environment env, ProcessListener listener, File feederDir, String orgId, String orderNumber) {
         
         boolean success;
-        listener.setStatus(ImportProcessStatus.Initializing);
         InspectionData data = new InspectionData();
         data.setOrderNumber(orderNumber);
         data.setOrganizationId(orgId);
@@ -136,7 +132,6 @@ public final class FeederDataDirProcessor implements Constants {
         
         File poleDataDir = new File(feederDir, POLE_DATA_SUBDIR);
         if (poleDataDir.exists() && poleDataDir.canRead()) {
-            listener.setStatus(ImportProcessStatus.ProcessingPoleData);
         
             // Process pole foreman output
             File pfDir = findPoleForemanFilesDir(listener, poleDataDir);
@@ -200,97 +195,28 @@ public final class FeederDataDirProcessor implements Constants {
         //TODO: Find and upload kml (kmz)
         
         try {
-            listener.setStatus(ImportProcessStatus.PersistingData);
-
-            // Save Feeder
-            if (data.getFeeder() != null) {
-                FeederWebService sssvc = env.obtainWebService(FeederWebService.class);
-                if (data.getDomainObjectIsNew().get(data.getFeeder().getId())) {
-                    sssvc.create(env.obtainAccessToken(), data.getFeeder());
-                    listener.reportMessage(String.format("Inserted new feeder %s", data.getFeeder().getFeederNumber()));
-                } else {
-                    sssvc.update(env.obtainAccessToken(), data.getFeeder());
-                    listener.reportMessage(String.format("Updated feeder %s", data.getFeeder().getFeederNumber()));
-                }
-            }
+            WSClientHelper wsclient = new WSClientHelper(env);
             
-            // Save Work Order
-            if (data.getWorkOrder() != null) {
-                WorkOrderWebService svc = env.obtainWebService(WorkOrderWebService.class);
-                if (data.getDomainObjectIsNew().get(data.getWorkOrder().getOrderNumber())) {
-                    svc.create(env.obtainAccessToken(), data.getWorkOrder());
-                    listener.reportMessage(String.format("Inserted new work order %s", data.getWorkOrder().getOrderNumber()));
-                } else {
-                    svc.update(env.obtainAccessToken(), data.getWorkOrder());
-                    listener.reportMessage(String.format("Updated work order %s", data.getWorkOrder().getOrderNumber()));
-                }
-            }
-            
-            // Save Feeder Inspection
-            if (data.getFeederInspection() != null) {
-                FeederInspectionWebService svc = env.obtainWebService(FeederInspectionWebService.class);
-                if (data.getDomainObjectIsNew().get(data.getFeederInspection().getId())) {
-                    svc.create(env.obtainAccessToken(), data.getFeederInspection());
-                    listener.reportMessage(String.format("Inserted new feeder inspection %s", data.getFeederInspection().getId()));
-                } else {
-                    svc.update(env.obtainAccessToken(), data.getFeederInspection());
-                    listener.reportMessage(String.format("Updated feeder inspection %s", data.getFeederInspection().getId()));
-                }
-            }
-
-            // Save Poles
-            if (!data.getPoleDataByFPLId().isEmpty()) {
-                PoleWebService psvc = env.obtainWebService(PoleWebService.class);
-                for (Pole pdata : data.getPoleDataByFPLId().values()) {
-                    if (data.getDomainObjectIsNew().get(pdata.getId())) {
-                        psvc.create(env.obtainAccessToken(), pdata);
-                        listener.reportMessage(String.format("Inserted new pole %s FPL ID %s", pdata.getId(), pdata.getUtilityId()));
-                    } else {
-                        psvc.update(env.obtainAccessToken(), pdata);
-                        listener.reportMessage(String.format("Updated pole %s FPL ID %s", pdata.getId(), pdata.getUtilityId()));
-                    }
-                }
-            }
-
-            // Save Pole Inspections
-            if (!data.getPoleInspectionsByFPLId().isEmpty()) {
-                PoleInspectionWebService pisvc = env.obtainWebService(PoleInspectionWebService.class);
-                for (PoleInspection pi : data.getPoleInspectionsByFPLId().values()) {
-                    if (data.getDomainObjectIsNew().get(pi.getId())) {
-                        pisvc.create(env.obtainAccessToken(), pi);
-                        listener.reportMessage(String.format("Inserted new inspection for pole %s", pi.getAssetId()));
-                    } else {
-                        pisvc.update(env.obtainAccessToken(), pi);
-                        listener.reportMessage(String.format("updated inspection for pole %s", pi.getAssetId()));
-                    }
-                }
+            if (!DataImportUtilities.saveData(wsclient, listener, data)) {
+                return false;
             }
 
             // Now that we've saved all the data, we can update the survey report.
             updateSurveyReport(env, data, listener);
 
-            listener.setStatus(ImportProcessStatus.UploadingResources);
             // Save Resources
             listener.reportMessage("Uploading Feeder resources.");
-            ResourceWebService rsvc = env.obtainWebService(ResourceWebService.class);
-            for (ResourceMetadata rmeta : data.getFeederResources()) {
-                ResourceDataUploader.uploadResources(env, listener, data, data.getFeederResources(), data.getResourceDataFiles(), 2);
-            }
-            int index = 1;
-            for (List<ResourceMetadata> list : data.getPoleResources().values()) {
-                listener.reportMessage(String.format("Uploading Pole resources ( %d of %d poles).", index++, data.getPoleResources().size()));
-                ResourceDataUploader.uploadResources(env, listener, data, list, data.getResourceDataFiles(), 2);
-            }
+            if (!DataImportUtilities.saveResources(wsclient, listener, data)) {
+                return false;
+            }            
         } catch (Throwable t) {
             listener.reportFatalException("Error persisting inspection data.", t);
         }
         
-        listener.setStatus(ImportProcessStatus.Done);
-        
         return success;
     }
 
-    private static File findFeederMapFile(ImportProcessListener listener, File feederMapDir) {
+    private static File findFeederMapFile(ProcessListener listener, File feederMapDir) {
         File[] files = feederMapDir.listFiles(FEEDER_MAP_FILE_FILTER);
         if (files.length > 1) {
             listener.reportFatalError(String.format("Multiple files exist in directory \"%s\" which could be the feeder map.", feederMapDir));
@@ -303,7 +229,7 @@ public final class FeederDataDirProcessor implements Constants {
         }
     }
 
-    private static File findImagesDir(ImportProcessListener listener, File poleDataDir) {
+    private static File findImagesDir(ProcessListener listener, File poleDataDir) {
         File[] files = poleDataDir.listFiles(IMAGES_DIR_FILTER);
         if (files.length > 1) {
             listener.reportFatalError(String.format("Multiple directories exist in directory \"%s\" which could contain images.", poleDataDir));
@@ -316,7 +242,7 @@ public final class FeederDataDirProcessor implements Constants {
         }
     }
 
-    private static File findPoleForemanFilesDir(ImportProcessListener listener, File poleDataDir) {
+    private static File findPoleForemanFilesDir(ProcessListener listener, File poleDataDir) {
         File[] files = poleDataDir.listFiles(POLE_FOREMAN_FILES_DIR_FILTER);
         if (files.length > 1) {
             listener.reportFatalError(String.format("Multiple directories exist in directory \"%s\" which could contain pole forman files.", poleDataDir));
@@ -329,8 +255,7 @@ public final class FeederDataDirProcessor implements Constants {
         }
     }
     
-    private static boolean updateSurveyReport(Environment env, InspectionData data, ImportProcessListener listener) {
-        listener.setStatus(ImportProcessStatus.GeneratingUpdatedSurveyReport);
+    private static boolean updateSurveyReport(Environment env, InspectionData data, ProcessListener listener) {
         try {
             File inFile = File.createTempFile(data.getFeeder().getFeederNumber(), "surveyrptsource");
             File outFile = File.createTempFile(data.getFeeder().getFeederNumber(), "surveyrptout");

@@ -25,7 +25,16 @@ public class TransmissionStructureInspectionSummary extends TransmissionStructur
         setStatus(insp.getStatus());
         setType(insp.getType());
     }
-
+    
+    @Schema(description="The severity of the damage on a numerical scale from low to high.")    
+    private Integer severity;
+    public Integer getSeverity() {
+        return severity;
+    }
+    public void setSeverity(Integer severity) {
+        this.severity = severity;
+    }
+    
     @Schema(description="A list of all images collected in drone flight, in no particular order.")
     private List<ResourceSummary> flightImages = new LinkedList<>();
     public List<ResourceSummary> getFlightImages() {

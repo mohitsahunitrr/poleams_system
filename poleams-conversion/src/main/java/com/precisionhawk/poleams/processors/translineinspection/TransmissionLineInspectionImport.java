@@ -22,7 +22,9 @@ import com.precisionhawk.poleams.domain.TransmissionStructureInspection;
 import com.precisionhawk.poleams.domain.TransmissionStructureInspectionTypes;
 import com.precisionhawk.poleams.domain.WorkOrderStatuses;
 import com.precisionhawk.poleams.domain.WorkOrderTypes;
+import com.precisionhawk.poleams.processors.DataImportUtilities;
 import com.precisionhawk.poleams.processors.FilenameFilters;
+import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.poleams.processors.ResourceDataUploader;
 import static com.precisionhawk.poleams.support.poi.ExcelUtilities.*;
@@ -120,7 +122,7 @@ public final class TransmissionLineInspectionImport {
             
             boolean dataFound = true;
             for (int rowIndex = 1; dataFound; rowIndex++) {
-                dataFound = processPoleRow(wsclient, listener, sheet.getRow(rowIndex), data);
+                dataFound = processStructureRow(wsclient, listener, sheet.getRow(rowIndex), data);
             }
             
             // Process images
@@ -165,7 +167,7 @@ public final class TransmissionLineInspectionImport {
         }        
     }
 
-    private boolean processPoleRow(WSClientHelper wsclient, ProcessListener listener, Row row, InspectionData data)
+    private boolean processStructureRow(WSClientHelper wsclient, ProcessListener listener, Row row, InspectionData data)
         throws InvalidFormatException, IOException
     {
         String lineId = getCellDataAsString(row, 0);
@@ -350,83 +352,13 @@ public final class TransmissionLineInspectionImport {
 
     private void saveData(WSClientHelper wsclient, ProcessListener listener, InspectionData data) {
         try {
+            // Save Data
             listener.reportMessage("Saving data");
-
-            // Save Line
-            if (data.getLine() != null) {
-                TransmissionLineWebService svc = wsclient.transmissionLines();
-                if (data.getDomainObjectIsNew().get(data.getLine().getId())) {
-                    svc.create(wsclient.token(), data.getLine());
-                    listener.reportMessage(String.format("Inserted new line %s", data.getLine().getLineNumber()));
-                } else {
-                    svc.update(wsclient.token(), data.getLine());
-                    listener.reportMessage(String.format("Updated feeder %s", data.getLine().getLineNumber()));
-                }
-            }
-            
-            // Save Work Order
-            if (data.getWorkOrder() != null) {
-                WorkOrderWebService svc = wsclient.workOrders();
-                if (data.getDomainObjectIsNew().get(data.getWorkOrder().getOrderNumber())) {
-                    svc.create(wsclient.token(), data.getWorkOrder());
-                    listener.reportMessage(String.format("Inserted new work order %s", data.getWorkOrder().getOrderNumber()));
-                } else {
-                    svc.update(wsclient.token(), data.getWorkOrder());
-                    listener.reportMessage(String.format("Updated work order %s", data.getWorkOrder().getOrderNumber()));
-                }
-            }
-            
-            // Save Line Inspection
-            if (data.getLineInspection() != null) {
-                TransmissionLineInspectionWebService svc = wsclient.transmissionLineInspections();
-                if (data.getDomainObjectIsNew().get(data.getLineInspection().getId())) {
-                    svc.create(wsclient.token(), data.getLineInspection());
-                    listener.reportMessage(String.format("Inserted new line inspection %s", data.getLineInspection().getId()));
-                } else {
-                    svc.update(wsclient.token(), data.getLineInspection());
-                    listener.reportMessage(String.format("Updated line inspection %s", data.getLineInspection().getId()));
-                }
-            }
-
-            // Save Structures
-            if (!data.getStructureDataByStructureNum().isEmpty()) {
-                TransmissionStructureWebService psvc = wsclient.transmissionStructures();
-                for (TransmissionStructure pdata : data.getStructureDataByStructureNum().values()) {
-                    if (data.getDomainObjectIsNew().get(pdata.getId())) {
-                        psvc.create(wsclient.token(), pdata);
-                        listener.reportMessage(String.format("Inserted new transmission structure %s structure num %s", pdata.getId(), pdata.getStructureNumber()));
-                    } else {
-                        psvc.update(wsclient.token(), pdata);
-                        listener.reportMessage(String.format("Updated transmission structure %s structure num %s", pdata.getId(), pdata.getStructureNumber()));
-                    }
-                }
-            }
-
-            // Save Structure Inspections
-            if (!data.getStructureInspectionsByStructureNum().isEmpty()) {
-                TransmissionStructureInspectionWebService pisvc = wsclient.transmissionStructureInspections();
-                for (TransmissionStructureInspection pi : data.getStructureInspectionsByStructureNum().values()) {
-                    if (data.getDomainObjectIsNew().get(pi.getId())) {
-                        pisvc.create(wsclient.token(), pi);
-                        listener.reportMessage(String.format("Inserted new inspection for structure %s", pi.getAssetId()));
-                    } else {
-                        pisvc.update(wsclient.token(), pi);
-                        listener.reportMessage(String.format("updated inspection for structure %s", pi.getAssetId()));
-                    }
-                }
-            }
+            DataImportUtilities.saveData(wsclient, listener, data);
             
             // Save Resources
             listener.reportMessage("Uploading line resources.");
-            ResourceWebService rsvc = wsclient.resources();
-            for (ResourceMetadata rmeta : data.getFeederResources()) {
-                ResourceDataUploader.uploadResources(wsclient.getEnv(), listener, data, data.getFeederResources(), data.getResourceDataFiles(), 2);
-            }
-            int index = 1;
-            for (List<ResourceMetadata> list : data.getPoleResources().values()) {
-                listener.reportMessage(String.format("Uploading transmission structure resources ( %d of %d structures).", index++, data.getPoleResources().size()));
-                ResourceDataUploader.uploadResources(wsclient.getEnv(), listener, data, list, data.getResourceDataFiles(), 2);
-            }
+            DataImportUtilities.saveResources(wsclient, listener, data);
         } catch (Throwable t) {
             listener.reportFatalException("Error persisting inspection data.", t);
         }
