@@ -1,16 +1,20 @@
 package com.precisionhawk.poleams.config;
 
+import com.precisionhawk.ams.config.AwsConfigBean;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  *
  * @author Philip A. Chapman
  */
 public class AppConfig {
     
-    private AwsConfigBean awsConfig;
-    public AwsConfigBean getAwsConfig() {
+    private Map<String, Object> awsConfig;
+    public Map<String, Object> getAwsConfig() {
         return awsConfig;
     }
-    public void setAwsConfig(AwsConfigBean awsConfig) {
+    public void setAwsConfig(Map<String, Object> awsConfig) {
         this.awsConfig = awsConfig;
     }
     
@@ -22,28 +26,12 @@ public class AppConfig {
         this.cacheConfig = cacheConfig;
     }
     
-//    private CassandraConfigBean cassandraConfig;
-//    public CassandraConfigBean getCassandraConfig() {
-//        return cassandraConfig;
-//    }
-//    public void setCassandraConfig(CassandraConfigBean cassandraConfig) {
-//        this.cassandraConfig = cassandraConfig;
-//    }
-    
-    private DbConfigBean dbConfig;
-    public DbConfigBean getDbConfig() {
-        return dbConfig;
+    private Map<String, Object> daoConfig = new HashMap<>();
+    public Map<String, Object> getDaoConfig() {
+        return daoConfig;
     }
-    public void setDbConfig(DbConfigBean config) {
-        this.dbConfig = config;
-    }
-
-    private ElasticSearchConfigBean elasticSearchConfig;
-    public ElasticSearchConfigBean getElasticSearchConfig() {
-        return elasticSearchConfig;
-    }
-    public void setElasticSearchConfig(ElasticSearchConfigBean elasticSearchConfig) {
-        this.elasticSearchConfig = elasticSearchConfig;
+    public void setDaoConfig(Map<String, Object> daoConfig) {
+        this.daoConfig = daoConfig;
     }
 
     private RepositoryConfigBean repositoryConfig;

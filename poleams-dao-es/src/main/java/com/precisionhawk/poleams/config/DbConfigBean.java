@@ -7,8 +7,7 @@ import com.precisionhawk.ams.config.DbConfig;
  * @author pchapman
  */
 public class DbConfigBean implements DbConfig {
-    
-    private String dataBaseName;
+        private String dataBaseName;
     private String password;
     private Integer portNumber;
     private String serverName;
@@ -71,5 +70,4 @@ public class DbConfigBean implements DbConfig {
     public void setMaxConnections(Integer maxConnections) {
         this.maxConnections = maxConnections;
     }
-    
 }

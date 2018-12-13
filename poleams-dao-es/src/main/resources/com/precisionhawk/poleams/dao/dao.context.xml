@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    
+    <!-- ElasticSearch -->
+    <bean
+        id="ElasticSearchConfigFactory"
+        class="com.precisionhawk.poleams.config.ElasticSearchConfigFactory"
+    >
+        <property name="configMap" ref="DaoConfigMap"/>
+    </bean>
+    <bean
+        id="ElasticSearchConfig"
+        class="com.precisionhawk.ams.support.elasticsearch.ElasticSearchConfig"
+        factory-bean="ElasticSearchConfigFactory"
+        factory-method="get"
+    />
+    <bean
+        id="ElasticSearchClientFactory"
+        class="com.precisionhawk.ams.support.elasticsearch.ElasticSearchClientFactory"
+    />
+    <bean
+        id="ElasticSearchClient"
+        class="org.elasticsearch.client.Client"
+        factory-bean="ElasticSearchClientFactory"
+        factory-method="get"
+    />
+    
+    <!-- RDBMS -->
+    <bean
+        id="DbConfigFactory"
+        class="com.precisionhawk.poleams.config.DbConfigFactory"
+    >
+        <property name="configMap" ref="DaoConfigMap"/>
+    </bean>
+    <bean
+        id="DbConfig"
+        class="com.precisionhawk.ams.config.DbConfig"
+        factory-bean="DbConfigFactory"
+        factory-method="get"
+    />
+    <!-- DataSource -->
+    <bean
+        id="DataSourceFactory"
+        class="com.precisionhawk.ams.dao.rdbms.DataSourceFactory"
+    />
+    <bean
+        id="dataSource"
+        class="javax.sql.DataSource"
+        factory-bean="DataSourceFactory"
+        factory-method="get"
+    />
+    <!-- Transaction Support -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!-- Configurator Of Database -->
+    <bean id="dbVersionUpdater" class="us.pcsw.support.jdbc.DBVersionUpdater" init-method="updateDb" lazy-init="false">
+        <property name="changesFileResourcePath" value="com/precisionhawk/ams/dao/versions/"/>
+        <property name="versionsFileResourcePath" value="com/precisionhawk/ams/dao/versions/versions.xml"/>
+        <property name="dataSource" ref="dataSource"/>
+        <property name="transactionManager" ref="transactionManager"/>
+    </bean>
+    <!-- MyBatis -->
+    <bean id="sqlSessionFactoryBean" class="us.pcsw.mybatis.support.SqlSessionFactoryBean">
+        <property name="configLocation"
+                  value="classpath:com/precisionhawk/ams/dao/mybatis/SqlMapConfig.xml"/>
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <bean id="sqlSessionFactory" factory-bean="sqlSessionFactoryBean" factory-method="getObject"/>
+    <bean id="sqlSession"  class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0"  ref="sqlSessionFactory"/>
+    </bean>
+    <!-- AMS RDBMS DAOs -->
+    <bean id="SecurityDao" class="com.precisionhawk.ams.dao.rdbms.SecurityDaoImpl"/>
+    <bean id="TranslationsAndValidationsDao" class="com.precisionhawk.ams.dao.rdbms.TranslationsAndValidationsDaoImpl"/>
+
+    <!-- AWS -->
+    <bean id="AwsConfigFactory" class="com.precisionhawk.ams.config.AwsConfigFactory">
+        <property name="configMap" ref="AwsConfigMap"/>
+    </bean>
+    <bean
+        id="AwsConfig"
+        class="com.precisionhawk.ams.config.AwsConfig"
+        factory-bean="AwsConfigFactory"
+        factory-method="get"
+    />
+    <bean
+        id="s3ClientFactory"
+        class="com.precisionhawk.ams.support.aws.S3ClientFactory"
+    />
+
+    <!-- Resource Repository -->
+    <bean
+        id="ResourceRepositoryFactory"
+        class="com.precisionhawk.ams.repository.RepositoryFactory"
+    />
+    <bean
+        id="ResourceRepository"
+        class="com.precisionhawk.ams.repository.ResourceRepository"
+        factory-bean="ResourceRepositoryFactory"
+        factory-method="get"
+    />
+</beans>

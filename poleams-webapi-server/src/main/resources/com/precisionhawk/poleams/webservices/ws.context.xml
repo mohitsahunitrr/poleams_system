@@ -7,6 +7,9 @@
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+        
+    <!-- DAOs -->
+    <import resource="classpath:com/precisionhawk/poleams/dao/dao.context.xml"/>
     
     <!-- Caching -->
     <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
@@ -35,16 +38,10 @@
         <property name="configURL" ref="LoggingConfigURI"/>
     </bean>
     <bean
-        id="AwsConfig"
-        class="com.precisionhawk.ams.support.aws.AwsConfig"
+        id="AwsConfigMap"
+        class="java.util.Map"
         factory-bean="AppConfig"
         factory-method="getAwsConfig"
-    />
-    <bean
-        id="DbConfig"
-        class="com.precisionhawk.ams.config.DbConfig"
-        factory-bean="AppConfig"
-        factory-method="getDbConfig"
     />
     <bean
         id="CacheConfig"
@@ -52,19 +49,11 @@
         factory-bean="AppConfig"
         factory-method="getCacheConfig"
     />
-<!--
     <bean
-        id="CassandraConfig"
-        class="com.precisionhawk.ams.support.cassandra.CassandraConfig"
+        id="DaoConfigMap"
+        class="java.util.Map"
         factory-bean="AppConfig"
-        factory-method="getCassandraConfig"
-    />
--->
-    <bean
-        id="ElasticSearchConfig"
-        class="com.precisionhawk.ams.support.elasticsearch.ElasticSearchConfig"
-        factory-bean="AppConfig"
-        factory-method="getElasticSearchConfig"
+        factory-method="getDaoConfig"
     />
     <bean
         id="RepositoryConfig"
@@ -85,36 +74,6 @@
         factory-method="getServicesConfig"
     />
     
-    <!-- Cassandra -->
-<!--
-    <bean
-        id="daoClientLifecycleListener"
-        class="com.precisionhawk.ams.support.cassandra.LoggingClientLifecycleListener"
-    />
-    <bean
-        id="CassandraClientFactory"
-        class="com.precisionhawk.ams.support.cassandra.CassandraClientFactory"
-    />
-    <bean
-        id="CassandraSession"
-        class="com.datastax.driver.core.Session"
-        factory-bean="CassandraClientFactory"
-        factory-method="get"
-    />
--->
-    
-    <!-- ElasticSearch -->
-    <bean
-        id="ElasticSearchClientFactory"
-        class="com.precisionhawk.ams.support.elasticsearch.ElasticSearchClientFactory"
-    />
-    <bean
-        id="ElasticSearchClient"
-        class="org.elasticsearch.client.Client"
-        factory-bean="ElasticSearchClientFactory"
-        factory-method="get"
-    />
-    
     <!-- Jackson -->
     <bean
         id="ObjectMapperFactory"
@@ -124,70 +83,6 @@
         id="ObjectMapper"
         class="org.codehaus.jackson.map.ObjectMapper"
         factory-bean="ObjectMapperFactory"
-        factory-method="get"
-    />
-    
-    <!-- AWS -->
-    <bean
-        id="s3ClientFactory"
-        class="com.precisionhawk.ams.support.aws.S3ClientFactory"
-    />
-    
-    <!-- DataSource -->
-    <bean
-        id="DataSourceFactory"
-        class="com.precisionhawk.ams.dao.rdbms.DataSourceFactory"
-    />
-    <bean
-        id="dataSource"
-        class="javax.sql.DataSource"
-        factory-bean="DataSourceFactory"
-        factory-method="get"
-    />
-
-    <!-- Transaction Support -->
-    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dataSource"/>
-    </bean>
-
-    <!-- Configurator Of Database -->
-    <bean id="dbVersionUpdater" class="us.pcsw.support.jdbc.DBVersionUpdater" init-method="updateDb" lazy-init="false">
-        <property name="changesFileResourcePath" value="com/precisionhawk/ams/dao/versions/"/>
-        <property name="versionsFileResourcePath" value="com/precisionhawk/ams/dao/versions/versions.xml"/>
-        <property name="dataSource" ref="dataSource"/>
-        <property name="transactionManager" ref="transactionManager"/>
-    </bean>
-
-    <!-- MyBatis -->
-    <bean id="sqlSessionFactoryBean" class="us.pcsw.mybatis.support.SqlSessionFactoryBean">
-        <property name="configLocation"
-                  value="classpath:com/precisionhawk/ams/dao/mybatis/SqlMapConfig.xml"/>
-        <property name="dataSource" ref="dataSource"/>
-    </bean>
-    <bean id="sqlSessionFactory" factory-bean="sqlSessionFactoryBean" factory-method="getObject"/>
-    <bean id="sqlSession"  class="org.mybatis.spring.SqlSessionTemplate">
-        <constructor-arg index="0"  ref="sqlSessionFactory"/>
-    </bean>
-        
-    <!-- DAOs -->
-    <bean id="securityDao" class="com.precisionhawk.ams.dao.rdbms.SecurityDaoImpl"/>
-    <bean id="translationsAndValidationsDao" class="com.precisionhawk.ams.dao.rdbms.TranslationsAndValidationsDaoImpl"/>
-<!--
-    <bean id="inspectionEventDao" class="com.precisionhawk.ams.dao.cassandra.InspectionEventCassDao"/>
-    <bean id="inspectionEventResourceDao" class="com.precisionhawk.ams.dao.cassandra.InspectionEventResourceCassDao"/>
-    <bean id="resourceMetadataDao" class="com.precisionhawk.ams.dao.cassandra.ResourceMetadataCassDao"/>
-    <bean id="translationsAndValidationsDao" class="com.precisionhawk.ams.dao.cassandra.TranslationsAndValidationsCassDao"/>
--->
-    
-    <!-- Resource Repository -->    
-    <bean
-        id="ResourceRepositoryFactory"
-        class="com.precisionhawk.ams.repository.RepositoryFactory"
-    />
-    <bean
-        id="ResourceRepository"
-        class="com.precisionhawk.ams.repository.ResourceRepository"
-        factory-bean="ResourceRepositoryFactory"
         factory-method="get"
     />
     
