@@ -75,7 +75,7 @@
     <bean id="sqlSession"  class="org.mybatis.spring.SqlSessionTemplate">
         <constructor-arg index="0"  ref="sqlSessionFactory"/>
     </bean>
-    <!-- AMS RDBMS DAOs -->
+    <!-- RDBMS DAOs -->
     <bean id="SecurityDao" class="com.precisionhawk.ams.dao.rdbms.SecurityDaoImpl"/>
     <bean id="TranslationsAndValidationsDao" class="com.precisionhawk.ams.dao.rdbms.TranslationsAndValidationsDaoImpl"/>
 
