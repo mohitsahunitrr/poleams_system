@@ -3,6 +3,7 @@ package com.precisionhawk.poleams.processors.poleinspection;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.ResourceMetadata;
+import com.precisionhawk.poleams.domain.SubStation;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.poleams.webservices.ResourceWebService;
@@ -19,14 +20,16 @@ public abstract class AbstractInspectionImport {
     
     public static void savePoleData(Environment env, ImportProcessListener listener, InspectionData data) throws IOException {
         // Save SubStation
-        if (data.getSubStation() != null) {
+        if (!data.getSubStationsByFeederId().isEmpty()) {
             SubStationWebService sssvc = env.obtainWebService(SubStationWebService.class);
-            if (data.getDomainObjectIsNew().get(data.getSubStation().getId())) {
-                sssvc.create(env.obtainAccessToken(), data.getSubStation());
-                listener.reportMessage(String.format("Inserted new sub station %s", data.getSubStation().getFeederNumber()));
-            } else {
-                sssvc.update(env.obtainAccessToken(), data.getSubStation());
-                listener.reportMessage(String.format("Updating sub station %s", data.getSubStation().getFeederNumber()));
+            for (SubStation subStation : data.getSubStationsByFeederId().values()) {
+                if (data.getDomainObjectIsNew().get(subStation.getId())) {
+                    sssvc.create(env.obtainAccessToken(), subStation);
+                    listener.reportMessage(String.format("Inserted new sub station %s", subStation.getFeederNumber()));
+                } else {
+                    sssvc.update(env.obtainAccessToken(), subStation);
+                    listener.reportMessage(String.format("Updating sub station %s", subStation.getFeederNumber()));
+                }
             }
         }
 

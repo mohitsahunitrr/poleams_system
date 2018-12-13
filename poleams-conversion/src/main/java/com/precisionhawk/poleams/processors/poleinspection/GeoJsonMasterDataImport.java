@@ -6,6 +6,7 @@ import com.precisionhawk.poleams.bean.PoleSearchParameters;
 import com.precisionhawk.poleams.bean.SubStationSearchParameters;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
+import com.precisionhawk.poleams.domain.SubStation;
 import com.precisionhawk.poleams.util.CollectionsUtilities;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
@@ -46,14 +47,16 @@ public class GeoJsonMasterDataImport extends AbstractInspectionImport {
             InspectionData data = new InspectionData();
             
             // Feeder
-            SubStationSearchParameters params = new SubStationSearchParameters();
-            params.setFeederNumber(feederId);
-            data.setSubStation(CollectionsUtilities.firstItemIn(env.obtainWebService(SubStationWebService.class).search(env.obtainAccessToken(), params)));
-            if (data.getSubStation() == null) {
-                listener.reportFatalError(String.format("Unable to locate feeder %s", feederId));
-                return false;
+            if (feederId != null) {
+                SubStationSearchParameters params = new SubStationSearchParameters();
+                params.setFeederNumber(feederId);
+                data.setSubStation(CollectionsUtilities.firstItemIn(env.obtainWebService(SubStationWebService.class).search(env.obtainAccessToken(), params)));
+                if (data.getSubStation() == null) {
+                    listener.reportFatalError(String.format("Unable to locate feeder %s", feederId));
+                    return false;
+                }
+                data.getDomainObjectIsNew().put(data.getSubStation().getId(), false);
             }
-            data.getDomainObjectIsNew().put(data.getSubStation().getId(), false);
             
             JsonFactory jfactory = new JsonFactory();
             parser = jfactory.createJsonParser(poleDataJson);
@@ -74,6 +77,10 @@ public class GeoJsonMasterDataImport extends AbstractInspectionImport {
                     listener.reportMessage(String.format("Unexepected JSON token %s", parser.getCurrentToken()));
                     return false;
                 }
+            }
+            
+            if (data.getSubStation() == null) {
+                success = success && createSubStations(env, listener, data);
             }
             
             listener.reportMessage("Saving data...");
@@ -152,6 +159,7 @@ public class GeoJsonMasterDataImport extends AbstractInspectionImport {
     private boolean processObjectData(Environment env, ProcessListener listener, InspectionData data, JsonParser parser) throws IOException {
         GeoPoint location = null;
         String poleId;
+        String poleNum;
         Map<String, String> attributes = null;
         while (advanceToNextField(parser, true)) {
             String fieldName = parser.getCurrentName();
@@ -171,39 +179,42 @@ public class GeoJsonMasterDataImport extends AbstractInspectionImport {
             listener.reportFatalError("Bad or missing attributes");
             return false;
         } else {
-            poleId = attributes.remove(FIELD_POLEID);
+            poleId = attributes.get(FIELD_POLEID);
+            poleNum = attributes.get(FIELD_POLENUM);
         }
         if (poleId == null) {
             listener.reportFatalError("Bad or missing POLEID");
             return false;
         }
+        if (poleNum == null) {
+            listener.reportFatalError("Bad or missing POLE_NUMBE");
+        }
         if (location == null) {
             listener.reportFatalError(String.format("Bad or missing location for pole %s", poleId));
         }
-        PoleSearchParameters params = new PoleSearchParameters();
-        params.setSubStationId(data.getSubStation().getId());
-        params.setFPLId(poleId);
-        listener.reportMessage(String.format("Loaded pole with ID %s", poleId));
-        Pole pole = CollectionsUtilities.firstItemIn(env.obtainWebService(PoleWebService.class).search(env.obtainAccessToken(), params));
+        
+        listener.reportMessage(String.format("Processing pole %s", poleNum));
+
+        Pole pole = env.obtainWebService(PoleWebService.class).retrieve(env.obtainAccessToken(), poleId);
         boolean isnew = pole == null;
         if (isnew) {
             pole = new Pole();
             pole.setId(UUID.randomUUID().toString());
-            String s = attributes.remove(FIELD_HEIGHT);
+            String s = attributes.get(FIELD_HEIGHT);
             try {
                 pole.setLength(s == null ? null : Integer.valueOf(s));
             } catch (NumberFormatException ex) {
                 listener.reportNonFatalError(String.format("Invalid value for HEIGHT: %s", s));
             }
             pole.setLocation(location);
-            pole.setOrganizationId(data.getSubStation().getOrganizationId());
             pole.setPoleClass(attributes.get(FIELD_CLASS));
-            pole.setFPLId(poleId);
+            pole.setFPLId(poleNum);
+            if (data.getSubStation() != null) {
+                pole.setSubStationId(data.getSubStation().getId());
+            }
             pole.setType(attributes.remove("TYPE"));
-            pole.setSubStationId(data.getSubStation().getId());
             data.addPole(pole, true);
         } else {
-            pole.setOrganizationId(data.getSubStation().getOrganizationId());
             data.addPole(pole, false);
         }
         
@@ -217,9 +228,7 @@ public class GeoJsonMasterDataImport extends AbstractInspectionImport {
         if (insp == null) {
             insp = new PoleInspection();
             insp.setPoleId(pole.getId());
-            insp.setOrganizationId(pole.getOrganizationId());
             insp.setId(UUID.randomUUID().toString());
-            insp.setSubStationId(data.getSubStation().getId());
             data.addPoleInspection(pole, insp, true);
         } else {
             data.addPoleInspection(pole, insp, false);
@@ -289,5 +298,33 @@ public class GeoJsonMasterDataImport extends AbstractInspectionImport {
             return data;
         }
         return null;
+    }
+
+    private boolean createSubStations(Environment env, ImportProcessListener listener, InspectionData data) {
+        PoleInspection insp;
+        String[] parts;
+        SubStation subStation;
+        for (Pole p : data.getPoleDataByFPLId().values()) {
+            if (p.getSubStationId() == null) {
+                parts = p.getFPLId().split("-");
+                subStation = data.getSubStationsByFeederId().get(parts[0]);
+                if (subStation == null) {
+                    listener.reportMessage(String.format("Creating new sub station for feeder ID %s", parts[0]));
+                    subStation = new SubStation();
+                    subStation.setFeederNumber(parts[0]);
+                    subStation.setId(UUID.randomUUID().toString());
+                    subStation.setName("Duke Energy");
+                    subStation.setOrganizationId("5042b09b-519d-4351-ad55-313fa085ec33");//FIXME:
+                    data.getSubStationsByFeederId().put(subStation.getFeederNumber(), subStation);
+                    data.getDomainObjectIsNew().put(subStation.getId(), true);
+                }
+                p.setOrganizationId(subStation.getOrganizationId());
+                p.setSubStationId(subStation.getId());
+                insp = data.getPoleInspectionsByFPLId().get(p.getFPLId());
+                insp.setOrganizationId(subStation.getOrganizationId());
+                insp.setSubStationId(subStation.getId());
+            }
+        }
+        return true;
     }
 }

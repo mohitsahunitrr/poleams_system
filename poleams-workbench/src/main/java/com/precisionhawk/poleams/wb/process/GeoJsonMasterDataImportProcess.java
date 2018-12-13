@@ -52,7 +52,7 @@ public class GeoJsonMasterDataImportProcess extends ServiceClientCommandProcess 
 
     @Override
     protected boolean execute(Environment env) {
-        if (dirPath == null || feederId == null || orderNum == null) {
+        if (dirPath == null || orderNum == null) {
             return false;
         }
         ImportProcessListener listener = new ImportProcessListener() {

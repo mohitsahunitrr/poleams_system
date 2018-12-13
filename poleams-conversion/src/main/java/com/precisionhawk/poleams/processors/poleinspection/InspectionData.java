@@ -54,7 +54,18 @@ public class InspectionData {
         return subStation;
     }
     public void setSubStation(SubStation subStation) {
+        if (subStation != null) {
+            subStations.put(subStation.getName(), subStation);
+        }
         this.subStation = subStation;
+    }
+    
+    private Map<String, SubStation> subStations = new HashMap<>();
+    public Map<String, SubStation> getSubStationsByFeederId() {
+        return subStations;
+    }
+    public void setSubStationsByFeederId(Map<String, SubStation> subStations) {
+        this.subStations = subStations;
     }
 
     private final List<ResourceMetadata> subStationResources = new ArrayList<>();
