@@ -5,6 +5,7 @@ import com.precisionhawk.poleams.wb.process.ChangeResourceStatusProcess;
 import com.precisionhawk.poleams.wb.process.DeletePoleProcess;
 import com.precisionhawk.poleams.wb.process.FeederDataImportProcess;
 import com.precisionhawk.poleams.wb.process.GeoJsonMasterDataImportProcess;
+import com.precisionhawk.poleams.wb.process.OrgFieldConfigsUploadProcess;
 import com.precisionhawk.poleams.wb.process.PopulateEncroachmentGoogleEarthURL;
 import com.precisionhawk.poleams.wb.process.PopulateMasterSurveyProcess;
 import com.precisionhawk.poleams.wb.process.ResourceUploadProcess;
@@ -25,6 +26,7 @@ public class WorkbenchConfigBean implements WorkbenchConfig {
         COMMANDS.add(new DeletePoleProcess());
         COMMANDS.add(new FeederDataImportProcess());
         COMMANDS.add(new GeoJsonMasterDataImportProcess());
+        COMMANDS.add(new OrgFieldConfigsUploadProcess());
         COMMANDS.add(new PopulateEncroachmentGoogleEarthURL());
         COMMANDS.add(new PopulateMasterSurveyProcess());
         COMMANDS.add(new ResourceUploadProcess());

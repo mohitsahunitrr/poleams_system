@@ -1,6 +1,5 @@
 package com.precisionhawk.poleams.config;
 
-import com.precisionhawk.ams.config.AwsConfigBean;
 import java.util.HashMap;
 import java.util.Map;
 
