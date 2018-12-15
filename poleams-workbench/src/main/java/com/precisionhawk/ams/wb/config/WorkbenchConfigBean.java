@@ -1,15 +1,7 @@
 package com.precisionhawk.ams.wb.config;
 
 import com.precisionhawk.ams.wb.process.CommandProcess;
-import com.precisionhawk.poleams.wb.process.ChangeResourceStatusProcess;
-import com.precisionhawk.poleams.wb.process.DeletePoleProcess;
-import com.precisionhawk.poleams.wb.process.FeederDataImportProcess;
-import com.precisionhawk.poleams.wb.process.GeoJsonMasterDataImportProcess;
-import com.precisionhawk.poleams.wb.process.OrgFieldConfigsUploadProcess;
-import com.precisionhawk.poleams.wb.process.PopulateEncroachmentGoogleEarthURL;
-import com.precisionhawk.poleams.wb.process.PopulateMasterSurveyProcess;
-import com.precisionhawk.poleams.wb.process.ResourceUploadProcess;
-import com.precisionhawk.poleams.wb.process.TransmissionLineInspectionImportProcess;
+import com.precisionhawk.poleams.wb.process.*;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,6 +21,7 @@ public class WorkbenchConfigBean implements WorkbenchConfig {
         COMMANDS.add(new OrgFieldConfigsUploadProcess());
         COMMANDS.add(new PopulateEncroachmentGoogleEarthURL());
         COMMANDS.add(new PopulateMasterSurveyProcess());
+        COMMANDS.add(new ResourceScaleProcess());
         COMMANDS.add(new ResourceUploadProcess());
         COMMANDS.add(new TransmissionLineInspectionImportProcess());
     };
