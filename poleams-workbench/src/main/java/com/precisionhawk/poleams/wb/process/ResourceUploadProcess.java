@@ -4,6 +4,7 @@ import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.bean.ImageScaleRequest;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
+import com.precisionhawk.ams.domain.AssetInspection;
 import com.precisionhawk.ams.domain.ResourceMetadata;
 import com.precisionhawk.ams.domain.ResourceStatus;
 import com.precisionhawk.ams.domain.ResourceType;
@@ -27,6 +28,16 @@ import com.precisionhawk.poleams.webservices.FeederWebService;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.ams.webservices.WorkOrderWebService;
+import com.precisionhawk.poleams.bean.TransmissionLineSearchParams;
+import com.precisionhawk.poleams.bean.TransmissionStructureSearchParams;
+import com.precisionhawk.poleams.domain.TransmissionLine;
+import com.precisionhawk.poleams.domain.TransmissionLineInspection;
+import com.precisionhawk.poleams.domain.TransmissionStructure;
+import com.precisionhawk.poleams.domain.TransmissionStructureInspection;
+import com.precisionhawk.poleams.webservices.TransmissionLineInspectionWebService;
+import com.precisionhawk.poleams.webservices.TransmissionLineWebService;
+import com.precisionhawk.poleams.webservices.TransmissionStructureInspectionWebService;
+import com.precisionhawk.poleams.webservices.TransmissionStructureWebService;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -41,6 +52,7 @@ import org.apache.commons.imaging.Imaging;
 import org.apache.commons.imaging.common.ImageMetadata;
 import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
 import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
+import org.jboss.resteasy.client.ClientResponseFailure;
 
 /**
  *
@@ -60,9 +72,11 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
     
     private static final String ARG_FEEDER_ID = "-feeder";
     private static final String ARG_FPL_ID = "-fplid";
+    private static final String ARG_LINE_ID = "-line";
     private static final String ARG_ORDER_NUM = "-orderNum";
     private static final String ARG_RESOURCE_ID = "-resourceId";
     private static final String ARG_REPLACE = "-replace";
+    private static final String ARG_STRUCT = "-struct";
     private static final String ARG_TYPE = "-type";
     private static final String COMMAND = "uploadResource";
 
@@ -80,10 +94,12 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
     private String feederId;
     private String fplId;
     private String fileName;
+    private String lineId;
     private String orderNum;
     private boolean replace = false;
     private String resourceId;
     private ResourceType resourceType;
+    private String struct;
     
     public ResourceUploadProcess() {}
     
@@ -115,6 +131,13 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                 } else {
                     return false;
                 }
+            case ARG_LINE_ID:
+                if (lineId == null) {
+                    lineId = args.poll();
+                    return lineId != null;
+                } else {
+                    return false;
+                }
             case ARG_ORDER_NUM:
                 if (orderNum == null) {
                     orderNum = args.poll();
@@ -133,6 +156,13 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                 if (resourceId == null) {
                     resourceId = args.poll();
                     return resourceId != null;
+                } else {
+                    return false;
+                }
+            case ARG_STRUCT:
+                if (struct == null) {
+                    struct = args.poll();
+                    return struct != null;
                 } else {
                     return false;
                 }
@@ -155,7 +185,7 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
 
     @Override
     protected boolean execute(Environment env) {
-        if ((resourceId == null && feederId == null && fplId == null) || fileName == null) {
+        if (fileName == null) {
             return false;
         }
         File f = new File(fileName);
@@ -181,6 +211,10 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                     WorkOrder workOrder = null;
                     Pole pole = null;
                     PoleInspection poleInspection = null;
+                    TransmissionLine line = null;
+                    TransmissionLineInspection tlinsp = null;
+                    TransmissionStructure structure = null;
+                    TransmissionStructureInspection tsinsp = null;
                     
                     if (feederId != null) {
                         // Search for the feeder;
@@ -190,6 +224,17 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                         feeder = CollectionsUtilities.firstItemIn(list);
                         if (feeder == null) {
                             System.err.printf("No feeder %s found\n", feederId);
+                            return true;
+                        }
+                    }
+                    
+                    if (lineId != null) {
+                        // Search for the line;
+                        TransmissionLineSearchParams params = new TransmissionLineSearchParams();
+                        params.setLineNumber(lineId);
+                        line = CollectionsUtilities.firstItemIn(env.obtainWebService(TransmissionLineWebService.class).search(env.obtainAccessToken(), params));
+                        if (line == null) {
+                            System.err.printf("No Transmission Structure %s found\n", lineId);
                             return true;
                         }
                     }
@@ -204,16 +249,35 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                             System.err.printf("The work order %s has no feeders related to it.\n", orderNum);
                             return true;
                         }
-                        if (feeder == null) {
+                        if (feeder == null || line == null) {
                             if (workOrder.getSiteIds().size() == 1) {
                                 feederId = workOrder.getSiteIds().get(0);
-                                feeder = env.obtainWebService(FeederWebService.class).retrieve(env.obtainAccessToken(), feederId);
+                                try {
+                                    feeder = env.obtainWebService(FeederWebService.class).retrieve(env.obtainAccessToken(), feederId);
+                                } catch (ClientResponseFailure ex) {
+                                    if (ex.getResponse().getStatus() == 404) {
+                                        feeder = null;
+                                    } else {
+                                        throw ex;
+                                    }
+                                }
                                 if (feeder == null) {
-                                    System.err.printf("No feeder %s found\n", feederId);
-                                    return true;
+                                    try {
+                                        line = env.obtainWebService(TransmissionLineWebService.class).retrieve(env.obtainAccessToken(), feederId);
+                                    } catch (ClientResponseFailure ex) {
+                                        if (ex.getResponse().getStatus() == 404) {
+                                            line = null;
+                                        } else {
+                                            throw ex;
+                                        }
+                                    }
+                                    if (line == null) {
+                                        System.err.printf("No feeder or line found %s found\n", feederId);
+                                        return true;
+                                    }
                                 }
                             } else {
-                                System.err.printf("There are multiple feeders associated with work order %s.  No idea which one to assign the resource to.\n", orderNum);
+                                System.err.printf("There are multiple feeders or lines associated with work order %s.  No idea which one to assign the resource to.\n", orderNum);
                                 return true;
                             }
                         } else {
@@ -231,9 +295,14 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                         }
                         SiteInspectionSearchParams params = new SiteInspectionSearchParams();
                         params.setOrderNumber(orderNum);
-                        params.setSiteId(feeder.getId());
-                        List<FeederInspection> list = env.obtainWebService(FeederInspectionWebService.class).search(env.obtainAccessToken(), params);
-                        feederInspection = CollectionsUtilities.firstItemIn(list);
+                        if (feeder != null) {
+                            params.setSiteId(feeder.getId());
+                            List<FeederInspection> list = env.obtainWebService(FeederInspectionWebService.class).search(env.obtainAccessToken(), params);
+                            feederInspection = CollectionsUtilities.firstItemIn(list);
+                        } else {
+                            params.setSiteId(line.getId());
+                            tlinsp = CollectionsUtilities.firstItemIn(env.obtainWebService(TransmissionLineInspectionWebService.class).search(env.obtainAccessToken(), params));
+                        }
                     }
                     
                     if (fplId != null) {
@@ -250,17 +319,53 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                         }
                     }
                     
-                    if (workOrder != null && pole != null) {
-                        AssetInspectionSearchParams params = new AssetInspectionSearchParams();
-                        params.setAssetId(pole.getId());
-                        params.setOrderNumber(workOrder.getOrderNumber());
-                        List<PoleInspection> list = env.obtainWebService(PoleInspectionWebService.class).search(env.obtainAccessToken(), params);
-                        poleInspection = CollectionsUtilities.firstItemIn(list);
+                    if (struct != null) {
+                        TransmissionStructureSearchParams params = new TransmissionStructureSearchParams();
+                        params.setStructureNumber(struct);
+                        List<TransmissionStructure> list = env.obtainWebService(TransmissionStructureWebService.class).search(env.obtainAccessToken(), params);
+                        if (list.isEmpty()) {
+                            System.err.printf("No transmission structure %s found\n", struct);
+                            return true;
+                        } else if (list.size() == 1) {
+                            structure = list.get(0);
+                        } else {
+                            System.err.printf("Multiple transmission structures %s found\n", struct);
+                            return true;
+                        }
+                    }
+                    
+                    if (workOrder != null) {
+                        if (pole != null) {
+                            AssetInspectionSearchParams params = new AssetInspectionSearchParams();
+                            params.setAssetId(pole.getId());
+                            params.setOrderNumber(workOrder.getOrderNumber());
+                            List<PoleInspection> list = env.obtainWebService(PoleInspectionWebService.class).search(env.obtainAccessToken(), params);
+                            poleInspection = CollectionsUtilities.firstItemIn(list);
+                        } else if (structure != null) {
+                            AssetInspectionSearchParams params = new AssetInspectionSearchParams();
+                            params.setAssetId(structure.getId());
+                            params.setOrderNumber(workOrder.getOrderNumber());
+                            List<TransmissionStructureInspection> list = env.obtainWebService(TransmissionStructureInspectionWebService.class).search(env.obtainAccessToken(), params);
+                            tsinsp = CollectionsUtilities.firstItemIn(list);
+                        }
                     }
                     
                     ResourceSearchParams params = new ResourceSearchParams();
                     Class<?> clazz = ResourceTypes.relatedTo(resourceType);
-                    if (Feeder.class == clazz) {
+                    if (AssetInspection.class == clazz) {
+                        AssetInspection insp = poleInspection;
+                        if (insp == null) {
+                            insp = tsinsp;
+                        }
+                        if (insp == null) {
+                            System.err.println("Pole or Transmission structure is required for this type of resource.");
+                        }
+                        params.setAssetId(insp.getAssetId());
+                        params.setAssetInspectionId(insp.getId());
+                        params.setOrderNumber(insp.getOrderNumber());
+                        params.setSiteId(insp.getSiteId());
+                        params.setSiteInspectionId(insp.getSiteInspectionId());
+                    } else if (Feeder.class == clazz) {
                         if (feeder == null) {
                             System.err.println("Feeder is required for this type of resource.");
                             return true;
@@ -269,7 +374,7 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                         }
                     } else if (FeederInspection.class == clazz) {
                         if (feederInspection == null) {
-                            System.err.println("Feeder inspection is required for htis type of resource.");
+                            System.err.println("Feeder inspection is required for this type of resource.");
                             return true;
                         } else {
                             params.setOrderNumber(feederInspection.getOrderNumber());
@@ -278,7 +383,7 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                         }
                     } else if (Pole.class == clazz) {
                         if (pole == null) {
-                            System.err.println("Pole is required for htis type of resource.");
+                            System.err.println("Pole is required for this type of resource.");
                             return true;
                         } else {
                             params.setAssetId(pole.getId());
@@ -286,7 +391,7 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                         }
                     } else if (PoleInspection.class == clazz) {
                         if (poleInspection == null) {
-                            System.err.println("Pole inspection is required for htis type of resource.");
+                            System.err.println("Pole inspection is required for this type of resource.");
                             return true;
                         } else {
                             params.setAssetId(poleInspection.getAssetId());
@@ -294,6 +399,24 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                             params.setOrderNumber(poleInspection.getOrderNumber());
                             params.setSiteId(poleInspection.getSiteId());
                             params.setSiteInspectionId(poleInspection.getSiteInspectionId());
+                        }
+                    } else if (TransmissionLine.class == clazz) {
+                        if (line == null) {
+                            System.err.println("Transmission line required for this type of resource.");
+                        } else {
+                            params.setSiteId(line.getId());
+                            params.setSiteInspectionId(tlinsp.getId());
+                            params.setOrderNumber(tlinsp.getOrderNumber());
+                        }
+                    } else if (TransmissionStructure.class == clazz) {
+                        if (structure == null) {
+                            System.err.print("Transmission structure required for this type of resource.");
+                        } else {
+                            params.setAssetId(structure.getId());
+                            params.setAssetInspectionId(tsinsp.getId());
+                            params.setOrderNumber(tsinsp.getOrderNumber());
+                            params.setSiteId(structure.getSiteId());
+                            params.setSiteInspectionId(tsinsp.getSiteInspectionId());
                         }
                     }
 
@@ -310,7 +433,7 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                             rmeta.setAssetInspectionId(params.getAssetInspectionId());
                             rmeta.setSiteId(params.getSiteId());
                             rmeta.setSiteInspectionId(params.getSiteInspectionId());
-                            rmeta.setType(params.getType());
+                            rmeta.setType(resourceType);
                             rmeta.setContentType(contentType);
                             rmeta.setName(f.getName());
                             rmeta.setResourceId(UUID.randomUUID().toString());

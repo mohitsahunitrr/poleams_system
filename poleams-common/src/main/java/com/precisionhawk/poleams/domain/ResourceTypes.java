@@ -1,5 +1,6 @@
 package com.precisionhawk.poleams.domain;
 
+import com.precisionhawk.ams.domain.AssetInspection;
 import com.precisionhawk.ams.domain.ResourceType;
 import io.swagger.oas.annotations.media.Schema;
 
@@ -90,11 +91,15 @@ public class ResourceTypes {
             if (
                     DroneInspectionImage.equals(type)
                     || ManualInspectionImage.equals(type)
-                    || PoleDesignReport.equals(type)
-                    || PoleInspectionAnalysisXML.equals(type)
-                    || PoleInspectionReport.equals(type)
                     || Thermal.equals(type)
                     || ThumbNail.equals(type)
+               )
+            {
+                return AssetInspection.class;
+            } else if (
+                    PoleDesignReport.equals(type)
+                    || PoleInspectionAnalysisXML.equals(type)
+                    || PoleInspectionReport.equals(type)
                )
             {
                 return PoleInspection.class;
