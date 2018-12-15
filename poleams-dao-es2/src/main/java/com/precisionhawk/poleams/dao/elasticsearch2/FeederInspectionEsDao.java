@@ -1,8 +1,8 @@
-package com.precisionhawk.poleams.dao.elasticsearch;
+package com.precisionhawk.poleams.dao.elasticsearch2;
 
 import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
 import com.precisionhawk.ams.dao.DaoException;
-import com.precisionhawk.ams.dao.elasticsearch.AbstractEsDao;
+import com.precisionhawk.ams.dao.elasticsearch2.AbstractEsDao;
 import com.precisionhawk.poleams.dao.FeederInspectionDao;
 import com.precisionhawk.poleams.domain.FeederInspection;
 import com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants;
@@ -26,7 +26,7 @@ public class FeederInspectionEsDao extends AbstractEsDao implements FeederInspec
     private static final String COL_STATUS = "status";
     private static final String COL_TYPE = "type";
     private static final String DOCUMENT = "FeederInspection";
-    private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch/FeederInspection_Mapping.json";
+    private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch2/FeederInspection_Mapping.json";
 
     @Override
     protected String getIndexName() {

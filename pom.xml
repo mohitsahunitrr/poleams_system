@@ -147,7 +147,7 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>poleams-dao-es</artifactId>
+                <artifactId>poleams-dao-es2</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -172,7 +172,7 @@
         <module>poleams-conversion</module>
         <module>poleams-dao</module>
         <module>poleams-dao-cassandra</module>
-        <module>poleams-dao-es</module>
+        <module>poleams-dao-es2</module>
         <module>poleams-processor</module>
         <module>poleams-reporting</module>
         <module>poleams-swagger</module>

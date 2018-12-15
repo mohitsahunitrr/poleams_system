@@ -1,8 +1,8 @@
-package com.precisionhawk.poleams.dao.elasticsearch;
+package com.precisionhawk.poleams.dao.elasticsearch2;
 
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.dao.DaoException;
-import com.precisionhawk.ams.dao.elasticsearch.AbstractEsDao;
+import com.precisionhawk.ams.dao.elasticsearch2.AbstractEsDao;
 import com.precisionhawk.poleams.dao.PoleInspectionDao;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants;
@@ -29,7 +29,7 @@ public class PoleInspectionEsDao extends AbstractEsDao implements PoleInspection
     private static final String COL_SITE_INSP_ID = "siteInspectionId";
     private static final String COL_STATUS = "status";
     private static final String DOCUMENT = "PoleInspection";
-    private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch/PoleInspection_Mapping.json";
+    private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch2/PoleInspection_Mapping.json";
 
     @Override
     public String getMappingPath() {

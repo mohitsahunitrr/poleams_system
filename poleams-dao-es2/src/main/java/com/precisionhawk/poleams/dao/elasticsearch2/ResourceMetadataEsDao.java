@@ -1,4 +1,4 @@
-package com.precisionhawk.poleams.dao.elasticsearch;
+package com.precisionhawk.poleams.dao.elasticsearch2;
 
 import com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants;
 import static com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants.INDEX_NAME_POLEAMS;
@@ -10,7 +10,7 @@ import javax.inject.Named;
  * @author Philip A. Chapman
  */
 @Named
-public class ResourceMetadataEsDao extends com.precisionhawk.ams.dao.elasticsearch.ResourceMetadataEsDao implements ElasticSearchConstants {
+public class ResourceMetadataEsDao extends com.precisionhawk.ams.dao.elasticsearch2.ResourceMetadataEsDao implements ElasticSearchConstants {
 
     //TODO: It would be better if this were a configuration item?
     @Override

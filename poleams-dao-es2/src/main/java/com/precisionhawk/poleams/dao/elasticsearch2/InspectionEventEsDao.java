@@ -1,8 +1,8 @@
-package com.precisionhawk.poleams.dao.elasticsearch;
+package com.precisionhawk.poleams.dao.elasticsearch2;
 
 import com.precisionhawk.ams.bean.InspectionEventSearchParams;
 import com.precisionhawk.ams.dao.DaoException;
-import com.precisionhawk.ams.dao.elasticsearch.AbstractEsDao;
+import com.precisionhawk.ams.dao.elasticsearch2.AbstractEsDao;
 import com.precisionhawk.poleams.dao.InspectionEventDao;
 import com.precisionhawk.poleams.domain.InspectionEvent;
 import com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants;
@@ -27,7 +27,7 @@ public class InspectionEventEsDao extends AbstractEsDao implements InspectionEve
     protected static final String FIELD_COMPONENT = "componentId";
     protected static final String FIELD_ORDER_NUMBER = "orderNumber";
     protected static final String FIELD_SITE_ID = "siteId";
-    protected static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch/InspectionEvent_Mapping.json";
+    protected static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch2/InspectionEvent_Mapping.json";
 
     @Override
     protected String getIndexName() {

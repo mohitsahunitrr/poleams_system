@@ -74,7 +74,7 @@
 -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>poleams-dao-es</artifactId>
+            <artifactId>poleams-dao-es2</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

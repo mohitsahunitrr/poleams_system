@@ -1,4 +1,4 @@
-package com.precisionhawk.poleams.dao.elasticsearch;
+package com.precisionhawk.poleams.dao.elasticsearch2;
 
 import com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants;
 import javax.inject.Named;
@@ -8,7 +8,7 @@ import javax.inject.Named;
  * @author pchapman
  */
 @Named
-public class InspectionEventResourceEsDao extends com.precisionhawk.ams.dao.elasticsearch.InspectionEventResourceEsDao {
+public class InspectionEventResourceEsDao extends com.precisionhawk.ams.dao.elasticsearch2.InspectionEventResourceEsDao {
 
     @Override
     protected String getIndexName() {

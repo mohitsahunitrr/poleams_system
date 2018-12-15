@@ -1,8 +1,8 @@
-package com.precisionhawk.poleams.dao.elasticsearch;
+package com.precisionhawk.poleams.dao.elasticsearch2;
 
 import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
 import com.precisionhawk.ams.dao.DaoException;
-import com.precisionhawk.ams.dao.elasticsearch.AbstractEsDao;
+import com.precisionhawk.ams.dao.elasticsearch2.AbstractEsDao;
 import com.precisionhawk.poleams.dao.TransmissionLineInspectionDao;
 import com.precisionhawk.poleams.domain.TransmissionLineInspection;
 import com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants;
@@ -26,7 +26,7 @@ public class TransmissionLineInspectionEsDao extends AbstractEsDao implements Tr
     private static final String COL_STATUS = "status";
     private static final String COL_TYPE = "type";
     private static final String DOCUMENT = "TransmissionLineInspection";
-    private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch/TransmissionLineInspection_Mapping.json";
+    private static final String MAPPING = "com/precisionhawk/poleams/dao/elasticsearch2/TransmissionLineInspection_Mapping.json";
 
     @Override
     protected String getIndexName() {
