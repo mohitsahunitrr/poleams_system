@@ -13,6 +13,7 @@ resourceClasses:
     - com.precisionhawk.aws.webservices.AuthenticationWebService
     - com.precisionhawk.ams.webservices.InspectionEventResourceWebService
     - com.precisionhawk.ams.webservices.OrganizationWebService
+    - com.precisionhawk.ams.webservices.UtilsWebService
     - com.precisionhawk.ams.webservices.WorkOrderWebService
     - com.precisionhawk.poleams.webservices.FeederInspectionWebService
     - com.precisionhawk.poleams.webservices.FeederWebService

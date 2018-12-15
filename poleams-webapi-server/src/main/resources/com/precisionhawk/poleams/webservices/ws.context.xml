@@ -114,6 +114,7 @@
     <bean id="AuthenticationWebService" class="com.precisionhawk.ams.webservices.impl.AuthenticationWebServiceImpl"/>
     <bean id="InspectionEventResourceWebService" class="com.precisionhawk.ams.webservices.impl.InspectionEventResourceWebServiceImpl"/>
     <bean id="OrganizationWebService" class="com.precisionhawk.ams.webservices.impl.OrganizationWebServiceImpl"/>
+    <bean id="UtilsWebService" class="com.precisionhawk.ams.webservices.impl.UtilsWebServiceImpl"/>
     <bean id="WorkOrderWebService" class="com.precisionhawk.ams.webservices.impl.WorkOrderWebServiceImpl"/>
     
     <!-- Scan for other components and controllers. -->
