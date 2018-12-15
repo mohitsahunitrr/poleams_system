@@ -486,7 +486,9 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                         && rmeta.getSize().getWidth() > SCALE_WIDTH
                     )
                 {
-                    rsvc.scale(env.obtainAccessToken(), rmeta.getResourceId(), SCALE_IMAGE_REQ);
+                    ResourceMetadata rm2 = rsvc.scale(env.obtainAccessToken(), rmeta.getResourceId(), SCALE_IMAGE_REQ);
+                    rm2.setType(ResourceTypes.ThumbNail);
+                    rsvc.updateResourceMetadata(env.obtainAccessToken(), rm2);
                 }
                 
                 System.out.printf("The file \"%s\" of type %s has been uploaded to %s with resourceId %s\n", f, resourceType, feederId, rmeta.getResourceId());

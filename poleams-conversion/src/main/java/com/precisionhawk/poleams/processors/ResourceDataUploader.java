@@ -100,7 +100,9 @@ public final class ResourceDataUploader {
                             } catch (InterruptedException ex) {
                                 // DO Nothing
                             }
-                            svc.scale(env.obtainAccessToken(), rmeta.getResourceId(), SCALE_IMAGE_REQ);
+                            ResourceMetadata rm2 = svc.scale(env.obtainAccessToken(), rmeta.getResourceId(), SCALE_IMAGE_REQ);
+                            rm2.setType(ResourceTypes.ThumbNail);
+                            svc.updateResourceMetadata(env.obtainAccessToken(), rm2);
                         }
                         if (ResourceTypes.DroneInspectionImage.equals(rmeta.getType())) {
                             // Queue the image to be zoomified.
