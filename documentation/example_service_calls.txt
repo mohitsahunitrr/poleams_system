@@ -182,3 +182,33 @@ java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workb
 java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700332 -type FeederAnomalyReport "/opt/cloudsync/Dropbox/FPLPolesforMalcolm/4. Pinehurst 700332/6. Anomaly Report and Map/Pinehurst_700332_Report.pdf"
 java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar uploadResource -env 'InspecTools Dev' -feeder 700332 -type EncroachmentShape /opt/poleams/feeder_files/Pinehurst\ 32.kmz
 java -jar /home/pchapman/workspace/poleams_system/poleams-workbench/target/workbench.jar populateEncroachmentURL -env 'InspecTools Dev' -feeder 700332 -url "https://www.google.com/maps/d/viewer?mid=1wkwPqRZiDZ5CCrPeIWYePfkRzSa4bZMj&ll=26.08913023786791%2C-80.14933099999996&z=15"
+
+
+
+curl 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/Resource/_search' -d '{
+"query": {
+"bool" : {
+    "must" : {
+      "term" : {
+        "zoomifyId" : "af6e54f6-8b57-480e-9d8b-f4c4186da60d"
+      }
+    }
+  }
+  }
+}'
+
+curl 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/Resource/_mapping' | aeson-pretty
+
+curl -XGET 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/Resource/_search' -d '{
+    "query": {
+                "term" : { "assetId": "0d665477-39d4-42ff-b12b-d832e253a0dc" }
+    }         
+}' | aeson-pretty
+
+curl 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/Resource/_search' -d '{
+  "query": {
+      "term" : {
+        "zoomifyId" : "af6e54f6-8b57-480e-9d8b-f4c4186da60d"
+      }
+  }
+}'
