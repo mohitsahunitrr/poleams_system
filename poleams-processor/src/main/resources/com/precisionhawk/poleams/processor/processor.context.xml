@@ -37,7 +37,7 @@
     
     <!-- Web Services -->
     <bean id="environmentsFactory"
-          class="com.precisionhawk.poleams.webservices.client.spring.EnvironmentsFactory"
+          class="com.precisionhawk.ams.webservices.client.spring.EnvironmentsFactory"
           init-method="init">
         <property name="configFilePath" value="${environments.config.file}"/>
         
