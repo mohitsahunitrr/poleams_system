@@ -5,8 +5,8 @@
     "countryName": "United States",
     "version": 1,
     "countryCode": "US",
-    "id": "986bf50d-9968-4f3a-9a92-bcf8a56258cb",
-    "updated": "20180919",
+    "id": "7efe4d05-d7f0-4d44-87c1-4c64f2350638",
+    "updated": "20181218",
     "errors": {
         "maxValue": "{label} must be less than or equal to {maxValue}.",
         "maxLength": "{label} must be no more than {maxLength} characters in length.",
@@ -17,23 +17,27 @@
     },
     "logoURLs": {
     },
-    "organizationId": "9d718b1e-ca84-4e78-a1cb-1393ceecc927",
+    "organizationId": "a02e9505-a862-4d65-bad8-6c5559996213",
     "fields": {
-        "subStationSummary.feederNumber": {
+        "feederInspectionSummary.feederNumber": {
+            "dependent": null,
             "listValues": [],
-            "key": "subStationSummary.feederNumber",
+            "key": "feederInspectionSummary.feederNumber",
             "errors": {},
             "description": "The feeder coming into the substation.",
             "label": "Feeder"
         },
-        "subStationSummary.name": {
+        "feederInspectionSummary.name": {
+            "dependent": null,
             "listValues": [],
-            "key": "subStationSummary.name",
+            "key": "feederInspectionSummary.name",
             "errors": {},
             "description": "The name of the substation.",
-            "label": "Substation"
+            "label": "feeder"
         },
+
         "poleSummary.anchor[].bearing": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.anchor[].bearing",
             "errors": {},
@@ -41,6 +45,7 @@
             "label": "Guy {index} Bearing"
         },
         "poleSummary.anchor[].diameter": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.anchor[].diameter",
             "errors": {},
@@ -48,6 +53,7 @@
             "label": "Guy {index} Diameter"
         },
         "poleSummary.anchor[].leadLength": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.anchor[].leadLength",
             "errors": {},
@@ -55,6 +61,7 @@
             "label": "Guy {index} Lead Length"
         },
         "poleSummary.anchor[].type": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.anchor[].type",
             "errors": {},
@@ -62,6 +69,7 @@
             "label": "Guy {index} Assc"
         },
         "poleSummary.caTVAttachments[].diameter": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.caTVAttachments[].diameter",
             "errors": {},
@@ -69,6 +77,7 @@
             "label": "CATV {index} Attach Diameter"
         },
         "poleSummary.caTVAttachments[].height": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.caTVAttachments[].height",
             "errors": {},
@@ -76,6 +85,7 @@
             "label": "CATV {index} Attach Height"
         },
         "poleSummary.circuit1SpanLength1": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.switchNumber",
             "errors": {},
@@ -83,6 +93,7 @@
             "label": "Circuit 1 Span Length (1)"
         },
         "poleSummary.circuit1SpanLength2": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.switchNumber",
             "errors": {},
@@ -90,6 +101,7 @@
             "label": "Circuit 1 Span Length (2)"
         },
         "poleSummary.equipmentQuantity": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.equipmentQuantity",
             "errors": {},
@@ -97,20 +109,23 @@
             "label": "Equip Quan."
         },
         "poleSummary.equipmentType": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.equipmentType",
             "errors": {},
             "description": "The type of equipment installed on the pole.",
             "label": "Equip Type"
         },
-        "poleSummary.fplid": {
+        "poleSummary.utilityId": {
+            "dependent": null,
             "listValues": [],
-            "key": "poleSummary.fplid",
+            "key": "poleSummary.utilityId",
             "errors": {},
-            "description": "FPL ID.",
-            "label": "FPL ID"
+            "description": "Pole ID.",
+            "label": "Pole ID"
         },
         "poleSummary.framing": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.framing",
             "errors": {},
@@ -118,6 +133,7 @@
             "label": "Framing"
         },
         "poleSummary.id": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.id",
             "errors": {},
@@ -125,6 +141,7 @@
             "label": "Pole Number"
         },
         "poleSummary.length": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.height",
             "errors": {},
@@ -132,6 +149,7 @@
             "label": "Pole Height"
         },
         "poleSummary.location.latitude": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.location.latitude",
             "errors": {},
@@ -139,6 +157,7 @@
             "label": "Latitude"
         },
         "poleSummary.location.longitude": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.location.longitude",
             "errors": {},
@@ -146,6 +165,7 @@
             "label": "Longitude"
         },
         "poleSummary.multiplexType": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.multiplexType",
             "errors": {},
@@ -153,6 +173,7 @@
             "label": "Multiplex Type"
         },
         "poleSummary.neutralWireType": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.neutralWireType",
             "errors": {},
@@ -160,6 +181,7 @@
             "label": "Neutral Wire Type"
         },
         "poleSummary.numberOfCATVAttachments": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.numberOfCATVAttachments",
             "errors": {},
@@ -167,6 +189,7 @@
             "label": "No CATV Attachments"
         },
         "poleSummary.numberOfOpenWires": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.numberOfOpenWires",
             "errors": {},
@@ -174,20 +197,23 @@
             "label": "# of Open Wires"
         },
         "poleSummary.numberOfPhases": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.numberOfPhases",
             "errors": {},
             "description": "The number of phases of the primary span on the pole.",
             "label": "Num of Phases"
         },
-        "poleSummary.numberOfTelcomAttachments": {
+        "poleSummary.numberOfTelComAttachments": {
+            "dependent": null,
             "listValues": [],
-            "key": "poleSummary.numberOfTelcomAttachments",
+            "key": "poleSummary.numberOfTelComAttachments",
             "errors": {},
             "description": "The number of Telecom attachments on the pole.",
             "label": "No Telecom Attached"
         },
         "poleSummary.openWireType": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.openWireType",
             "errors": {},
@@ -195,6 +221,7 @@
             "label": "Open Wire Type"
         },
         "poleSummary.owner": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.owner",
             "errors": {},
@@ -202,6 +229,7 @@
             "label": "Owner"
         },
         "poleSummary.poleClass": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.poleClass",
             "errors": {},
@@ -209,6 +237,7 @@
             "label": "Pole Class"
         },
         "poleSummary.primaryWireType": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.primaryWireType",
             "errors": {},
@@ -216,6 +245,7 @@
             "label": "Primary Wire Type"
         },
         "poleSummary.pullOff1SpanLength1": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.pullOff1SpanLength1",
             "errors": {},
@@ -223,20 +253,15 @@
             "label": "Pull Off 1 Span Length (1)"
         },
         "poleSummary.pullOff2SpanLength2": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.pullOff2SpanLength2",
             "errors": {},
             "description": "Pull Off 2 Span Length (2)",
             "label": "Pull Off 2 Span Length (2)"
         },
-        "poleSummary.pullOffFraming": {
-            "listValues": [],
-            "key": "poleSummary.framing",
-            "errors": {},
-            "description": "The framing installed on the pole.",
-            "label": "Framing"
-        },
         "poleSummary.risers[]": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.risers[]",
             "errors": {},
@@ -244,6 +269,7 @@
             "label": "Riser Type {index}"
         },
         "poleSummary.streetLight": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.streetLight",
             "errors": {},
@@ -251,6 +277,7 @@
             "label": "Streetlight"
         },
         "poleSummary.switchNumber": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.switchNumber",
             "errors": {},
@@ -258,6 +285,7 @@
             "label": "Switch Number"
         },
         "poleSummary.telCommAttachments[].diameter": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.caTVAttachments[].diameter",
             "errors": {},
@@ -265,20 +293,23 @@
             "label": "TELCO {index} Attach Diameter"
         },
         "poleSummary.telCommAttachments[].height": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.caTVAttachments[].height",
             "errors": {},
             "description": "The height at which the Telcomm cable is attached.",
             "label": "TELCO {index} Attach Height"
         },
-        "poleSummary.totalSizeCaTV": {
+        "poleSummary.totalSizeCATV": {
+            "dependent": null,
             "listValues": [],
-            "key": "poleSummary.totalSizeCaTV",
+            "key": "poleSummary.totalSizeCATV",
             "errors": {},
             "description": "Total size CATV.",
             "label": "Total Size CATV"
         },
         "poleSummary.totalSizeTelCom": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.totalSizeTelCom",
             "errors": {},
@@ -286,6 +317,7 @@
             "label": "Total Size Telecom"
         },
         "poleSummary.tlnCoordinate": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.tlnCoordinate",
             "errors": {},
@@ -293,6 +325,7 @@
             "label": "TLN Coordinate"
         },
         "poleSummary.type": {
+            "dependent": null,
             "listValues": [],
             "key": "poleSummary.type",
             "errors": {},
@@ -300,6 +333,7 @@
             "label": "Type"
         },
         "poleInspectionSummary.access": {
+            "dependent": null,
             "listValues": [],
             "key": "poleInspectionSummary.access",
             "errors": {},
@@ -307,6 +341,7 @@
             "label": "Access"
         },
         "poleInspectionSummary.passedAnalysis": {
+            "dependent": null,
             "listValues": [],
             "key": "poleInspectionSummary.passedAnalysis",
             "errors": {},
@@ -314,38 +349,669 @@
             "label": "Pass"
         },
         "poleInspectionSummary.criticality": {
+            "dependent": null,
             "listValues": [],
             "key": "poleInspectionSummary.criticality",
             "errors": {},
             "description": "The criticality of the pole in terms of needing upgrades. 1 - 5, 5 being most critical.",
             "label": "Criticality"
         },
-        "poleInspectionSummary.horizontalLoadPercent": {
+        "poleInspectionSummary.horizontalLoadingPercent": {
+            "dependent": null,
             "listValues": [],
-            "key": "poleInspectionSummary.horizontalLoadPercent",
+            "key": "poleInspectionSummary.horizontalLoadingPercent",
             "errors": {},
-            "description": "The horizontal pole loading for the pole.",
+            "description": "The current wind rating for the pole.",
             "label": "Horizontal Pole Loading"
         },
         "poleInspectionSummary.latLongDelta": {
+            "dependent": null,
             "listValues": [],
             "key": "poleInspectionSummary.latLongDelta",
+            "errors": {},
+            "description": "The difference between expected and actual location, in feet.",
+            "label": "Lat, Long Delta (ft)"
+        },
+        "poleInspectionSummary.loadCase.wind": {
+            "dependent": null,
+            "listValues": [],
+            "key": "poleInspectionSummary.loadCase.wind",
             "errors": {},
             "description": "The maximum wind speed.",
             "label": "Wind Zone"
         },
-        "poleInspectionSummary.loadCase.wind": {
-            "listValues": [],
-            "key": "poleInspectionSummary.feederNumber",
+        "resource.position.side": {
+            "dependent": null,
+            "listValues": [
+                {
+                    "label": "A Base",
+                    "value": "ABase",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "A Leg",
+                    "value": "ALeg",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "A Middle",
+                    "value": "AMiddle",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "A Top",
+                    "value": "ATop",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "B Base",
+                    "value": "BBase",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "B Leg",
+                    "value": "BLeg",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "B Middle",
+                    "value": "BMiddle",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "B Top",
+                    "value": "BTop",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "C Base",
+                    "value": "CBase",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "C Leg",
+                    "value": "CLeg",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "C Middle",
+                    "value": "CMiddle",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "C Top",
+                    "value": "CTop",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "D Base",
+                    "value": "DBase",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "D Leg",
+                    "value": "DLeg",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "D Middle",
+                    "value": "DMiddle",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "D Top",
+                    "value": "DTop",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "Overview",
+                    "value": "Overview",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "X-Arms Bottom Left Phase",
+                    "value": "XABL",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "X-Arms Bottom Right Phase",
+                    "value": "XABR",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "X-Arms Middle Inside Phase",
+                    "value": "XAMI",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "X-Arms Middle Left Phase",
+                    "value": "XAML",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "X-Arms Middle Right Phase",
+                    "value": "XAMR",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "X-Arms Top Left Phase",
+                    "value": "XATL",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "X-Arms Top Right Phase",
+                    "value": "XATR",
+                    "selector": null,
+                    "sortOrder": 0
+                } 
+            ],
+            "key": "resource.position.side",
             "errors": {},
-            "description": "The difference between expected and actual location, in feet.",
-            "label": "Lat / Long Delta (In Feet)"
+            "description": "The location being inspected.",
+            "label": "Location"
+        },
+        "transmissionLineInspectionSummary.dateOfInspection": {
+            "dependent": null,
+            "listValues": [],
+            "key": "transmissionLineInspectionSummary.dateOfInspection",
+            "errors": {},
+            "description": "The date the inspection was done.",
+            "label": "Inspection Date"
+        },
+        "transmissionLineInspectionSummary.orderNumber": {
+            "dependent": null,
+            "listValues": [],
+            "key": "transmissionLineInspectionSummary.orderNumber",
+            "errors": {},
+            "description": "Work order number",
+            "label": "Order Number"
+        },
+        "transmissionLineInspectionSummary.processedBy": {
+            "dependent": null,
+            "listValues": [],
+            "key": "transmissionLineInspectionSummary.processedBy",
+            "errors": {},
+            "description": "Who processed the inspection.",
+            "label": "Processed By"
+        },
+        "transmissionLineInspectionSummary.status": {
+            "dependent": null,
+            "listValues": [
+                {
+                    "label": "Pending",
+                    "value": "Pending",
+                    "selector": null,
+                    "sortOrder": 0
+                },{
+                    "label": "In Process",
+                    "value": "InProcess",
+                    "selector": null,
+                    "sortOrder": 1
+                },{
+                    "label": "Uploaded",
+                    "value": "Uploaded",
+                    "selector": null,
+                    "sortOrder": 2
+                },{
+                    "label": "Processed",
+                    "value": "Processed",
+                    "selector": null,
+                    "sortOrder": 3
+                },{
+                    "label": "Released",
+                    "value": "Released",
+                    "selector": null,
+                    "sortOrder": 4
+                }
+            ],
+            "key": "transmissionLineInspectionSummary.status",
+            "errors": {},
+            "description": "Status",
+            "label": "The status of the inspection"
+        },
+        "transmissionLineInspectionSummary.type": {
+            "dependent": null,
+            "listValues": [
+                {
+                    "label": "Drone Inspection",
+                    "value": "DroneInspection"
+                }
+            ],
+            "key": "transmissionLineInspectionSummary.type",
+            "errors": {},
+            "description": "Type of Inspection",
+            "label": "Type"
+        },
+
+        "transmissionStructureSummary.dateOfInstall": {
+            "dependent": null,
+            "listValues": [],
+            "key": "transmissionStructureSummary.dateOfInstall",
+            "errors": {},
+            "description": "Date structure was installed",
+            "label": "Date Installed"
+        },
+        "transmissionStructureSummary.location.latitude": {
+            "dependent": null,
+            "listValues": [],
+            "key": "transmissionStructureSummary.location.latitude",
+            "errors": {},
+            "description": "The latitude where the structure is located.",
+            "label": "Latitude"
+        },
+        "transmissionStructureSummary.location.longitude": {
+            "dependent": null,
+            "listValues": [],
+            "key": "transmissionStructureSummary.location.longitude",
+            "errors": {},
+            "description": "The longitude where the structure is located.",
+            "label": "Longitude"
+        },
+        "transmissionStructureSummary.make": {
+            "dependent": null,
+            "listValues": [],
+            "key": "transmissionStructureSummary.make",
+            "errors": {},
+            "description": "Manufacturer of the structure",
+            "label": "Manufacturer"
+        },
+        "transmissionStructureSummary.model": {
+            "dependent": null,
+            "listValues": [],
+            "key": "transmissionStructureSummary.model",
+            "errors": {},
+            "description": "Model of the structure",
+            "label": "Model"
+        },
+        "transmissionStructureSummary.serialNumber": {
+            "dependent": null,
+            "listValues": [],
+            "key": "transmissionStructureSummary.",
+            "errors": {},
+            "description": "The serial number of the structure",
+            "label": "Serial Number"
+        },
+        "transmissionStructureSummary.type": {
+            "dependent": null,
+            "listValues": [
+                {
+                    "label": "Steel Tower",
+                    "value": "SteelTower",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "Steel Pole",
+                    "value": "SteelPole",
+                    "selector": null,
+                    "sortOrder": 1
+                }, {
+                    "label": "Concrete Pole",
+                    "value": "ConcretePole",
+                    "selector": null,
+                    "sortOrder": 2
+                }, {
+                    "label": "Wooden Pole",
+                    "value": "WoodenPole",
+                    "selector": null,
+                    "sortOrder": 3
+                }
+            ],
+            "key": "transmissionStructureSummary.type",
+            "errors": {},
+            "description": "The type of structure",
+            "label": "Type"
+        },
+        "transmissionStructureSummary.structureNumber": {
+            "dependent": null,
+            "listValues": [],
+            "key": "transmissionStructureSummary.structureNumber",
+            "errors": {},
+            "description": "Unique number assigned to the pole by the utility",
+            "label": "Structure Number"
+        },
+
+        "transmissionStructureInspectionSummary.dateOfInspection": {
+            "dependent": null,
+            "listValues": [],
+            "key": "transmissionInspectionStructureSummary.dateOfInspection",
+            "errors": {},
+            "description": "Date of Inspection",
+            "label": "Inspection Date"
+        },
+        "transmissionStructureInspectionSummary.orderNumber": {
+            "dependent": null,
+            "listValues": [],
+            "key": "transmissionInspectionStructureSummary.orderNumber",
+            "errors": {},
+            "description": "Work order number",
+            "label": "Order Number"
+        },
+        "transmissionStructureInspectionSummary.processedBy": {
+            "dependent": null,
+            "listValues": [],
+            "key": "transmissionInspectionStructureSummary.processedBy",
+            "errors": {},
+            "description": "Processed By",
+            "label": "Processed By"
+        },
+        "transmissionInspectionStructureSummary.status": {
+            "dependent": null,
+            "listValues": [
+                {
+                    "label": "Pending",
+                    "value": "Pending",
+                    "selector": null,
+                    "sortOrder": 0
+                },{
+                    "label": "In Process",
+                    "value": "InProcess",
+                    "selector": null,
+                    "sortOrder": 1
+                },{
+                    "label": "Uploaded",
+                    "value": "Uploaded",
+                    "selector": null,
+                    "sortOrder": 2
+                },{
+                    "label": "Processed",
+                    "value": "Processed",
+                    "selector": null,
+                    "sortOrder": 3
+                },{
+                    "label": "Released",
+                    "value": "Released",
+                    "selector": null,
+                    "sortOrder": 4
+                }
+            ],
+            "key": "transmissionInspectionStructureSummary.status",
+            "errors": {},
+            "description": "Status",
+            "label": "Status"
+        },
+        "transmissionInspectionStructureSummary.type": {
+            "dependent": null,
+            "listValues": [{
+                    "label": "Drone Inspection",
+                    "value": "DroneInspection",
+                    "selector": null,
+                    "sortOrder": 0
+                }],
+            "key": "transmissionInspectionStructureSummary.type",
+            "errors": {},
+            "description": "",
+            "label": ""
+        },
+        "transmissionInspectionStructureSummary.reasonNotInspected": {
+            "dependent": null,
+            "listValues": [],
+            "key": "transmissionInspectionStructureSummary.reasonNotInspected",
+            "errors": {},
+            "description": "Reason the structure was not inspected",
+            "label": "Reason not Inspected"
+        },
+        "transmissionInspectionStructureSummary.severity": {
+            "dependent": null,
+            "listValues": [],
+            "key": "transmissionInspectionStructureSummary.severity",
+            "errors": {},
+            "description": "The severity of the damage",
+            "label": "Severity"
+        },
+
+        "inspectionEvent.orderNumber": {
+            "dependent": null,
+            "listValues": [],
+            "key": "inspectionEvent.orderNumber",
+            "errors": {},
+            "description": "Work order number",
+            "label": "Order Number"
+        },
+        "inspectionEvent.name": {
+            "dependent": null,
+            "listValues": [],
+            "key": "inspectionEvent.name",
+            "errors": {},
+            "description": "Name of damage",
+            "label": "Name"
+        },
+        "inspectionEvent.findingType": {
+            "dependent": null,
+            "listValues": [
+                {
+                    "label": "Backed Out",
+                    "value": "BackedOut",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "Bird Caging",
+                    "value": "BirdCaging",
+                    "selector": null,
+                    "sortOrder": 1
+                }, {
+                    "label": "Corrosion",
+                    "value": "Corrosion",
+                    "selector": null,
+                    "sortOrder": 2
+                }, {
+                    "label": "Cracked",
+                    "value": "Cracked",
+                    "selector": null,
+                    "sortOrder": 3
+                }, {
+                    "label": "Damaged",
+                    "value": "Damaged",
+                    "selector": null,
+                    "sortOrder": 4
+                }, {
+                    "label": "Encroachment",
+                    "value": "Encroachment",
+                    "selector": null,
+                    "sortOrder": 5
+                }, {
+                    "label": "Extra Hardware",
+                    "value": "ExtraHardware",
+                    "selector": null,
+                    "sortOrder": 6
+                }, {
+                    "label": "Flashed",
+                    "value": "Flashed",
+                    "selector": null,
+                    "sortOrder": 7
+                }, {
+                    "label": "Leaning",
+                    "value": "Leaning",
+                    "selector": null,
+                    "sortOrder": 8
+                }, {
+                    "label": "Loose",
+                    "value": "Loose",
+                    "selector": null,
+                    "sortOrder": 9
+                }, {
+                    "label": "Missing",
+                    "value": "Missing",
+                    "selector": null,
+                    "sortOrder": 10
+                }, {
+                    "label": "Pack Out",
+                    "value": "PackOut",
+                    "selector": null,
+                    "sortOrder": 11
+                }, {
+                    "label": "Rot",
+                    "value": "Rot",
+                    "selector": null,
+                    "sortOrder": 12
+                }, {
+                    "label": "Vegetation Encroachment",
+                    "value": "VegetationEncroachment",
+                    "selector": null,
+                    "sortOrder": 13
+                }, {
+                    "label": "Wood Pecker",
+                    "value": "WoodPecker",
+                    "selector": null,
+                    "sortOrder": 14
+                }, {
+                    "label": "Not Applicable",
+                    "value": "NA",
+                    "selector": null,
+                    "sortOrder": 15
+                }
+            ],
+            "key": "inspectionEvent.findingType",
+            "errors": {},
+            "description": "Description of the problem",
+            "label": "Problem Description"
+        },
+        "inspectionEvent.observationType": {
+            "dependent": null,
+            "listValues": [
+                {
+                    "label": "Insulators",
+                    "value": "Insulators",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "Conductor",
+                    "value": "Conductor",
+                    "selector": null,
+                    "sortOrder": 1
+                }, {
+                    "label": "Cotter Key",
+                    "value": "Cotter Key",
+                    "selector": null,
+                    "sortOrder": 2
+                }, {
+                    "label": "Ground Wire",
+                    "value": "GroundWire",
+                    "selector": null,
+                    "sortOrder": 3
+                }, {
+                    "label": "Hardware",
+                    "value": "Hardware",
+                    "selector": null,
+                    "sortOrder": 4
+                }, {
+                    "label": "Joint",
+                    "value": "Joint",
+                    "selector": null,
+                    "sortOrder": 5
+                }, {
+                    "label": "Lightining Arrestor",
+                    "value": "LightiningArrestor",
+                    "selector": null,
+                    "sortOrder": 6
+                }, {
+                    "label": "Pole",
+                    "value": "Pole",
+                    "selector": null,
+                    "sortOrder": 7
+                }, {
+                    "label": "ROW",
+                    "value": "ROW",
+                    "selector": null,
+                    "sortOrder": 8
+                }, {
+                    "label": "Splice",
+                    "value": "Splice",
+                    "selector": null,
+                    "sortOrder": 9
+                }, {
+                    "label": "Static Wire",
+                    "value": "StaticWire",
+                    "selector": null,
+                    "sortOrder": 10
+                }, {
+                    "label": "Not Applicable",
+                    "value": "NA",
+                    "selector": null,
+                    "sortOrder": 11
+                }
+            ],
+            "key": "inspectionEvent.observationType",
+            "errors": {},
+            "description": "Area Damage Was Identified",
+            "label": "Area"
+        },
+        "inspectionEvent.severity": {
+            "dependent": null,
+            "listValues": [],
+            "key": "inspectionEvent.severity",
+            "errors": {},
+            "description": "Severity of damage",
+            "label": "Severity"
+        },
+        "inspectionEvent.comment": {
+            "dependent": null,
+            "listValues": [],
+            "key": "inspectionEvent.comment",
+            "errors": {},
+            "description": "Comment about damage",
+            "label": "Comment"
+        },
+        "inspectionEvent.userId": {
+            "dependent": null,
+            "listValues": [],
+            "key": "inspectionEvent.userId",
+            "errors": {},
+            "description": "User that identified the damage",
+            "label": "Identified By"
+        },
+        "inspectionEvent.date": {
+            "dependent": null,
+            "listValues": [],
+            "key": "inspectionEvent.date",
+            "errors": {},
+            "description": "Date damage was identified",
+            "label": "Date Identified"
+        },
+        "inspectionEvent.position": {
+            "dependent": null,
+            "listValues": [
+                {
+                    "label": "Left",
+                    "value": "Left",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "Middle",
+                    "value": "Middle",
+                    "selector": null,
+                    "sortOrder": 1
+                }, {
+                    "label": "Right",
+                    "value": "Right",
+                    "selector": null,
+                    "sortOrder": 2
+                }, {
+                    "label": "Top",
+                    "value": "Top",
+                    "selector": null,
+                    "sortOrder": 3
+                }, {
+                    "label": "Bottom",
+                    "value": "Bottom",
+                    "selector": null,
+                    "sortOrder": 4
+                }, {
+                    "label": "Not Applicable",
+                    "value": "NA",
+                    "selector": null,
+                    "sortOrder": 5
+                }
+            ],
+            "key": "inspectionEvent.position",
+            "errors": {},
+            "description": "Position of damage",
+            "label": "Position"
         }
     },
     "views": {
         "poleAMSViewer.poleView.summary": [
-            "subStationSummary.name",
-            "subStationSummary.feederNumber",
+            "feederInspectionSummary.name",
+            "feederInspectionSummary.feederNumber",
             "poleSummary.fplid",
             "poleSummary.type",
             "poleSummary.length",
@@ -355,7 +1021,7 @@
             "poleSummary.numberOfPhases",
             "poleSummary.location.latitude",
             "poleSummary.location.longitude",
-            "poleInspectionSummary.horizontalLoadPercent",
+            "poleInspectionSummary.horizontalLoadingPercent"
         ],
         "poleAMSViewer.poleView.detail": [
             "poleSummary.id",
@@ -365,12 +1031,12 @@
             "poleSummary.circuit1SpanLength2",
             "poleSummary.pullOff1SpanLength1",
             "poleSummary.pullOff2SpanLength2",
-            "poleSummary.pullOffFraming",
+            "poleSummary.framing",
             "poleSummary.equipmentQuantity",
             "poleSummary.streetLight",
             "poleSummary.risers[]",
             "poleSummary.numberOfCATVAttachments",
-            "poleSummary.totalSizeCaTV",
+            "poleSummary.totalSizeCATV",
             "poleSummary.caTVAttachments[].height",
             "poleSummary.caTVAttachments[].diameter",
             "poleSummary.numberOfTelComAttachments",
@@ -381,7 +1047,7 @@
             "poleSummary.neutralWireType",
             "poleSummary.openWireType",
             "poleSummary.numberOfOpenWires",
-            "poleSummary.multiplexType"
+            "poleSummary.multiplexType",
             "poleSummary.switchNumber",
             "poleSummary.tlnCoordinate",
             "poleSummary.anchor[].type",

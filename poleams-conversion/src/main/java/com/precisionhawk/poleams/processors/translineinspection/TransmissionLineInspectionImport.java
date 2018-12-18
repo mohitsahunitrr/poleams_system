@@ -9,7 +9,6 @@ import com.precisionhawk.ams.domain.ResourceStatus;
 import com.precisionhawk.ams.domain.WorkOrder;
 import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.ams.util.ImageUtilities;
-import com.precisionhawk.ams.webservices.WorkOrderWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.bean.TransmissionLineSearchParams;
 import com.precisionhawk.poleams.bean.TransmissionStructureSearchParams;
@@ -26,13 +25,8 @@ import com.precisionhawk.poleams.processors.DataImportUtilities;
 import com.precisionhawk.poleams.processors.FilenameFilters;
 import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.ProcessListener;
-import com.precisionhawk.poleams.processors.ResourceDataUploader;
 import static com.precisionhawk.poleams.support.poi.ExcelUtilities.*;
 import com.precisionhawk.poleams.webservices.ResourceWebService;
-import com.precisionhawk.poleams.webservices.TransmissionLineInspectionWebService;
-import com.precisionhawk.poleams.webservices.TransmissionLineWebService;
-import com.precisionhawk.poleams.webservices.TransmissionStructureInspectionWebService;
-import com.precisionhawk.poleams.webservices.TransmissionStructureWebService;
 import com.precisionhawk.poleams.webservices.client.WSClientHelper;
 import java.io.File;
 import java.io.IOException;
@@ -190,6 +184,7 @@ public final class TransmissionLineInspectionImport {
         if (data.getLine() == null) {
             TransmissionLineSearchParams params = new TransmissionLineSearchParams();
             params.setLineNumber(lineId);
+            params.setOrganizationId(data.getOrganizationId());
             data.setLine(CollectionsUtilities.firstItemIn(wsclient.transmissionLines().search(wsclient.token(), params)));
             if (data.getLine() == null) {
                 // Not found, create it.
