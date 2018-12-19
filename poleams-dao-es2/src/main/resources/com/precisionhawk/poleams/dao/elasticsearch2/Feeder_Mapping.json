@@ -21,6 +21,11 @@
         "index" : "not_analyzed",
         "type" : "string"
       },
+      "organizationId" : {
+        "include_in_all" : true,
+        "index" : "not_analyzed",
+        "type" : "string"
+      },
       "windZone" : {
         "include_in_all" : true,
         "index" : "not_analyzed",

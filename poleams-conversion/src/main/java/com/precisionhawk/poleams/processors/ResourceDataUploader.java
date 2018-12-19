@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.jboss.resteasy.client.ClientResponseFailure;
 
 /**
  *
@@ -100,9 +101,31 @@ public final class ResourceDataUploader {
                             } catch (InterruptedException ex) {
                                 // DO Nothing
                             }
-                            ResourceMetadata rm2 = svc.scale(env.obtainAccessToken(), rmeta.getResourceId(), SCALE_IMAGE_REQ);
-                            rm2.setType(ResourceTypes.ThumbNail);
-                            svc.updateResourceMetadata(env.obtainAccessToken(), rm2);
+                            boolean scaled = false;
+                            int tries = 0;
+                            while (!scaled && tries < 5) {
+                                try {
+                                    tries++;
+                                    ResourceMetadata rm2 = svc.scale(env.obtainAccessToken(), rmeta.getResourceId(), SCALE_IMAGE_REQ);
+                                    rm2.setType(ResourceTypes.ThumbNail);
+                                    svc.updateResourceMetadata(env.obtainAccessToken(), rm2);
+                                    scaled = true;
+                                } catch (ClientResponseFailure ex) {
+                                    if (ex.getResponse().getStatus() == 404) {
+                                        listener.reportNonFatalError(String.format("Unable to scale image \"%s\".  S3 is probably still injesting.  Waiting a few seconds for backend to catch up.", rmeta.getResourceId()));
+                                        try {
+                                            Thread.sleep(2500);
+                                        } catch (InterruptedException ie) {
+                                            //Do nothing.
+                                        }
+                                    } else {
+                                        throw ex;
+                                    }
+                                }
+                            }
+                            if (!scaled) {
+                                throw new IOException(String.format("Unable to scale the image \"%s\" after 5 attempts.", rmeta.getResourceId()));
+                            }
                         }
                         if (ResourceTypes.DroneInspectionImage.equals(rmeta.getType())) {
                             // Queue the image to be zoomified.

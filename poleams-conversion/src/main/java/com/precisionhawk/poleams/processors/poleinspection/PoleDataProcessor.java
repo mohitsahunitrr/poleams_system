@@ -114,6 +114,7 @@ final class PoleDataProcessor {
             Pole p = data.getPoleDataByFPLId().get(fplid);
             if (p == null) {
                 PoleSearchParams params = new PoleSearchParams();
+                params.setSiteId(data.getFeeder().getId());
                 params.setUtilityId(fplid);
                 try {
                     p = CollectionsUtilities.firstItemIn(env.obtainWebService(PoleWebService.class).search(env.obtainAccessToken(), params));

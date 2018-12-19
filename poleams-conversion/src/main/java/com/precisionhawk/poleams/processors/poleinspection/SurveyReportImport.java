@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.precisionhawk.poleams.webservices.FeederWebService;
 import java.time.LocalDate;
+import org.jboss.resteasy.client.ClientResponseFailure;
 
 /**
  *
@@ -116,13 +117,21 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
                 f.setName(subStationName);
                 f.setOrganizationId(data.getOrganizationId());
                 f.setWindZone(StringUtil.getNullableString(getCellDataAsInteger(row, FEEDER_WIND_ZONE.x)));
-                data.setFeeder(f);
-                data.getDomainObjectIsNew().put(f.getId(), true);
-            } else {
-                data.getDomainObjectIsNew().put(data.getFeeder().getId(), false);
+                // Save Feeder immediately, otherwise other calls searching for assets belonging to this feeder will fail due to auth.
+                data.setFeeder(env.obtainWebService(FeederWebService.class).create(env.obtainAccessToken(), f));
             }
+            data.getDomainObjectIsNew().put(data.getFeeder().getId(), false);
             
-            data.setWorkOrder(env.obtainWebService(WorkOrderWebService.class).retrieveById(env.obtainAccessToken(), data.getOrderNumber()));
+            try {
+                data.setWorkOrder(env.obtainWebService(WorkOrderWebService.class).retrieveById(env.obtainAccessToken(), data.getOrderNumber()));
+            } catch (ClientResponseFailure ex) {
+                if (ex.getResponse().getStatus() == 404) {
+                    // Not found
+                    data.setWorkOrder(null);
+                } else {
+                    throw new IOException(ex);
+                }
+            }
             if (data.getWorkOrder() == null) {
                 WorkOrder wo = new WorkOrder();
                 wo.setOrderNumber(data.getOrderNumber());
@@ -205,6 +214,7 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
                 return true;
             }
             PoleSearchParams pparams = new PoleSearchParams();
+            pparams.setSiteId(data.getFeeder().getId());
             pparams.setUtilityId(fplId);
             Pole pole = CollectionsUtilities.firstItemIn(psvc.search(env.obtainAccessToken(), pparams));
             boolean isNew = false;
@@ -236,6 +246,7 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
             if (!isNew) {
                 // Attempt to find an existing inspection
                 AssetInspectionSearchParams piparams = new AssetInspectionSearchParams();
+                piparams.setOrderNumber(data.getOrderNumber());
                 piparams.setAssetId(pole.getId());
                 inspection = CollectionsUtilities.firstItemIn(pisvc.search(env.obtainAccessToken(), piparams));
             }

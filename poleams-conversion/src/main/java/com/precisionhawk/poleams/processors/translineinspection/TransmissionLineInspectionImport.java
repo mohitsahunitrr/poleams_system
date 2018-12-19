@@ -2,6 +2,7 @@ package com.precisionhawk.poleams.processors.translineinspection;
 
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.bean.GeoPoint;
+import com.precisionhawk.ams.bean.ImagePosition;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
 import com.precisionhawk.ams.domain.ResourceMetadata;
@@ -50,6 +51,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbookFactory;
+import org.jboss.resteasy.client.ClientResponseFailure;
 
 /**
  * Imports data for a transmission line inspection.
@@ -88,7 +90,15 @@ public final class TransmissionLineInspectionImport {
     }
 
     private boolean initialize(WSClientHelper wsclient, ProcessListener listener, InspectionData data) throws IOException {
-        data.setWorkOrder(wsclient.workOrders().retrieveById(wsclient.token(), data.getOrderNumber()));
+        try {
+            data.setWorkOrder(wsclient.workOrders().retrieveById(wsclient.token(), data.getOrderNumber()));
+        } catch (ClientResponseFailure ex) {
+            if (ex.getResponse().getStatus() == 404) {
+                // it does not exist.
+            } else {
+                throw new IOException("Unable to lookup work order.", ex);
+            }
+        }
         if (data.getWorkOrder() == null) {
             WorkOrder wo = new WorkOrder();
             wo.setOrderNumber(data.getOrderNumber());
@@ -120,27 +130,35 @@ public final class TransmissionLineInspectionImport {
             }
             
             // Process images
-            File[] files = inputDir.listFiles(FilenameFilters.IMAGES_FILTER);
-            for (File imageFile : files) {
-                if (imageFile.isFile()) {
-                    if (imageFile.canRead()) {
-                        try {
-                            ImageFormat format = Imaging.guessFormat(imageFile);
-                            if (ImageFormats.UNKNOWN.equals(format)) {
-                                listener.reportNonFatalError(String.format("Unexpected file \"%s\" is being skipped.", imageFile));
-                            } else {
-                                processImageFile(wsclient, listener, data, imageFile, format);
-                            }
-                        } catch (ImageReadException | IOException ex) {
-                            listener.reportNonFatalException(String.format("There was an error parsing resource file \"%s\"", imageFile.getAbsolutePath()), ex);
+            File imagesDir;
+            for (TransmissionStructure struct : data.getStructureDataByStructureNum().values()) {
+                imagesDir = new File(inputDir, struct.getStructureNumber());
+                if (imagesDir.isDirectory()) {
+                    File[] files = imagesDir.listFiles(FilenameFilters.IMAGES_FILTER);
+                    for (File imageFile : files) {
+                        if (imageFile.isFile()) {
+                            if (imageFile.canRead()) {
+                                try {
+                                    ImageFormat format = Imaging.guessFormat(imageFile);
+                                    if (ImageFormats.UNKNOWN.equals(format)) {
+                                        listener.reportNonFatalError(String.format("Unexpected file \"%s\" is being skipped.", imageFile));
+                                    } else {
+                                        processImageFile(wsclient, listener, data, struct, imageFile, format);
+                                    }
+                                } catch (ImageReadException | IOException ex) {
+                                    listener.reportNonFatalException(String.format("There was an error parsing resource file \"%s\"", imageFile.getAbsolutePath()), ex);
 
-                            return true;
+                                    return true;
+                                }
+                            } else {
+                                listener.reportNonFatalError(String.format("The file \"%s\" is not readable.", imageFile));
+                            }
+                        } else {
+                            listener.reportMessage(String.format("The directory \"%s\" is being ignored.", imageFile));
                         }
-                    } else {
-                        listener.reportNonFatalError(String.format("The file \"%s\" is not readable.", imageFile));
                     }
                 } else {
-                    listener.reportMessage(String.format("The directory \"%s\" is being ignored.", imageFile));
+                    listener.reportNonFatalError(String.format("Images directory \"%s\" not found.", imagesDir.getAbsolutePath()));
                 }
             }
             
@@ -160,23 +178,34 @@ public final class TransmissionLineInspectionImport {
             }
         }        
     }
+    
+    private static final int COL_STRUCT_NUM = 0;
+    private static final int COL_LINE = 1;
+    private static final int COL_STRUCT_NAME = 2;
+    private static final int COL_INSP_DATE = 3;
+    private static final int COL_LATITUDE = 4;
+    private static final int COL_LONGITUDE = 5;
+    private static final int COL_REASON_NO_INSP = 6;
+    private static final int COL_MATERIAL = 7;
 
     private boolean processStructureRow(WSClientHelper wsclient, ProcessListener listener, Row row, InspectionData data)
         throws InvalidFormatException, IOException
     {
-        String lineId = getCellDataAsString(row, 0);
+        String lineId = getCellDataAsString(row, COL_LINE);
         if (lineId == null || lineId.isEmpty()) {
              return false;
         }
-        String structNum = getCellDataAsString(row, 1);
+        String structNum = getCellDataAsString(row, COL_STRUCT_NUM);
         structNum = structNum.replace(".0", "").replace(" Pending Replacement", "");
-        Date inspectionDate = getCellDataAsDate(row, 2);
-        Double latitude = getCellDataAsDouble(row, 3);
-        Double longitude = getCellDataAsDouble(row, 4);
+        Date inspectionDate = getCellDataAsDate(row, COL_INSP_DATE);
+        Double latitude = getCellDataAsDouble(row, COL_LATITUDE);
+        Double longitude = getCellDataAsDouble(row, COL_LONGITUDE);
         if (longitude != null) {
             longitude = longitude * -1.0;
         }
-        String reasonNoInsp = getCellDataAsString(row, 5);
+        String reasonNoInsp = getCellDataAsString(row, COL_REASON_NO_INSP);
+        String material = getCellDataAsString(row, COL_MATERIAL);
+        String lineName = getCellDataAsString(row, COL_STRUCT_NAME);
         
         listener.reportMessage(String.format("Processing row %d for transmission structure %s", row.getRowNum(), structNum));
         
@@ -190,7 +219,7 @@ public final class TransmissionLineInspectionImport {
                 // Not found, create it.
                 TransmissionLine line = new TransmissionLine();
                 line.setId(UUID.randomUUID().toString());
-                line.setName(lineId);
+                line.setName(lineName);
                 line.setLineNumber(lineId);
                 line.setOrganizationId(data.getOrganizationId());
                 data.setLine(line);
@@ -244,7 +273,13 @@ public final class TransmissionLineInspectionImport {
             struct.setId(UUID.randomUUID().toString());
             struct.setSiteId(data.getLine().getId());
             struct.setStructureNumber(structNum);
-            struct.setType(AssetTypes.WoodenPole);
+            if ("Concrete".equalsIgnoreCase(material)) {
+                struct.setType(AssetTypes.ConcretePole);
+            } else if ("Wood".equalsIgnoreCase(material)) {
+                struct.setType(AssetTypes.WoodenPole);
+            } else if ("Metal".equalsIgnoreCase(material)) {
+                struct.setType(AssetTypes.SteelTower);
+            }
             if (latitude != null && longitude != null) {
                 GeoPoint p = new GeoPoint();
                 p.setLatitude(latitude);
@@ -287,16 +322,10 @@ public final class TransmissionLineInspectionImport {
         return true;
     }
 
-    private void processImageFile(WSClientHelper wsclient, ProcessListener listener, InspectionData data, File f, ImageFormat format)
+    private void processImageFile(WSClientHelper wsclient, ProcessListener listener, InspectionData data, TransmissionStructure struct, File f, ImageFormat format)
         throws IOException, ImageReadException
     {
-        // Expect a name like "30_WP right pole.jpg" where 30 is the structure number.
-        String[] parts = f.getName().split("_");
-        TransmissionStructure struct = data.getStructureDataByStructureNum().get(parts[0]);
-        if (struct == null) {
-            listener.reportNonFatalError(String.format("Unable to load structure %s for file %s.", parts[0], f.getAbsolutePath()));
-            return;
-        }
+        listener.reportMessage(String.format("Processing image file %s", f.getAbsolutePath()));
         
         ResourceWebService rsvc = wsclient.resources();
                 
@@ -307,7 +336,6 @@ public final class TransmissionLineInspectionImport {
         if (rmeta == null) {
             rmeta = new ResourceMetadata();
             rmeta.setResourceId(UUID.randomUUID().toString());
-            String name = f.getName().toLowerCase();
             rmeta.setType(ResourceTypes.DroneInspectionImage);
             ImageInfo info = Imaging.getImageInfo(f);
             ImageMetadata metadata = Imaging.getMetadata(f);
@@ -323,6 +351,12 @@ public final class TransmissionLineInspectionImport {
             rmeta.setLocation(ImageUtilities.getLocation(exif));
             rmeta.setName(f.getName());
             rmeta.setOrderNumber(data.getOrderNumber());
+            String posSide = resourcePositionSide(listener, f);
+            if (posSide != null) {
+                ImagePosition pos = new ImagePosition();
+                pos.setSide(posSide);
+                rmeta.setPosition(pos);
+            }
             rmeta.setAssetId(struct.getId());
             rmeta.setAssetInspectionId(data.getStructureInspectionsByStructureNum().get(struct.getStructureNumber()).getId());
             rmeta.setSize(ImageUtilities.getSize(info));
@@ -356,6 +390,26 @@ public final class TransmissionLineInspectionImport {
             DataImportUtilities.saveResources(wsclient, listener, data);
         } catch (Throwable t) {
             listener.reportFatalException("Error persisting inspection data.", t);
+        }
+    }
+    
+    private static String resourcePositionSide(ProcessListener listener, File file) {
+        String part = file.getName().split("_")[1].split("\\.")[0];
+        if (part.matches("[Aa]\\d*")) {
+            return "A";
+        } else if (part.matches("[Bb]\\d*")) {
+            return "B";
+        } else if (part.matches("[Cc]\\d*")) {
+            return "C";
+        } else if (part.matches("[Dd]\\d*")) {
+            return "D";
+        } else if (part.matches("\\d*[Oo][Vv][Ee][Rr][Vv][Ii][Ee][Ww]")) { // Overview
+            return "Overview";
+        } else if (part.matches("[Xx][Aa][Rr][Mm][Ss]\\d*")) { // Xarms
+            return "Crossarms";
+        } else {
+            listener.reportMessage(String.format("Returning position side %s for file %s", "Other", file.getAbsolutePath()));
+            return "Other";
         }
     }
 }

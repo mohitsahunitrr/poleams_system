@@ -384,125 +384,40 @@
             "dependent": null,
             "listValues": [
                 {
-                    "label": "A Base",
-                    "value": "ABase",
+                    "label": "A Leg/Side",
+                    "value": "A",
                     "selector": null,
                     "sortOrder": 0
                 }, {
-                    "label": "A Leg",
-                    "value": "ALeg",
+                    "label": "B Leg/Side",
+                    "value": "B",
                     "selector": null,
-                    "sortOrder": 0
+                    "sortOrder": 1
                 }, {
-                    "label": "A Middle",
-                    "value": "AMiddle",
+                    "label": "C Leg/Side",
+                    "value": "C",
                     "selector": null,
-                    "sortOrder": 0
+                    "sortOrder": 2
                 }, {
-                    "label": "A Top",
-                    "value": "ATop",
+                    "label": "D Leg/Side",
+                    "value": "D",
                     "selector": null,
-                    "sortOrder": 0
-                }, {
-                    "label": "B Base",
-                    "value": "BBase",
-                    "selector": null,
-                    "sortOrder": 0
-                }, {
-                    "label": "B Leg",
-                    "value": "BLeg",
-                    "selector": null,
-                    "sortOrder": 0
-                }, {
-                    "label": "B Middle",
-                    "value": "BMiddle",
-                    "selector": null,
-                    "sortOrder": 0
-                }, {
-                    "label": "B Top",
-                    "value": "BTop",
-                    "selector": null,
-                    "sortOrder": 0
-                }, {
-                    "label": "C Base",
-                    "value": "CBase",
-                    "selector": null,
-                    "sortOrder": 0
-                }, {
-                    "label": "C Leg",
-                    "value": "CLeg",
-                    "selector": null,
-                    "sortOrder": 0
-                }, {
-                    "label": "C Middle",
-                    "value": "CMiddle",
-                    "selector": null,
-                    "sortOrder": 0
-                }, {
-                    "label": "C Top",
-                    "value": "CTop",
-                    "selector": null,
-                    "sortOrder": 0
-                }, {
-                    "label": "D Base",
-                    "value": "DBase",
-                    "selector": null,
-                    "sortOrder": 0
-                }, {
-                    "label": "D Leg",
-                    "value": "DLeg",
-                    "selector": null,
-                    "sortOrder": 0
-                }, {
-                    "label": "D Middle",
-                    "value": "DMiddle",
-                    "selector": null,
-                    "sortOrder": 0
-                }, {
-                    "label": "D Top",
-                    "value": "DTop",
-                    "selector": null,
-                    "sortOrder": 0
+                    "sortOrder": 3
                 }, {
                     "label": "Overview",
                     "value": "Overview",
                     "selector": null,
-                    "sortOrder": 0
+                    "sortOrder": 4
                 }, {
-                    "label": "X-Arms Bottom Left Phase",
-                    "value": "XABL",
+                    "label": "Crossarms",
+                    "value": "Crossarms",
                     "selector": null,
-                    "sortOrder": 0
+                    "sortOrder": 5
                 }, {
-                    "label": "X-Arms Bottom Right Phase",
-                    "value": "XABR",
+                    "label": "Other",
+                    "value": "Other",
                     "selector": null,
-                    "sortOrder": 0
-                }, {
-                    "label": "X-Arms Middle Inside Phase",
-                    "value": "XAMI",
-                    "selector": null,
-                    "sortOrder": 0
-                }, {
-                    "label": "X-Arms Middle Left Phase",
-                    "value": "XAML",
-                    "selector": null,
-                    "sortOrder": 0
-                }, {
-                    "label": "X-Arms Middle Right Phase",
-                    "value": "XAMR",
-                    "selector": null,
-                    "sortOrder": 0
-                }, {
-                    "label": "X-Arms Top Left Phase",
-                    "value": "XATL",
-                    "selector": null,
-                    "sortOrder": 0
-                }, {
-                    "label": "X-Arms Top Right Phase",
-                    "value": "XATR",
-                    "selector": null,
-                    "sortOrder": 0
+                    "sortOrder": 6
                 } 
             ],
             "key": "resource.position.side",
@@ -758,7 +673,26 @@
             "description": "The severity of the damage",
             "label": "Severity"
         },
-
+        "inspectionEvent.source": {
+            "dependent": null,
+            "listValues": [
+                {
+                    "label": "Analyst",
+                    "value": "Analyst",
+                    "selector": null,
+                    "sortOrder": 0
+                }, {
+                    "label": "AI",
+                    "value": "AI",
+                    "selector": null,
+                    "sortOrder": 0
+                }
+            ],
+            "key": "inspectionEvent.orderNumber",
+            "errors": {},
+            "description": "Source of the inspection event",
+            "label": "Source"
+        },
         "inspectionEvent.orderNumber": {
             "dependent": null,
             "listValues": [],
@@ -868,6 +802,47 @@
         "inspectionEvent.observationType": {
             "dependent": null,
             "listValues": [
+            ],
+            "key": "inspectionEvent.observationType",
+            "errors": {},
+            "description": "",
+            "label": ""
+        },
+        "inspectionEvent.severity": {
+            "dependent": null,
+            "listValues": [],
+            "key": "inspectionEvent.severity",
+            "errors": {},
+            "description": "Severity of damage",
+            "label": "Severity"
+        },
+        "inspectionEvent.comment": {
+            "dependent": null,
+            "listValues": [],
+            "key": "inspectionEvent.comment",
+            "errors": {},
+            "description": "Comment about damage",
+            "label": "Comment"
+        },
+        "inspectionEvent.userId": {
+            "dependent": null,
+            "listValues": [],
+            "key": "inspectionEvent.userId",
+            "errors": {},
+            "description": "User that identified the damage",
+            "label": "Identified By"
+        },
+        "inspectionEvent.date": {
+            "dependent": null,
+            "listValues": [],
+            "key": "inspectionEvent.date",
+            "errors": {},
+            "description": "Date damage was identified",
+            "label": "Date Identified"
+        },
+        "inspectionEvent.position": {
+            "dependent": null,
+            "listValues": [
                 {
                     "label": "Insulators",
                     "value": "Insulators",
@@ -930,82 +905,10 @@
                     "sortOrder": 11
                 }
             ],
-            "key": "inspectionEvent.observationType",
-            "errors": {},
-            "description": "Area Damage Was Identified",
-            "label": "Area"
-        },
-        "inspectionEvent.severity": {
-            "dependent": null,
-            "listValues": [],
-            "key": "inspectionEvent.severity",
-            "errors": {},
-            "description": "Severity of damage",
-            "label": "Severity"
-        },
-        "inspectionEvent.comment": {
-            "dependent": null,
-            "listValues": [],
-            "key": "inspectionEvent.comment",
-            "errors": {},
-            "description": "Comment about damage",
-            "label": "Comment"
-        },
-        "inspectionEvent.userId": {
-            "dependent": null,
-            "listValues": [],
-            "key": "inspectionEvent.userId",
-            "errors": {},
-            "description": "User that identified the damage",
-            "label": "Identified By"
-        },
-        "inspectionEvent.date": {
-            "dependent": null,
-            "listValues": [],
-            "key": "inspectionEvent.date",
-            "errors": {},
-            "description": "Date damage was identified",
-            "label": "Date Identified"
-        },
-        "inspectionEvent.position": {
-            "dependent": null,
-            "listValues": [
-                {
-                    "label": "Left",
-                    "value": "Left",
-                    "selector": null,
-                    "sortOrder": 0
-                }, {
-                    "label": "Middle",
-                    "value": "Middle",
-                    "selector": null,
-                    "sortOrder": 1
-                }, {
-                    "label": "Right",
-                    "value": "Right",
-                    "selector": null,
-                    "sortOrder": 2
-                }, {
-                    "label": "Top",
-                    "value": "Top",
-                    "selector": null,
-                    "sortOrder": 3
-                }, {
-                    "label": "Bottom",
-                    "value": "Bottom",
-                    "selector": null,
-                    "sortOrder": 4
-                }, {
-                    "label": "Not Applicable",
-                    "value": "NA",
-                    "selector": null,
-                    "sortOrder": 5
-                }
-            ],
             "key": "inspectionEvent.position",
             "errors": {},
-            "description": "Position of damage",
-            "label": "Position"
+            "description": "Area of damage",
+            "label": "Area"
         }
     },
     "views": {
