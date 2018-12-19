@@ -2,7 +2,6 @@ package com.precisionhawk.poleams.processors.poleinspection;
 
 import com.precisionhawk.poleams.bean.GeoPoint;
 import com.precisionhawk.poleams.bean.PoleInspectionSearchParameters;
-import com.precisionhawk.poleams.bean.PoleSearchParameters;
 import com.precisionhawk.poleams.bean.SubStationSearchParameters;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;

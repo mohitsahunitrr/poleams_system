@@ -7,6 +7,7 @@ import io.swagger.oas.annotations.Operation;
 import io.swagger.oas.annotations.Parameter;
 import java.util.List;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -31,6 +32,14 @@ public interface SubStationWebService extends WebService {
     SubStation create(
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
             SubStation subStation
+    );
+    
+    @DELETE
+    @Path("/{subStationId}")
+    @Operation(summary = "Delete an existing substation record", description = "Deletes a substation.")
+    void delete(
+            @Parameter(required = true) @HeaderParam("Authorization") String authToken,
+            @PathParam("subStationId") String id
     );
     
     @GET

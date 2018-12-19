@@ -163,5 +163,17 @@ public class SubStationWebServiceImpl extends AbstractWebService implements SubS
             throw new InternalServerErrorException("Error persisting substation.", ex);
         }
     }
+
+    @Override
+    public void delete(String authToken, String subStationId) {
+        ensureExists(subStationId, "Substation ID is required.");
+        try {
+            if (!substationDao.delete(authToken)) {
+                throw new BadRequestException(String.format("The substation %s does not exist and cannot be deleted.", subStationId));
+            }
+        } catch (DaoException ex) {
+            throw new InternalServerErrorException("Error deleting substation.", ex);
+        }
+    }
     
 }
