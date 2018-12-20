@@ -14,6 +14,7 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.InternalServerErrorException;
 import com.precisionhawk.poleams.webservices.FeederWebService;
 import com.precisionhawk.poleams.dao.FeederDao;
+import javax.ws.rs.NotFoundException;
 
 /**
  *
@@ -99,4 +100,16 @@ public class FeederWebServiceImpl extends AbstractWebService implements FeederWe
         }
     }
     
+    @Override
+    public void delete(String authToken, String id) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
+        ensureExists(id, "Feeder ID is required.");
+        try {
+            if (!substationDao.delete(id)) {
+                throw new NotFoundException(String.format("No feeder %s exists.", id));
+            }
+        } catch (DaoException ex) {
+            throw new InternalServerErrorException("Error retrieving the feeder data.", ex);
+        }
+    }
 }

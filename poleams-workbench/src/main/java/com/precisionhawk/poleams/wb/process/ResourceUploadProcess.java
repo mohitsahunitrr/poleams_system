@@ -424,7 +424,7 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                     
                     if (params.hasCriteria()) {
                         // Look for the resource metadata
-                        rmeta = CollectionsUtilities.firstItemIn(rsvc.query(env.obtainAccessToken(), params));
+                        rmeta = CollectionsUtilities.firstItemIn(rsvc.search(env.obtainAccessToken(), params));
                         if (rmeta == null) {
                             // None found, create it.
                             rmeta = new ResourceMetadata();

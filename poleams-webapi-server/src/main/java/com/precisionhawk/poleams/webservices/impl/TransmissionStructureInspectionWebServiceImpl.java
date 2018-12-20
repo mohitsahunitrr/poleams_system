@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotFoundException;
 
 /**
  *
@@ -127,7 +128,15 @@ public class TransmissionStructureInspectionWebServiceImpl extends AbstractWebSe
 
     @Override
     public void delete(String authToken, String id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ServicesSessionBean sess = lookupSessionBean(authToken);
+        ensureExists(id, "Transmission structure inspection ID is required.");
+        try {
+            if (!dao.delete(id)) {
+                throw new NotFoundException(String.format("Transmission structure inspection %s not found.", id));
+            }
+        } catch (DaoException ex) {
+            throw new InternalServerErrorException("Error loading the transmission structure inspection data.", ex);
+        }
     }
     
 }

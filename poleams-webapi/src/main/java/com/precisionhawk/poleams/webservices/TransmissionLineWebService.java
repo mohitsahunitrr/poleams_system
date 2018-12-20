@@ -7,6 +7,7 @@ import io.swagger.oas.annotations.Operation;
 import io.swagger.oas.annotations.Parameter;
 import java.util.List;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -32,6 +33,13 @@ public interface TransmissionLineWebService extends WebService {
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
             TransmissionLine line
     );
+    
+    @DELETE
+    @Path("/{lineId}")
+    @Operation(summary = "Delete transmission line By ID", description = "Delete transmission line by unique ID")
+    void delete(
+            @Parameter(required = true) @HeaderParam("Authorization") String authToken,
+            @PathParam("lineId") String id);
     
     @GET
     @Path("/{lineId}")

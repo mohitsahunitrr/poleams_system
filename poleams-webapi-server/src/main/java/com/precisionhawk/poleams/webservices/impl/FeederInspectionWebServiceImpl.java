@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotFoundException;
 
 /**
  *
@@ -99,35 +100,35 @@ public class FeederInspectionWebServiceImpl extends AbstractWebService implement
         
         // find the anomaly report, if any.
         rparams.setType(ResourceTypes.FeederAnomalyMap);
-        resources = resourceService.query(authToken, rparams);
+        resources = resourceService.search(authToken, rparams);
         if (!resources.isEmpty()) {
             sss.setAnomalyMapDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
         }
         
         // find the anomaly report, if any.
         rparams.setType(ResourceTypes.FeederAnomalyReport);
-        resources = resourceService.query(authToken, rparams);
+        resources = resourceService.search(authToken, rparams);
         if (!resources.isEmpty()) {
             sss.setAnomalyReportDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
         }
         
         // Find the Feeder Map, if any.
         rparams.setType(ResourceTypes.FeederMap);
-        resources = resourceService.query(authToken, rparams);
+        resources = resourceService.search(authToken, rparams);
         if (!resources.isEmpty()) {
             sss.setFeederMapDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
         }
         
         // find the Summary report, if any.
         rparams.setType(ResourceTypes.FeederSummaryReport);
-        resources = resourceService.query(authToken, rparams);
+        resources = resourceService.search(authToken, rparams);
         if (!resources.isEmpty()) {
             sss.setSummaryReportDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
         }
         
         // find the Survey report, if any.
         rparams.setType(ResourceTypes.SurveyReport);
-        resources = resourceService.query(authToken, rparams);
+        resources = resourceService.search(authToken, rparams);
         if (!resources.isEmpty()) {
             sss.setSurveyReportDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
         }
@@ -135,14 +136,14 @@ public class FeederInspectionWebServiceImpl extends AbstractWebService implement
         //TODO: We should probably remove this
         // Find Vegitation Encroachment Report, if any.
         rparams.setType(ResourceTypes.EncroachmentReport);
-        resources = resourceService.query(authToken, rparams);
+        resources = resourceService.search(authToken, rparams);
         if (!resources.isEmpty()) {
             sss.setVegitationEncroachmentReportDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
         }
         
         // Find Vegitation Encroachment Report, if any.
         rparams.setType(ResourceTypes.EncroachmentShape);
-        resources = resourceService.query(authToken, rparams);
+        resources = resourceService.search(authToken, rparams);
         if (!resources.isEmpty()) {
             sss.setVegitationEncroachmentShapeDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
         }
@@ -168,6 +169,19 @@ public class FeederInspectionWebServiceImpl extends AbstractWebService implement
             }
         } catch (DaoException ex) {
             throw new InternalServerErrorException("Error persisting feeder inspection.", ex);
+        }
+    }
+
+    @Override
+    public void delete(String authToken, String id) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
+        ensureExists(id, "Feeder inspection ID is required.");
+        try {
+            if (!dao.delete(id)) {
+                throw new NotFoundException(String.format("No feeder inspection %s exists.", id));
+            }
+        } catch (DaoException ex) {
+            throw new InternalServerErrorException("Error retrieving the feeder inspection data.", ex);
         }
     }
     

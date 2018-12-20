@@ -51,7 +51,7 @@ final class ImagesProcessor implements Constants {
         ResourceSearchParams params = new ResourceSearchParams();
         params.setAssetId(p.getId());
         params.setName(f.getName());
-        ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(rsvc.query(environment.obtainAccessToken(), params));
+        ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(rsvc.search(environment.obtainAccessToken(), params));
         if (rmeta == null) {
             rmeta = new ResourceMetadata();
             rmeta.setResourceId(UUID.randomUUID().toString());

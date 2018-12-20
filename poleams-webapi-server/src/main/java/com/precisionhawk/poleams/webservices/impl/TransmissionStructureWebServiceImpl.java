@@ -97,7 +97,15 @@ public class TransmissionStructureWebServiceImpl extends AbstractWebService impl
 
     @Override
     public void delete(String authToken, String id) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        ServicesSessionBean sess = lookupSessionBean(authToken);
+        ensureExists(id, "Transmission structure ID is required.");
+        try {
+            if (!dao.delete(id)) {
+                throw new NotFoundException(String.format("Transmission structure %s not found.", id));
+            }
+        } catch (DaoException ex) {
+            throw new InternalServerErrorException("Error loading the transmission structure data.", ex);
+        }
     }
     
 }

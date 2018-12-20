@@ -155,21 +155,21 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
         
         // find the design report, if any.
         rparams.setType(ResourceTypes.PoleDesignReport);
-        resources = resourceService.query(authToken, rparams);
+        resources = resourceService.search(authToken, rparams);
         if (!resources.isEmpty()) {
             summary.setDesignReportURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
         }
         
         // find the analysis report, if any.
         rparams.setType(ResourceTypes.PoleInspectionReport);
-        resources = resourceService.query(authToken, rparams);
+        resources = resourceService.search(authToken, rparams);
         if (!resources.isEmpty()) {
             summary.setAnalysisReportURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
         }
 
         // Get URL for the analysis XML, if any.
         rparams.setType(ResourceTypes.PoleInspectionAnalysisXML);
-        resources = resourceService.query(authToken, rparams);
+        resources = resourceService.search(authToken, rparams);
         if (!resources.isEmpty()) {
             summary.setAnalysisResultURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
         }
@@ -210,7 +210,7 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
                 // Delete any related resources
                 ResourceSearchParams params = new ResourceSearchParams();
                 params.setAssetInspectionId(insp.getId());
-                for (ResourceMetadata rmeta : resourceService.query(authToken, params)) {
+                for (ResourceMetadata rmeta : resourceService.search(authToken, params)) {
                     resourceService.delete(authToken, rmeta.getResourceId());
                 }
             }

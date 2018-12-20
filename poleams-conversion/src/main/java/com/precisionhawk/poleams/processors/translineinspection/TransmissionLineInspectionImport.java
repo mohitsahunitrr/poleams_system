@@ -332,7 +332,7 @@ public final class TransmissionLineInspectionImport {
         ResourceSearchParams params = new ResourceSearchParams();
         params.setAssetId(struct.getId());
         params.setName(f.getName());
-        ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(rsvc.query(wsclient.token(), params));
+        ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(rsvc.search(wsclient.token(), params));
         if (rmeta == null) {
             rmeta = new ResourceMetadata();
             rmeta.setResourceId(UUID.randomUUID().toString());

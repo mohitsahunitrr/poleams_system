@@ -66,5 +66,8 @@ public interface TransmissionStructureInspectionWebService extends WebService {
     @DELETE
     @Path("/{inspectionId}")
     @Operation(summary = "Delete transmission structure inspection by ID", description = "Deletes transmission structure inspection by unique ID")
-    public void delete(String authToken, @PathParam("id") String id);
+    public void delete(
+            @Parameter(required = true) @HeaderParam("Authorization") String authToke,
+            @PathParam("inspectionId") String id
+    );
 }

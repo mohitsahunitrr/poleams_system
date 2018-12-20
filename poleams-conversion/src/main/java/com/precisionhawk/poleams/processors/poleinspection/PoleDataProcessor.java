@@ -73,7 +73,7 @@ final class PoleDataProcessor {
                         params.setAssetId(p.getId());
                         params.setAssetInspectionId(data.getPoleInspectionsByFPLId().get(p.getUtilityId()).getId());
                         params.setType(ResourceTypes.PoleInspectionAnalysisXML);
-                        rmeta = CollectionsUtilities.firstItemIn(rsvc.query(env.obtainAccessToken(), params));
+                        rmeta = CollectionsUtilities.firstItemIn(rsvc.search(env.obtainAccessToken(), params));
                         if (rmeta == null) {
                             rmeta = createMetadata(data, params, f, "application/xml");
                             data.addResourceMetadata(rmeta, f, true);
@@ -83,7 +83,7 @@ final class PoleDataProcessor {
                     } else if (fname.endsWith("_250C.PDF")) {
                         // Assume it's the Pole Foreman report
                         params.setType(ResourceTypes.PoleInspectionReport);
-                        rmeta = CollectionsUtilities.firstItemIn(rsvc.query(env.obtainAccessToken(), params));
+                        rmeta = CollectionsUtilities.firstItemIn(rsvc.search(env.obtainAccessToken(), params));
                         if (rmeta == null) {
                             rmeta = createMetadata(data, params, f, "application/pdf");
                             data.addResourceMetadata(rmeta, f, true);

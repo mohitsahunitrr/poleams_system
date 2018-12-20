@@ -141,4 +141,16 @@ public class TransmissionLineInspectionWebServiceImpl extends AbstractWebService
         }
     }
     
+    @Override
+    public void delete(String authToken, String id) {
+        ServicesSessionBean sess = lookupSessionBean(authToken);
+        ensureExists(id, "Transmission line inspection ID is required.");
+        try {
+            if (!dao.delete(id)) {
+                throw new NotFoundException(String.format("No transmission line inspection %s exists.", id));
+            }
+        } catch (DaoException ex) {
+            throw new InternalServerErrorException("Error retrieving the transmission line inspection data.", ex);
+        }
+    }
 }

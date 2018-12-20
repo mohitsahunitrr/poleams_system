@@ -243,7 +243,7 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
                 // Delete any resources left that are related to the pole.
                 ResourceSearchParams params = new ResourceSearchParams();
                 params.setAssetId(id);
-                for (ResourceMetadata rmeta : resourceSvc.query(authToken, params)) {
+                for (ResourceMetadata rmeta : resourceSvc.search(authToken, params)) {
                     resourceSvc.delete(authToken, rmeta.getResourceId());
                 }
             }

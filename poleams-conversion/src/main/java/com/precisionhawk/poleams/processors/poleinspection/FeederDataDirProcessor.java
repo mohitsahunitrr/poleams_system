@@ -76,7 +76,7 @@ public final class FeederDataDirProcessor implements Constants {
                 params.setAssetInspectionId(poleInspection.getId());
             }
             params.setType(resourceType);
-            ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(env.obtainWebService(ResourceWebService.class).query(env.obtainAccessToken(), params));
+            ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(env.obtainWebService(ResourceWebService.class).search(env.obtainAccessToken(), params));
             boolean isnew = false;
             if (rmeta == null) {
                 String contentType = ContentTypeUtilities.guessContentType(f);
@@ -281,7 +281,7 @@ public final class FeederDataDirProcessor implements Constants {
                 params.setSiteId(data.getFeederInspection().getSiteId());
                 params.setSiteInspectionId(data.getFeederInspection().getId());
                 params.setType(ResourceTypes.SurveyReport);
-                ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(svc.query(env.obtainAccessToken(), params));
+                ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(svc.search(env.obtainAccessToken(), params));
                 if (rmeta == null) {
                     rmeta = new ResourceMetadata();
                     rmeta.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");

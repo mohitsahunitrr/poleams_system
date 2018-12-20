@@ -8,6 +8,7 @@ import io.swagger.oas.annotations.Operation;
 import io.swagger.oas.annotations.Parameter;
 import java.util.List;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -33,6 +34,13 @@ public interface FeederInspectionWebService extends WebService {
             @Parameter(required = true) @HeaderParam("Authorization") String authToken,
             FeederInspection subStation
     );
+    
+    @DELETE
+    @Path("/{inspectionId}")
+    @Operation(summary = "Delete feeder inspection By ID", description = "Deletes feeder inspection by unique ID")
+    void delete(
+            @Parameter(required = true) @HeaderParam("Authorization") String authToken,
+            @PathParam("inspectionId") String id);
     
     @GET
     @Path("/{inspectionId}")
