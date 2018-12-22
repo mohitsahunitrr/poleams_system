@@ -21,15 +21,6 @@ public class SecurityConfigBean implements SecurityConfig {
         this.securityImplementation = impl;
     }
     
-    private Integer maxRetries;
-    @Override
-    public Integer getMaxRetries() {
-        return maxRetries;
-    }
-    public void setMaxRetries(Integer maxRetries) {
-        this.maxRetries = maxRetries;
-    }
-    
     private Long userInfoCacheTime;
     @Override
     public Long getUserInfoCacheTime() {
