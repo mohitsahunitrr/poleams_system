@@ -9,7 +9,7 @@
     <!-- ElasticSearch -->
     <bean
         id="ElasticSearchConfigFactory"
-        class="com.precisionhawk.poleams.config.ElasticSearchConfigFactory"
+        class="com.precisionhawk.ams.config.ElasticSearchConfigFactory"
     >
         <property name="configMap" ref="DaoConfigMap"/>
     </bean>
@@ -33,7 +33,7 @@
     <!-- RDBMS -->
     <bean
         id="DbConfigFactory"
-        class="com.precisionhawk.poleams.config.DbConfigFactory"
+        class="com.precisionhawk.ams.config.DbConfigFactory"
     >
         <property name="configMap" ref="DaoConfigMap"/>
     </bean>
