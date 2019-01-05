@@ -3,6 +3,7 @@ package com.precisionhawk.poleams.config;
 import com.precisionhawk.ams.config.ClientConfig;
 import com.precisionhawk.ams.config.SecurityConfig;
 import com.precisionhawk.ams.config.TenantConfig;
+import com.precisionhawk.ams.dao.SecurityDaoConfig;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,7 +11,7 @@ import java.util.Map;
  *
  * @author pchapman
  */
-public class SecurityConfigBean implements SecurityConfig {
+public class SecurityConfigBean implements SecurityDaoConfig, SecurityConfig {
     
     private String securityImplementation;
     @Override
@@ -55,5 +56,23 @@ public class SecurityConfigBean implements SecurityConfig {
     }
     public void setClientConfigurations(Map<String, ClientConfig> clientConfigurations) {
         this.clientConfigurations = clientConfigurations;
+    }
+
+    private String securityDataFile;
+    @Override
+    public String getSecurityDataFile() {
+        return securityDataFile;
+    }
+    public void setSecurityDataFile(String userDatasFile) {
+        this.securityDataFile = userDatasFile;
+    }
+
+    private String securityDaoImpl;
+    @Override
+    public String getSecurityDaoImplementation() {
+        return securityDaoImpl;
+    }
+    public void setSecurityDaoImplementation(String securityDaoImpl) {
+        this.securityDaoImpl = securityDaoImpl;
     }
 }
