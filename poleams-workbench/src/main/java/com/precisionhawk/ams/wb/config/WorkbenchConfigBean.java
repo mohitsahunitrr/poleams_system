@@ -18,6 +18,7 @@ public class WorkbenchConfigBean implements WorkbenchConfig {
         COMMANDS.add(new DeletePoleProcess());
         COMMANDS.add(new DeleteSiteProcess());
         COMMANDS.add(new FeederDataImportProcess());
+        COMMANDS.add(new FixDataProcess());
         COMMANDS.add(new GeoJsonMasterDataImportProcess());
         COMMANDS.add(new OrgFieldConfigsUploadProcess());
         COMMANDS.add(new PopulateEncroachmentGoogleEarthURL());
