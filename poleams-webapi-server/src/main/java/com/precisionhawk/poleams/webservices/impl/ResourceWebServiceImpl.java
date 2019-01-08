@@ -14,6 +14,7 @@ import javax.ws.rs.InternalServerErrorException;
 import com.precisionhawk.poleams.webservices.ResourceWebService;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import javax.inject.Named;
@@ -27,10 +28,10 @@ public class ResourceWebServiceImpl extends com.precisionhawk.ams.webservices.im
 {
     @Override
     public List<ResourceSummary> querySummaries(String authToken, ResourceSearchParams params) {
-        return summaryFor(params);
+        return summaryFor(params, null);
     }
     
-    List<ResourceSummary> summaryFor(ResourceSearchParams params) {
+    List<ResourceSummary> summaryFor(ResourceSearchParams params, Comparator<ResourceMetadata> comparator) {
         if (params == null) {
             return Collections.emptyList();
         }
@@ -38,6 +39,9 @@ public class ResourceWebServiceImpl extends com.precisionhawk.ams.webservices.im
             List<ResourceMetadata> resources = resourceDao.search(params);
             if (resources == null || resources.isEmpty()) {
                 return Collections.emptyList();
+            }
+            if (comparator != null) {
+                Collections.sort(resources, comparator);
             }
             
             // Search for and prepare possible thumbnails.

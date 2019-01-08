@@ -14,6 +14,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -53,93 +54,28 @@ public final class ResourceDataUploader {
     {
         Boolean b;
         File dataFile;
-        int count = 1;
         Map<String, Boolean> exists;
-        List<String> ids = new ArrayList<>(metadata.keySet());
         ResourceMetadata rmeta;
-        boolean success = false;
         ResourceWebService svc = env.obtainWebService(ResourceWebService.class);
-
-        for (int i = 0; (!success) && i < retryCount; i++) {
-            try {
-                exists = svc.verifyUploadedResources(env.obtainAccessToken(), ids);
-                success = true;
-                for (String resourceId : metadata.keySet()) {
-                    b = exists.get(resourceId);
-                    rmeta = metadata.get(resourceId);
-                    if (b == null || (!b) || ResourceStatus.QueuedForUpload == rmeta.getStatus()) {
-                        success = false;
-                        if (rmeta.getResourceId() == null || inspdata.getDomainObjectIsNew().get(rmeta.getResourceId())) {
-                            if (rmeta.getResourceId() == null) {
-                                rmeta.setResourceId(UUID.randomUUID().toString());
-                            }
-                            rmeta.setStatus(ResourceStatus.QueuedForUpload);
-                            svc.insertResourceMetadata(env.obtainAccessToken(), rmeta);
-                            try {
-                                Thread.sleep(250); // Pause .25 second to ensure ElasticSearch has had time to injest.
-                            } catch (InterruptedException ex) {
-                                // DO Nothing
-                            }
-                            inspdata.getDomainObjectIsNew().put(rmeta.getResourceId(), false);
-                        } else {
-                            svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
-                        }
-                        dataFile = data.get(resourceId);
-                        listener.reportMessage(String.format("Uploading file \"%s\" for resource \"%s\", attempt %d (total: %d of %d)", dataFile, rmeta.getResourceId(), (i + 1), count++, exists.size()));
-                        HttpClientUtilities.postFile(env, rmeta.getResourceId(), rmeta.getContentType(), dataFile);
-                        rmeta.setStatus(ResourceStatus.Uploaded);
+        List<String> ids = new ArrayList<>(metadata.keySet());
+        try {
+            exists = svc.verifyUploadedResources(env.obtainAccessToken(), ids);
+            for (String resourceId : metadata.keySet()) {
+                rmeta = metadata.get(resourceId);
+                b = exists.get(resourceId);
+                if (b == null || !b || rmeta.getStatus() == ResourceStatus.QueuedForUpload) {
+                    _uploadResource(env, svc, listener, inspdata, rmeta, data.get(resourceId), retryCount);
+                } else {
+                    // Just save the data
+                    try {
                         svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
-                        if (
-                                ImageUtilities.ImageType.fromContentType(rmeta.getContentType()) != null
-                                && rmeta.getSize() != null
-                                && rmeta.getSize().getWidth() > SCALE_WIDTH
-                            )
-                        {
-                            // Generate a thumbnail for the image.
-                            try {
-                                Thread.sleep(1250); // Pause 1.25 second to ensure S3 has had time to injest.
-                            } catch (InterruptedException ex) {
-                                // DO Nothing
-                            }
-                            boolean scaled = false;
-                            int tries = 0;
-                            while (!scaled && tries < 5) {
-                                try {
-                                    tries++;
-                                    ResourceMetadata rm2 = svc.scale(env.obtainAccessToken(), rmeta.getResourceId(), SCALE_IMAGE_REQ);
-                                    rm2.setType(ResourceTypes.ThumbNail);
-                                    svc.updateResourceMetadata(env.obtainAccessToken(), rm2);
-                                    scaled = true;
-                                } catch (ClientResponseFailure ex) {
-                                    if (ex.getResponse().getStatus() == 404) {
-                                        listener.reportNonFatalError(String.format("Unable to scale image \"%s\".  S3 is probably still injesting.  Waiting a few seconds for backend to catch up.", rmeta.getResourceId()));
-                                        try {
-                                            Thread.sleep(2500);
-                                        } catch (InterruptedException ie) {
-                                            //Do nothing.
-                                        }
-                                    } else {
-                                        throw ex;
-                                    }
-                                }
-                            }
-                            if (!scaled) {
-                                throw new IOException(String.format("Unable to scale the image \"%s\" after 5 attempts.", rmeta.getResourceId()));
-                            }
-                        }
-                        if (ResourceTypes.DroneInspectionImage.equals(rmeta.getType())) {
-                            // Queue the image to be zoomified.
-                            rmeta.setStatus(ResourceStatus.Processed);
-                        } else {
-                            // Mark the resource ready for user consumption
-                            rmeta.setStatus(ResourceStatus.Released);
-                        }
-                        svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
+                    } catch (IOException ex) {
+                        listener.reportNonFatalException(String.format("Error updating resource %s.", rmeta.getResourceId()), ex);
                     }
                 }
-            } catch (IOException | URISyntaxException ex) {
-                listener.reportNonFatalException("Error uploading resource.", ex);
             }
+        } catch (IOException ex) {
+            listener.reportFatalException("Error uploading resources", ex);
         }
         
         // Report any resources that were not successfully uploaded.
@@ -154,6 +90,112 @@ public final class ResourceDataUploader {
             }
         } catch (IOException ex) {
             listener.reportNonFatalException("Error checking to see if all resources have been uploaded.", ex);
+        }
+    }
+
+    public static void uploadResource(
+        Environment env, ProcessListener listener, InspectionDataInterface inspdata, ResourceMetadata metadata, File data, int retryCount
+    )
+    {
+        ResourceWebService svc = env.obtainWebService(ResourceWebService.class);
+        List<String> ids = new LinkedList<>();
+        ids.add(metadata.getResourceId());
+        try {
+            Map<String, Boolean> exists = svc.verifyUploadedResources(env.obtainAccessToken(), ids);
+            Boolean b = exists.get(metadata.getResourceId());
+            if (b == null || (!b) || ResourceStatus.QueuedForUpload == metadata.getStatus()) {
+                listener.reportNonFatalError(String.format("The data for Resource %s located at %s could not be uploaded after %d tries.", metadata.getResourceId(), data, retryCount));
+            } else {
+                // Just save the data
+                try {
+                    svc.updateResourceMetadata(env.obtainAccessToken(), metadata);
+                } catch (IOException ex) {
+                    listener.reportNonFatalException(String.format("Error updating resource %s.", metadata.getResourceId()), ex);
+                }
+            }
+        } catch (IOException ex) {
+            listener.reportNonFatalException("Error checking to see if all resources have been uploaded.", ex);
+        }
+    }
+
+    private static void _uploadResource(
+        Environment env, ResourceWebService svc, ProcessListener listener, InspectionDataInterface inspdata, ResourceMetadata rmeta, File dataFile, int retryCount
+    )
+    {
+        Boolean b;
+        boolean success = false;
+        for (int i = 0; (!success) && i < retryCount; i++) {
+            try {
+                success = false;
+                if (rmeta.getResourceId() == null || inspdata.getDomainObjectIsNew().get(rmeta.getResourceId())) {
+                    if (rmeta.getResourceId() == null) {
+                        rmeta.setResourceId(UUID.randomUUID().toString());
+                    }
+                    rmeta.setStatus(ResourceStatus.QueuedForUpload);
+                    svc.insertResourceMetadata(env.obtainAccessToken(), rmeta);
+                    try {
+                        Thread.sleep(250); // Pause .25 second to ensure ElasticSearch has had time to injest.
+                    } catch (InterruptedException ex) {
+                        // DO Nothing
+                    }
+                    inspdata.getDomainObjectIsNew().put(rmeta.getResourceId(), false);
+                } else {
+                    svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
+                }
+                listener.reportMessage(String.format("Uploading file \"%s\" for resource \"%s\", attempt %d", dataFile, rmeta.getResourceId(), (i + 1)));
+                HttpClientUtilities.postFile(env, rmeta.getResourceId(), rmeta.getContentType(), dataFile);
+                rmeta.setStatus(ResourceStatus.Uploaded);
+                svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
+                if (
+                        ImageUtilities.ImageType.fromContentType(rmeta.getContentType()) != null
+                        && rmeta.getSize() != null
+                        && rmeta.getSize().getWidth() > SCALE_WIDTH
+                    )
+                {
+                    // Generate a thumbnail for the image.
+                    try {
+                        Thread.sleep(1250); // Pause 1.25 second to ensure S3 has had time to injest.
+                    } catch (InterruptedException ex) {
+                        // DO Nothing
+                    }
+                    boolean scaled = false;
+                    int tries = 0;
+                    while (!scaled && tries < 5) {
+                        try {
+                            tries++;
+                            ResourceMetadata rm2 = svc.scale(env.obtainAccessToken(), rmeta.getResourceId(), SCALE_IMAGE_REQ);
+                            rm2.setType(ResourceTypes.ThumbNail);
+                            svc.updateResourceMetadata(env.obtainAccessToken(), rm2);
+                            scaled = true;
+                        } catch (ClientResponseFailure ex) {
+                            if (ex.getResponse().getStatus() == 404) {
+                                listener.reportNonFatalError(String.format("Unable to scale image \"%s\".  S3 is probably still injesting.  Waiting a few seconds for backend to catch up.", rmeta.getResourceId()));
+                                try {
+                                    Thread.sleep(2500);
+                                } catch (InterruptedException ie) {
+                                    //Do nothing.
+                                }
+                            } else {
+                                throw ex;
+                            }
+                        }
+                    }
+                    if (!scaled) {
+                        throw new IOException(String.format("Unable to scale the image \"%s\" after 5 attempts.", rmeta.getResourceId()));
+                    }
+                }
+                if (ResourceTypes.DroneInspectionImage.equals(rmeta.getType())) {
+                    // Queue the image to be zoomified.
+                    rmeta.setStatus(ResourceStatus.Processed);
+                } else {
+                    // Mark the resource ready for user consumption
+                    rmeta.setStatus(ResourceStatus.Released);
+                }
+                svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
+                success = true;
+            } catch (IOException | URISyntaxException ex) {
+                listener.reportNonFatalException("Error uploading resource.", ex);
+            }
         }
     }
 }

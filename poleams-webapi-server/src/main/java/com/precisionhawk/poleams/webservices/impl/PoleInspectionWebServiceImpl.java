@@ -8,10 +8,12 @@ import com.precisionhawk.ams.dao.DaoException;
 import com.precisionhawk.poleams.dao.PoleInspectionDao;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.ams.util.Comparators;
 import com.precisionhawk.ams.webservices.impl.AbstractWebService;
 import com.precisionhawk.poleams.domain.ResourceTypes;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -176,23 +178,23 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
 
         // Flight Images
         rparams.setType(ResourceTypes.DroneInspectionImage);
-        summary.setFlightImages(resourceService.summaryFor(rparams));
+        summary.setFlightImages(resourceService.summaryFor(rparams, Comparators.RESOURCE_BY_TIMESTAMP));
 
         // Ground Images
         rparams.setType(ResourceTypes.ManualInspectionImage);
-        summary.setGroundImages(resourceService.summaryFor(rparams));
+        summary.setGroundImages(resourceService.summaryFor(rparams, Comparators.RESOURCE_BY_TIMESTAMP));
         
         // Identified Components Images
         rparams.setType(ResourceTypes.IdentifiedComponents);
-        summary.setIdentifiedComponentImages(resourceService.summaryFor(rparams));
+        summary.setIdentifiedComponentImages(resourceService.summaryFor(rparams, Comparators.RESOURCE_BY_TIMESTAMP));
 
         // Thermal Images
         rparams.setType(ResourceTypes.Thermal);
-        summary.setThermalImages(resourceService.summaryFor(rparams));
+        summary.setThermalImages(resourceService.summaryFor(rparams, Comparators.RESOURCE_BY_TIMESTAMP));
 
         // Other Resources
         rparams.setType(ResourceTypes.Other);
-        summary.setOtherResources(resourceService.summaryFor(rparams));
+        summary.setOtherResources(resourceService.summaryFor(rparams, null));
 
         summary.setCriticality(calculateCriticality(summary));
         

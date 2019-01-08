@@ -51,6 +51,7 @@ import org.papernapkin.liana.util.StringUtil;
  */
 public class FixDataProcess extends ServiceClientCommandProcess {
     
+    private static final String ARG_DRY = "-d";
     private static final String COMMAND = "fixData";
     
     // Fix inspection dates for RockyMount as follows from Irene:
@@ -66,9 +67,20 @@ public class FixDataProcess extends ServiceClientCommandProcess {
         LocalDate.of(2018, 10, 24),
         LocalDate.of(2018, 10, 25)
     };
+    
+    private boolean dry = false;
 
     @Override
     protected boolean processArg(String arg, Queue<String> args) {
+        if (ARG_DRY.equals(arg)) {
+            if (dry) {
+                // Only pass the arg once
+                return false;
+            } else {
+                dry = true;
+                return true;
+            }
+        }
         return false;
     }
 
@@ -76,16 +88,16 @@ public class FixDataProcess extends ServiceClientCommandProcess {
     protected boolean execute(Environment env) {
         WSClientHelper services = new WSClientHelper(env);
         try {
-            TransmissionStructureSearchParams tsparams = new TransmissionStructureSearchParams();
-            tsparams.setSiteId("19d51cdb-c7b7-4b17-84f9-d26463775875");
-            for (TransmissionStructure struct : services.transmissionStructures().search(services.token(), tsparams)) {
-                fixInspectionDate(services, struct);
-                fixResourceTimestamps(services, struct);
-            }
+//            TransmissionStructureSearchParams tsparams = new TransmissionStructureSearchParams();
+//            tsparams.setSiteId("19d51cdb-c7b7-4b17-84f9-d26463775875");
+//            for (TransmissionStructure struct : services.transmissionStructures().search(services.token(), tsparams)) {
+//                fixInspectionDate(services, struct);
+//                fixResourceTimestamps(services, struct);
+//            }
             
-//            FeederInspection insp = services.feederInspections().retrieve(services.token(), "35802c50-bef5-4da7-8737-388f61c52b91");
-//            FeederInspectionSummary smry = services.feederInspections().retrieveSummary(services.token(), "35802c50-bef5-4da7-8737-388f61c52b91");
-//            uploadReports(services, insp, smry);
+            FeederInspection insp = services.feederInspections().retrieve(services.token(), "1bddfd4f-1470-44e4-9576-91508a9f4790");
+            FeederInspectionSummary smry = services.feederInspections().retrieveSummary(services.token(), "1bddfd4f-1470-44e4-9576-91508a9f4790");
+            uploadReports(services, insp, smry);
         } catch (IOException ex) {
             ex.printStackTrace(System.err);
         }
@@ -119,7 +131,7 @@ public class FixDataProcess extends ServiceClientCommandProcess {
             if (inspection == null) {
                 System.err.printf("No inspection found for structure number %s, id %s\n", struct.getStructureNumber(), struct.getId());
             } else {
-                System.out.printf("Updating inspection date for structure number %s, id %s\n", struct.getSerialNumber(), struct.getId());
+                System.out.printf("Updating inspection date for structure number %s, id %s\n", struct.getStructureNumber(), struct.getId());
                 inspection.setDateOfInspection(inspectionDate);
                 services.transmissionStructureInspections().update(services.token(), inspection);
             }
@@ -135,7 +147,7 @@ public class FixDataProcess extends ServiceClientCommandProcess {
     
     // Fix images so that they are listed in order by name.  To do this, we order the timestamps accordingly.
     private void fixResourceTimestamps(WSClientHelper services, TransmissionStructure struct) throws IOException {
-        System.out.printf("Adjusting resource timestamps for structure number %s, id %s\n", struct.getSerialNumber(), struct.getId());
+        System.out.printf("Adjusting resource timestamps for structure number %s, id %s\n", struct.getStructureNumber(), struct.getId());
         ResourceSearchParams params = new ResourceSearchParams();
         params.setAssetId(struct.getId());
         List<ResourceMetadata> resources = services.resources().search(services.token(), params);
@@ -172,109 +184,170 @@ public class FixDataProcess extends ServiceClientCommandProcess {
         throws IOException
     {
         // Download summary from nobhill in "production"
+        System.out.println("Gathering resources for feeder inspection");
         URL url = new URL("https://services.inspectools.net/poleams/subStation/78de1f0b-471c-4c43-a7be-1c98482bf6df/summary");
         Map<String, Object> data = ObjectMapperFactory.getObjectMapper().readValue(url.openStream(), new TypeReference<Map<String, Object>>(){});
-        Object downloadURL;
         Collection<ResourceMetadata> metaData = new LinkedList<>();
         Map<String, File> resourceData = new HashMap<>();
-        populateResource(metaData, resourceData, insp, smry, null, null, smry.getAnomalyMapDownloadURL(), ResourceTypes.FeederAnomalyMap, "application/pdf", data, "anomalyMapDownloadURL");
-        populateResource(metaData, resourceData, insp, smry, null, null, smry.getAnomalyReportDownloadURL(), ResourceTypes.FeederAnomalyReport, "application/pdf", data, "anomalyReportDownloadURL");
-        populateResource(metaData, resourceData, insp, smry, null, null, smry.getFeederMapDownloadURL(), ResourceTypes.FeederMap, "application/pdf", data, "feederMapDownloadURL");
-        populateResource(metaData, resourceData, insp, smry, null, null, smry.getSummaryReportDownloadURL(), ResourceTypes.FeederSummaryReport, "application/pdf", data, "summaryReportDownloadURL");
-        populateResource(metaData, resourceData, insp, smry, null, null, smry.getVegitationEncroachmentReportDownloadURL(), ResourceTypes.EncroachmentReport, "application/pdf", data, "vegitationEncroachmentReportDownloadURL");
-        populateResource(metaData, resourceData, insp, smry, null, null, smry.getVegitationEncroachmentShapeDownloadURL(), ResourceTypes.EncroachmentShape, "application/vnd.google-earth.kmz", data, "vegitationEncroachmentShapeDownloadURL");
-        PoleInspectionSummary pismry;
-        for (String utilityId : smry.getPoleInspectionsByFPLId().keySet()) {
-            pismry = smry.getPoleInspectionsByFPLId().get(utilityId);
-            populateResource(metaData, resourceData, insp, smry, pismry.getAssetId(), pismry.getId(), pismry.getAnalysisReportURL(), ResourceTypes.PoleInspectionReport, "application/pdf", data, "poleInspectionsByFPLId", utilityId, "analysisReportURL");
-            populateResource(metaData, resourceData, insp, smry, pismry.getAssetId(), pismry.getId(), pismry.getAnalysisResultURL(), ResourceTypes.PoleInspectionAnalysisXML, "application/xml", data, "poleInspectionsByFPLId", utilityId, "analysisResultURL");
-            populateResource(metaData, resourceData, insp, smry, pismry.getAssetId(), pismry.getId(), pismry.getDesignReportURL(), ResourceTypes.PoleDesignReport, "application/pdf", data, "poleInspectionsByFPLId", utilityId, "designReportURL");
-        }
-        if (insp.getVegitationEncroachmentGoogleEarthURL() == null) {
-            insp.setVegitationEncroachmentGoogleEarthURL(StringUtil.nullableToString(data.get("vegitationEncroachmentGoogleEarthURL")));
-            services.feederInspections().update(services.token(), insp);
-        }
-        if (metaData.isEmpty()) {
-            System.out.println("No resources to upload.");
-        } else {
-            ProcessListener listener = new ProcessListener() {
-                @Override
-                public void reportFatalError(String message) {
-                    System.err.println(message);
-                }
-                @Override
-                public void reportFatalException(String message, Throwable t) {
-                    System.err.println(message);
-                    t.printStackTrace(System.err);
-                }
-                @Override
-                public void reportFatalException(Exception ex) {
-                    ex.printStackTrace(System.err);
-                }
-                @Override
-                public void reportMessage(String message) {
-                    System.out.println(message);
-                }
-                @Override
-                public void reportNonFatalError(String message) {
-                    System.err.println(message);
-                }
-                @Override
-                public void reportNonFatalException(String message, Throwable t) {
-                    System.err.println(message);
-                    t.printStackTrace(System.err);
-                }
-            };
             final Map<String, Boolean> isNew = new HashMap<>();
-            for (ResourceMetadata rmeta : metaData) {
-                isNew.put(rmeta.getResourceId(), Boolean.TRUE);
-            }
             InspectionDataInterface impl = new InspectionDataInterface() {
                 @Override
                 public Map<String, Boolean> getDomainObjectIsNew() {
                     return isNew;
                 }  
             };
-            ResourceDataUploader.uploadResources(services.getEnv(), listener, impl, metaData, resourceData, 3);
+        populateResource(services, impl, metaData, resourceData, insp, smry, null, null, smry.getAnomalyMapDownloadURL(), ResourceTypes.FeederAnomalyMap, "application/pdf", data, "anomalyMapDownloadURL");
+        populateResource(services, impl, metaData, resourceData, insp, smry, null, null, smry.getAnomalyReportDownloadURL(), ResourceTypes.FeederAnomalyReport, "application/pdf", data, "anomalyReportDownloadURL");
+        populateResource(services, impl, metaData, resourceData, insp, smry, null, null, smry.getFeederMapDownloadURL(), ResourceTypes.FeederMap, "application/pdf", data, "feederMapDownloadURL");
+        populateResource(services, impl, metaData, resourceData, insp, smry, null, null, smry.getSummaryReportDownloadURL(), ResourceTypes.FeederSummaryReport, "application/pdf", data, "summaryReportDownloadURL");
+        populateResource(services, impl, metaData, resourceData, insp, smry, null, null, smry.getVegitationEncroachmentReportDownloadURL(), ResourceTypes.EncroachmentReport, "application/pdf", data, "vegitationEncroachmentReportDownloadURL");
+        populateResource(services, impl, metaData, resourceData, insp, smry, null, null, smry.getVegitationEncroachmentShapeDownloadURL(), ResourceTypes.EncroachmentShape, "application/vnd.google-earth.kmz", data, "vegitationEncroachmentShapeDownloadURL");
+        PoleInspectionSummary pismry;
+        int count = resourceData.size();
+        System.out.printf("%s resources gathered for feeder inspection.\n", count);
+        for (String utilityId : smry.getPoleInspectionsByFPLId().keySet()) {
+            pismry = smry.getPoleInspectionsByFPLId().get(utilityId);
+            populateResource(services, impl, metaData, resourceData, insp, smry, pismry.getAssetId(), pismry.getId(), pismry.getAnalysisReportURL(), ResourceTypes.PoleInspectionReport, "application/pdf", data, "poleInspectionsByFPLId", utilityId, "analysisReportURL");
+            populateResource(services, impl, metaData, resourceData, insp, smry, pismry.getAssetId(), pismry.getId(), pismry.getAnalysisResultURL(), ResourceTypes.PoleInspectionAnalysisXML, "application/xml", data, "poleInspectionsByFPLId", utilityId, "analysisResultURL");
+            populateResource(services, impl, metaData, resourceData, insp, smry, pismry.getAssetId(), pismry.getId(), pismry.getDesignReportURL(), ResourceTypes.PoleDesignReport, "application/pdf", data, "poleInspectionsByFPLId", utilityId, "designReportURL");
+            count = resourceData.size() - count;
+            System.out.printf("%s resources gathered for pole inspection.\n", count);
+            count = resourceData.size(); // for next round.
+        }
+        System.out.printf("%s resources gathered for upload, in total.\n", count);
+        if (insp.getVegitationEncroachmentGoogleEarthURL() == null) {
+            String s = StringUtil.nullableToString(data.get("vegitationEncroachmentGoogleEarthURL"));
+            if (dry) {
+                System.out.printf("Would upldate feeder inspection's google earth URL to %s.\n", s);
+            } else {
+                System.out.printf("Updating feeder inspection's google earth URL to %s.\n", s);
+                insp.setVegitationEncroachmentGoogleEarthURL(s);
+                services.feederInspections().update(services.token(), insp);
+            }
+        }
+        if (metaData.isEmpty()) {
+            System.out.println("No resources to upload.");
+        } else {
+            if (!dry) {
+                System.out.println("Uploading resources.");
+                ProcessListener listener = new ProcessListener() {
+                    @Override
+                    public void reportFatalError(String message) {
+                        System.err.println(message);
+                    }
+                    @Override
+                    public void reportFatalException(String message, Throwable t) {
+                        System.err.println(message);
+                        t.printStackTrace(System.err);
+                    }
+                    @Override
+                    public void reportFatalException(Exception ex) {
+                        ex.printStackTrace(System.err);
+                    }
+                    @Override
+                    public void reportMessage(String message) {
+                        System.out.println(message);
+                    }
+                    @Override
+                    public void reportNonFatalError(String message) {
+                        System.err.println(message);
+                    }
+                    @Override
+                    public void reportNonFatalException(String message, Throwable t) {
+                        System.err.println(message);
+                        t.printStackTrace(System.err);
+                    }
+                };
+                ResourceDataUploader.uploadResources(services.getEnv(), listener, impl, metaData, resourceData, 3);
+            }
         }
     }
 
-    private void populateResource(Collection<ResourceMetadata> metaData, Map<String, File> resourceData, FeederInspection insp, FeederInspectionSummary smry, String assetId, String assetInspectionId, String reportURL, ResourceType resourceType, String contentType, Map<String, Object> data, String ... dataPath) throws IOException {
-        if (reportURL == null) {
-            Map<String, Object> curObj = data;
-            Object value = null;
-            for (String elem : dataPath) {
-                value = curObj.get(elem);
-                if (value instanceof Map) {
-                    curObj = (Map<String, Object>)value;
-                    value = null;
+    private void populateResource(WSClientHelper services, InspectionDataInterface iface, Collection<ResourceMetadata> metaData, Map<String, File> resourceData, FeederInspection insp, FeederInspectionSummary smry, String assetId, String assetInspectionId, String reportURL, ResourceType resourceType, String contentType, Map<String, Object> data, String ... dataPath) throws IOException {
+        Map<String, Object> curObj = data;
+        Object value = null;
+        for (String elem : dataPath) {
+            value = curObj.get(elem);
+            if (value instanceof Map) {
+                curObj = (Map<String, Object>)value;
+                value = null;
+            }
+        }
+        if (value == null) {
+            System.err.printf("%s not found, unable to populate.\n", resourceType.toString());
+        } else {
+            boolean upload = false;
+
+            ResourceMetadata rmeta = null;
+            if (reportURL == null) {
+                upload = true;
+            } else {
+                ResourceSearchParams params = new ResourceSearchParams();
+                params.setType(resourceType);
+                if (assetInspectionId == null) {
+                    params.setSiteInspectionId(insp.getId());
+                } else {
+                    params.setAssetInspectionId(assetInspectionId);
+                }
+                rmeta = CollectionsUtilities.firstItemIn(services.resources().search(services.token(), params));
+                if (rmeta == null) {
+                    // Shouldn't happen
+                    upload = true;
+                } else {
+                    // Some of these don't have siteInspectionId set properly
+                    if (rmeta.getSiteInspectionId() == null) {
+                        rmeta.setSiteInspectionId(insp.getId());
+                        metaData.add(rmeta);
+                        iface.getDomainObjectIsNew().put(rmeta.getResourceId(), false);
+                    }
+                    List<String> ids = new LinkedList<>();
+                    ids.add(rmeta.getResourceId());
+                    Map<String, Boolean> exists = services.resources().verifyUploadedResources(services.token(), ids);
+                    Boolean b = exists.get(rmeta.getResourceId());
+                    if (b == null || !b) {
+                        upload = true;
+                    } // Else, don't upload it
                 }
             }
-            if (value == null) {
-                System.err.printf("%s not found, unable to populate.\n", resourceType.toString());
-            } else {
+
+            if (upload) {
                 // We have a value.  Download the report from old, upload it into new
                 String ext = contentType.startsWith("image/") ? ".png" : "pdf";
-                File outfile = File.createTempFile("", ext);
-                URL source = new URL(value.toString());
-                InputStream is = source.openStream();
-                OutputStream os = new FileOutputStream(outfile);
-                IOUtils.copy(is, os);
-                IOUtils.closeQuietly(is);
-                IOUtils.closeQuietly(os);
-                ResourceMetadata rmeta = new ResourceMetadata();
-                rmeta.setAssetId(assetId);
-                rmeta.setAssetInspectionId(assetInspectionId);
-                rmeta.setResourceId(UUID.randomUUID().toString());
-                rmeta.setContentType(contentType);
-                rmeta.setName(rmeta.getResourceId() + "." + ext);
-                rmeta.setOrderNumber(insp.getOrderNumber());
-                rmeta.setSiteId(insp.getSiteId());
-                rmeta.setSiteInspectionId(insp.getId());
-                rmeta.setStatus(ResourceStatus.QueuedForUpload);
-                rmeta.setTimestamp(ZonedDateTime.now());
-                rmeta.setType(resourceType);
-                metaData.add(rmeta);
+                File outfile = null;
+                if (dry) {
+                    System.out.printf("Found %s at %s\n", resourceType.toString(), value);
+                } else {
+                    System.out.printf("Downloading %s from %s\n", resourceType.toString(), value);
+                    outfile = File.createTempFile("poleams", ext);
+                    URL source = new URL(value.toString());
+                    InputStream is = source.openStream();
+                    OutputStream os = new FileOutputStream(outfile);
+                    IOUtils.copy(is, os);
+                    IOUtils.closeQuietly(is);
+                    IOUtils.closeQuietly(os);
+                }
+                if (rmeta == null) {
+                    rmeta = new ResourceMetadata();
+                    rmeta.setAssetId(assetId);
+                    rmeta.setAssetInspectionId(assetInspectionId);
+                    rmeta.setResourceId(UUID.randomUUID().toString());
+                    rmeta.setContentType(contentType);
+                    rmeta.setName(rmeta.getResourceId() + "." + ext);
+                    rmeta.setOrderNumber(insp.getOrderNumber());
+                    rmeta.setSiteId(insp.getSiteId());
+                    rmeta.setSiteInspectionId(insp.getId());
+                    rmeta.setStatus(ResourceStatus.QueuedForUpload);
+                    rmeta.setTimestamp(ZonedDateTime.now());
+                    rmeta.setType(resourceType);
+                    metaData.add(rmeta);
+                    iface.getDomainObjectIsNew().put(rmeta.getResourceId(), true);
+                } else {
+                    if (!iface.getDomainObjectIsNew().containsKey(rmeta.getResourceId())) {
+                        // We may have already added it due to missing siteInspectionId
+                        metaData.add(rmeta);
+                        iface.getDomainObjectIsNew().put(rmeta.getResourceId(), false);
+                    }
+                }
                 resourceData.put(rmeta.getResourceId(), outfile);
             }
         } // else, no need to download and re-upload it.
