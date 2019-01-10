@@ -7,13 +7,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-      <groupId>com.precisionhawk.v0dot0</groupId>
-      <artifactId>poleams-core</artifactId>
+        <groupId>com.precisionhawk.v0dot0</groupId>
+        <artifactId>poleams-core</artifactId>
         <version>0.0.0-CONVERT</version>
     </parent>
 
     <artifactId>poleams-upgrader</artifactId>
-    <version>0.0.0-CONVERT</version>
     <name>PoleAMS - Upgrader</name>
     <packaging>jar</packaging>
 
@@ -40,7 +39,7 @@
         </dependency>
         <dependency>
             <groupId>com.precisionhawk</groupId>
-            <artifactId>poleams-dao</artifactId>
+            <artifactId>poleams-dao-es2</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 

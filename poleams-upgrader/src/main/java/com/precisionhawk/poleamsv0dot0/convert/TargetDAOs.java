@@ -1,11 +1,11 @@
 package com.precisionhawk.poleamsv0dot0.convert;
 
 import com.precisionhawk.ams.dao.ResourceMetadataDao;
-import com.precisionhawk.ams.dao.elasticsearch.AbstractEsDao;
+import com.precisionhawk.ams.dao.elasticsearch2.AbstractEsDao;
 import com.precisionhawk.ams.support.elasticsearch.ElasticSearchClientFactory;
 import com.precisionhawk.ams.support.jackson.ObjectMapperFactory;
 import com.precisionhawk.poleams.dao.*;
-import com.precisionhawk.poleams.dao.elasticsearch.*;
+import com.precisionhawk.poleams.dao.elasticsearch2.*;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.elasticsearch.client.Client;
 import us.pcsw.es.util.ClientLifecycleListener;
@@ -21,6 +21,7 @@ public class TargetDAOs {
     private final PoleEsDao poleDao;
     private final PoleInspectionEsDao poleInspectionDao;
     private final ResourceMetadataEsDao resourceMetadataDao;
+    private final WorkOrderEsDao workOrderDao;
     
     public TargetDAOs(ElasticSearchConfigBean config) {
         ElasticSearchClientFactory factory = new ElasticSearchClientFactory();
@@ -47,6 +48,8 @@ public class TargetDAOs {
         config(poleInspectionDao, config, client, mapper);
         resourceMetadataDao = new ResourceMetadataEsDao();
         config(resourceMetadataDao, config, client, mapper);
+        workOrderDao = new WorkOrderEsDao();
+        config(workOrderDao, config, client, mapper);
     }
     
     private void config(AbstractEsDao dao, ElasticSearchConfigBean config, Client client, ObjectMapper mapper) {
@@ -74,5 +77,9 @@ public class TargetDAOs {
 
     public ResourceMetadataDao getResourceMetadataDao() {
         return resourceMetadataDao;
+    }
+
+    public WorkOrderEsDao getWorkOrderDao() {
+        return workOrderDao;
     }
 }
