@@ -117,6 +117,7 @@ public class Main {
     private void processFeeder(SourceDAOs sourceDAOs, TargetDAOs targetDAOs, SubStation sSubstation)
         throws Exception
     {
+        System.out.printf("Processing feeder %s\n", sSubstation.getFeederNumber());
         // Look up feeder in target
         Feeder tFeeder = targetDAOs.getFeederDao().retrieve(sSubstation.getId());
         
@@ -132,6 +133,7 @@ public class Main {
             tFeeder.setOrganizationId(sSubstation.getOrganizationId());
             tFeeder.setWindZone(sSubstation.getWindZone());
             targetDAOs.getFeederDao().insert(tFeeder);
+            System.out.printf("Feeder %s inserted\n", tFeeder.getFeederNumber());
             tallies.tally(tFeeder.getClass(), true);
         } else {
             tallies.tally(tFeeder.getClass(), false);
@@ -149,6 +151,7 @@ public class Main {
             tWorkOrder.setStatus(WorkOrderStatuses.Completed);
             tWorkOrder.setType(WorkOrderTypes.DistributionLineInspection);
             targetDAOs.getWorkOrderDao().insert(tWorkOrder);
+            System.out.printf("Work order %s inserted\n", tWorkOrder.getOrderNumber());
             tallies.tally(tWorkOrder.getClass(), true);
         } else {
             tallies.tally(tWorkOrder.getClass(), false);
@@ -167,17 +170,20 @@ public class Main {
             tFeederInspection.setStatus(new SiteInspectionStatus("Completed"));
             tFeederInspection.setVegitationEncroachmentGoogleEarthURL(sSubstation.getVegitationEncroachmentGoogleEarthURL());
             targetDAOs.getFeederInspectionDao().insert(tFeederInspection);
+            System.out.printf("Feeder inspection %s inserted\n", tFeederInspection.getId());
             tallies.tally(tFeederInspection.getClass(), true);
         } else {
             tallies.tally(tFeederInspection.getClass(), false);
         }
         
+        System.out.printf("Processing poles for feeder %s\n", tFeeder.getFeederNumber());
         com.precisionhawk.poleamsv0dot0.bean.PoleSearchParameters psparams = new com.precisionhawk.poleamsv0dot0.bean.PoleSearchParameters();
         psparams.setSubStationId(sSubstation.getId());
         for (com.precisionhawk.poleamsv0dot0.domain.Pole sPole : sourceDAOs.getPoleDao().search(psparams)) {
             processPole(sPole, tFeederInspection);
         }
         
+        System.out.printf("Processing resources for feeder %s\n", tFeeder.getFeederNumber());
         com.precisionhawk.poleamsv0dot0.bean.ResourceSearchParameters rsparams = new com.precisionhawk.poleamsv0dot0.bean.ResourceSearchParameters();
         rsparams.setSubStationId(sSubstation.getId());
         for (com.precisionhawk.poleamsv0dot0.domain.ResourceMetadata sRMeta : sourceDAOs.getResourceMetadataDao().lookup(rsparams)) {
@@ -200,6 +206,7 @@ public class Main {
             tPole = new com.precisionhawk.poleams.domain.Pole();
             copyPoleData(sPole, tPole);
             targetDAOs.getPoleDao().insert(tPole);
+            System.out.printf("Pole %s inserted\n", tPole.getUtilityId());
             tallies.tally(tPole.getClass(), true);
         } else {
             tallies.tally(tPole.getClass(), false);
@@ -229,6 +236,7 @@ public class Main {
             tPoleInspection.setSiteInspectionId(tFeederInspection.getId());
             tPoleInspection.setVerticalLoadingPercent(sPoleInspection.getVerticalLoadingPercent());
             targetDAOs.getPoleInspectionDao().insert(tPoleInspection);
+            System.out.printf("Pole inspeciton %s inserted\n", tPoleInspection.getId());
             tallies.tally(tPoleInspection.getClass(), true);
         } else {
             tallies.tally(tPoleInspection.getClass(), false);
@@ -346,6 +354,7 @@ public class Main {
             tRMeta.setType(new com.precisionhawk.ams.domain.ResourceType(sRMeta.getType().name()));
             tRMeta.setZoomifyId(sRMeta.getZoomifyId());
             targetDAOs.getResourceMetadataDao().insert(tRMeta);
+            System.out.printf("Resource %s inserted\n", tRMeta.getResourceId());
             tallies.tally(tRMeta.getClass(), true);
         } else {
             tallies.tally(tRMeta.getClass(), false);
