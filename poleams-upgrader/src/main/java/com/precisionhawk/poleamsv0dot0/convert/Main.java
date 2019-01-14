@@ -5,7 +5,6 @@ import com.precisionhawk.ams.bean.WorkOrderSearchParams;
 import com.precisionhawk.ams.domain.AssetType;
 import com.precisionhawk.ams.domain.SiteInspectionStatus;
 import com.precisionhawk.ams.domain.WorkOrder;
-import com.precisionhawk.poleams.bean.FeederSearchParams;
 import com.precisionhawk.poleams.domain.Feeder;
 import com.precisionhawk.poleams.domain.FeederInspection;
 import com.precisionhawk.poleams.domain.WorkOrderStatuses;
@@ -15,7 +14,9 @@ import com.precisionhawk.poleamsv0dot0.domain.ResourceMetadata;
 import com.precisionhawk.poleamsv0dot0.domain.SubStation;
 import com.precisionhawk.poleamsv0dot0.util.CollectionsUtilities;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.UUID;
 
@@ -87,22 +88,36 @@ public class Main {
         SourceDAOs sourceDAOs = new SourceDAOs(sourceESConfig);
         TargetDAOs targetDAOs = new TargetDAOs(targetESConfig);
         
+        new Main(sourceDAOs, targetDAOs).process();
+    }
+    
+    private final SourceDAOs sourceDAOs;
+    private final TargetDAOs targetDAOs;
+    private final Tallies tallies;
+    private Main(SourceDAOs sourceDAOs, TargetDAOs targetDAOs) {
+        this.sourceDAOs = sourceDAOs;
+        this.targetDAOs = targetDAOs;
+        this.tallies = new Tallies();
+    }
+    
+    private void process() {
+        int status = 0;
         try {
             for (SubStation ss : sourceDAOs.getSubStationDao().retrieveAll()) {
                 processFeeder(sourceDAOs, targetDAOs, ss);
             }
         } catch (Exception ex) {
             ex.printStackTrace(System.err);
-            System.exit(1);
+            status = 1;
         }
+        tallies.report();
+        System.exit(status);
     }
 
-    private static void processFeeder(SourceDAOs sourceDAOs, TargetDAOs targetDAOs, SubStation sSubstation)
+    private void processFeeder(SourceDAOs sourceDAOs, TargetDAOs targetDAOs, SubStation sSubstation)
         throws Exception
     {
         // Look up feeder in target
-        FeederSearchParams fsparams = new FeederSearchParams();
-        fsparams.setFeederNumber(sSubstation.getFeederNumber());
         Feeder tFeeder = targetDAOs.getFeederDao().retrieve(sSubstation.getId());
         
         WorkOrder tWorkOrder = null;
@@ -117,9 +132,11 @@ public class Main {
             tFeeder.setOrganizationId(sSubstation.getOrganizationId());
             tFeeder.setWindZone(sSubstation.getWindZone());
             targetDAOs.getFeederDao().insert(tFeeder);
+            tallies.tally(tFeeder.getClass(), true);
         } else {
+            tallies.tally(tFeeder.getClass(), false);
             WorkOrderSearchParams wosparams = new WorkOrderSearchParams();
-            wosparams.setSiteId(sSubstation.getFeederNumber());
+            wosparams.setSiteId(sSubstation.getId());
             tWorkOrder = CollectionsUtilities.firstItemIn(targetDAOs.getWorkOrderDao().search(wosparams));
         }
         
@@ -132,7 +149,9 @@ public class Main {
             tWorkOrder.setStatus(WorkOrderStatuses.Completed);
             tWorkOrder.setType(WorkOrderTypes.DistributionLineInspection);
             targetDAOs.getWorkOrderDao().insert(tWorkOrder);
+            tallies.tally(tWorkOrder.getClass(), true);
         } else {
+            tallies.tally(tWorkOrder.getClass(), false);
             // Look up feeder inspection
             SiteInspectionSearchParams sisparams = new SiteInspectionSearchParams();
             sisparams.setSiteId(sSubstation.getId());
@@ -148,23 +167,25 @@ public class Main {
             tFeederInspection.setStatus(new SiteInspectionStatus("Completed"));
             tFeederInspection.setVegitationEncroachmentGoogleEarthURL(sSubstation.getVegitationEncroachmentGoogleEarthURL());
             targetDAOs.getFeederInspectionDao().insert(tFeederInspection);
+            tallies.tally(tFeederInspection.getClass(), true);
+        } else {
+            tallies.tally(tFeederInspection.getClass(), false);
         }
         
         com.precisionhawk.poleamsv0dot0.bean.PoleSearchParameters psparams = new com.precisionhawk.poleamsv0dot0.bean.PoleSearchParameters();
         psparams.setSubStationId(sSubstation.getId());
         for (com.precisionhawk.poleamsv0dot0.domain.Pole sPole : sourceDAOs.getPoleDao().search(psparams)) {
-            processPole(sourceDAOs, targetDAOs, sPole, tFeederInspection);
+            processPole(sPole, tFeederInspection);
         }
         
         com.precisionhawk.poleamsv0dot0.bean.ResourceSearchParameters rsparams = new com.precisionhawk.poleamsv0dot0.bean.ResourceSearchParameters();
         rsparams.setSubStationId(sSubstation.getId());
         for (com.precisionhawk.poleamsv0dot0.domain.ResourceMetadata sRMeta : sourceDAOs.getResourceMetadataDao().lookup(rsparams)) {
-            processResource(sourceDAOs, targetDAOs, sRMeta, tFeederInspection);
+            processResource(sRMeta, tFeederInspection);
         }
     }
 
-    private static void processPole(
-            SourceDAOs sourceDAOs, TargetDAOs targetDAOs,
+    private void processPole(
             com.precisionhawk.poleamsv0dot0.domain.Pole sPole,
             FeederInspection tFeederInspection
         ) throws Exception
@@ -179,6 +200,9 @@ public class Main {
             tPole = new com.precisionhawk.poleams.domain.Pole();
             copyPoleData(sPole, tPole);
             targetDAOs.getPoleDao().insert(tPole);
+            tallies.tally(tPole.getClass(), true);
+        } else {
+            tallies.tally(tPole.getClass(), false);
         }
         if (tPoleInspection == null) {
             tPoleInspection = new com.precisionhawk.poleams.domain.PoleInspection();
@@ -205,10 +229,13 @@ public class Main {
             tPoleInspection.setSiteInspectionId(tFeederInspection.getId());
             tPoleInspection.setVerticalLoadingPercent(sPoleInspection.getVerticalLoadingPercent());
             targetDAOs.getPoleInspectionDao().insert(tPoleInspection);
+            tallies.tally(tPoleInspection.getClass(), true);
+        } else {
+            tallies.tally(tPoleInspection.getClass(), false);
         }
     }
 
-    private static void copyPoleData(
+    private void copyPoleData(
             com.precisionhawk.poleamsv0dot0.domain.Pole sPole,
             com.precisionhawk.poleams.domain.Pole tPole
         )
@@ -283,7 +310,7 @@ public class Main {
         tPole.setUtilityId(sPole.getFPLId());
     }
     
-    private static com.precisionhawk.ams.bean.GeoPoint copyGeoPoint(com.precisionhawk.poleamsv0dot0.bean.GeoPoint sPoint) {
+    private com.precisionhawk.ams.bean.GeoPoint copyGeoPoint(com.precisionhawk.poleamsv0dot0.bean.GeoPoint sPoint) {
         if (sPoint == null) {
             return null;
         } else {
@@ -296,30 +323,78 @@ public class Main {
         }
     }
 
-    private static void processResource(SourceDAOs sourceDAOs, TargetDAOs targetDAOs, ResourceMetadata sRMeta, FeederInspection tFeederInspection)
+    private void processResource(ResourceMetadata sRMeta, FeederInspection tFeederInspection)
         throws Exception
     {
         com.precisionhawk.ams.domain.ResourceMetadata tRMeta = targetDAOs.getResourceMetadataDao().retrieve(sRMeta.getResourceId());
-        if (tRMeta != null) {
-            return;
+        if (tRMeta == null) {
+            tRMeta = new com.precisionhawk.ams.domain.ResourceMetadata();
+            tRMeta.setAssetId(sRMeta.getPoleId());
+            tRMeta.setAssetInspectionId(sRMeta.getPoleInspectionId());
+            tRMeta.setContentType(sRMeta.getContentType());
+            tRMeta.setLocation(copyGeoPoint(sRMeta.getLocation()));
+            tRMeta.setName(sRMeta.getName());
+            tRMeta.setOrderNumber(tFeederInspection.getOrderNumber());
+            tRMeta.setResourceId(sRMeta.getResourceId());
+            tRMeta.setSiteId(sRMeta.getSubStationId());
+            tRMeta.setSiteInspectionId(tFeederInspection.getId());
+            if (sRMeta.getSize() != null) {
+                tRMeta.setSize(new com.precisionhawk.ams.bean.Dimension(sRMeta.getSize().getWidth(), sRMeta.getSize().getHeight(), sRMeta.getSize().getDepth()));
+            }
+            tRMeta.setStatus(com.precisionhawk.ams.domain.ResourceStatus.valueOf(sRMeta.getStatus().name()));
+            tRMeta.setTimestamp(sRMeta.getTimestamp());
+            tRMeta.setType(new com.precisionhawk.ams.domain.ResourceType(sRMeta.getType().name()));
+            tRMeta.setZoomifyId(sRMeta.getZoomifyId());
+            targetDAOs.getResourceMetadataDao().insert(tRMeta);
+            tallies.tally(tRMeta.getClass(), true);
+        } else {
+            tallies.tally(tRMeta.getClass(), false);
         }
-        tRMeta = new com.precisionhawk.ams.domain.ResourceMetadata();
-        tRMeta.setAssetId(sRMeta.getPoleId());
-        tRMeta.setAssetInspectionId(sRMeta.getPoleInspectionId());
-        tRMeta.setContentType(sRMeta.getContentType());
-        tRMeta.setLocation(copyGeoPoint(sRMeta.getLocation()));
-        tRMeta.setName(sRMeta.getName());
-        tRMeta.setOrderNumber(tFeederInspection.getOrderNumber());
-        tRMeta.setResourceId(sRMeta.getResourceId());
-        tRMeta.setSiteId(sRMeta.getSubStationId());
-        tRMeta.setSiteInspectionId(tFeederInspection.getId());
-        if (sRMeta.getSize() != null) {
-            tRMeta.setSize(new com.precisionhawk.ams.bean.Dimension(sRMeta.getSize().getWidth(), sRMeta.getSize().getHeight(), sRMeta.getSize().getDepth()));
+    }
+    
+    class Tally {
+        private int copied;
+        private final String name;
+        private int total;
+        
+        Tally(String name) {
+            this.name = name;
         }
-        tRMeta.setStatus(com.precisionhawk.ams.domain.ResourceStatus.valueOf(sRMeta.getStatus().name()));
-        tRMeta.setTimestamp(sRMeta.getTimestamp());
-        tRMeta.setType(new com.precisionhawk.ams.domain.ResourceType(sRMeta.getType().name()));
-        tRMeta.setZoomifyId(sRMeta.getZoomifyId());
-        targetDAOs.getResourceMetadataDao().insert(tRMeta);
+        
+        @Override
+        public String toString() {
+            return String.format("%s subtotal: %d\tcopied: %d", name, total, copied);
+        }
+    }
+    
+    class Tallies {
+        Map<String, Tally> tallies = new HashMap<>();
+        
+        void tally(Class clazz, boolean copied) {
+            Tally tally = ensure(clazz.getSimpleName());
+            tally.total++;
+            if (copied) {
+                tally.copied++;
+            }
+        }
+        
+        private Tally ensure(String name) {
+            Tally tally = tallies.get(name);
+            if (tally == null) {
+                tally = new Tally(name);
+                tallies.put(name, tally);
+            }
+            return tally;
+        }
+        
+        void report() {
+            Tally totals = new Tally("Total");
+            for (Tally tally : tallies.values()) {
+                totals.copied+=tally.copied;
+                totals.total+=tally.total;
+                System.out.println(tally.toString());
+            }
+            System.out.println(totals);
+        }
     }
 }
