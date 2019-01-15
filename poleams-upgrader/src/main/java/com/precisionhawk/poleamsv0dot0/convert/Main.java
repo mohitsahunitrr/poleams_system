@@ -118,76 +118,84 @@ public class Main {
         throws Exception
     {
         System.out.printf("Processing feeder %s\n", sSubstation.getFeederNumber());
-        // Look up feeder in target
-        Feeder tFeeder = targetDAOs.getFeederDao().retrieve(sSubstation.getId());
-        
-        WorkOrder tWorkOrder = null;
-        
-        // If feeder does not exist, create it.
-        if (tFeeder == null) {
-            tFeeder = new Feeder();
-            tFeeder.setFeederNumber(sSubstation.getFeederNumber());
-            tFeeder.setHardeningLevel(sSubstation.getHardeningLevel());
-            tFeeder.setId(sSubstation.getId());
-            tFeeder.setName(sSubstation.getName());
-            tFeeder.setOrganizationId(sSubstation.getOrganizationId());
-            tFeeder.setWindZone(sSubstation.getWindZone());
-            targetDAOs.getFeederDao().insert(tFeeder);
-            System.out.printf("Feeder %s inserted\n", tFeeder.getFeederNumber());
-            tallies.tally(tFeeder.getClass(), true);
-        } else {
-            tallies.tally(tFeeder.getClass(), false);
-            WorkOrderSearchParams wosparams = new WorkOrderSearchParams();
-            wosparams.setSiteId(sSubstation.getId());
-            tWorkOrder = CollectionsUtilities.firstItemIn(targetDAOs.getWorkOrderDao().search(wosparams));
-        }
-        
-        FeederInspection tFeederInspection = null;
-
-        if (tWorkOrder == null) {
-            tWorkOrder = new WorkOrder();
-            tWorkOrder.setOrderNumber(UUID.randomUUID().toString().split("-")[0].toUpperCase());
-            tWorkOrder.getSiteIds().add(sSubstation.getId());
-            tWorkOrder.setStatus(WorkOrderStatuses.Completed);
-            tWorkOrder.setType(WorkOrderTypes.DistributionLineInspection);
-            targetDAOs.getWorkOrderDao().insert(tWorkOrder);
-            System.out.printf("Work order %s inserted\n", tWorkOrder.getOrderNumber());
-            tallies.tally(tWorkOrder.getClass(), true);
-        } else {
-            tallies.tally(tWorkOrder.getClass(), false);
-            // Look up feeder inspection
-            SiteInspectionSearchParams sisparams = new SiteInspectionSearchParams();
-            sisparams.setSiteId(sSubstation.getId());
-            sisparams.setOrderNumber(tWorkOrder.getOrderNumber());
-            tFeederInspection = CollectionsUtilities.firstItemIn(targetDAOs.getFeederInspectionDao().search(sisparams));
-        }
-        
-        if (tFeederInspection == null) {
-            tFeederInspection = new FeederInspection();
-            tFeederInspection.setId(UUID.randomUUID().toString());
-            tFeederInspection.setOrderNumber(tWorkOrder.getOrderNumber());
-            tFeederInspection.setSiteId(sSubstation.getId());
-            tFeederInspection.setStatus(new SiteInspectionStatus("Completed"));
-            tFeederInspection.setVegitationEncroachmentGoogleEarthURL(sSubstation.getVegitationEncroachmentGoogleEarthURL());
-            targetDAOs.getFeederInspectionDao().insert(tFeederInspection);
-            System.out.printf("Feeder inspection %s inserted\n", tFeederInspection.getId());
-            tallies.tally(tFeederInspection.getClass(), true);
-        } else {
-            tallies.tally(tFeederInspection.getClass(), false);
-        }
-        
-        System.out.printf("Processing poles for feeder %s\n", tFeeder.getFeederNumber());
-        com.precisionhawk.poleamsv0dot0.bean.PoleSearchParameters psparams = new com.precisionhawk.poleamsv0dot0.bean.PoleSearchParameters();
-        psparams.setSubStationId(sSubstation.getId());
-        for (com.precisionhawk.poleamsv0dot0.domain.Pole sPole : sourceDAOs.getPoleDao().search(psparams)) {
-            processPole(sPole, tFeederInspection);
-        }
-        
-        System.out.printf("Processing resources for feeder %s\n", tFeeder.getFeederNumber());
+//        // Look up feeder in target
+//        Feeder tFeeder = targetDAOs.getFeederDao().retrieve(sSubstation.getId());
+//        
+//        WorkOrder tWorkOrder = null;
+//        
+//        // If feeder does not exist, create it.
+//        if (tFeeder == null) {
+//            tFeeder = new Feeder();
+//            tFeeder.setFeederNumber(sSubstation.getFeederNumber());
+//            tFeeder.setHardeningLevel(sSubstation.getHardeningLevel());
+//            tFeeder.setId(sSubstation.getId());
+//            tFeeder.setName(sSubstation.getName());
+//            tFeeder.setOrganizationId(sSubstation.getOrganizationId());
+//            tFeeder.setWindZone(sSubstation.getWindZone());
+//            targetDAOs.getFeederDao().insert(tFeeder);
+//            System.out.printf("Feeder %s inserted\n", tFeeder.getFeederNumber());
+//            tallies.tally(tFeeder.getClass(), true);
+//        } else {
+//            tallies.tally(tFeeder.getClass(), false);
+//            WorkOrderSearchParams wosparams = new WorkOrderSearchParams();
+//            wosparams.setSiteId(sSubstation.getId());
+//            tWorkOrder = CollectionsUtilities.firstItemIn(targetDAOs.getWorkOrderDao().search(wosparams));
+//        }
+//        
+//        FeederInspection tFeederInspection = null;
+//
+//        if (tWorkOrder == null) {
+//            tWorkOrder = new WorkOrder();
+//            tWorkOrder.setOrderNumber(UUID.randomUUID().toString().split("-")[0].toUpperCase());
+//            tWorkOrder.getSiteIds().add(sSubstation.getId());
+//            tWorkOrder.setStatus(WorkOrderStatuses.Completed);
+//            tWorkOrder.setType(WorkOrderTypes.DistributionLineInspection);
+//            targetDAOs.getWorkOrderDao().insert(tWorkOrder);
+//            System.out.printf("Work order %s inserted\n", tWorkOrder.getOrderNumber());
+//            tallies.tally(tWorkOrder.getClass(), true);
+//        } else {
+//            tallies.tally(tWorkOrder.getClass(), false);
+//            // Look up feeder inspection
+//            SiteInspectionSearchParams sisparams = new SiteInspectionSearchParams();
+//            sisparams.setSiteId(sSubstation.getId());
+//            sisparams.setOrderNumber(tWorkOrder.getOrderNumber());
+//            tFeederInspection = CollectionsUtilities.firstItemIn(targetDAOs.getFeederInspectionDao().search(sisparams));
+//        }
+//        
+//        if (tFeederInspection == null) {
+//            tFeederInspection = new FeederInspection();
+//            tFeederInspection.setId(UUID.randomUUID().toString());
+//            tFeederInspection.setOrderNumber(tWorkOrder.getOrderNumber());
+//            tFeederInspection.setSiteId(sSubstation.getId());
+//            tFeederInspection.setStatus(new SiteInspectionStatus("Completed"));
+//            tFeederInspection.setVegitationEncroachmentGoogleEarthURL(sSubstation.getVegitationEncroachmentGoogleEarthURL());
+//            targetDAOs.getFeederInspectionDao().insert(tFeederInspection);
+//            System.out.printf("Feeder inspection %s inserted\n", tFeederInspection.getId());
+//            tallies.tally(tFeederInspection.getClass(), true);
+//        } else {
+//            tallies.tally(tFeederInspection.getClass(), false);
+//        }
+//        
+//        System.out.printf("Processing poles for feeder %s\n", tFeeder.getFeederNumber());
+//        com.precisionhawk.poleamsv0dot0.bean.PoleSearchParameters psparams = new com.precisionhawk.poleamsv0dot0.bean.PoleSearchParameters();
+//        psparams.setSubStationId(sSubstation.getId());
+//        for (com.precisionhawk.poleamsv0dot0.domain.Pole sPole : sourceDAOs.getPoleDao().search(psparams)) {
+//            processPole(sPole, tFeederInspection);
+//        }
+//        
+//        System.out.printf("Processing resources for feeder %s\n", tFeeder.getFeederNumber());
+//        com.precisionhawk.poleamsv0dot0.bean.ResourceSearchParameters rsparams = new com.precisionhawk.poleamsv0dot0.bean.ResourceSearchParameters();
+//        rsparams.setSubStationId(sSubstation.getId());
+//        for (com.precisionhawk.poleamsv0dot0.domain.ResourceMetadata sRMeta : sourceDAOs.getResourceMetadataDao().lookup(rsparams)) {
+//            processResource(sRMeta, tFeederInspection);
+//        }
+        System.out.printf("Processing resources\n");
         com.precisionhawk.poleamsv0dot0.bean.ResourceSearchParameters rsparams = new com.precisionhawk.poleamsv0dot0.bean.ResourceSearchParameters();
         rsparams.setSubStationId(sSubstation.getId());
         for (com.precisionhawk.poleamsv0dot0.domain.ResourceMetadata sRMeta : sourceDAOs.getResourceMetadataDao().lookup(rsparams)) {
-            processResource(sRMeta, tFeederInspection);
+            if (sRMeta.getSourceResourceId() != null) {
+                fixResource(sRMeta);
+            }
         }
     }
 
@@ -346,6 +354,7 @@ public class Main {
             tRMeta.setResourceId(sRMeta.getResourceId());
             tRMeta.setSiteId(sRMeta.getSubStationId());
             tRMeta.setSiteInspectionId(tFeederInspection.getId());
+            tRMeta.setSourceResourceId(sRMeta.getSourceResourceId());
             if (sRMeta.getSize() != null) {
                 tRMeta.setSize(new com.precisionhawk.ams.bean.Dimension(sRMeta.getSize().getWidth(), sRMeta.getSize().getHeight(), sRMeta.getSize().getDepth()));
             }
@@ -358,6 +367,19 @@ public class Main {
             tallies.tally(tRMeta.getClass(), true);
         } else {
             tallies.tally(tRMeta.getClass(), false);
+        }
+    }
+    
+    private void fixResource(ResourceMetadata sRMeta) throws Exception {
+        com.precisionhawk.ams.domain.ResourceMetadata tRMeta = targetDAOs.getResourceMetadataDao().retrieve(sRMeta.getResourceId());
+        if (tRMeta == null) {
+            System.err.printf("Resource %s is not null\n", sRMeta.getResourceId());
+            tallies.tally(tRMeta.getClass(), false);
+        } else if (tRMeta.getSourceResourceId() == null) {
+            tRMeta.setSourceResourceId(sRMeta.getSourceResourceId());
+            targetDAOs.getResourceMetadataDao().update(tRMeta);
+            System.out.printf("Resource %s updateded\n", tRMeta.getResourceId());
+            tallies.tally(tRMeta.getClass(), true);
         }
     }
     
