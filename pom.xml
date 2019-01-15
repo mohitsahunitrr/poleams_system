@@ -171,7 +171,9 @@
         <module>poleams-common</module>
         <module>poleams-conversion</module>
         <module>poleams-dao</module>
+        <!--
         <module>poleams-dao-cassandra</module>
+        -->
         <module>poleams-dao-es2</module>
         <module>poleams-processor</module>
         <module>poleams-reporting</module>
