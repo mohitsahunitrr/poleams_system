@@ -6,6 +6,7 @@ import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
 import com.precisionhawk.ams.bean.security.ServicesSessionBean;
 import com.precisionhawk.ams.dao.DaoException;
 import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.ams.util.Comparators;
 import com.precisionhawk.ams.webservices.impl.AbstractWebService;
 import com.precisionhawk.poleams.bean.FeederInspectionSummary;
 import com.precisionhawk.poleams.bean.PoleInspectionSummary;
@@ -91,14 +92,18 @@ public class FeederInspectionWebServiceImpl extends AbstractWebService implement
         AssetInspectionSearchParams pisparams = new AssetInspectionSearchParams();
         pisparams.setSiteInspectionId(id);
         List<PoleInspectionSummary> poleInspectionSummaries = poleInspectionService.retrieveSummary(authToken, pisparams);
-        
+
         FeederInspectionSummary sss = new FeederInspectionSummary(feeder, finsp, poleSummaries, poleInspectionSummaries);
 
         ResourceSearchParams rparams = new ResourceSearchParams();
         rparams.setSiteInspectionId(id);
         List<ResourceMetadata> resources;
         
-        // find the anomaly report, if any.
+        // find flight videos, if any
+        rparams.setType(ResourceTypes.FlightVideo);
+        sss.setInspectionFlightVideos(resourceService.summaryFor(rparams, Comparators.RESOURCE_BY_TIMESTAMP));
+        
+        // find the anomaly report, if any.        
         rparams.setType(ResourceTypes.FeederAnomalyMap);
         resources = resourceService.search(authToken, rparams);
         if (!resources.isEmpty()) {

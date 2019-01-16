@@ -13,7 +13,6 @@ import com.precisionhawk.ams.webservices.impl.AbstractWebService;
 import com.precisionhawk.poleams.domain.ResourceTypes;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;

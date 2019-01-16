@@ -5,6 +5,7 @@ import com.precisionhawk.poleams.domain.FeederInspection;
 import io.swagger.oas.annotations.media.Schema;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,7 +37,6 @@ public class FeederInspectionSummary extends Feeder {
     }
     
     //TODO: Rename to "Circuit Map"
-    //TODO: Belongs to a SubStationInspection object
     @Schema(description="URL from which the feeder map for the substation can be downloaded.")
     private String feederMapDownloadURL;
     public String getFeederMapDownloadURL() {
@@ -44,6 +44,15 @@ public class FeederInspectionSummary extends Feeder {
     }
     public void setFeederMapDownloadURL(String feederMapDownloadURL) {
         this.feederMapDownloadURL = feederMapDownloadURL;
+    }
+    
+    @Schema(description="Video(s) of the inspection flight(s).")
+    private List<ResourceSummary> inspectionFlightVideos;
+    public List<ResourceSummary> getInspectionFlightVideos() {
+        return inspectionFlightVideos;
+    }
+    public void setInspectionFlightVideos(List<ResourceSummary> inspectionFlightVideos) {
+        this.inspectionFlightVideos = inspectionFlightVideos;
     }
     
     @Schema(description="Summary report (PDF) of the inspection of the poles for the feeder.")
