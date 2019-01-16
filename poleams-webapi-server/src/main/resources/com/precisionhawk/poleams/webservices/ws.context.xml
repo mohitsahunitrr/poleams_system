@@ -56,6 +56,12 @@
         factory-method="getDaoConfig"
     />
     <bean
+        id="NotificationServicesConfig"
+        class="com.precisionhawk.ams.config.NotificationServicesConfig"
+        factory-bean="AppConfig"
+        factory-method="getNotificationServices"
+    />
+    <bean
         id="RepositoryConfig"
         class="com.precisionhawk.ams.repository.RepositoryConfig"
         factory-bean="AppConfig"
@@ -84,6 +90,21 @@
         class="org.codehaus.jackson.map.ObjectMapper"
         factory-bean="ObjectMapperFactory"
         factory-method="get"
+    />
+    
+    <!-- Notifications Service -->
+    <bean
+        id="snsClientFactory"
+        class="com.precisionhawk.ams.support.aws.SNSClientFactory"
+    />
+    <bean
+        id="snsClient"
+        factory-bean="snsClientFactory"
+        factory-method="get"
+    />
+    <bean
+        id="notificationsService"
+        class="com.precisionhawk.ams.service.aws.SNSNotificationService"
     />
     
     <!-- SecurityTokenCache -->

@@ -1,5 +1,6 @@
 package com.precisionhawk.poleams.config;
 
+import com.precisionhawk.ams.config.NotificationServicesConfigBean;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +34,14 @@ public class AppConfig {
         this.daoConfig = daoConfig;
     }
 
+    private NotificationServicesConfigBean notificationServicesConfig;
+    public NotificationServicesConfigBean getNotificationServicesConfig() {
+        return notificationServicesConfig;
+    }
+    public void setNotificationServicesConfig(NotificationServicesConfigBean notificationServicesConfig) {
+        this.notificationServicesConfig = notificationServicesConfig;
+    }
+    
     private RepositoryConfigBean repositoryConfig;
     public RepositoryConfigBean getRepositoryConfig() {
         return repositoryConfig;
