@@ -33,7 +33,7 @@ import static org.codehaus.jackson.JsonToken.*;
  *
  * @author pchapman
  */
-public class GeoJsonMasterDataImport {
+public class GeoJsonMasterDataImport implements MasterDataImporter {
     
     private static final String FIELD_CLASS = "CLASS";
     private static final String FIELD_COORDS = "coordinates";
@@ -45,7 +45,8 @@ public class GeoJsonMasterDataImport {
     private static final String FIELD_PROPERTIES = "properties";
     private static final String FIELD_LC_TYPE = "type";
 
-    public boolean process(Environment env, ProcessListener listener, String feederId, String orderNum, File poleDataJson) {
+    @Override
+    public boolean process(Environment env, ProcessListener listener, File poleDataJson, String orderNum, String feederId) {
         boolean success = true;
         
         JsonParser parser = null;
