@@ -59,7 +59,7 @@
         id="NotificationServicesConfig"
         class="com.precisionhawk.ams.config.NotificationServicesConfig"
         factory-bean="AppConfig"
-        factory-method="getNotificationServices"
+        factory-method="getNotificationServicesConfig"
     />
     <bean
         id="RepositoryConfig"
