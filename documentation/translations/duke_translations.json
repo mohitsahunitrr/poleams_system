@@ -1,0 +1,387 @@
+{
+    "languageCode": "en",
+    "languageName": "English",
+    "name": "Florida Light and Power",
+    "countryName": "United States",
+    "version": 1,
+    "countryCode": "US",
+    "id": "788c987a-a0a7-4436-8ad7-16f086cd4697",
+    "updated": "20190116",
+    "errors": {
+        "maxValue": "{label} must be less than or equal to {maxValue}.",
+        "maxLength": "{label} must be no more than {maxLength} characters in length.",
+        "minLength": "{label} must be at least {minLength} characters in length.",
+        "required": "{label} is required.",
+        "listValuesOnly": "The value {value} does not exist in the list of acceptable values for {label}.",
+        "minValue": "{label} must be greater than or equal to {minValue}."
+    },
+    "logoURLs": {
+    },
+    "organizationId": "c382f193-b687-432b-b838-3049b809c937",
+    "fields": {
+        "feederSummary.feederNumber": {
+            "listValues": [],
+            "key": "feederSummary.feederNumber",
+            "errors": {},
+            "description": "The circuit.",
+            "label": "Circuit"
+        },
+        "feederSummary.name": {
+            "listValues": [],
+            "key": "feederSummary.name",
+            "errors": {},
+            "description": "The name of the circuit.",
+            "label": "Circuit"
+        },
+        "poleSummary.anchor[].bearing": {
+            "listValues": [],
+            "key": "poleSummary.anchor[].bearing",
+            "errors": {},
+            "description": "The Guy Bearing",
+            "label": "Guy {index} Bearing"
+        },
+        "poleSummary.anchor[].diameter": {
+            "listValues": [],
+            "key": "poleSummary.anchor[].diameter",
+            "errors": {},
+            "description": "The Guy Diameter",
+            "label": "Guy {index} Diameter"
+        },
+        "poleSummary.anchor[].leadLength": {
+            "listValues": [],
+            "key": "poleSummary.anchor[].leadLength",
+            "errors": {},
+            "description": "The Guy Lead Length",
+            "label": "Guy {index} Lead Length"
+        },
+        "poleSummary.anchor[].type": {
+            "listValues": [],
+            "key": "poleSummary.anchor[].type",
+            "errors": {},
+            "description": "The Guy Assc",
+            "label": "Guy {index} Assc"
+        },
+        "poleSummary.caTVAttachments[].diameter": {
+            "listValues": [],
+            "key": "poleSummary.caTVAttachments[].diameter",
+            "errors": {},
+            "description": "The diameter of the attached CATV cable.",
+            "label": "CATV {index} Attach Diameter"
+        },
+        "poleSummary.caTVAttachments[].height": {
+            "listValues": [],
+            "key": "poleSummary.caTVAttachments[].height",
+            "errors": {},
+            "description": "The height at which the CATV cable is attached.",
+            "label": "CATV {index} Attach Height"
+        },
+        "poleSummary.circuit1SpanLength1": {
+            "listValues": [],
+            "key": "poleSummary.switchNumber",
+            "errors": {},
+            "description": "Circuit 1 Span Length (1)",
+            "label": "Circuit 1 Span Length (1)"
+        },
+        "poleSummary.circuit1SpanLength2": {
+            "listValues": [],
+            "key": "poleSummary.switchNumber",
+            "errors": {},
+            "description": "Circuit 1 Span Length (2)",
+            "label": "Circuit 1 Span Length (2)"
+        },
+        "poleSummary.equipmentQuantity": {
+            "listValues": [],
+            "key": "poleSummary.equipmentQuantity",
+            "errors": {},
+            "description": "The quantity of equipment installed on the pole.",
+            "label": "Equip Quan."
+        },
+        "poleSummary.equipmentType": {
+            "listValues": [],
+            "key": "poleSummary.equipmentType",
+            "errors": {},
+            "description": "The type of equipment installed on the pole.",
+            "label": "Equip Type"
+        },
+        "poleSummary.utilityId": {
+            "listValues": [],
+            "key": "poleSummary.utilityId",
+            "errors": {},
+            "description": "Pole ID.",
+            "label": "Pole ID"
+        },
+        "poleSummary.framing": {
+            "listValues": [],
+            "key": "poleSummary.framing",
+            "errors": {},
+            "description": "The framing installed on the pole.",
+            "label": "Framing"
+        },
+        "poleSummary.id": {
+            "listValues": [],
+            "key": "poleSummary.id",
+            "errors": {},
+            "description": "Pole Number",
+            "label": "Pole Number"
+        },
+        "poleSummary.length": {
+            "listValues": [],
+            "key": "poleSummary.height",
+            "errors": {},
+            "description": "Height of the pole.",
+            "label": "Pole Height"
+        },
+        "poleSummary.location.latitude": {
+            "listValues": [],
+            "key": "poleSummary.location.latitude",
+            "errors": {},
+            "description": "The latitude where the pole is located.",
+            "label": "Latitude"
+        },
+        "poleSummary.location.longitude": {
+            "listValues": [],
+            "key": "poleSummary.location.longitude",
+            "errors": {},
+            "description": "The longitude where the pole is located.",
+            "label": "Longitude"
+        },
+        "poleSummary.multiplexType": {
+            "listValues": [],
+            "key": "poleSummary.multiplexType",
+            "errors": {},
+            "description": "Multiplex Type",
+            "label": "Multiplex Type"
+        },
+        "poleSummary.neutralWireType": {
+            "listValues": [],
+            "key": "poleSummary.neutralWireType",
+            "errors": {},
+            "description": "The type of the neutral wire.",
+            "label": "Neutral Wire Type"
+        },
+        "poleSummary.numberOfCATVAttachments": {
+            "listValues": [],
+            "key": "poleSummary.numberOfCATVAttachments",
+            "errors": {},
+            "description": "The number of Cable TV attachments on the pole.",
+            "label": "No CATV Attachments"
+        },
+        "poleSummary.numberOfOpenWires": {
+            "listValues": [],
+            "key": "poleSummary.numberOfOpenWires",
+            "errors": {},
+            "description": "The number of open wires.",
+            "label": "# of Open Wires"
+        },
+        "poleSummary.numberOfPhases": {
+            "listValues": [],
+            "key": "poleSummary.numberOfPhases",
+            "errors": {},
+            "description": "The number of phases of the primary span on the pole.",
+            "label": "Num of Phases"
+        },
+        "poleSummary.numberOfTelComAttachments": {
+            "listValues": [],
+            "key": "poleSummary.numberOfTelComAttachments",
+            "errors": {},
+            "description": "The number of Telecom attachments on the pole.",
+            "label": "No Telecom Attached"
+        },
+        "poleSummary.openWireType": {
+            "listValues": [],
+            "key": "poleSummary.openWireType",
+            "errors": {},
+            "description": "The type of the open wire.",
+            "label": "Open Wire Type"
+        },
+        "poleSummary.owner": {
+            "listValues": [],
+            "key": "poleSummary.owner",
+            "errors": {},
+            "description": "The owner the pole.",
+            "label": "Owner"
+        },
+        "poleSummary.poleClass": {
+            "listValues": [],
+            "key": "poleSummary.poleClass",
+            "errors": {},
+            "description": "The class of pole.",
+            "label": "Pole Class"
+        },
+        "poleSummary.primaryWireType": {
+            "listValues": [],
+            "key": "poleSummary.primaryWireType",
+            "errors": {},
+            "description": "The type of the primary wire.",
+            "label": "Primary Wire Type"
+        },
+        "poleSummary.pullOff1SpanLength1": {
+            "listValues": [],
+            "key": "poleSummary.pullOff1SpanLength1",
+            "errors": {},
+            "description": "Pull Off 1 Span Length (1)",
+            "label": "Pull Off 1 Span Length (1)"
+        },
+        "poleSummary.pullOff2SpanLength2": {
+            "listValues": [],
+            "key": "poleSummary.pullOff2SpanLength2",
+            "errors": {},
+            "description": "Pull Off 2 Span Length (2)",
+            "label": "Pull Off 2 Span Length (2)"
+        },
+        "poleSummary.risers[]": {
+            "listValues": [],
+            "key": "poleSummary.risers[]",
+            "errors": {},
+            "description": "Riser type.",
+            "label": "Riser Type {index}"
+        },
+        "poleSummary.streetLight": {
+            "listValues": [],
+            "key": "poleSummary.streetLight",
+            "errors": {},
+            "description": "Streetlight",
+            "label": "Streetlight"
+        },
+        "poleSummary.switchNumber": {
+            "listValues": [],
+            "key": "poleSummary.switchNumber",
+            "errors": {},
+            "description": "Switch Number.",
+            "label": "Switch Number"
+        },
+        "poleSummary.telCommAttachments[].diameter": {
+            "listValues": [],
+            "key": "poleSummary.caTVAttachments[].diameter",
+            "errors": {},
+            "description": "The diameter of the attached Telcomm cable.",
+            "label": "TELCO {index} Attach Diameter"
+        },
+        "poleSummary.telCommAttachments[].height": {
+            "listValues": [],
+            "key": "poleSummary.caTVAttachments[].height",
+            "errors": {},
+            "description": "The height at which the Telcomm cable is attached.",
+            "label": "TELCO {index} Attach Height"
+        },
+        "poleSummary.totalSizeCATV": {
+            "listValues": [],
+            "key": "poleSummary.totalSizeCATV",
+            "errors": {},
+            "description": "Total size CATV.",
+            "label": "Total Size CATV"
+        },
+        "poleSummary.totalSizeTelCom": {
+            "listValues": [],
+            "key": "poleSummary.totalSizeTelCom",
+            "errors": {},
+            "description": "Total size TelComm.",
+            "label": "Total Size Telecom"
+        },
+        "poleSummary.tlnCoordinate": {
+            "listValues": [],
+            "key": "poleSummary.tlnCoordinate",
+            "errors": {},
+            "description": "TLN Coordinate.",
+            "label": "TLN Coordinate"
+        },
+        "poleSummary.type": {
+            "listValues": [],
+            "key": "poleSummary.type",
+            "errors": {},
+            "description": "The type of pole.",
+            "label": "Type"
+        },
+        "poleInspectionSummary.access": {
+            "listValues": [],
+            "key": "poleInspectionSummary.access",
+            "errors": {},
+            "description": "Access to pole.",
+            "label": "Access"
+        },
+        "poleInspectionSummary.passedAnalysis": {
+            "listValues": [],
+            "key": "poleInspectionSummary.passedAnalysis",
+            "errors": {},
+            "description": "Pass or fail judgment on analysis results.",
+            "label": "Pass"
+        },
+        "poleInspectionSummary.criticality": {
+            "listValues": [],
+            "key": "poleInspectionSummary.criticality",
+            "errors": {},
+            "description": "The criticality of the pole in terms of needing upgrades. 1 - 5, 5 being most critical.",
+            "label": "Criticality"
+        },
+        "poleInspectionSummary.horizontalLoadingPercent": {
+            "listValues": [],
+            "key": "poleInspectionSummary.horizontalLoadingPercent",
+            "errors": {},
+            "description": "The current wind rating for the pole.",
+            "label": "Horizontal Pole Loading"
+        },
+        "poleInspectionSummary.latLongDelta": {
+            "listValues": [],
+            "key": "poleInspectionSummary.latLongDelta",
+            "errors": {},
+            "description": "The difference between expected and actual location, in feet.",
+            "label": "Lat, Long Delta (ft)"
+        },
+        "poleInspectionSummary.loadCase.wind": {
+            "listValues": [],
+            "key": "poleInspectionSummary.loadCase.wind",
+            "errors": {},
+            "description": "The maximum wind speed.",
+            "label": "Wind Zone"
+        }
+    },
+    "views": {
+        "poleAMSViewer.poleView.summary": [
+            "feederSummary.name",
+            "feederSummary.feederNumber",
+            "poleSummary.utilityId",
+            "poleSummary.type",
+            "poleSummary.length",
+            "poleSummary.poleClass",
+            "poleSummary.framing",
+            "poleSummary.equipmentType",
+            "poleSummary.numberOfPhases",
+            "poleSummary.location.latitude",
+            "poleSummary.location.longitude",
+            "poleInspectionSummary.horizontalLoadingPercent",
+        ],
+        "poleAMSViewer.poleView.detail": [
+            "poleSummary.id",
+            "poleSummary.owner",
+            "poleInspectionSummary.access",
+            "poleSummary.circuit1SpanLength1",
+            "poleSummary.circuit1SpanLength2",
+            "poleSummary.pullOff1SpanLength1",
+            "poleSummary.pullOff2SpanLength2",
+            "poleSummary.framing",
+            "poleSummary.equipmentQuantity",
+            "poleSummary.streetLight",
+            "poleSummary.risers[]",
+            "poleSummary.numberOfCATVAttachments",
+            "poleSummary.totalSizeCATV",
+            "poleSummary.caTVAttachments[].height",
+            "poleSummary.caTVAttachments[].diameter",
+            "poleSummary.numberOfTelComAttachments",
+            "poleSummary.totalSizeTelCom",
+            "poleSummary.telCommAttachments[].height",
+            "poleSummary.telCommAttachments[].diameter",
+            "poleSummary.primaryWireType",
+            "poleSummary.neutralWireType",
+            "poleSummary.openWireType",
+            "poleSummary.numberOfOpenWires",
+            "poleSummary.multiplexType",
+            "poleSummary.switchNumber",
+            "poleSummary.tlnCoordinate",
+            "poleSummary.anchor[].type",
+            "poleSummary.anchor[].leadLength",
+            "poleSummary.anchor[].diameter",
+            "poleSummary.anchor[].bearing",
+            "poleInspectionSummary.latLongDelta"
+        ]
+    }
+}
