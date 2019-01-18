@@ -26,6 +26,7 @@ public class WorkbenchConfigBean implements WorkbenchConfig {
         COMMANDS.add(new ResourceScaleProcess());
         COMMANDS.add(new ResourceUploadProcess());
         COMMANDS.add(new TransmissionLineInspectionImportProcess());
+        COMMANDS.add(new TransmissionMasterDataImportProcess());
         COMMANDS.add(new ZoomifyUploadProcess());
     };
     

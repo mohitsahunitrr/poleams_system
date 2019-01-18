@@ -1,5 +1,6 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
+import com.precisionhawk.poleams.processors.MasterDataImporter;
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.ams.bean.GeoPoint;

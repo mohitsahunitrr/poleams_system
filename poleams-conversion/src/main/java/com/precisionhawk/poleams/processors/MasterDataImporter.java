@@ -1,4 +1,4 @@
-package com.precisionhawk.poleams.processors.poleinspection;
+package com.precisionhawk.poleams.processors;
 
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.processors.ProcessListener;
