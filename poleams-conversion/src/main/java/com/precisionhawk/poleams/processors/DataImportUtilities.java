@@ -1,15 +1,19 @@
 package com.precisionhawk.poleams.processors;
 
+import com.precisionhawk.ams.domain.InspectionEventResource;
 import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.ams.webservices.InspectionEventResourceWebService;
 import com.precisionhawk.ams.webservices.ResourceWebService;
 import com.precisionhawk.ams.webservices.WorkOrderWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
+import com.precisionhawk.poleams.domain.InspectionEvent;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.TransmissionStructure;
 import com.precisionhawk.poleams.domain.TransmissionStructureInspection;
 import com.precisionhawk.poleams.webservices.FeederInspectionWebService;
 import com.precisionhawk.poleams.webservices.FeederWebService;
+import com.precisionhawk.poleams.webservices.InspectionEventWebService;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.poleams.webservices.TransmissionLineInspectionWebService;
@@ -143,6 +147,32 @@ public class DataImportUtilities {
                 } else {
                     svc.update(env.obtainAccessToken(), insp);
                     listener.reportMessage(String.format("Updated inspection for transmission structure %s", insp.getAssetId()));
+                }
+            }
+        }
+        
+        if (!data.getInspectionEvents().isEmpty()) {
+            InspectionEventWebService svc = env.obtainWebService(InspectionEventWebService.class);
+            for (InspectionEvent evt : data.getInspectionEvents().values()) {
+                if (data.getDomainObjectIsNew().get(evt.getId())) {
+                    svc.create(env.obtainAccessToken(), evt);
+                    listener.reportMessage(String.format("Inserted new inspection event for transmission structure %s", evt.getAssetId()));
+                } else {
+                    svc.update(env.obtainAccessToken(), evt);
+                    listener.reportMessage(String.format("Updated inspection event for transmission structure %s", evt.getAssetId()));
+                }
+            }
+        }
+        
+        if (!data.getInspectionEventResources().isEmpty()) {
+            InspectionEventResourceWebService svc = env.obtainWebService(InspectionEventResourceWebService.class);
+            for (InspectionEventResource res : data.getInspectionEventResources().values()) {
+                if (data.getDomainObjectIsNew().get(res.getId())) {
+                    svc.create(env.obtainAccessToken(), res);
+                    listener.reportMessage(String.format("Inserted new inspection event resource for transmission structure %s", res.getAssetId()));
+                } else {
+                    svc.update(env.obtainAccessToken(), res);
+                    listener.reportMessage(String.format("Updated inspection event resource for transmission structure %s", res.getAssetId()));
                 }
             }
         }

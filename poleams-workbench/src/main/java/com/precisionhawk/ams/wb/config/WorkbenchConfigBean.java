@@ -15,6 +15,7 @@ public class WorkbenchConfigBean implements WorkbenchConfig {
     
     public WorkbenchConfigBean() {
         COMMANDS.add(new ChangeResourceStatusProcess());
+        COMMANDS.add(new DataCopyProcess());
         COMMANDS.add(new DeletePoleProcess());
         COMMANDS.add(new DeleteSiteProcess());
         COMMANDS.add(new FeederDataImportProcess());

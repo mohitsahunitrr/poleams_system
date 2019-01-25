@@ -1,18 +1,22 @@
 package com.precisionhawk.poleams.processors;
 
+import com.precisionhawk.ams.domain.InspectionEventResource;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.ams.domain.ResourceMetadata;
 import com.precisionhawk.ams.domain.WorkOrder;
 import com.precisionhawk.poleams.domain.Feeder;
 import com.precisionhawk.poleams.domain.FeederInspection;
+import com.precisionhawk.poleams.domain.InspectionEvent;
 import com.precisionhawk.poleams.domain.TransmissionLine;
 import com.precisionhawk.poleams.domain.TransmissionLineInspection;
 import com.precisionhawk.poleams.domain.TransmissionStructure;
 import com.precisionhawk.poleams.domain.TransmissionStructureInspection;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -120,6 +124,30 @@ public class InspectionData implements InspectionDataInterface {
         this.feederInspection = feederInspection;
     }
     
+    private Map<String, InspectionEvent> inspectionEvents = new HashMap<>();
+    public Map<String, InspectionEvent> getInspectionEvents() {
+        return inspectionEvents;
+    }
+    public void setInspectionEvents(Map<String, InspectionEvent> inspectionEvents) {
+        this.inspectionEvents = inspectionEvents;
+    }
+    public void addInspectionEvent(InspectionEvent evt, boolean isNew) {
+        inspectionEvents.put(evt.getId(), evt);
+        domainDataIsNew.put(evt.getId(), isNew);
+    }
+    
+    private Map<String, InspectionEventResource> inspectionEventResources = new HashMap<>();
+    public Map<String, InspectionEventResource> getInspectionEventResources() {
+        return inspectionEventResources;
+    }
+    public void setInspectionEventResources(Map<String, InspectionEventResource> inspectionEventResources) {
+        this.inspectionEventResources = inspectionEventResources;
+    }
+    public void addInspectionEventResource(InspectionEventResource res, boolean isNew) {
+        inspectionEventResources.put(res.getId(), res);
+        domainDataIsNew.put(res.getId(), isNew);
+    }
+    
     public void addPole(Pole pole, boolean isNew) {
         poleData.put(pole.getUtilityId(), pole);
         domainDataIsNew.put(pole.getId(), isNew);
@@ -168,4 +196,12 @@ public class InspectionData implements InspectionDataInterface {
         domainDataIsNew.put(inspection.getId(), isNew);
     }
     
+    public Collection<ResourceMetadata> allResources() {
+        List<ResourceMetadata> list = new LinkedList<>();
+        list.addAll(this.siteResources);
+        for (String assetId : this.assetResources.keySet()) {
+            list.addAll(this.assetResources.get(assetId));
+        }
+        return list;
+    }
 }

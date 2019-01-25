@@ -1,10 +1,12 @@
 package com.precisionhawk.poleams.webservices.client;
 
+import com.precisionhawk.ams.webservices.InspectionEventResourceWebService;
 import com.precisionhawk.ams.webservices.SiteWebService;
 import com.precisionhawk.ams.webservices.WorkOrderWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.webservices.FeederInspectionWebService;
 import com.precisionhawk.poleams.webservices.FeederWebService;
+import com.precisionhawk.poleams.webservices.InspectionEventWebService;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.poleams.webservices.ResourceWebService;
@@ -44,6 +46,14 @@ public final class WSClientHelper {
     
     public FeederWebService feeders() {
         return env.obtainWebService(FeederWebService.class);
+    }
+    
+    public InspectionEventWebService inspectionEvents() {
+        return env.obtainWebService(InspectionEventWebService.class);
+    }
+    
+    public InspectionEventResourceWebService inspectionEventResources() {
+        return env.obtainWebService(InspectionEventResourceWebService.class);
     }
     
     public PoleInspectionWebService poleInspections() {

@@ -14,7 +14,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -65,6 +64,9 @@ public final class ResourceDataUploader {
                 b = exists.get(resourceId);
                 if (b == null || !b || rmeta.getStatus() == ResourceStatus.QueuedForUpload) {
                     _uploadResource(env, svc, listener, inspdata, rmeta, data.get(resourceId), retryCount);
+                    if (rmeta.getZoomifyId() != null && data.containsKey(rmeta.getZoomifyId())) {
+                        _uploadZoomify(env, svc, listener, rmeta.getZoomifyId(), data.get(rmeta.getZoomifyId()), retryCount);
+                    }
                 } else {
                     // Just save the data
                     try {
@@ -93,30 +95,30 @@ public final class ResourceDataUploader {
         }
     }
 
-    public static void uploadResource(
-        Environment env, ProcessListener listener, InspectionDataInterface inspdata, ResourceMetadata metadata, File data, int retryCount
-    )
-    {
-        ResourceWebService svc = env.obtainWebService(ResourceWebService.class);
-        List<String> ids = new LinkedList<>();
-        ids.add(metadata.getResourceId());
-        try {
-            Map<String, Boolean> exists = svc.verifyUploadedResources(env.obtainAccessToken(), ids);
-            Boolean b = exists.get(metadata.getResourceId());
-            if (b == null || (!b) || ResourceStatus.QueuedForUpload == metadata.getStatus()) {
-                listener.reportNonFatalError(String.format("The data for Resource %s located at %s could not be uploaded after %d tries.", metadata.getResourceId(), data, retryCount));
-            } else {
-                // Just save the data
-                try {
-                    svc.updateResourceMetadata(env.obtainAccessToken(), metadata);
-                } catch (IOException ex) {
-                    listener.reportNonFatalException(String.format("Error updating resource %s.", metadata.getResourceId()), ex);
-                }
-            }
-        } catch (IOException ex) {
-            listener.reportNonFatalException("Error checking to see if all resources have been uploaded.", ex);
-        }
-    }
+//    public static void uploadResource(
+//        Environment env, ProcessListener listener, InspectionDataInterface inspdata, ResourceMetadata metadata, File data, int retryCount
+//    )
+//    {
+//        ResourceWebService svc = env.obtainWebService(ResourceWebService.class);
+//        List<String> ids = new LinkedList<>();
+//        ids.add(metadata.getResourceId());
+//        try {
+//            Map<String, Boolean> exists = svc.verifyUploadedResources(env.obtainAccessToken(), ids);
+//            Boolean b = exists.get(metadata.getResourceId());
+//            if (b == null || (!b) || ResourceStatus.QueuedForUpload == metadata.getStatus()) {
+//                listener.reportNonFatalError(String.format("The data for Resource %s located at %s could not be uploaded after %d tries.", metadata.getResourceId(), data, retryCount));
+//            } else {
+//                // Just save the data
+//                try {
+//                    svc.updateResourceMetadata(env.obtainAccessToken(), metadata);
+//                } catch (IOException ex) {
+//                    listener.reportNonFatalException(String.format("Error updating resource %s.", metadata.getResourceId()), ex);
+//                }
+//            }
+//        } catch (IOException ex) {
+//            listener.reportNonFatalException("Error checking to see if all resources have been uploaded.", ex);
+//        }
+//    }
 
     private static void _uploadResource(
         Environment env, ResourceWebService svc, ProcessListener listener, InspectionDataInterface inspdata, ResourceMetadata rmeta, File dataFile, int retryCount
@@ -181,7 +183,7 @@ public final class ResourceDataUploader {
                         }
                     }
                     if (!scaled) {
-                        throw new IOException(String.format("Unable to scale the image \"%s\" after 5 attempts.", rmeta.getResourceId()));
+                        throw new IOException(String.format("Unable to scale the image \"%s\" after %d attempts.", rmeta.getResourceId(), retryCount));
                     }
                 }
                 if (ResourceTypes.DroneInspectionImage.equals(rmeta.getType())) {
@@ -196,6 +198,24 @@ public final class ResourceDataUploader {
             } catch (IOException | URISyntaxException ex) {
                 listener.reportNonFatalException("Error uploading resource.", ex);
             }
+        }
+    }
+
+    private static void _uploadZoomify(Environment env, ResourceWebService svc, ProcessListener listener, String zoomifyId, File dataFile, int retryCount) {
+        Boolean b;
+        boolean success = false;
+        for (int i = 0; (!success) && i < retryCount; i++) {
+            try {
+                success = false;
+                listener.reportMessage(String.format("Uploading zoomify file \"%s\" for resource \"%s\", attempt %d", dataFile, zoomifyId, (i + 1)));
+                HttpClientUtilities.postFile(env, zoomifyId, "image/zif", dataFile);
+                success = true;
+            } catch (IOException | URISyntaxException ex) {
+                listener.reportNonFatalException("Error uploading resource.", ex);
+            }
+        }
+        if (!success) {
+            listener.reportNonFatalError(String.format("Unable upload the zoomify image \"%s\" after %d attempts.", zoomifyId, retryCount));
         }
     }
 }
