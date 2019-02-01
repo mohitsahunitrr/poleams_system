@@ -3,16 +3,21 @@ package com.precisionhawk.poleams.processors.translineinspection;
 import com.precisionhawk.poleams.processors.MasterDataImporter;
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.bean.GeoPoint;
+import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
 import com.precisionhawk.ams.domain.AssetInspectionStatus;
 import com.precisionhawk.ams.domain.AssetInspectionType;
+import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.ams.domain.ResourceStatus;
 import com.precisionhawk.ams.domain.SiteInspectionStatus;
 import com.precisionhawk.ams.domain.SiteInspectionType;
 import com.precisionhawk.ams.domain.WorkOrder;
 import com.precisionhawk.ams.util.CollectionsUtilities;
+import com.precisionhawk.ams.util.ImageUtilities;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.bean.TransmissionLineSearchParams;
 import com.precisionhawk.poleams.bean.TransmissionStructureSearchParams;
+import com.precisionhawk.poleams.domain.ResourceTypes;
 import com.precisionhawk.poleams.domain.TransmissionLine;
 import com.precisionhawk.poleams.domain.TransmissionLineInspection;
 import com.precisionhawk.poleams.domain.TransmissionStructure;
@@ -20,8 +25,10 @@ import com.precisionhawk.poleams.domain.TransmissionStructureInspection;
 import com.precisionhawk.poleams.domain.WorkOrderStatuses;
 import com.precisionhawk.poleams.domain.WorkOrderTypes;
 import com.precisionhawk.poleams.processors.DataImportUtilities;
+import com.precisionhawk.poleams.processors.FilenameFilters;
 import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.ProcessListener;
+import com.precisionhawk.poleams.webservices.ResourceWebService;
 import com.precisionhawk.poleams.webservices.client.WSClientHelper;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -29,8 +36,20 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.ws.rs.core.Response.Status;
+import org.apache.commons.imaging.ImageFormat;
+import org.apache.commons.imaging.ImageFormats;
+import org.apache.commons.imaging.ImageInfo;
+import org.apache.commons.imaging.ImageReadException;
+import org.apache.commons.imaging.Imaging;
+import org.apache.commons.imaging.common.ImageMetadata;
+import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
+import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
 import org.apache.commons.io.IOUtils;
 import org.jboss.resteasy.client.ClientResponseFailure;
 import org.papernapkin.liana.xml.sax.AbstractDocumentHandler;
@@ -50,6 +69,8 @@ public class ShapeFileMasterDataImport implements MasterDataImporter {
     private final InspectionData data = new InspectionData();
     private ProcessListener listener;
     
+    private static final ZoneId DEFAULT_TZ = ZoneId.of("America/New_York");
+
     @Override
     public boolean process(Environment env, ProcessListener listener, File poleDataShapeFile, String orderNum, String organizationId) {
         this.listener = listener;
@@ -64,6 +85,35 @@ public class ShapeFileMasterDataImport implements MasterDataImporter {
             XMLReader xr = XMLReaderFactory.createXMLReader();
             xr.setContentHandler(handler);
             xr.parse(new InputSource(is));
+            
+            // Find the directory which contains images, if any
+            File imagesDir = new File(poleDataShapeFile.getParentFile(), "Data Analytics");
+            if (imagesDir.isDirectory()) {
+                File[] files = imagesDir.listFiles(FilenameFilters.IMAGES_FILTER);
+                    for (File imageFile : files) {
+                        if (imageFile.isFile()) {
+                            if (imageFile.canRead()) {
+                                try {
+                                    ImageFormat format = Imaging.guessFormat(imageFile);
+                                    if (ImageFormats.UNKNOWN.equals(format)) {
+                                        listener.reportNonFatalError(String.format("Unexpected file \"%s\" is being skipped.", imageFile));
+                                    } else {
+                                        processImageFile(svcs, listener, data, imageFile, format);
+                                    }
+                                } catch (ImageReadException | IOException ex) {
+                                    listener.reportNonFatalException(String.format("There was an error parsing resource file \"%s\"", imageFile.getAbsolutePath()), ex);
+
+                                    return true;
+                                }
+                            } else {
+                                listener.reportNonFatalError(String.format("The file \"%s\" is not readable.", imageFile));
+                            }
+                        } else {
+                            listener.reportMessage(String.format("The directory \"%s\" is being ignored.", imageFile));
+                        }
+                    }
+            }
+            
             boolean success = true;
             
             if (success) {
@@ -206,6 +256,76 @@ public class ShapeFileMasterDataImport implements MasterDataImporter {
         } catch (IOException ex) {
             listener.reportFatalException(ex);
             return null;
+        }
+    }
+
+    private void processImageFile(WSClientHelper wsclient, ProcessListener listener, InspectionData data, File f, ImageFormat format)
+        throws IOException, ImageReadException
+    {
+        listener.reportMessage(String.format("Processing image file %s", f.getAbsolutePath()));
+        
+        // the name should be something like 72_Chip middle left phase.jpg where 72 is the structure number
+        String[] parts = f.getName().split("_");
+        if (parts.length < 2) {
+            listener.reportNonFatalError(String.format("Invalid image name %s", f.getName()));
+            return;
+        }
+        TransmissionStructure struct = data.getStructureDataByStructureNum().get(parts[0]);
+        if (struct == null) {
+            listener.reportNonFatalError(String.format("Unable to locate structure %s for image %s", parts[0], f.getName()));
+            return;
+        }
+        
+        ResourceWebService rsvc = wsclient.resources();
+                
+        ResourceSearchParams params = new ResourceSearchParams();
+        params.setAssetId(struct.getId());
+        params.setName(f.getName());
+        ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(rsvc.search(wsclient.token(), params));
+        if (rmeta == null) {
+            rmeta = new ResourceMetadata();
+            rmeta.setResourceId(UUID.randomUUID().toString());
+            rmeta.setType(ResourceTypes.DroneInspectionImage);
+            ImageInfo info = Imaging.getImageInfo(f);
+            ImageMetadata metadata = Imaging.getMetadata(f);
+            TiffImageMetadata exif;
+            if (metadata instanceof JpegImageMetadata) {
+                exif = ((JpegImageMetadata)metadata).getExif();
+            } else if (metadata instanceof TiffImageMetadata) {
+                exif = (TiffImageMetadata)metadata;
+            } else {
+                exif = null;
+            }
+            rmeta.setContentType(info.getMimeType());
+            rmeta.setLocation(ImageUtilities.getLocation(exif));
+            rmeta.setName(f.getName());
+            rmeta.setOrderNumber(data.getOrderNumber());
+//            String posSide = resourcePositionSide(listener, f);
+//            if (posSide != null) {
+//                ImagePosition pos = new ImagePosition();
+//                pos.setSide(posSide);
+//                rmeta.setPosition(pos);
+//            }
+            rmeta.setAssetId(struct.getId());
+            rmeta.setAssetInspectionId(data.getStructureInspectionsByStructureNum().get(struct.getStructureNumber()).getId());
+            rmeta.setSize(ImageUtilities.getSize(info));
+            rmeta.setStatus(ResourceStatus.QueuedForUpload);
+            rmeta.setSiteId(data.getLine().getId());
+            rmeta.setSiteInspectionId(data.getLineInspection().getId());
+            rmeta.setTimestamp(ImageUtilities.getTimestamp(exif, DEFAULT_TZ));
+            data.addResourceMetadata(rmeta, f, true);
+        } else {
+            List<String> resourceIDs = new LinkedList<>();
+            resourceIDs.add(rmeta.getResourceId());
+            Map<String, Boolean> results = rsvc.verifyUploadedResources(wsclient.token(), resourceIDs);
+            if (
+                    rmeta.getStatus() == ResourceStatus.QueuedForUpload
+                    || (!results.get(rmeta.getResourceId()))
+                )
+            {
+                // Add it to the list so that the upload is attempted again
+                data.addResourceMetadata(rmeta, f, false);
+            }
         }
     }
     
