@@ -348,7 +348,7 @@
             "poleSummary.numberOfPhases",
             "poleSummary.location.latitude",
             "poleSummary.location.longitude",
-            "poleInspectionSummary.horizontalLoadingPercent",
+            "poleInspectionSummary.horizontalLoadingPercent"
         ],
         "poleAMSViewer.poleView.detail": [
             "poleSummary.id",
