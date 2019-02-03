@@ -49,7 +49,7 @@ import java.util.UUID;
 import org.apache.commons.imaging.ImageInfo;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
-import org.apache.commons.imaging.common.ImageMetadata;
+import org.apache.commons.imaging.common.IImageMetadata;
 import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
 import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
 import org.jboss.resteasy.client.ClientResponseFailure;
@@ -456,7 +456,7 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                 if (ImageUtilities.ImageType.fromContentType(rmeta.getContentType()) != null) {
                     ImageInfo info = Imaging.getImageInfo(f);
                     TiffImageMetadata exif;
-                    ImageMetadata metadata = Imaging.getMetadata(f);
+                    IImageMetadata metadata = Imaging.getMetadata(f);
                     if (metadata instanceof JpegImageMetadata) {
                         exif = ((JpegImageMetadata)metadata).getExif();
                     } else if (metadata instanceof TiffImageMetadata) {

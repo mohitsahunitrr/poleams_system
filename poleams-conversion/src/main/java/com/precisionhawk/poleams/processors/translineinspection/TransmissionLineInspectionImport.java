@@ -39,11 +39,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.imaging.ImageFormat;
-import org.apache.commons.imaging.ImageFormats;
 import org.apache.commons.imaging.ImageInfo;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
-import org.apache.commons.imaging.common.ImageMetadata;
+import org.apache.commons.imaging.common.IImageMetadata;
 import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
 import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -140,7 +139,7 @@ public final class TransmissionLineInspectionImport {
                             if (imageFile.canRead()) {
                                 try {
                                     ImageFormat format = Imaging.guessFormat(imageFile);
-                                    if (ImageFormats.UNKNOWN.equals(format)) {
+                                    if (ImageFormat.IMAGE_FORMAT_UNKNOWN.equals(format)) {
                                         listener.reportNonFatalError(String.format("Unexpected file \"%s\" is being skipped.", imageFile));
                                     } else {
                                         processImageFile(wsclient, listener, data, struct, imageFile, format);
@@ -338,7 +337,7 @@ public final class TransmissionLineInspectionImport {
             rmeta.setResourceId(UUID.randomUUID().toString());
             rmeta.setType(ResourceTypes.DroneInspectionImage);
             ImageInfo info = Imaging.getImageInfo(f);
-            ImageMetadata metadata = Imaging.getMetadata(f);
+            IImageMetadata metadata = Imaging.getMetadata(f);
             TiffImageMetadata exif;
             if (metadata instanceof JpegImageMetadata) {
                 exif = ((JpegImageMetadata)metadata).getExif();
