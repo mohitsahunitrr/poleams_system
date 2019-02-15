@@ -27,6 +27,7 @@ import org.apache.commons.imaging.Imaging;
 final class PoleDataProcessor {
     
     static boolean processImagesForPole(Environment env, ProcessListener listener, InspectionData data, Pole p, File dir) {
+        ImagesProcessor imagesProcessor = new ImagesProcessor();
         for (File f : dir.listFiles()) {
             if (f.isFile()) {
                 if (f.canRead()) {
@@ -35,7 +36,7 @@ final class PoleDataProcessor {
                         if (ImageFormat.IMAGE_FORMAT_UNKNOWN.equals(format)) {
                             listener.reportNonFatalError(String.format("Unexpected file \"%s\" is being skipped.", f));
                         } else {
-                            ImagesProcessor.process(env, listener, data, p, f, format);
+                            imagesProcessor.process(env, listener, data, p, f, format);
                         }
                     } catch (ImageReadException | IOException ex) {
                         listener.reportNonFatalException(String.format("There was an error parsing resource file \"%s\"", f.getAbsolutePath()), ex);

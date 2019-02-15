@@ -12,6 +12,7 @@ import com.precisionhawk.ams.util.ImageUtilities;
 import com.precisionhawk.ams.webservices.ResourceWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.time.ZoneId;
 import java.util.LinkedList;
@@ -23,7 +24,6 @@ import org.apache.commons.imaging.ImageInfo;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
 import org.apache.commons.imaging.common.IImageMetadata;
-import org.apache.commons.imaging.common.ImageMetadata;
 import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
 import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
 
@@ -41,9 +41,46 @@ final class ImagesProcessor implements Constants {
     //FIXME: We need a better way
     private static final ZoneId DEFAULT_TZ = ZoneId.of("America/New_York");
 
-    private ImagesProcessor() {}
+    private FilenameFilter droneImageFilter = new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+            return name.startsWith(DRONE_IMG);
+        }
+    };
+    public FilenameFilter getDroneImageFilter() {
+        return droneImageFilter;
+    }
+    public void setDroneImageFilter(FilenameFilter droneImageFilter) {
+        this.droneImageFilter = droneImageFilter;
+    }
 
-    static void process(Environment environment, ProcessListener listener, InspectionData data, Pole p, File f, ImageFormat format)
+    private FilenameFilter manualImageFilter = new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+            return name.startsWith(MANUAL_IMG_1) || name.toLowerCase().startsWith(MANUAL_IMG_2);
+        }
+    };
+    public FilenameFilter getManualImageFilter() {
+        return manualImageFilter;
+    }
+    public void setManualImageFilter(FilenameFilter manualImageFilter) {
+        this.manualImageFilter = manualImageFilter;
+    }
+
+    private FilenameFilter thermalImageFilter = new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+            return name.startsWith(THERMAL_IMG);
+        }
+    };
+    public FilenameFilter getThermalImageFilter() {
+        return thermalImageFilter;
+    }
+    public void setThermalImageFilter(FilenameFilter thermalImageFilter) {
+        this.thermalImageFilter = thermalImageFilter;
+    }
+
+    void process(Environment environment, ProcessListener listener, InspectionData data, Pole p, File f, ImageFormat format)
         throws IOException, ImageReadException
     {
         
@@ -58,11 +95,11 @@ final class ImagesProcessor implements Constants {
             rmeta.setResourceId(UUID.randomUUID().toString());
             String name = f.getName().toLowerCase();
             rmeta.setType(ResourceTypes.Other);
-            if (name.startsWith(DRONE_IMG)) {
+            if (getDroneImageFilter().accept(f.getParentFile(), f.getName())) {
                 rmeta.setType(ResourceTypes.DroneInspectionImage);
-            } else if (name.startsWith(MANUAL_IMG_1) || name.toLowerCase().startsWith(MANUAL_IMG_2)) {
+            } else if (getManualImageFilter().accept(f.getParentFile(), f.getName())) {
                 rmeta.setType(ResourceTypes.ManualInspectionImage);
-            } else if (name.startsWith(THERMAL_IMG)) {
+            } else if (getThermalImageFilter().accept(f.getParentFile(), f.getName())) {
                 rmeta.setType(ResourceTypes.Thermal);
             }
             ImageInfo info = Imaging.getImageInfo(f);
