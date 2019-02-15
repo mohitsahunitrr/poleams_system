@@ -20,6 +20,16 @@
             "bracketsPass": {
                 "type": "boolean"
             },
+            "dataMergedBy": {
+                "include_in_all": false,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "dataMergedDate": {
+                "include_in_all": false,
+                "type": "date",
+                "format": "yyyyMMdd"
+            },
             "dateOfAnalysis": {
                 "include_in_all": false,
                 "type": "date",

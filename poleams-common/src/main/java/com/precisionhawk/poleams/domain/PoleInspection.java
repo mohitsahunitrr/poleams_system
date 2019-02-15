@@ -49,6 +49,24 @@ public class PoleInspection extends AssetInspection {
         this.dateOfAnalysis = dateOfAnalysis;
     }
     
+    @Schema(description="The user ID of the person who merged the data into the utilitie's system")
+    private String dataMergedBy;
+    public String getDataMergedBy() {
+        return dataMergedBy;
+    }
+    public void setDataMergedBy(String dataMergedBy) {
+        this.dataMergedBy = dataMergedBy;
+    }
+    
+    @Schema(description="The date the data into the utilitie's system")
+    private LocalDate dataMergedDate;
+    public LocalDate getDataMergedDate() {
+        return dataMergedDate;
+    }
+    public void setDataMergedDate(LocalDate dataMergedDate) {
+        this.dataMergedDate = dataMergedDate;
+    }
+    
     @Schema(description="Down guys pass analysis")
     private Boolean downGuysPass;
     public Boolean getDownGuysPass() {
@@ -115,6 +133,8 @@ public class PoleInspection extends AssetInspection {
         setAccess(pi.getAccess());
         setAnchorsPass(pi.getAnchorsPass());
         setAssetId(pi.getAssetId());
+        setDataMergedBy(pi.getDataMergedBy());
+        setDataMergedDate(pi.getDataMergedDate());
         setBracketsPass(pi.getBracketsPass());
         setDateOfAnalysis(pi.getDateOfAnalysis());
         setDownGuysPass(pi.getDownGuysPass());

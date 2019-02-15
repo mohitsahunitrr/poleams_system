@@ -2,6 +2,7 @@ package com.precisionhawk.poleams.bean;
 
 import com.precisionhawk.poleams.domain.PoleInspection;
 import io.swagger.oas.annotations.media.Schema;
+import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
 
