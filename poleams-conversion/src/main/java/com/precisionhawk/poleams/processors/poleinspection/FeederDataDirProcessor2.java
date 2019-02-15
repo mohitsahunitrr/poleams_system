@@ -1,9 +1,19 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
-import com.precisionhawk.ams.bean.AssetSearchParams;
+import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.bean.GeoPoint;
+import com.precisionhawk.ams.domain.AssetInspectionStatus;
+import com.precisionhawk.ams.domain.WorkOrder;
+import com.precisionhawk.ams.domain.WorkOrderStatus;
+import com.precisionhawk.ams.domain.WorkOrderType;
+import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.ams.webservices.client.Environment;
+import com.precisionhawk.poleams.bean.FeederSearchParams;
+import com.precisionhawk.poleams.bean.PoleSearchParams;
+import com.precisionhawk.poleams.domain.Feeder;
 import com.precisionhawk.poleams.domain.Pole;
+import com.precisionhawk.poleams.domain.PoleInspection;
+import com.precisionhawk.poleams.processors.DataImportUtilities;
 import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.poleams.webservices.client.WSClientHelper;
@@ -13,12 +23,18 @@ import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.Reader;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.imaging.ImageFormat;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
+import org.apache.http.HttpStatus;
+import org.jboss.resteasy.client.ClientResponseFailure;
+import org.papernapkin.liana.util.StringUtil;
 
 /**
  * A processor that expects a few things:
@@ -40,6 +56,7 @@ public class FeederDataDirProcessor2 {
     private static final int COL_FPLID = 5;
     private static final int COL_LAT = 8;
     private static final int COL_LON = 9;
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     private static final FileFilter DIR_FILTER = new FileFilter() {
         @Override
@@ -65,7 +82,8 @@ public class FeederDataDirProcessor2 {
     private static final FilenameFilter RPG_IMG_FILE_FILTER = new FilenameFilter() {
         @Override
         public boolean accept(File dir, String name) {
-            return name.toUpperCase().contains("RGB");
+            String s = name.toUpperCase();
+            return s.contains("RGB") || s.contains("RBG"); // Catch types with "RBG"
         }
     };
     
@@ -94,49 +112,83 @@ public class FeederDataDirProcessor2 {
         data.setOrganizationId(orgId);
         // find and process CSV files.
         boolean success = true;
-        for (File f : feederDir.listFiles(CSV_FILE_FILTER)) {
-            success = success && processCSVFile(svcs, data, listener, f);
+        try {
+            success = ensureWorkOrder(svcs, data, listener);
+        } catch (IOException ex) {
+            listener.reportFatalException(ex);
+            success = false;
         }
-        if (!success) {
-            return true;
+        if (success) {
+            for (File f : feederDir.listFiles(CSV_FILE_FILTER)) {
+                success = success && processCSVFile(svcs, data, listener, f);
+            }
         }
-        // find and process pole dirs.
-        for (File f : feederDir.listFiles(DIR_FILTER)) {
-            processImagesDir(svcs, listener, data, f);
+        if (success) {
+            // find and process pole dirs.
+            for (File f : feederDir.listFiles(DIR_FILTER)) {
+                processImagesDir(svcs, listener, data, f);
+            }
         }
-        return true;
+        try {
+            success = success && DataImportUtilities.saveData(svcs, listener, data);
+        } catch (IOException ex) {
+            listener.reportFatalException(ex);
+            success = false;
+        }
+        try {
+            success = success && DataImportUtilities.saveResources(svcs, listener, data);
+        } catch (IOException ex) {
+            listener.reportFatalException(ex);
+            success = false;
+        }
+        
+        return success;
     }
 
     private static boolean processCSVFile(WSClientHelper svcs, InspectionData data, ProcessListener listener, File f) {
+        listener.reportMessage(String.format("Processing CSV file %s", f.getName()));
         String fplId;
         Reader in = null;
         Float lat;
         Float lon;
         String s;
+        LocalDate inspectionDate = null;
         try {
             in = new FileReader(f);
             Iterable<CSVRecord> records = CSVFormat.RFC4180.parse(in);
             for (CSVRecord record : records) {
-                if (record.getRecordNumber() == 0) {
+                if (record.getRecordNumber() == 1) {
+                    // Skip 1st record other than checking for proper number of columns.
                     if (record.size() < 10) {
-                        listener.reportMessage("The file \"%s\" has too few columns.  It is being skipped.");
+                        listener.reportMessage(String.format("The file \"%s\" has too few columns.  It is being skipped.", f.getName()));
                         return true;
                     }
+                    listener.reportMessage("\tCSV row 1 has valid number of columns.  Skipping row 1");
                 } else {
+                    listener.reportMessage(String.format("\tProcessing %s record %d", f.getName(), record.getRecordNumber()));
                     if (data.getFeeder() == null) {
                         // Parse file name for feeder name and number.
                         String[] parts = f.getName().split("_");
                         String subStationName = parts[0];
                         String feederNum = parts[1];
-                        ensureFeeder(svcs, data, listener, feederNum, subStationName);
+                        parts = parts[3].split("\\.");
+                        String datePart = "20" + parts[0];
+                        inspectionDate = LocalDate.parse(datePart, DATE_FORMAT);
+                        if (!ensureFeeder(svcs, data, listener, feederNum, subStationName)) return false;
                     }
                     fplId = record.get(COL_FPLID);
                     lat = getFloat(listener, record, COL_LAT);
                     lon = getFloat(listener, record, COL_LON);
-                    Pole p = ensurePole(svcs, listener, data, fplId);
-                    GeoPoint loc = new GeoPoint();
-                    loc.setLatitude(lat.doubleValue());
-                    loc.setLongitude(lon.doubleValue());
+                    Pole p = ensurePole(svcs, listener, data, fplId, inspectionDate);
+                    if (p == null) {
+                        return false;
+                    }
+                    if (lat != null && lon != null) {
+                        GeoPoint loc = new GeoPoint();
+                        loc.setLatitude(lat.doubleValue());
+                        loc.setLongitude(lon.doubleValue());
+                        p.setLocation(loc);
+                    }
                 }
             }
         } catch (IOException ex) {
@@ -156,7 +208,17 @@ public class FeederDataDirProcessor2 {
             //TODO: What to do here?
             return true;
         }
-        Pole pole = ensurePole(svcs, listener, data, fplid);
+        if (parts.length > 2 || !StringUtil.isNumeric(seqStr) || !StringUtil.isNumeric(fplid)) {
+            listener.reportMessage(String.format("Skipping directory %s due to invalid directory name.", dir.getName()));
+        }
+        Pole pole;
+        try {
+            pole = ensurePole(svcs, listener, data, fplid, null);
+        } catch (IOException ex) {
+            listener.reportFatalException(ex);
+            return false;
+        }
+        pole.getAttributes().put("Sequence", seqStr);
         for (File f : dir.listFiles()) {
             if (f.isFile()) {
                 if (f.canRead()) {
@@ -165,6 +227,7 @@ public class FeederDataDirProcessor2 {
                         if (ImageFormat.IMAGE_FORMAT_UNKNOWN.equals(format)) {
                             listener.reportNonFatalError(String.format("Unexpected file \"%s\" is being skipped.", f));
                         } else {
+                            listener.reportMessage(String.format("Processing image file %s", f.getName()));
                             IMAGES_PROCESSOR.process(svcs.getEnv(), listener, data, pole, f, format);
                         }
                     } catch (ImageReadException | IOException ex) {
@@ -193,11 +256,100 @@ public class FeederDataDirProcessor2 {
         return null;
     }
 
-    private static void ensureFeeder(WSClientHelper svcs, InspectionData data, ProcessListener listener, String feederNum, String subStationName) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    private static boolean ensureFeeder(WSClientHelper svcs, InspectionData data, ProcessListener listener, String feederNum, String subStationName) throws IOException {
+        if (data.getFeeder() != null && data.getFeeder().getFeederNumber().equals(feederNum)) {
+            return true;
+        }
+        FeederSearchParams params = new FeederSearchParams();
+        params.setOrganizationId(data.getOrganizationId());
+        params.setFeederNumber(feederNum);
+        Feeder f = CollectionsUtilities.firstItemIn(svcs.feeders().search(svcs.token(), params));
+        if (f == null) {
+            f = new Feeder();
+            f.setFeederNumber(feederNum);
+            f.setName(subStationName);
+            f.setOrganizationId(data.getOrganizationId());
+            f.setId(UUID.randomUUID().toString());
+            data.getDomainObjectIsNew().put(f.getId(), true);
+        } else {
+            data.getDomainObjectIsNew().put(f.getId(), false);
+        }
+        boolean found = false;
+        for (String siteId : data.getWorkOrder().getSiteIds()) {
+            if (f.getId().equals(siteId)) {
+                found = true;
+            }
+        }
+        if (!found) {
+            data.getWorkOrder().getSiteIds().add(f.getId());
+        }
+        data.setFeeder(f);
+        return true;
     }
 
-    private static Pole ensurePole(WSClientHelper svcs, ProcessListener listener, InspectionData data, String fplid) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    private static Pole ensurePole(WSClientHelper svcs, ProcessListener listener, InspectionData data, String fplid, LocalDate inspectionDate) throws IOException {
+        
+        Pole pole = data.getPoleDataByFPLId().get(fplid);
+        if (pole != null) {
+            return pole;
+        }
+        
+        PoleSearchParams pparams = new PoleSearchParams();
+        pparams.setSiteId(data.getFeeder().getId());
+        pparams.setUtilityId(fplid);
+        pole = CollectionsUtilities.firstItemIn(svcs.poles().search(svcs.token(), pparams));
+        AssetInspectionSearchParams iparams = null;
+        if (pole == null) {
+            pole = new Pole();
+            pole.setUtilityId(fplid);
+            pole.setId(UUID.randomUUID().toString());
+            pole.setSiteId(data.getFeeder().getId());
+            data.addPole(pole, true);
+        } else {
+            data.addPole(pole, false);
+            iparams = new AssetInspectionSearchParams();
+            iparams.setAssetId(pole.getId());
+            iparams.setOrderNumber(data.getOrderNumber());
+        }
+        PoleInspection insp = null;
+        if (iparams != null) {
+            insp = CollectionsUtilities.firstItemIn(svcs.poleInspections().search(svcs.token(), iparams));
+        }
+        if (insp == null) {
+            insp = new PoleInspection();
+            insp.setAssetId(pole.getId());
+            insp.setDateOfInspection(inspectionDate);
+            insp.setId(UUID.randomUUID().toString());
+            insp.setOrderNumber(data.getOrderNumber());
+            insp.setSiteId(data.getFeeder().getId());
+            insp.setStatus(new AssetInspectionStatus("Processed"));
+            data.addPoleInspection(pole, insp, true);
+        } else {
+            data.addPoleInspection(pole, insp, false);
+        }
+        return pole;
+    }
+
+    private static boolean ensureWorkOrder(WSClientHelper svcs, InspectionData data, ProcessListener listener) throws IOException {
+        try {
+            data.setWorkOrder(svcs.workOrders().retrieveById(svcs.token(), data.getOrderNumber()));
+        } catch (ClientResponseFailure f) {
+            if (f.getResponse().getStatus() != HttpStatus.SC_NOT_FOUND) {
+                // 404 is ok
+                throw new IOException(f);
+            }
+        }
+        if (data.getWorkOrder() == null) {
+            WorkOrder wo = new WorkOrder();
+            wo.setOrderNumber(data.getOrderNumber());
+            wo.setRequestDate(LocalDate.now());
+            wo.setStatus(new WorkOrderStatus("Requested"));
+            wo.setType(new WorkOrderType("Pole Inspection"));
+            data.setWorkOrder(wo);
+            data.getDomainObjectIsNew().put(wo.getOrderNumber(), true);
+        } else {
+            data.getDomainObjectIsNew().put(data.getOrderNumber(), false);
+        }
+        return true;
     }
 }

@@ -50,6 +50,12 @@ public class ResourceTypes {
     @Schema(description="Design report (PDF) per pole")
     public static final ResourceType PoleDesignReport = new ResourceType("PoleDesignReport");
     
+    @Schema(description="Drone survey sheet (PDF) per pole")
+    public static final ResourceType PoleDroneSurveySheet = new ResourceType("PoleDroneSurveySheet");
+    
+    @Schema(description="Anomaly report (PDF) per pole")
+    public static final ResourceType PoleAnomalyReport = new ResourceType("PoleAnomalyReport");
+    
     //TODO: Rename to "PoleForemanAnalysisXML"
     @Schema(description="Pole Foreman analysis data")
     public static final ResourceType PoleInspectionAnalysisXML = new ResourceType("PoleInspectionAnalysisXML");

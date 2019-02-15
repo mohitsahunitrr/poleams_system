@@ -102,6 +102,7 @@ final class ImagesProcessor implements Constants {
             } else if (getThermalImageFilter().accept(f.getParentFile(), f.getName())) {
                 rmeta.setType(ResourceTypes.Thermal);
             }
+            listener.reportMessage(String.format("\tType %s determined for image file %s", rmeta.getType().getValue(), f.getName()));
             ImageInfo info = Imaging.getImageInfo(f);
             IImageMetadata metadata = Imaging.getMetadata(f);
             TiffImageMetadata exif = null;

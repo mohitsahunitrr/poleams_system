@@ -31,6 +31,24 @@ public class PoleInspectionSummary extends PoleInspection {
     public void setAnalysisReportURL(String analysisReportURL) {
         this.analysisReportURL = analysisReportURL;
     }
+   
+    @Schema(description="URL from which the anomaly report for the pole can be downloaded.")
+    private String anomalyReportDownloadURL;
+    public String getAnomalyReportDownloadURL() {
+        return anomalyReportDownloadURL;
+    }
+    public void setAnomalyReportDownloadURL(String anomalyReportDownloadURL) {
+        this.anomalyReportDownloadURL = anomalyReportDownloadURL;
+    }
+    
+    @Schema(description="URL from which the drone survey sheet may be downloaded.")
+    private String droneSurveySheetURL;
+    public String getDroneSurveySheetURL() {
+        return droneSurveySheetURL;
+    }
+    public void setDroneSurveySheetURL(String droneSurveySheetURL) {
+        this.droneSurveySheetURL = droneSurveySheetURL;
+    }
     
     @Schema(description="The criticality of the pole in terms of needing upgrades. 1 - 5, 5 being most critical.")
     private Integer criticality;
