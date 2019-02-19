@@ -21,14 +21,15 @@ public class PoleFormanXMLProcessorTest
 {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
-    private static final String TEST_XML_PATH = "com/precisionhawk/poleams/processors/poleinspection/PoleForeman.xml";
+    private static final String TEST_XML_PATH1 = "com/precisionhawk/poleams/processors/poleinspection/PoleForeman.xml";
+    private static final String TEST_XML_PATH2 = "com/precisionhawk/poleams/processors/poleinspection/PoleForeman2.xml";
 
     @Test
     public void processTest() throws IOException, SAXException {
         Pole pole = new Pole();
         pole.setUtilityId("4009449");
         PoleInspection inspection = new PoleInspection();
-        InputStream is = getClass().getClassLoader().getResourceAsStream(TEST_XML_PATH);
+        InputStream is = getClass().getClassLoader().getResourceAsStream(TEST_XML_PATH1);
         PoleForemanXMLProcessor.process(new ProcessListener() {
             @Override
             public void reportFatalError(String message) {
@@ -150,5 +151,55 @@ public class PoleFormanXMLProcessorTest
         assertEquals(Boolean.FALSE, inspection.getBracketsPass());
         assertNull(inspection.getDownGuysPass());
         assertEquals(Boolean.TRUE, inspection.getInsulatorsPass());
+    }
+
+    @Test
+    public void processTest2() throws IOException, SAXException {
+        Pole pole = new Pole();
+        pole.setUtilityId("4749945");
+        PoleInspection inspection = new PoleInspection();
+        InputStream is = getClass().getClassLoader().getResourceAsStream(TEST_XML_PATH2);
+        final ErrorCount errorCount = new ErrorCount();
+        PoleForemanXMLProcessor.process(new ProcessListener() {
+            @Override
+            public void reportFatalError(String message) {
+                errorCount.count++;
+                LOGGER.error(message);
+            }
+
+            @Override
+            public void reportFatalException(String message, Throwable t) {
+                errorCount.count++;
+                LOGGER.error(message, t);
+            }
+
+            @Override
+            public void reportFatalException(Exception ex) {
+                errorCount.count++;
+                LOGGER.error("", ex);
+            }
+
+            @Override
+            public void reportMessage(String message) {
+                LOGGER.info(message);
+            }
+
+            @Override
+            public void reportNonFatalError(String message) {
+                errorCount.count++;
+                LOGGER.warn(message);
+            }
+
+            @Override
+            public void reportNonFatalException(String message, Throwable t) {
+                errorCount.count++;
+                LOGGER.warn(message, t);
+            }
+        }, pole, inspection, is);
+        assertEquals(0, errorCount.count);
+    }
+    
+    class ErrorCount {
+        int count;
     }
 }

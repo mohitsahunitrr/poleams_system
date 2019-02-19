@@ -108,6 +108,7 @@ class PoleForemanDocumentHandler extends AbstractDocumentHandler {
 
     @Override
     protected void _endElement(String uri, String localName, String qName) throws SAXException {
+        System.out.printf("Parsing end tag %s\n", localName);
         switch (localName) {
             case TAG_ANALYSIS_H_LOADING_PER:
                 inspection.setHorizontalLoadingPercent(intFromBuffer());
@@ -142,8 +143,9 @@ class PoleForemanDocumentHandler extends AbstractDocumentHandler {
                 }
                 break;
             case TAG_ANCHOR_BEARING:
-                checkNotNullAtEndTag(localName, anchor);
-                anchor.setBearing(stringFromBuffer());
+                if (anchor != null) {
+                    anchor.setBearing(stringFromBuffer());
+                } //TODO: Equipment can also have bearing
                 break;
             case TAG_ANCHOR_GUY:
                 checkNotNullAtEndTag(localName, anchor);
@@ -178,8 +180,9 @@ class PoleForemanDocumentHandler extends AbstractDocumentHandler {
                 }
                 break;
             case TAG_CIRCUIT_FRAMING:
-                checkNotNullAtEndTag(localName, primaryPowerCable);
-                primaryPowerCable.setFraming(stringFromBuffer());
+                if (primaryPowerCable != null) {
+                    primaryPowerCable.setFraming(stringFromBuffer());
+                } //TODO: nutral and secondary can also have framing
                 break;
             case TAG_CIRCUIT_MULTIPLEX:
                 checkNotNullAtEndTag(localName, secondaryPowerCable);
@@ -226,8 +229,11 @@ class PoleForemanDocumentHandler extends AbstractDocumentHandler {
                 }
                 break;
             case TAG_DIAMETER:
-                checkNotNullAtEndTag(localName, commCable);
-                commCable.setDiameter(floatFromBuffer());
+                if (commCable != null) {
+                    commCable.setDiameter(floatFromBuffer());
+                } else if (anchor != null) {
+                    anchor.setStrandDiameter(stringFromBuffer());
+                }
                 break;
             case TAG_EQUIPMENT:
                 checkNotNullAtEndTag(localName, equip);
@@ -336,6 +342,7 @@ class PoleForemanDocumentHandler extends AbstractDocumentHandler {
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+        System.out.printf("Parsing start tag %s\n", localName);
         if (TAG_ROOT.equals(localName)) {
             poleForemanXML = true;
         } else if (poleForemanXML) {
