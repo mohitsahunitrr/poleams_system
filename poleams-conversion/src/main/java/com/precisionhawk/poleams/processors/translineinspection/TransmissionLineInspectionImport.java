@@ -113,19 +113,18 @@ public final class TransmissionLineInspectionImport {
 
     private boolean parseStructureData(WSClientHelper wsclient, ProcessListener listener, File inputDir, InspectionData data) {
         File excelFile = findMasterSurveyTemplate(listener, inputDir);
-        if (excelFile == null) {
-            return false;
-        }
         Workbook workbook = null;
         try {
-            workbook = XSSFWorkbookFactory.createWorkbook(excelFile, true);
-            
-            // Find and process the "Survey Data" sheet.
-            Sheet sheet = workbook.getSheetAt(0);
-            
-            boolean dataFound = true;
-            for (int rowIndex = 1; dataFound; rowIndex++) {
-                dataFound = processStructureRow(wsclient, listener, sheet.getRow(rowIndex), data);
+            if (excelFile != null) {
+                workbook = XSSFWorkbookFactory.createWorkbook(excelFile, true);
+
+                // Find and process the "Survey Data" sheet.
+                Sheet sheet = workbook.getSheetAt(0);
+
+                boolean dataFound = true;
+                for (int rowIndex = 1; dataFound; rowIndex++) {
+                    dataFound = processStructureRow(wsclient, listener, sheet.getRow(rowIndex), data);
+                }
             }
             
             // Process images

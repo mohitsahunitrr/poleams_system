@@ -26,7 +26,7 @@ import org.jboss.resteasy.client.ClientResponseFailure;
 public final class ResourceDataUploader {
     
     private static final double SCALE_WIDTH = 100;
-    private static final ImageScaleRequest SCALE_IMAGE_REQ;
+    public static final ImageScaleRequest SCALE_IMAGE_REQ;
     static {
         SCALE_IMAGE_REQ = new ImageScaleRequest();
         SCALE_IMAGE_REQ.setResourceType(ResourceTypes.ThumbNail);
