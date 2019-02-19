@@ -2,7 +2,12 @@ package com.precisionhawk.poleams.processors.poleinspection;
 
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.bean.GeoPoint;
+import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.ams.domain.AssetInspectionStatus;
+import com.precisionhawk.ams.domain.AssetInspectionType;
+import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.ams.domain.ResourceStatus;
+import com.precisionhawk.ams.domain.ResourceType;
 import com.precisionhawk.ams.domain.WorkOrder;
 import com.precisionhawk.ams.domain.WorkOrderStatus;
 import com.precisionhawk.ams.domain.WorkOrderType;
@@ -11,8 +16,10 @@ import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.bean.FeederSearchParams;
 import com.precisionhawk.poleams.bean.PoleSearchParams;
 import com.precisionhawk.poleams.domain.Feeder;
+import com.precisionhawk.poleams.domain.FeederInspection;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
+import com.precisionhawk.poleams.domain.ResourceTypes;
 import com.precisionhawk.poleams.processors.DataImportUtilities;
 import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.ProcessListener;
@@ -24,6 +31,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.Reader;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import org.apache.commons.compress.utils.IOUtils;
@@ -126,7 +134,7 @@ public class FeederDataDirProcessor2 {
         if (success) {
             // find and process pole dirs.
             for (File f : feederDir.listFiles(DIR_FILTER)) {
-                processImagesDir(svcs, listener, data, f);
+                processPoleDir(svcs, listener, data, f);
             }
         }
         try {
@@ -199,7 +207,7 @@ public class FeederDataDirProcessor2 {
         return true;
     }
 
-    private static boolean processImagesDir(WSClientHelper svcs, ProcessListener listener, InspectionData data, File dir) {
+    private static boolean processPoleDir(WSClientHelper svcs, ProcessListener listener, InspectionData data, File dir) {
         // Parse sequence and FPLID from file name.
         String[] parts = dir.getName().split("_");
         String seqStr = parts[0];
@@ -212,8 +220,10 @@ public class FeederDataDirProcessor2 {
             listener.reportMessage(String.format("Skipping directory %s due to invalid directory name.", dir.getName()));
         }
         Pole pole;
+        PoleInspection insp;
         try {
             pole = ensurePole(svcs, listener, data, fplid, null);
+            insp = ensurePoleInspection(svcs, listener, data, pole, null);
         } catch (IOException ex) {
             listener.reportFatalException(ex);
             return false;
@@ -225,7 +235,19 @@ public class FeederDataDirProcessor2 {
                     try {
                         ImageFormat format = Imaging.guessFormat(f);
                         if (ImageFormat.IMAGE_FORMAT_UNKNOWN.equals(format)) {
-                            listener.reportNonFatalError(String.format("Unexpected file \"%s\" is being skipped.", f));
+                            if (f.getName().endsWith("_C.xml")) {
+                                // PoleForman XML
+                                PoleForemanXMLProcessor.process(listener, pole, insp, f);
+                                addNonImageResource(svcs, data, data.getFeederInspection(), insp, ResourceTypes.PoleInspectionAnalysisXML, f, "application/xml");
+                            } else if (f.getName().endsWith("C.pdf")) {
+                                // PoleInspectionReport
+                                addNonImageResource(svcs, data, data.getFeederInspection(), insp, ResourceTypes.PoleInspectionReport, f, "application/pdf");
+                            } else if (f.getName().endsWith("_DSS.pdf")) {
+                                // Drone Survey Sheet
+                                addNonImageResource(svcs, data, data.getFeederInspection(), insp, ResourceTypes.PoleDroneSurveySheet, f, "application/pdf");
+                            } else {
+                                listener.reportNonFatalError(String.format("Unexpected file \"%s\" is being skipped.", f));
+                            }
                         } else {
                             listener.reportMessage(String.format("Processing image file %s", f.getName()));
                             IMAGES_PROCESSOR.process(svcs.getEnv(), listener, data, pole, f, format);
@@ -311,23 +333,36 @@ public class FeederDataDirProcessor2 {
             iparams.setAssetId(pole.getId());
             iparams.setOrderNumber(data.getOrderNumber());
         }
-        PoleInspection insp = null;
-        if (iparams != null) {
-            insp = CollectionsUtilities.firstItemIn(svcs.poleInspections().search(svcs.token(), iparams));
-        }
-        if (insp == null) {
-            insp = new PoleInspection();
-            insp.setAssetId(pole.getId());
-            insp.setDateOfInspection(inspectionDate);
-            insp.setId(UUID.randomUUID().toString());
-            insp.setOrderNumber(data.getOrderNumber());
-            insp.setSiteId(data.getFeeder().getId());
-            insp.setStatus(new AssetInspectionStatus("Processed"));
-            data.addPoleInspection(pole, insp, true);
-        } else {
-            data.addPoleInspection(pole, insp, false);
-        }
+        ensurePoleInspection(svcs, listener, data, pole, inspectionDate);
         return pole;
+    }
+
+    private static PoleInspection ensurePoleInspection(
+            WSClientHelper svcs, ProcessListener listener, InspectionData data, Pole pole, LocalDate inspectionDate
+        ) throws IOException
+    {
+        PoleInspection insp = data.getPoleInspectionsByFPLId().get(pole.getUtilityId());
+        if (insp == null) {
+            AssetInspectionSearchParams iparams = new AssetInspectionSearchParams();
+            iparams.setAssetId(pole.getId());
+            iparams.setOrderNumber(data.getOrderNumber());
+            insp = CollectionsUtilities.firstItemIn(svcs.poleInspections().search(svcs.token(), iparams));
+            if (insp == null) {
+                insp = new PoleInspection();
+                insp.setAssetId(pole.getId());
+                insp.setDateOfInspection(inspectionDate);
+                insp.setId(UUID.randomUUID().toString());
+                insp.setOrderNumber(data.getOrderNumber());
+                insp.setSiteId(data.getFeeder().getId());
+                insp.setStatus(new AssetInspectionStatus("Processed"));
+                insp.setType(new AssetInspectionType("DistributionLineInspection"));
+                data.addPoleInspection(pole, insp, true);
+            } else {
+                insp.setType(new AssetInspectionType("DistributionLineInspection"));
+                data.addPoleInspection(pole, insp, false);
+            }
+        }
+        return insp;
     }
 
     private static boolean ensureWorkOrder(WSClientHelper svcs, InspectionData data, ProcessListener listener) throws IOException {
@@ -351,5 +386,41 @@ public class FeederDataDirProcessor2 {
             data.getDomainObjectIsNew().put(data.getOrderNumber(), false);
         }
         return true;
+    }
+    
+    private static void addNonImageResource(
+            WSClientHelper svcs, InspectionData data, FeederInspection finsp, PoleInspection pinsp, ResourceType rtype, File file, String contentType
+        ) throws IOException
+    {
+        ResourceSearchParams params = new ResourceSearchParams();
+        if (pinsp != null) {
+            params.setAssetInspectionId(pinsp.getId());
+        } else {
+            params.setSiteInspectionId(finsp.getId());
+        }
+        params.setType(rtype);
+        ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(svcs.resources().search(svcs.token(), params));
+        if (rmeta == null) {
+            rmeta = new ResourceMetadata();
+            if (pinsp != null) {
+                rmeta.setAssetId(pinsp.getAssetId());
+                rmeta.setAssetInspectionId(pinsp.getId());
+                rmeta.setSiteId(pinsp.getSiteId());
+                rmeta.setSiteInspectionId(pinsp.getId());
+            } else {
+                rmeta.setSiteId(finsp.getSiteId());
+                rmeta.setSiteInspectionId(finsp.getId());
+            }
+            rmeta.setContentType(contentType);
+            rmeta.setName(file.getName());
+            rmeta.setOrderNumber(data.getOrderNumber());
+            rmeta.setResourceId(UUID.randomUUID().toString());
+            rmeta.setStatus(ResourceStatus.QueuedForUpload);
+            rmeta.setTimestamp(ZonedDateTime.now());
+            rmeta.setType(rtype);
+            data.addResourceMetadata(rmeta, file, true);
+        } else {
+            data.addResourceMetadata(rmeta, file, false);
+        }
     }
 }

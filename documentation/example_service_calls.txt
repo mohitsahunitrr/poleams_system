@@ -212,3 +212,31 @@ curl 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/Resource/_s
       }
   }
 }'
+
+
+curl 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/WorkOrder/_search' -d '{
+  "query": {
+      "term" : {
+        "siteId":"908d7dae-5c67-42f0-9cc5-08137205a566"
+      }
+  }
+}'
+
+curl 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/WorkOrder/_search' -d '{
+  "query": {
+"match_all" : {}
+  }
+}'
+
+curl -XDELETE 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/WorkOrder/WorkOrder' | aeson-pretty
+
+curl -XPOST 'http://ec2-18-208-181-167.compute-1.amazonaws.com:9200/poleams/WorkOrder/9C44C721' -d '{
+        "status": "Requested",
+        "requestDate": "20190215",
+        "siteIds": [
+            "908d7dae-5c67-42f0-9cc5-08137205a566"
+        ],
+        "orderNumber": "9C44C721",
+        "type": "DistributionLineInspection",
+        "description": null
+}'
