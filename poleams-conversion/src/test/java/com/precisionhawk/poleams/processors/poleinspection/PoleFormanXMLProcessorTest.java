@@ -23,6 +23,7 @@ public class PoleFormanXMLProcessorTest
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private static final String TEST_XML_PATH1 = "com/precisionhawk/poleams/processors/poleinspection/PoleForeman.xml";
     private static final String TEST_XML_PATH2 = "com/precisionhawk/poleams/processors/poleinspection/PoleForeman2.xml";
+    private static final String TEST_XML_PATH3 = "com/precisionhawk/poleams/processors/poleinspection/PoleForeman3.xml";
 
     @Test
     public void processTest() throws IOException, SAXException {
@@ -160,7 +161,7 @@ public class PoleFormanXMLProcessorTest
         PoleInspection inspection = new PoleInspection();
         InputStream is = getClass().getClassLoader().getResourceAsStream(TEST_XML_PATH2);
         final ErrorCount errorCount = new ErrorCount();
-        PoleForemanXMLProcessor.process(new ProcessListener() {
+        ProcessListener listener = new ProcessListener() {
             @Override
             public void reportFatalError(String message) {
                 errorCount.count++;
@@ -195,8 +196,18 @@ public class PoleFormanXMLProcessorTest
                 errorCount.count++;
                 LOGGER.warn(message, t);
             }
-        }, pole, inspection, is);
+        };
+        PoleForemanXMLProcessor.process(listener, pole, inspection, is);
         assertEquals(0, errorCount.count);
+        is.close();
+        
+        pole = new Pole();
+        pole.setUtilityId("4721505");
+        inspection = new PoleInspection();
+        is = getClass().getClassLoader().getResourceAsStream(TEST_XML_PATH3);
+        PoleForemanXMLProcessor.process(listener, pole, inspection, is);
+        assertEquals(0, errorCount.count);
+        is.close();
     }
     
     class ErrorCount {

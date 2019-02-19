@@ -1,0 +1,197 @@
+<?xml version="1.0" ?>
+<PoleForeman>
+	<Timestamp>02/15/2019 08:24:12</Timestamp>
+	<Design_ID/>
+	<Designer/>
+	<Analysis_Pole GIS_ID="4721505">
+		<Pole_Length>45</Pole_Length>
+		<Pole_Class>2 Wood         </Pole_Class>
+		<Pole_Setting_Depth>7</Pole_Setting_Depth>
+		<Pole_Description>Wood SYP ANSI 05.1       </Pole_Description>
+		<Pass_or_Fail>Pass</Pass_or_Fail>
+		<Horizontal_Loading_Percent>73</Horizontal_Loading_Percent>
+		<Vertical_Loading_Percent>18</Vertical_Loading_Percent>
+	</Analysis_Pole>
+	<LoadCase>
+		<NESC_Rule>250C</NESC_Rule>
+		<Wind>145 mph</Wind>
+		<Ice>0.00 in</Ice>
+		<Temp>60F</Temp>
+		<NESC_Construction_Grade>Grade B</NESC_Construction_Grade>
+	</LoadCase>
+	<Spans>
+		<Span>
+			<SpanLength>30'</SpanLength>
+			<SpanBearing>77°</SpanBearing>
+			<Power>
+				<Circuit>
+					<CircuitNumber>1</CircuitNumber>
+					<Primary>
+						<Conductor>2 AAAC (7)</Conductor>
+						<Phases>3</Phases>
+						<RulingSpan>250</RulingSpan>
+						<Framing>3PH-DE-Xarm-5' 4&quot; Stl-45KV Susp Poly-E-11.0.0 F1</Framing>
+						<FramingType>Crossarm Steel Single</FramingType>
+						<FramingStartPosition_BPT>6</FramingStartPosition_BPT>
+						<PhaseA_Bracket>5'-4&quot; STL Xarm</PhaseA_Bracket>
+						<PhaseA_BracketAttach>6</PhaseA_BracketAttach>
+						<PhaseA_Insulator>35KV Suspension Polymer-DE</PhaseA_Insulator>
+						<PhaseA_ConductorAttach>6</PhaseA_ConductorAttach>
+						<PhaseA_ConductorOffset>29</PhaseA_ConductorOffset>
+						<PhaseB_Bracket>5'-4&quot; STL Xarm</PhaseB_Bracket>
+						<PhaseB_BracketAttach>6</PhaseB_BracketAttach>
+						<PhaseB_Insulator>35KV Suspension Polymer-DE</PhaseB_Insulator>
+						<PhaseB_ConductorAttach>6</PhaseB_ConductorAttach>
+						<PhaseB_ConductorOffset>0</PhaseB_ConductorOffset>
+						<PhaseC_Bracket>5'-4&quot; STL Xarm</PhaseC_Bracket>
+						<PhaseC_BracketAttach>6</PhaseC_BracketAttach>
+						<PhaseC_Insulator>35KV Suspension Polymer-DE</PhaseC_Insulator>
+						<PhaseC_ConductorAttach>6</PhaseC_ConductorAttach>
+						<PhaseC_ConductorOffset>-29</PhaseC_ConductorOffset>
+					</Primary>
+					<Neutral>
+						<Conductor>2 AAAC (7)</Conductor>
+						<RulingSpan>250</RulingSpan>
+						<Framing/>
+						<FramingStartPosition_BPT>0</FramingStartPosition_BPT>
+						<Neutral_Bracket>Yoke</Neutral_Bracket>
+						<Neutral_BracketAttach>136</Neutral_BracketAttach>
+						<Neutral_Insulator>Deadend Clamp</Neutral_Insulator>
+						<Neutral_ConductorAttach>136</Neutral_ConductorAttach>
+						<Neutral_ConductorOffset>0</Neutral_ConductorOffset>
+					</Neutral>
+				</Circuit>
+			</Power>
+			<Communication>
+				<NoCATVAttachments>0</NoCATVAttachments>
+				<NoTELCOAttachments>0</NoTELCOAttachments>
+			</Communication>
+		</Span>
+	</Spans>
+	<Equipments>
+		<Equipment>
+			<Description>3Ø RISER / CO / LA ASSEMBLY</Description>
+			<Type>3Ø RISER / CO / LA ASSEMBLY</Type>
+			<Attachment>34</Attachment>
+			<Bearing>77°</Bearing>
+		</Equipment>
+		<EquipmentQuantity>1</EquipmentQuantity>
+	</Equipments>
+	<Anchors>
+		<Anchor>
+			<LeadLength>23'</LeadLength>
+			<Bearing>260°</Bearing>
+			<RodSize>None</RodSize>
+			<AnchorType>None</AnchorType>
+			<SoilType>None</SoilType>
+			<GuyWires>
+				<GuyWire>
+					<Diameter>7/16&quot; EHS</Diameter>
+					<Attachment>60</Attachment>
+				</GuyWire>
+			</GuyWires>
+		</Anchor>
+		<AnchorQuantity>1</AnchorQuantity>
+	</Anchors>
+	<Lights>
+		<LightQuantity>0</LightQuantity>
+	</Lights>
+	<Risers>
+		<Riser>
+			<Type>SHIELD 4&quot;</Type>
+			<Height>23</Height>
+			<Diameter>4</Diameter>
+			<Bearing>350°</Bearing>
+		</Riser>
+		<RiserQuantity>1</RiserQuantity>
+	</Risers>
+	<Services>
+		<Service>
+			<Length>26</Length>
+			<Bearing>179°</Bearing>
+			<PowerServiceDrop/>
+			<PowerServiceDropAttach>0</PowerServiceDropAttach>
+			<TelcoServiceDrop>6x24 ADP NMS 0.38&quot;</TelcoServiceDrop>
+			<TelcoServiceDropAttach>229</TelcoServiceDropAttach>
+			<CATVServiceDrop/>
+			<CATVServiceDropAttach>0</CATVServiceDropAttach>
+		</Service>
+		<Service>
+			<Length>26</Length>
+			<Bearing>179°</Bearing>
+			<PowerServiceDrop>None</PowerServiceDrop>
+			<PowerServiceDropAttach>0</PowerServiceDropAttach>
+			<TelcoServiceDrop>6x24 ADP NMS 0.38&quot;</TelcoServiceDrop>
+			<TelcoServiceDropAttach>222</TelcoServiceDropAttach>
+			<CATVServiceDrop>None</CATVServiceDrop>
+			<CATVServiceDropAttach>0</CATVServiceDropAttach>
+		</Service>
+		<Service>
+			<Length>30</Length>
+			<Bearing>77°</Bearing>
+			<PowerServiceDrop>None</PowerServiceDrop>
+			<PowerServiceDropAttach>0</PowerServiceDropAttach>
+			<TelcoServiceDrop>None</TelcoServiceDrop>
+			<TelcoServiceDropAttach>0</TelcoServiceDropAttach>
+			<CATVServiceDrop>F660BVM Coax 0.38&quot;</CATVServiceDrop>
+			<CATVServiceDropAttach>229</CATVServiceDropAttach>
+		</Service>
+		<Service>
+			<Length>30</Length>
+			<Bearing>77°</Bearing>
+			<PowerServiceDrop>None</PowerServiceDrop>
+			<PowerServiceDropAttach>0</PowerServiceDropAttach>
+			<TelcoServiceDrop>6x24 ADP NMS 0.38&quot;</TelcoServiceDrop>
+			<TelcoServiceDropAttach>222</TelcoServiceDropAttach>
+			<CATVServiceDrop>None</CATVServiceDrop>
+			<CATVServiceDropAttach>229</CATVServiceDropAttach>
+		</Service>
+		<Service>
+			<Length>30</Length>
+			<Bearing>77°</Bearing>
+			<PowerServiceDrop>None</PowerServiceDrop>
+			<PowerServiceDropAttach>0</PowerServiceDropAttach>
+			<TelcoServiceDrop>6x24 ADP NMS 0.38&quot;</TelcoServiceDrop>
+			<TelcoServiceDropAttach>222</TelcoServiceDropAttach>
+			<CATVServiceDrop>None</CATVServiceDrop>
+			<CATVServiceDropAttach>0</CATVServiceDropAttach>
+		</Service>
+		<Service>
+			<Length>30</Length>
+			<Bearing>77°</Bearing>
+			<PowerServiceDrop>None</PowerServiceDrop>
+			<PowerServiceDropAttach>0</PowerServiceDropAttach>
+			<TelcoServiceDrop>None</TelcoServiceDrop>
+			<TelcoServiceDropAttach>0</TelcoServiceDropAttach>
+			<CATVServiceDrop>F660BVM Coax 0.38&quot;</CATVServiceDrop>
+			<CATVServiceDropAttach>229</CATVServiceDropAttach>
+		</Service>
+		<Service>
+			<Length>30</Length>
+			<Bearing>77°</Bearing>
+			<PowerServiceDrop>None</PowerServiceDrop>
+			<PowerServiceDropAttach>0</PowerServiceDropAttach>
+			<TelcoServiceDrop>None</TelcoServiceDrop>
+			<TelcoServiceDropAttach>0</TelcoServiceDropAttach>
+			<CATVServiceDrop>F660BVM Coax 0.38&quot;</CATVServiceDrop>
+			<CATVServiceDropAttach>229</CATVServiceDropAttach>
+		</Service>
+		<Service>
+			<Length>30</Length>
+			<Bearing>77°</Bearing>
+			<PowerServiceDrop>None</PowerServiceDrop>
+			<PowerServiceDropAttach>0</PowerServiceDropAttach>
+			<TelcoServiceDrop>6x24 ADP NMS 0.38&quot;</TelcoServiceDrop>
+			<TelcoServiceDropAttach>222</TelcoServiceDropAttach>
+			<CATVServiceDrop>None</CATVServiceDrop>
+			<CATVServiceDropAttach>229</CATVServiceDropAttach>
+		</Service>
+		<ServiceDropQuantity>8</ServiceDropQuantity>
+	</Services>
+	<Components>
+		<Brackets>Pass</Brackets>
+		<Insulators>Pass</Insulators>
+		<Anchors>Pass</Anchors>
+		<Down_Guys>Pass</Down_Guys>
+	</Components>
+</PoleForeman>

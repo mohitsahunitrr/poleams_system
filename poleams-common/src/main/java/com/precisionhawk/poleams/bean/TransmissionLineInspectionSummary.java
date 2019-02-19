@@ -13,6 +13,10 @@ import java.util.Map;
 @Schema(description="A summary of a transmission line inspection")
 public class TransmissionLineInspectionSummary extends TransmissionLineInspection {
 
+    //FIXME: nly feederInspection summaries contain a property for inspectionFlightVideos which is an array ...
+    // it is missing under transmissionLineInspection summary.  Also transmissionLineInspection summary should
+    // have a summaryReportDownloadURL but does not (both these properties are currently hard coded in dev).
+    
     public TransmissionLineInspectionSummary() {
     }
 

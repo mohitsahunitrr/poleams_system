@@ -244,8 +244,9 @@ class PoleForemanDocumentHandler extends AbstractDocumentHandler {
                 equipIndex = -2; // We should only see this collection once.  -2 signifies having completed this collection already.
                 break;
             case TAG_HEIGHT:
-                checkNotNullAtEndTag(localName, commCable);
-                commCable.setHeight(floatFromBuffer());
+                if (commCable != null) {
+                    commCable.setHeight(floatFromBuffer());
+                } //TODO: Risers can also have Height
                 break;
             case TAG_LIGHT:
                 checkNotNullAtEndTag(localName, light);
