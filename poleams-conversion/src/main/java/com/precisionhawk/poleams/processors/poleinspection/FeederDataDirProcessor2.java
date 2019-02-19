@@ -179,9 +179,11 @@ public class FeederDataDirProcessor2 {
                         String[] parts = f.getName().split("_");
                         String subStationName = parts[0];
                         String feederNum = parts[1];
-                        parts = parts[3].split("\\.");
-                        String datePart = "20" + parts[0];
-                        inspectionDate = LocalDate.parse(datePart, DATE_FORMAT);
+//                        if ()
+//                        parts = parts[3].split("\\.");
+//                        String datePart = "20" + parts[0];
+//                        inspectionDate = LocalDate.parse(datePart, DATE_FORMAT);
+                        inspectionDate = LocalDate.now();
                         if (!ensureFeeder(svcs, data, listener, feederNum, subStationName)) return false;
                     }
                     fplId = record.get(COL_FPLID);
