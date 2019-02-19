@@ -237,7 +237,7 @@ public class FeederDataDirProcessor2 {
                     try {
                         ImageFormat format = Imaging.guessFormat(f);
                         if (ImageFormat.IMAGE_FORMAT_UNKNOWN.equals(format)) {
-                            if (f.getName().endsWith("_C.xml")) {
+                            if (f.getName().endsWith("C.xml")) {
                                 // PoleForman XML
                                 PoleForemanXMLProcessor.process(listener, pole, insp, f);
                                 addNonImageResource(svcs, data, data.getFeederInspection(), insp, ResourceTypes.PoleInspectionAnalysisXML, f, "application/xml");
