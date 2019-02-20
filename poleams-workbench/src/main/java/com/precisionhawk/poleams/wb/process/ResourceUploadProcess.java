@@ -453,7 +453,8 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                     }
                 }
 
-                if (ImageUtilities.ImageType.fromContentType(rmeta.getContentType()) != null) {
+                Object t = ImageUtilities.ImageType.fromContentType(rmeta.getContentType());
+                if (t != null) {
                     ImageInfo info = Imaging.getImageInfo(f);
                     TiffImageMetadata exif;
                     IImageMetadata metadata = Imaging.getMetadata(f);

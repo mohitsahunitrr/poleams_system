@@ -9,7 +9,6 @@ import com.precisionhawk.ams.domain.AssetInspectionType;
 import com.precisionhawk.ams.domain.ResourceMetadata;
 import com.precisionhawk.ams.domain.ResourceStatus;
 import com.precisionhawk.ams.domain.ResourceType;
-import com.precisionhawk.ams.domain.SiteInspection;
 import com.precisionhawk.ams.domain.SiteInspectionStatus;
 import com.precisionhawk.ams.domain.SiteInspectionType;
 import com.precisionhawk.ams.domain.WorkOrder;
@@ -26,7 +25,6 @@ import com.precisionhawk.poleams.domain.FeederInspection;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.ResourceTypes;
-import com.precisionhawk.poleams.domain.WorkOrderTypes;
 import com.precisionhawk.poleams.processors.DataImportUtilities;
 import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.ProcessListener;
@@ -73,9 +71,9 @@ import org.papernapkin.liana.util.StringUtil;
 public class FeederDataDirProcessor2 {
     
     private static final int COL_FPLID = 5;
-    private static final int COL_SEQ = 7;
+    private static final int COL_SEQ = 6;
+    private static final int COL_LON = 7;
     private static final int COL_LAT = 8;
-    private static final int COL_LON = 9;
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     private static final FileFilter DIR_FILTER = new FileFilter() {
@@ -88,7 +86,8 @@ public class FeederDataDirProcessor2 {
     private static final FilenameFilter CSV_FILE_FILTER = new FilenameFilter() {
         @Override
         public boolean accept(File dir, String name) {
-            return name.toLowerCase().endsWith(".csv");
+//            return name.toLowerCase().endsWith(".csv");
+            return "SEABOARD_803634_Poles_FINAL.csv".equals(name); //TODO: FixMe
         }
     };
     
@@ -217,7 +216,15 @@ public class FeederDataDirProcessor2 {
                         p.getAttributes().put("Sequence", seq);
                     }
                     if (lat != null && lon != null) {
-                        GeoPoint loc = new GeoPoint();
+                        if ((lat != null && (lat < 25.0 || lat >= 26.0)) || (lon != null && (lon <= -81.0 || lon > -80.0))) {
+                            listener.reportMessage("BAD DATA! Break here!");
+                        }
+                        GeoPoint loc;
+                        if (p.getLocation() != null) {
+                            loc = p.getLocation();
+                        } else {
+                            loc = new GeoPoint();
+                        }
                         loc.setLatitude(lat.doubleValue());
                         loc.setLongitude(lon.doubleValue());
                         p.setLocation(loc);
@@ -345,6 +352,8 @@ public class FeederDataDirProcessor2 {
             sinsp.setSiteId(siparams.getSiteId());
             sinsp.setStatus(new SiteInspectionStatus("Processed"));
             sinsp.setType(new SiteInspectionType(data.getWorkOrder().getType().getValue()));
+            //FIXME: Remove this
+            sinsp.setVegitationEncroachmentGoogleEarthURL("https://drive.google.com/open?id=19GtK3NykNxcE9KdAiE_aTXoXPkm5o-Ij&usp=sharing");
             data.getDomainObjectIsNew().put(sinsp.getId(), false);
         } else {
             data.getDomainObjectIsNew().put(sinsp.getId(), false);
