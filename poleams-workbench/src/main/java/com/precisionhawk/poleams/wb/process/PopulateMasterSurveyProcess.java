@@ -16,6 +16,7 @@ import java.util.Queue;
  */
 public class PopulateMasterSurveyProcess extends ServiceClientCommandProcess {
     
+    private static final String ARG_ALL = "-a";
     private static final String ARG_FEEDER_ID = "-f";
     private static final String ARG_IN_FILE = "-i";
     private static final String ARG_ORDER_NUM = "-n";
@@ -32,12 +33,14 @@ public class PopulateMasterSurveyProcess extends ServiceClientCommandProcess {
             + "\t\t" + ARG_IN_FILE + " path/to/in/file : The path to the master survey report template.\n"
             + "\t\t" + ARG_OUT_FILE + " path/to/out/file : The path to which the survey report should be written, if desired.\n"
             + "\t\t" + ARG_ORDER_NUM + " WorkOrderNumber : The work order number.\n"
-            + "\t\t" + ARG_UPDATE + " Upload the master survey report into the repository.";
+            + "\t\t" + ARG_UPDATE + " Upload the master survey report into the repository."
+            + "\t\t" + ARG_ALL + " Update all fields in the template.";
     
     private String feederId;
     private String inFile;
     private String orderNumber;
     private String outFile;
+    private boolean populateAll = false;
     private boolean uploadIntoRepo = false;
 
     @Override
@@ -54,6 +57,7 @@ public class PopulateMasterSurveyProcess extends ServiceClientCommandProcess {
             }
         } else if (ARG_ORDER_NUM.equals(arg)) {
             if (orderNumber == null) {
+                orderNumber = args.poll();
                 return orderNumber != null;
             } else {
                 return false;
@@ -63,6 +67,13 @@ public class PopulateMasterSurveyProcess extends ServiceClientCommandProcess {
                 outFile = args.poll();
                 return outFile != null;
             }
+        } else if (ARG_ALL.equals(arg)) {
+            if (populateAll) {
+                // Already set once
+                return false;
+            }
+            populateAll = true;
+            return true;
         } else if (ARG_UPDATE.equals(arg)) {
             if (uploadIntoRepo) {
                 // Already set once
@@ -115,7 +126,7 @@ public class PopulateMasterSurveyProcess extends ServiceClientCommandProcess {
                 file = new File(outFile);
             }
             System.out.printf("Updating survey report for feeder %s\n", feederId);
-            boolean success = SurveyReportGenerator.process(env, listener, feederId, orderNumber, new File(inFile), file);
+            boolean success = SurveyReportGenerator.process(env, listener, feederId, orderNumber, new File(inFile), file, populateAll);
             System.out.printf("Import finished with %s\n", (success ? "success" : "errors"));
             if (success && uploadIntoRepo) {
                 ResourceUploadProcess uploadProc = new ResourceUploadProcess(feederId, orderNumber, null, null, ResourceTypes.SurveyReport, true, file.getAbsolutePath(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");

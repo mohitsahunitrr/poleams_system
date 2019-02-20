@@ -30,6 +30,9 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbookFactory;
 import com.precisionhawk.poleams.webservices.FeederWebService;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Populates the Master Survey Template for a substation and related pole and
@@ -39,7 +42,7 @@ import com.precisionhawk.poleams.webservices.FeederWebService;
  */
 public class SurveyReportGenerator implements SurveyReportConstants {
 
-    public static boolean process(Environment env, ProcessListener listener, String feederId, String orderNumber, File inFile, File outFile) {
+    public static boolean process(Environment env, ProcessListener listener, String feederId, String orderNumber, File inFile, File outFile, boolean populateAll) {
         FeederSearchParams params = new FeederSearchParams();
         params.setFeederNumber(feederId);
         FeederWebService svc = env.obtainWebService(FeederWebService.class);
@@ -60,14 +63,14 @@ public class SurveyReportGenerator implements SurveyReportConstants {
                 return false;
             }
             FeederInspectionSummary summary = fisvc.retrieveSummary(env.obtainAccessToken(), fi.getId());
-            return populateTemplate(env, listener, summary, inFile, outFile);
+            return populateTemplate(env, listener, summary, inFile, outFile, populateAll);
         } catch (Throwable t) {
             listener.reportNonFatalException("", t);
             return false;
         }
     }
     
-    public static boolean populateTemplate(Environment env, ProcessListener listener, FeederInspectionSummary summary, File inFile, File outFile) {
+    public static boolean populateTemplate(Environment env, ProcessListener listener, FeederInspectionSummary summary, File inFile, File outFile, boolean populateAll) {
         if (inFile == null) {
             return false;
         }
@@ -93,12 +96,17 @@ public class SurveyReportGenerator implements SurveyReportConstants {
                 return false;
             }
             
-            String feederId = getCellDataAsId(row, FEEDER_NUM.x);
-            if (feederId == null || feederId.isEmpty()) {
-                listener.reportFatalError("Master Survey Template spreadsheet is missing Feeder ID.");
-                return false;
-            } else if (!feederId.equals(summary.getFeederNumber())) {
-                listener.reportFatalError(String.format("Master Survey Template spreadsheet is for the wrong Feeder, \"%s\".", feederId));
+            if (populateAll) {
+                setCellData(row, FEEDER_NUM.x, summary.getFeederNumber());
+                setCellData(row, FEEDER_NAME.x, summary.getName());
+            } else {
+                String feederId = getCellDataAsId(row, FEEDER_NUM.x);
+                if (feederId == null || feederId.isEmpty()) {
+                    listener.reportFatalError("Master Survey Template spreadsheet is missing Feeder ID.");
+                    return false;
+                } else if (!feederId.equals(summary.getFeederNumber())) {
+                    listener.reportFatalError(String.format("Master Survey Template spreadsheet is for the wrong Feeder, \"%s\".", feederId));
+                }
             }
             
             String fplId;
@@ -120,19 +128,46 @@ public class SurveyReportGenerator implements SurveyReportConstants {
                 }
             }            
 
-            boolean processing = true;
-            int rowIndex = FIRST_POLE_ROW;
-            while (processing) {
-                row = sheet.getRow(rowIndex);
-                fplId = getCellDataAsId(row, COL_FPL_ID);
-                if (fplId == null || "X".equals(fplId.toUpperCase())) {
-                    processing = false;
-                } else {
-                    listener.reportMessage(String.format("Processing FPL ID %s", fplId));
-                    pole = summary.getPolesByFPLId().get(fplId);
-                    inspection = summary.getPoleInspectionsByFPLId().get(fplId);
-                    processRow(row, pole, inspection);
+            if (populateAll) {
+                List<PoleSummary> polesSortedBySeq = new ArrayList<>(summary.getPolesByFPLId().values());
+                Collections.sort(polesSortedBySeq, new Comparator<PoleSummary>(){
+                    @Override
+                    public int compare(PoleSummary o1, PoleSummary o2) {
+                        if (o1.getSequence() == null) {
+                            if (o2.getSequence() == null) {
+                                return 0;
+                            } else {
+                                return -1;
+                            }
+                        } else if (o2.getSequence() == null) {
+                            return 1;
+                        } else {
+                            return Integer.compare(o1.getSequence(), o2.getSequence());
+                        }                
+                    }
+                });
+                int rowIndex = FIRST_POLE_ROW;
+                for (PoleSummary ps : polesSortedBySeq) {
+                    inspection = summary.getPoleInspectionsByFPLId().get(ps.getUtilityId());
+                    row = ensureRow(sheet, rowIndex);
+                    processRow(row, ps, inspection, true);
                     rowIndex++;
+                }
+            } else {
+                boolean processing = true;
+                int rowIndex = FIRST_POLE_ROW;
+                while (processing) {
+                    row = sheet.getRow(rowIndex);
+                    fplId = getCellDataAsId(row, COL_FPL_ID);
+                    if (fplId == null || "X".equals(fplId.toUpperCase())) {
+                        processing = false;
+                    } else {
+                        listener.reportMessage(String.format("Processing FPL ID %s", fplId));
+                        pole = summary.getPolesByFPLId().get(fplId);
+                        inspection = summary.getPoleInspectionsByFPLId().get(fplId);
+                        processRow(row, pole, inspection, false);
+                        rowIndex++;
+                    }
                 }
             }
             
@@ -157,10 +192,17 @@ public class SurveyReportGenerator implements SurveyReportConstants {
         }
     }
 
-    private static void processRow(Row row, PoleSummary pole, PoleInspectionSummary inspection) {
+    private static void processRow(Row row, PoleSummary pole, PoleInspectionSummary inspection, boolean populateAll) {
         if (pole != null) {
-            String poleNum = getCellDataAsId(row, COL_POLE_NUM_1);
-            setCellData(row, COL_POLE_NUM_2, poleNum); // Why copy pole num into another column?  IDK
+            if (populateAll) {
+                setCellData(row, COL_FPL_ID, pole.getUtilityId());
+                setCellData(row, COL_POLE_NUM_1, pole.getSequence());
+                if (pole.getLocation() != null) {
+                    setCellData(row, COL_POLE_LAT, pole.getLocation().getLatitude());
+                    setCellData(row, COL_POLE_LON, pole.getLocation().getLongitude());
+                }
+            }
+            setCellData(row, COL_POLE_NUM_2, pole.getSequence()); // Why copy pole num into another column?  IDK
             setCellData(row, COL_POLE_HEIGHT, pole.getLength());
             setCellData(row, COL_POLE_CLASS, pole.getPoleClass());
             setCellData(row, COL_POLE_SPAN_1_FRAMING, pole.getFraming());
@@ -198,7 +240,9 @@ public class SurveyReportGenerator implements SurveyReportConstants {
             PoleAnchor anchor;
             for (int i = 0; i < pole.getAnchors().size() && i < COL_GUY_ASSOC.length; i++) {
                 anchor = pole.getAnchors().get(i);
-                setCellData(row, COL_GUY_ASSOC[i], anchor.getGuyAssc().toString());
+                if (anchor.getGuyAssc() != null) {
+                    setCellData(row, COL_GUY_ASSOC[i], anchor.getGuyAssc().toString());
+                }
                 setCellData(row, COL_GUY_BEARING[i], anchor.getBearing());
                 setCellData(row, COL_GUY_DIAM[i], anchor.getStrandDiameter());
                 setCellData(row, COL_GUY_LEAD_LEN[i], anchor.getLeadLength());

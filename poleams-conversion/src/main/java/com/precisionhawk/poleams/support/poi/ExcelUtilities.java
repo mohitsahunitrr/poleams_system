@@ -15,7 +15,23 @@ import org.apache.poi.ss.usermodel.Sheet;
  */
 public class ExcelUtilities {
     
-    private static final DecimalFormat LONG_INT = new DecimalFormat("########0");    
+    private static final DecimalFormat LONG_INT = new DecimalFormat("########0");
+    
+    public static Row ensureRow(Sheet sheet, int row) {
+        Row r = sheet.getRow(row);
+        if (r == null) {
+            r = sheet.createRow(row);
+        }
+        return r;
+    }
+    
+    public static Cell ensureCell(Row row, int col) {
+        Cell c = row.getCell(col);
+        if (c == null) {
+            c = row.createCell(col);
+        }
+        return c;
+    }
     
     public static Boolean getCellDataAsBoolean(Row row, int col) {
         Cell cell = row.getCell(col);
@@ -257,13 +273,5 @@ public class ExcelUtilities {
             }
             return value == null ? null : String.valueOf(value);
         }
-    }
-    
-    public static Row ensureRow(Sheet sheet, int index) {
-        Row row = sheet.getRow(index);
-        if (row == null) {
-            row = sheet.createRow(index);
-        }
-        return row;
     }
 }

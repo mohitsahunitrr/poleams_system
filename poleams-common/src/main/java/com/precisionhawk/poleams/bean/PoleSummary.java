@@ -4,6 +4,7 @@ import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.poledata.CommunicationsCable;
 import io.swagger.oas.annotations.media.Schema;
 import java.util.List;
+import org.papernapkin.liana.util.StringUtil;
 
 /**
  * A displayable summary of Pole information.
@@ -175,6 +176,14 @@ public class PoleSummary extends Pole {
         this.pullOffFraming = pullOffFraming;
     }
     
+    private Integer sequence;
+    public Integer getSequence() {
+        return sequence;
+    }
+    public void setSequence(Integer sequence) {
+        this.sequence = sequence;
+    }
+    
     @Schema(description="The street light.")
     private String streetLight;
     public String getStreetLight() {
@@ -215,5 +224,9 @@ public class PoleSummary extends Pole {
     
     public PoleSummary(Pole p) {
         populateFrom(p);
+        String str = p.getAttributes().get("Sequence");
+        if (StringUtil.isNumeric(str)) {
+            sequence = Integer.valueOf(str);
+        }
     }
 }

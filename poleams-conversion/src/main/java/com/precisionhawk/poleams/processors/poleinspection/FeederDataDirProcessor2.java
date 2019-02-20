@@ -3,16 +3,22 @@ package com.precisionhawk.poleams.processors.poleinspection;
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.bean.GeoPoint;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
+import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
 import com.precisionhawk.ams.domain.AssetInspectionStatus;
 import com.precisionhawk.ams.domain.AssetInspectionType;
 import com.precisionhawk.ams.domain.ResourceMetadata;
 import com.precisionhawk.ams.domain.ResourceStatus;
 import com.precisionhawk.ams.domain.ResourceType;
+import com.precisionhawk.ams.domain.SiteInspection;
+import com.precisionhawk.ams.domain.SiteInspectionStatus;
+import com.precisionhawk.ams.domain.SiteInspectionType;
 import com.precisionhawk.ams.domain.WorkOrder;
 import com.precisionhawk.ams.domain.WorkOrderStatus;
 import com.precisionhawk.ams.domain.WorkOrderType;
 import com.precisionhawk.ams.util.CollectionsUtilities;
+import com.precisionhawk.ams.webservices.ResourceWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
+import com.precisionhawk.poleams.bean.FeederInspectionSummary;
 import com.precisionhawk.poleams.bean.FeederSearchParams;
 import com.precisionhawk.poleams.bean.PoleSearchParams;
 import com.precisionhawk.poleams.domain.Feeder;
@@ -20,15 +26,20 @@ import com.precisionhawk.poleams.domain.FeederInspection;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.ResourceTypes;
+import com.precisionhawk.poleams.domain.WorkOrderTypes;
 import com.precisionhawk.poleams.processors.DataImportUtilities;
 import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.ProcessListener;
+import com.precisionhawk.poleams.webservices.FeederInspectionWebService;
 import com.precisionhawk.poleams.webservices.client.WSClientHelper;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -62,6 +73,7 @@ import org.papernapkin.liana.util.StringUtil;
 public class FeederDataDirProcessor2 {
     
     private static final int COL_FPLID = 5;
+    private static final int COL_SEQ = 7;
     private static final int COL_LAT = 8;
     private static final int COL_LON = 9;
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
@@ -143,6 +155,7 @@ public class FeederDataDirProcessor2 {
             listener.reportFatalException(ex);
             success = false;
         }
+//        success = success && updateSurveyReport(env, data, listener);
         try {
             success = success && DataImportUtilities.saveResources(svcs, listener, data);
         } catch (IOException ex) {
@@ -159,7 +172,7 @@ public class FeederDataDirProcessor2 {
         Reader in = null;
         Float lat;
         Float lon;
-        String s;
+        String seq;
         LocalDate inspectionDate = null;
         try {
             in = new FileReader(f);
@@ -187,11 +200,21 @@ public class FeederDataDirProcessor2 {
                         if (!ensureFeeder(svcs, data, listener, feederNum, subStationName)) return false;
                     }
                     fplId = record.get(COL_FPLID);
+                    if (fplId != null) {
+                        fplId = fplId.trim();
+                    }
+                    seq = record.get(COL_SEQ);
+                    if (seq != null) {
+                        seq = seq.trim();
+                    }
                     lat = getFloat(listener, record, COL_LAT);
                     lon = getFloat(listener, record, COL_LON);
                     Pole p = ensurePole(svcs, listener, data, fplId, inspectionDate);
                     if (p == null) {
                         return false;
+                    }
+                    if (seq != null && (!seq.isEmpty())) {
+                        p.getAttributes().put("Sequence", seq);
                     }
                     if (lat != null && lon != null) {
                         GeoPoint loc = new GeoPoint();
@@ -230,7 +253,9 @@ public class FeederDataDirProcessor2 {
             listener.reportFatalException(ex);
             return false;
         }
-        pole.getAttributes().put("Sequence", seqStr);
+        if (!pole.getAttributes().containsKey("Sequence") && seqStr != null && (!seqStr.isEmpty())) {
+            pole.getAttributes().put("Sequence", seqStr);
+        }
         for (File f : dir.listFiles()) {
             if (f.isFile()) {
                 if (f.canRead()) {
@@ -307,6 +332,25 @@ public class FeederDataDirProcessor2 {
         if (!found) {
             data.getWorkOrder().getSiteIds().add(f.getId());
         }
+        
+        SiteInspectionSearchParams siparams = new SiteInspectionSearchParams();
+        siparams.setSiteId(f.getId());
+        siparams.setOrderNumber(data.getWorkOrder().getOrderNumber());
+        FeederInspection sinsp = CollectionsUtilities.firstItemIn(svcs.feederInspections().search(svcs.token(), siparams));
+        if (sinsp == null) {
+            sinsp = new FeederInspection();
+            sinsp.setDateOfInspection(LocalDate.now());
+            sinsp.setId(UUID.randomUUID().toString());
+            sinsp.setOrderNumber(data.getWorkOrder().getOrderNumber());
+            sinsp.setSiteId(siparams.getSiteId());
+            sinsp.setStatus(new SiteInspectionStatus("Processed"));
+            sinsp.setType(new SiteInspectionType(data.getWorkOrder().getType().getValue()));
+            data.getDomainObjectIsNew().put(sinsp.getId(), false);
+        } else {
+            data.getDomainObjectIsNew().put(sinsp.getId(), false);
+        }
+        data.setFeederInspection(sinsp);
+        
         data.setFeeder(f);
         return true;
     }
@@ -356,6 +400,7 @@ public class FeederDataDirProcessor2 {
                 insp.setId(UUID.randomUUID().toString());
                 insp.setOrderNumber(data.getOrderNumber());
                 insp.setSiteId(data.getFeeder().getId());
+                insp.setSiteInspectionId(data.getFeederInspection().getId());
                 insp.setStatus(new AssetInspectionStatus("Processed"));
                 insp.setType(new AssetInspectionType("DistributionLineInspection"));
                 data.addPoleInspection(pole, insp, true);
@@ -424,5 +469,55 @@ public class FeederDataDirProcessor2 {
         } else {
             data.addResourceMetadata(rmeta, file, false);
         }
+    }
+
+    private static final String SURVEY_REPORT_TEMPLATE = "com/precisionhawk/poleams/processors/poleinspection/Survey_Report_Template.xlsx";
+    
+    private static boolean updateSurveyReport(Environment env, InspectionData data, ProcessListener listener) {
+        try {
+            File outFile = File.createTempFile(data.getFeeder().getFeederNumber(), "surveyrptout");
+            InputStream is = null;
+            OutputStream os = null;
+            try {
+                is = FeederDataDirProcessor2.class.getClassLoader().getResourceAsStream(SURVEY_REPORT_TEMPLATE);
+                os = new FileOutputStream(outFile);
+                org.apache.commons.io.IOUtils.copy(is, os);
+            } finally {
+                org.apache.commons.io.IOUtils.closeQuietly(is);
+                org.apache.commons.io.IOUtils.closeQuietly(os);
+            }
+            FeederInspectionSummary summary = env.obtainWebService(FeederInspectionWebService.class).retrieveSummary(env.obtainAccessToken(), data.getFeederInspection().getId());
+            boolean success = SurveyReportGenerator.populateTemplate(env, listener, summary, outFile, outFile, true);
+            // Set up to upload temp file
+            if (success) {
+                ResourceWebService svc = env.obtainWebService(ResourceWebService.class);
+                ResourceSearchParams params = new ResourceSearchParams();
+                params.setOrderNumber(data.getOrderNumber());
+                params.setSiteId(data.getFeederInspection().getSiteId());
+                params.setSiteInspectionId(data.getFeederInspection().getId());
+                params.setType(ResourceTypes.SurveyReport);
+                ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(svc.search(env.obtainAccessToken(), params));
+                if (rmeta == null) {
+                    rmeta = new ResourceMetadata();
+                    rmeta.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                    rmeta.setName(String.format("%s-%s_Survey_Report.xlsx", data.getFeeder().getName(), data.getFeeder().getFeederNumber()));
+                    rmeta.setOrderNumber(params.getOrderNumber());
+                    rmeta.setResourceId(UUID.randomUUID().toString());
+                    rmeta.setStatus(ResourceStatus.QueuedForUpload);
+                    rmeta.setSiteId(params.getSiteId());
+                    rmeta.setSiteInspectionId(params.getSiteInspectionId());
+                    rmeta.setTimestamp(ZonedDateTime.now());
+                    rmeta.setType(params.getType());
+                    data.addResourceMetadata(rmeta, outFile, true);
+                } else {
+                    rmeta.setStatus(ResourceStatus.QueuedForUpload);
+                    data.addResourceMetadata(rmeta, outFile, false);
+                }
+            }
+        } catch (IOException ioe) {
+            listener.reportNonFatalException("Error creating temporary file for updated Survey Report", ioe);
+        }
+
+        return true;
     }
 }

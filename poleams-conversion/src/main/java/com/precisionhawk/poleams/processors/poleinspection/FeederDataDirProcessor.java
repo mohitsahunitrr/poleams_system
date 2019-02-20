@@ -272,7 +272,7 @@ public final class FeederDataDirProcessor implements Constants {
             }
             // Populate summary into 2nd temp file
             FeederInspectionSummary summary = env.obtainWebService(FeederInspectionWebService.class).retrieveSummary(env.obtainAccessToken(), data.getFeederInspection().getId());
-            boolean success = SurveyReportGenerator.populateTemplate(env, listener, summary, inFile, outFile);
+            boolean success = SurveyReportGenerator.populateTemplate(env, listener, summary, inFile, outFile, false);
             // Set up to upload temp file
             if (success) {
                 ResourceWebService svc = env.obtainWebService(ResourceWebService.class);
