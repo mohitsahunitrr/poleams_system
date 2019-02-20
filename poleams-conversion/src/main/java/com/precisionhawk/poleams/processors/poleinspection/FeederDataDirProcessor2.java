@@ -354,7 +354,7 @@ public class FeederDataDirProcessor2 {
             sinsp.setType(new SiteInspectionType(data.getWorkOrder().getType().getValue()));
             //FIXME: Remove this
             sinsp.setVegitationEncroachmentGoogleEarthURL("https://drive.google.com/open?id=19GtK3NykNxcE9KdAiE_aTXoXPkm5o-Ij&usp=sharing");
-            data.getDomainObjectIsNew().put(sinsp.getId(), false);
+            data.getDomainObjectIsNew().put(sinsp.getId(), true);
         } else {
             data.getDomainObjectIsNew().put(sinsp.getId(), false);
         }
