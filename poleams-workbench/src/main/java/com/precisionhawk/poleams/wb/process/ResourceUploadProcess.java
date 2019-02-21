@@ -453,8 +453,7 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                     }
                 }
 
-                Object t = ImageUtilities.ImageType.fromContentType(rmeta.getContentType());
-                if (t != null) {
+                if (contentType.startsWith("image/") && ImageUtilities.ImageType.fromContentType(rmeta.getContentType()) != null) {
                     ImageInfo info = Imaging.getImageInfo(f);
                     TiffImageMetadata exif;
                     IImageMetadata metadata = Imaging.getMetadata(f);
@@ -482,7 +481,8 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                 }
                 
                 if (
-                        ImageUtilities.ImageType.fromContentType(rmeta.getContentType()) != null
+                        contentType.startsWith("image/")
+                        && ImageUtilities.ImageType.fromContentType(rmeta.getContentType()) != null
                         && rmeta.getSize() != null
                         && rmeta.getSize().getWidth() > SCALE_WIDTH
                     )
