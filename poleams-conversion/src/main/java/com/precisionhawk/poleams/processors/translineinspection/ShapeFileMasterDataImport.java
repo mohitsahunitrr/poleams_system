@@ -28,6 +28,7 @@ import com.precisionhawk.poleams.processors.DataImportUtilities;
 import com.precisionhawk.poleams.processors.FilenameFilters;
 import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.ProcessListener;
+import com.precisionhawk.poleams.processors.SiteAssetKey;
 import com.precisionhawk.poleams.webservices.ResourceWebService;
 import com.precisionhawk.poleams.webservices.client.WSClientHelper;
 import java.io.BufferedInputStream;
@@ -269,7 +270,7 @@ public class ShapeFileMasterDataImport implements MasterDataImporter {
             listener.reportNonFatalError(String.format("Invalid image name %s", f.getName()));
             return;
         }
-        TransmissionStructure struct = data.getStructuresMap().get(parts[0]);
+        TransmissionStructure struct = data.getStructuresMap().get(new SiteAssetKey(data.getCurrentLine().getId() ,parts[0]));
         if (struct == null) {
             listener.reportNonFatalError(String.format("Unable to locate structure %s for image %s", parts[0], f.getName()));
             return;
@@ -306,7 +307,7 @@ public class ShapeFileMasterDataImport implements MasterDataImporter {
 //                rmeta.setPosition(pos);
 //            }
             rmeta.setAssetId(struct.getId());
-            rmeta.setAssetInspectionId(data.getStructureInspectionsMap().get(struct.getStructureNumber()).getId());
+            rmeta.setAssetInspectionId(data.getStructureInspectionsMap().get(new SiteAssetKey(struct)).getId());
             rmeta.setSize(ImageUtilities.getSize(info));
             rmeta.setStatus(ResourceStatus.QueuedForUpload);
             rmeta.setSiteId(data.getCurrentLine().getId());

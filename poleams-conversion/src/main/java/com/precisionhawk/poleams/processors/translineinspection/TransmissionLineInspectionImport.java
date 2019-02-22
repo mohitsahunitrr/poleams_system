@@ -26,6 +26,7 @@ import com.precisionhawk.poleams.processors.DataImportUtilities;
 import com.precisionhawk.poleams.processors.FilenameFilters;
 import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.ProcessListener;
+import com.precisionhawk.poleams.processors.SiteAssetKey;
 import static com.precisionhawk.poleams.support.poi.ExcelUtilities.*;
 import com.precisionhawk.poleams.webservices.ResourceWebService;
 import com.precisionhawk.poleams.webservices.client.WSClientHelper;
@@ -356,7 +357,7 @@ public final class TransmissionLineInspectionImport {
                 rmeta.setPosition(pos);
             }
             rmeta.setAssetId(struct.getId());
-            rmeta.setAssetInspectionId(data.getStructureInspectionsMap().get(struct.getStructureNumber()).getId());
+            rmeta.setAssetInspectionId(data.getStructureInspectionsMap().get(new SiteAssetKey(struct)).getId());
             rmeta.setSize(ImageUtilities.getSize(info));
             rmeta.setStatus(ResourceStatus.QueuedForUpload);
             rmeta.setSiteId(data.getCurrentLine().getId());

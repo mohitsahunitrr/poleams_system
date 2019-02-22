@@ -12,6 +12,7 @@ import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.ams.webservices.ResourceWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
+import com.precisionhawk.poleams.processors.SiteAssetKey;
 import java.io.File;
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -65,13 +66,13 @@ final class PoleDataProcessor {
                     String fname = f.getName().toUpperCase();
                     params = new ResourceSearchParams();
                     params.setAssetId(p.getId());
-                    params.setAssetInspectionId(data.getPoleInspectionsMap().get(p.getUtilityId()).getId());
+                    params.setAssetInspectionId(data.getPoleInspectionsMap().get(new SiteAssetKey(p)).getId());
                     if (fname.endsWith("_250C.XML")) {
                         // We have the PoleForeman data file.
-                        PoleForemanXMLProcessor.process(listener, p, data.getPoleInspectionsMap().get(p.getUtilityId()), f);
+                        PoleForemanXMLProcessor.process(listener, p, data.getPoleInspectionsMap().get(new SiteAssetKey(p)), f);
                         params = new ResourceSearchParams();
                         params.setAssetId(p.getId());
-                        params.setAssetInspectionId(data.getPoleInspectionsMap().get(p.getUtilityId()).getId());
+                        params.setAssetInspectionId(data.getPoleInspectionsMap().get(new SiteAssetKey(p)).getId());
                         params.setType(ResourceTypes.PoleInspectionAnalysisXML);
                         rmeta = CollectionsUtilities.firstItemIn(rsvc.search(env.obtainAccessToken(), params));
                         if (rmeta == null) {
@@ -111,7 +112,7 @@ final class PoleDataProcessor {
             return null;
         } else {
             String fplid = pfFile.getName().split("_")[0];
-            Pole p = data.getPolesMap().get(fplid);
+            Pole p = data.getPolesMap().get(new SiteAssetKey(data.getCurrentFeeder().getId(), fplid));
             if (p == null) {
                 PoleSearchParams params = new PoleSearchParams();
                 params.setSiteId(data.getCurrentFeeder().getId());
