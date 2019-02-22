@@ -351,6 +351,7 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                     }
                     
                     ResourceSearchParams params = new ResourceSearchParams();
+                    params.setType(resourceType);
                     Class<?> clazz = ResourceTypes.relatedTo(resourceType);
                     if (AssetInspection.class == clazz) {
                         AssetInspection insp = poleInspection;

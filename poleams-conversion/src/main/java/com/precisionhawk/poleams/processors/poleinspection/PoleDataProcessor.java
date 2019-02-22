@@ -114,7 +114,7 @@ final class PoleDataProcessor {
             Pole p = data.getPoleDataByFPLId().get(fplid);
             if (p == null) {
                 PoleSearchParams params = new PoleSearchParams();
-                params.setSiteId(data.getFeeder().getId());
+                params.setSiteId(data.getCurrentFeeder().getId());
                 params.setUtilityId(fplid);
                 try {
                     p = CollectionsUtilities.firstItemIn(env.obtainWebService(PoleWebService.class).search(env.obtainAccessToken(), params));
@@ -135,12 +135,12 @@ final class PoleDataProcessor {
         ResourceMetadata rmeta = new ResourceMetadata();
         rmeta.setContentType(contentType);
         rmeta.setName(f.getName());
-        rmeta.setOrderNumber(data.getOrderNumber());
+        rmeta.setOrderNumber(data.getCurrentOrderNumber());
         rmeta.setAssetId(params.getAssetId());
         rmeta.setAssetInspectionId(params.getAssetInspectionId());
         rmeta.setResourceId(UUID.randomUUID().toString());
         rmeta.setStatus(ResourceStatus.QueuedForUpload);
-        rmeta.setSiteId(data.getFeeder().getId());
+        rmeta.setSiteId(data.getCurrentFeeder().getId());
         rmeta.setTimestamp(ZonedDateTime.now());
         rmeta.setType(params.getType());
         return rmeta;

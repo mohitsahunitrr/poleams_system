@@ -9,6 +9,7 @@ import com.precisionhawk.ams.domain.AssetInspectionType;
 import com.precisionhawk.ams.domain.SiteInspectionStatus;
 import com.precisionhawk.ams.domain.SiteInspectionType;
 import com.precisionhawk.ams.domain.WorkOrder;
+import com.precisionhawk.ams.domain.WorkOrderType;
 import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.bean.FeederSearchParams;
@@ -25,12 +26,18 @@ import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.poleams.webservices.client.WSClientHelper;
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.UUID;
 import javax.ws.rs.core.Response.Status;
+import org.apache.commons.imaging.ImageFormat;
+import org.apache.commons.imaging.ImageReadException;
+import org.apache.commons.imaging.Imaging;
 import org.apache.commons.io.IOUtils;
 import org.jboss.resteasy.client.ClientResponseFailure;
 import org.papernapkin.liana.xml.sax.AbstractDocumentHandler;
@@ -44,27 +51,118 @@ import org.xml.sax.helpers.XMLReaderFactory;
  *
  * @author pchapman
  */
-public class ShapeFileMasterDataImport implements MasterDataImporter {
+public class PPLInspectionDataImport {
     
     private WSClientHelper svcs;
     private final InspectionData data = new InspectionData();
     private ProcessListener listener;
     
-    @Override
-    public boolean process(Environment env, ProcessListener listener, File poleDataShapeFile, String orderNum, String organizationId) {
+    class FeederDirFileFilter implements FilenameFilter {
+        Map<String, Feeder> feedersByFeederNum;
+        FeederDirFileFilter(Map<String, Feeder> feedersByFeederNum) {
+            this.feedersByFeederNum = feedersByFeederNum;
+        }
+        @Override
+        public boolean accept(File dir, String name) {
+            File f = new File(dir, name);
+            return f.isDirectory() && feedersByFeederNum.containsKey(name);
+        }
+    };
+    private final FilenameFilter DRONE_IMAGE_FILE_FILTER = new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+            name = name.toLowerCase();
+            return name.contains("rgb") && name.endsWith(".jpg");
+        }
+    };
+    private final FilenameFilter KML_FILE_FILTER = new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+            return name.toLowerCase().endsWith(".kml");
+        }
+    };
+    private final FilenameFilter MANUAL_IMAGE_FILE_FILTER = new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+            return false;
+        }
+    };
+    private final FilenameFilter POLE_IMAGES_FILE_FILTER = new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+            File f = new File(dir, name);
+            return f.isDirectory() && name.contains("_Pole");
+        }
+    };
+    private final FilenameFilter THERM_IMAGE_FILE_FILTER = new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+            name = name.toLowerCase();
+            return name.contains("thermal") && name.endsWith(".jpg");
+        }
+    };
+    
+    public boolean process(Environment env, ProcessListener listener, String orderNum, String organizationId, File importDir) {
         this.listener = listener;
         svcs = new WSClientHelper(env);
         InputStream is = null;
         data.setOrganizationId(organizationId);
         data.setCurrentOrderNumber(orderNum);
-        try {            
+        try {
+            boolean success = DataImportUtilities.ensureWorkOrder(svcs, data, listener, WorkOrderTypes.DistributionLineInspection);
+            if (!success) {
+                return success;
+            }
+            
             // Parse the shape file (KML)
-            ShapeFileDocumentHandler handler = new ShapeFileDocumentHandler();
-            is = new BufferedInputStream(new FileInputStream(poleDataShapeFile));
+            File[] poleDataShapeFiles = importDir.listFiles(KML_FILE_FILTER);
+            if (poleDataShapeFiles.length == 0) {
+                listener.reportFatalError(String.format("No KML files found in %s", importDir.getAbsolutePath()));
+                return false;
+            } else if (poleDataShapeFiles.length > 1) {
+                listener.reportFatalError(String.format("Multiple KML files found in %s", importDir.getAbsolutePath()));
+                return false;
+            }
+            ShapeFileDocumentHandler handler = new ShapeFileDocumentHandler(svcs, listener);
+            is = new BufferedInputStream(new FileInputStream(poleDataShapeFiles[0]));
             XMLReader xr = XMLReaderFactory.createXMLReader();
             xr.setContentHandler(handler);
             xr.parse(new InputSource(is));
-            boolean success = true;
+            
+            // Locate and process images for the poles
+            File polesDir;
+            ImagesProcessor imagesProcessor = new ImagesProcessor();
+            imagesProcessor.setDroneImageFilter(DRONE_IMAGE_FILE_FILTER);
+            imagesProcessor.setManualImageFilter(MANUAL_IMAGE_FILE_FILTER);
+            imagesProcessor.setThermalImageFilter(THERM_IMAGE_FILE_FILTER);
+            for (File feederDir : importDir.listFiles(new FeederDirFileFilter(data.getFeedersByFeederNum()))) {
+                DataImportUtilities.ensureFeeder(svcs, data, listener, feederDir.getName(), feederDir.getName());
+                polesDir = new File(feederDir, "Poles");
+                if (polesDir.isDirectory()) {
+                    // Process each directory which should be associated with a pole with name {feedername}_Pole{polenumber}
+                    for (File imagesDir : polesDir.listFiles(POLE_IMAGES_FILE_FILTER)) {
+                        String poleNumStr = imagesDir.getName().split("_")[1].replace("Pole", "");
+                        Integer poleNum = Integer.valueOf(poleNumStr); // an alternative could be to remove left padded zeros.
+                        Pole p = DataImportUtilities.ensurePole(svcs, listener, data, poleNum.toString(), LocalDate.now());
+                        for (File f : imagesDir.listFiles()) {
+                            if (f.isFile()) {
+                                try {
+                                    ImageFormat format = Imaging.guessFormat(f);
+                                    if (ImageFormat.IMAGE_FORMAT_UNKNOWN.equals(format)) {
+                                        listener.reportMessage(String.format("Skipping unexpected file %s", f.getName()));
+                                    } else {
+                                        imagesProcessor.process(env, listener, data, p, f, format);
+                                    }
+                                } catch (ImageReadException ex) {
+                                    listener.reportNonFatalError(String.format("Unable to determine type or read the metadata of file %s, it will be skipped", f.getName()));
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    listener.reportMessage(String.format("Unable to find valid \"Poles\" directory in %s", feederDir.getAbsolutePath()));
+                }
+            }
             
             if (success) {
                 listener.reportMessage("Saving data...");
@@ -210,19 +308,32 @@ public class ShapeFileMasterDataImport implements MasterDataImporter {
     }
     
     private static final String TAG_COORDS = "coordinates";
+    private static final String TAG_DESC = "description";
     private static final String TAG_FOLDER = "Folder";
     private static final String TAG_NAME = "name";
     private static final String TAG_PLACEMARK = "Placemark";
     
     class ShapeFileDocumentHandler extends AbstractDocumentHandler {
         private Feeder currentFeeder;
+        private String feederName;
         private boolean inFolder = false;
+        private boolean inPlacemark = false;
+        private final ProcessListener listener;
         private GeoPoint poleLocation;
+        private final WSClientHelper svcs;
         private String utilityId;
+        
+        ShapeFileDocumentHandler(WSClientHelper svcs, ProcessListener listener) {
+            this.listener = listener;
+            this.svcs = svcs;
+        }
 
         @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
             switch (qName) {
+                case TAG_DESC:
+                    // Not Handled
+                    break;
                 case TAG_FOLDER:
                     // Start tag for feeder data
                     assertFeederNotExists();
@@ -230,6 +341,7 @@ public class ShapeFileMasterDataImport implements MasterDataImporter {
                     break;
                 case TAG_PLACEMARK:
                     // Start tag for pole data
+                    inPlacemark = true;
                     poleLocation = null;
                     utilityId = null;
                 default:
@@ -259,28 +371,25 @@ public class ShapeFileMasterDataImport implements MasterDataImporter {
                         throw new SAXException(String.format("Unexpected coordinates value %s", s), ex);
                     }
                     break;
+                case TAG_DESC:
+                    if (inPlacemark) {
+                        feederName = super.textbuffer.toString().trim();
+                        try {
+                            DataImportUtilities.ensureFeeder(svcs, data, listener, feederName, feederName);
+                            currentFeeder = data.getCurrentFeeder();
+                        } catch (IOException ex) {
+                            throw new SAXException(ex);
+                        }
+                    } break;
                 case TAG_FOLDER:
                     // End tag for feeder data
                     assertFeederExists();
                     inFolder = false;
                     break;
                 case TAG_NAME:
-                    if (inFolder) {
-                        // Name for either feeder or pole
-                        if (currentFeeder == null) {
-                            // Assume this is a feeder
-                            currentFeeder = ensureFeeder(super.textbuffer.toString().trim());
-                            assertFeederExists();
-                        } else {
-                            // Assume this is a pole
-                            // Pole name looks something like 1001/122 where 1001 is feeder ID
-                            s = super.textbuffer.toString().trim();
-                            int i = s.indexOf("/");
-                            if (i > -1) {
-                                s = s.substring(++i);
-                            }
-                            utilityId = s;
-                        }
+                    if (inPlacemark) {
+                        // Name of pole
+                        utilityId = super.textbuffer.toString().trim();
                     }
                     break;
                 case TAG_PLACEMARK:
@@ -289,6 +398,7 @@ public class ShapeFileMasterDataImport implements MasterDataImporter {
                     if (p == null) {
                         throw new SAXException(String.format("Unable to create new pole %s", utilityId));
                     }
+                    inPlacemark = false;
                     poleLocation = null;
                     utilityId = null;
                     break;

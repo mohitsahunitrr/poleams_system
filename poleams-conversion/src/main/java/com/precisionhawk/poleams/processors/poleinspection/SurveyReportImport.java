@@ -49,9 +49,9 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
 
     private static void lookupFeederInspection(Environment env, InspectionData data) throws IOException {
         SiteInspectionSearchParams params = new SiteInspectionSearchParams();
-        params.setOrderNumber(data.getOrderNumber());
-        params.setSiteId(data.getFeeder().getId());
-        data.setFeederInspection(CollectionsUtilities.firstItemIn(env.obtainWebService(FeederInspectionWebService.class).search(env.obtainAccessToken(), params)));
+        params.setOrderNumber(data.getCurrentOrderNumber());
+        params.setSiteId(data.getCurrentFeeder().getId());
+        data.setCurrentFeederInspection(CollectionsUtilities.firstItemIn(env.obtainWebService(FeederInspectionWebService.class).search(env.obtainAccessToken(), params)));
         
     }
 
@@ -101,8 +101,8 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
             }
             
             // We now have enough to lookup an existing sub station
-            data.setFeeder(lookupSubStationByFeederId(env, feederId));
-            if (data.getFeeder() == null) {
+            data.setCurrentFeeder(lookupSubStationByFeederId(env, feederId));
+            if (data.getCurrentFeeder() == null) {
                 String subStationName = getCellDataAsString(row, FEEDER_NAME.x);
                 if (subStationName == null || subStationName.isEmpty()) {
                     // We cannot create a nameless substation.
@@ -118,54 +118,54 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
                 f.setOrganizationId(data.getOrganizationId());
                 f.setWindZone(StringUtil.getNullableString(getCellDataAsInteger(row, FEEDER_WIND_ZONE.x)));
                 // Save Feeder immediately, otherwise other calls searching for assets belonging to this feeder will fail due to auth.
-                data.setFeeder(env.obtainWebService(FeederWebService.class).create(env.obtainAccessToken(), f));
+                data.setCurrentFeeder(env.obtainWebService(FeederWebService.class).create(env.obtainAccessToken(), f));
             }
-            data.getDomainObjectIsNew().put(data.getFeeder().getId(), false);
+            data.getDomainObjectIsNew().put(data.getCurrentFeeder().getId(), false);
             
             try {
-                data.setWorkOrder(env.obtainWebService(WorkOrderWebService.class).retrieveById(env.obtainAccessToken(), data.getOrderNumber()));
+                data.setCurrentWorkOrder(env.obtainWebService(WorkOrderWebService.class).retrieveById(env.obtainAccessToken(), data.getCurrentOrderNumber()));
             } catch (ClientResponseFailure ex) {
                 if (ex.getResponse().getStatus() == 404) {
                     // Not found
-                    data.setWorkOrder(null);
+                    data.setCurrentWorkOrder(null);
                 } else {
                     throw new IOException(ex);
                 }
             }
-            if (data.getWorkOrder() == null) {
+            if (data.getCurrentWorkOrder() == null) {
                 WorkOrder wo = new WorkOrder();
-                wo.setOrderNumber(data.getOrderNumber());
-                wo.getSiteIds().add(data.getFeeder().getId());
+                wo.setOrderNumber(data.getCurrentOrderNumber());
+                wo.getSiteIds().add(data.getCurrentFeeder().getId());
                 wo.setStatus(WorkOrderStatuses.Requested);
                 wo.setType(WorkOrderTypes.DistributionLineInspection);
-                data.setWorkOrder(wo);
+                data.setCurrentWorkOrder(wo);
                 data.getDomainObjectIsNew().put(wo.getOrderNumber(), true);
             } else {
                 boolean found = false;
-                for (String id : data.getWorkOrder().getSiteIds()) {
-                    if (data.getFeeder().getId().equals(id)) {
+                for (String id : data.getCurrentWorkOrder().getSiteIds()) {
+                    if (data.getCurrentFeeder().getId().equals(id)) {
                         found = true;
                         break;
                     }
                 }
                 if (!found) {
                     // Add this site to those for the work order.
-                    data.getWorkOrder().getSiteIds().add(data.getFeeder().getId());
+                    data.getCurrentWorkOrder().getSiteIds().add(data.getCurrentFeeder().getId());
                 }
-                data.getDomainObjectIsNew().put(data.getWorkOrder().getOrderNumber(), false);
+                data.getDomainObjectIsNew().put(data.getCurrentWorkOrder().getOrderNumber(), false);
             }
             
             lookupFeederInspection(env, data);
-            if (data.getFeederInspection() == null) {
+            if (data.getCurrentFeederInspection() == null) {
                 FeederInspection fi = new FeederInspection();
                 fi.setDateOfInspection(LocalDate.now());
                 fi.setId(UUID.randomUUID().toString());
-                fi.setOrderNumber(data.getOrderNumber());
-                fi.setSiteId(data.getFeeder().getId());
-                data.setFeederInspection(fi);
+                fi.setOrderNumber(data.getCurrentOrderNumber());
+                fi.setSiteId(data.getCurrentFeeder().getId());
+                data.setCurrentFeederInspection(fi);
                 data.getDomainObjectIsNew().put(fi.getId(), true);
             } else {
-                data.getDomainObjectIsNew().put(data.getFeederInspection().getId(), false);
+                data.getDomainObjectIsNew().put(data.getCurrentFeederInspection().getId(), false);
             }
             
             // We may now process pole rows.
@@ -214,7 +214,7 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
                 return true;
             }
             PoleSearchParams pparams = new PoleSearchParams();
-            pparams.setSiteId(data.getFeeder().getId());
+            pparams.setSiteId(data.getCurrentFeeder().getId());
             pparams.setUtilityId(fplId);
             Pole pole = CollectionsUtilities.firstItemIn(psvc.search(env.obtainAccessToken(), pparams));
             boolean isNew = false;
@@ -222,7 +222,7 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
                 pole = new Pole();
                 pole.setUtilityId(fplId);
                 pole.setId(UUID.randomUUID().toString());
-                pole.setSiteId(data.getFeeder().getId());
+                pole.setSiteId(data.getCurrentFeeder().getId());
                 isNew = true;
             }
             String s = getCellDataAsString(row, COL_POLE_TYPE);
@@ -246,7 +246,7 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
             if (!isNew) {
                 // Attempt to find an existing inspection
                 AssetInspectionSearchParams piparams = new AssetInspectionSearchParams();
-                piparams.setOrderNumber(data.getOrderNumber());
+                piparams.setOrderNumber(data.getCurrentOrderNumber());
                 piparams.setAssetId(pole.getId());
                 inspection = CollectionsUtilities.firstItemIn(pisvc.search(env.obtainAccessToken(), piparams));
             }
@@ -254,9 +254,9 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
                 inspection = new PoleInspection();
                 inspection.setId(UUID.randomUUID().toString());
                 inspection.setAssetId(pole.getId());
-                inspection.setOrderNumber(data.getOrderNumber());
-                inspection.setSiteId(data.getFeeder().getId());
-                inspection.setSiteInspectionId(data.getFeederInspection().getId());
+                inspection.setOrderNumber(data.getCurrentOrderNumber());
+                inspection.setSiteId(data.getCurrentFeeder().getId());
+                inspection.setSiteInspectionId(data.getCurrentFeederInspection().getId());
                 data.addPoleInspection(pole, inspection, true);
             } else {
                 data.addPoleInspection(pole, inspection, false);

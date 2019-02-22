@@ -76,7 +76,7 @@ public class ShapeFileMasterDataImport implements MasterDataImporter {
         svcs = new WSClientHelper(env);
         InputStream is = null;
         data.setOrganizationId(organizationId);
-        data.setOrderNumber(orderNum);
+        data.setCurrentOrderNumber(orderNum);
         try {            
             // Parse the shape file (KML)
             ShapeFileDocumentHandler handler = new ShapeFileDocumentHandler();
@@ -139,71 +139,71 @@ public class ShapeFileMasterDataImport implements MasterDataImporter {
             TransmissionLineSearchParams params = new TransmissionLineSearchParams();
             params.setLineNumber(lineNum);
             params.setOrganizationId(data.getOrganizationId());
-            data.setLine(CollectionsUtilities.firstItemIn(svcs.transmissionLines().search(svcs.token(), params)));
-            if (data.getLine() == null) {
+            data.setCurrentLine(CollectionsUtilities.firstItemIn(svcs.transmissionLines().search(svcs.token(), params)));
+            if (data.getCurrentLine() == null) {
                 TransmissionLine line = new TransmissionLine();
                 line.setLineNumber(lineNum);
                 line.setId(UUID.randomUUID().toString());
                 line.setName(lineNum);
                 line.setOrganizationId(data.getOrganizationId());
-                data.setLine(line);
+                data.setCurrentLine(line);
                 data.getDomainObjectIsNew().put(line.getId(), true);
             } else {
-                data.getDomainObjectIsNew().put(data.getLine().getId(), false);
+                data.getDomainObjectIsNew().put(data.getCurrentLine().getId(), false);
             }
 
             // Now that we have the line, we can deal with the Work Order
             // Work Order
             try {
-                data.setWorkOrder(svcs.workOrders().retrieveById(svcs.token(), data.getOrderNumber()));
+                data.setCurrentWorkOrder(svcs.workOrders().retrieveById(svcs.token(), data.getCurrentOrderNumber()));
             } catch (ClientResponseFailure ex) {
                 if (ex.getResponse().getResponseStatus() == Status.NOT_FOUND) {
-                    data.setWorkOrder(null);
+                    data.setCurrentWorkOrder(null);
                 } else {
                     throw ex;
                 }
             }
-            if (data.getWorkOrder() == null) {
+            if (data.getCurrentWorkOrder() == null) {
                 WorkOrder wo = new WorkOrder();
-                wo.setOrderNumber(data.getOrderNumber());
+                wo.setOrderNumber(data.getCurrentOrderNumber());
                 wo.setRequestDate(LocalDate.now());
                 wo.setStatus(WorkOrderStatuses.Requested);
                 wo.setType(WorkOrderTypes.DistributionLineInspection);
-                data.setWorkOrder(wo);
+                data.setCurrentWorkOrder(wo);
                 data.getDomainObjectIsNew().put(wo.getOrderNumber(), true);
             } else {
-                data.getDomainObjectIsNew().put(data.getOrderNumber(), false);
+                data.getDomainObjectIsNew().put(data.getCurrentOrderNumber(), false);
             }
             boolean found = false;
-            for (String siteId : data.getWorkOrder().getSiteIds()) {
-                if (data.getLine().getId().equals(siteId)) {
+            for (String siteId : data.getCurrentWorkOrder().getSiteIds()) {
+                if (data.getCurrentLine().getId().equals(siteId)) {
                     found = true;
                     break;
                 }
             }
             if (!found) {
-                data.getWorkOrder().getSiteIds().add(data.getLine().getId());
+                data.getCurrentWorkOrder().getSiteIds().add(data.getCurrentLine().getId());
             }
 
             // Now with line and work order, we can deal with the line inspection
             // Line Inspection
             SiteInspectionSearchParams siparams = new SiteInspectionSearchParams();
-            siparams.setOrderNumber(data.getOrderNumber());
-            siparams.setSiteId(data.getLine().getId());
-            data.setLineInspection(CollectionsUtilities.firstItemIn(svcs.transmissionLineInspections().search(svcs.token(), siparams)));
-            if (data.getLineInspection() == null) {
+            siparams.setOrderNumber(data.getCurrentOrderNumber());
+            siparams.setSiteId(data.getCurrentLine().getId());
+            data.setCurrentLineInspection(CollectionsUtilities.firstItemIn(svcs.transmissionLineInspections().search(svcs.token(), siparams)));
+            if (data.getCurrentLineInspection() == null) {
                 TransmissionLineInspection insp = new TransmissionLineInspection();
                 insp.setId(UUID.randomUUID().toString());
-                insp.setOrderNumber(data.getOrderNumber());
-                insp.setSiteId(data.getLine().getId());
+                insp.setOrderNumber(data.getCurrentOrderNumber());
+                insp.setSiteId(data.getCurrentLine().getId());
                 insp.setStatus(new SiteInspectionStatus("Pending")); //FIXME:
                 insp.setType(new SiteInspectionType("DroneInspection")); //FIXME:
-                data.setLineInspection(insp);
+                data.setCurrentLineInspection(insp);
                 data.getDomainObjectIsNew().put(insp.getId(), true);
             } else {
-                data.getDomainObjectIsNew().put(data.getLineInspection().getId(), false);
+                data.getDomainObjectIsNew().put(data.getCurrentLineInspection().getId(), false);
             }
-            return data.getLine();
+            return data.getCurrentLine();
         } catch (IOException ioe) {
             listener.reportFatalException(ioe);
             return null;
@@ -218,7 +218,7 @@ public class ShapeFileMasterDataImport implements MasterDataImporter {
         try {
             // Structure
             TransmissionStructureSearchParams  pparams = new TransmissionStructureSearchParams();
-            pparams.setSiteId(data.getLine().getId());
+            pparams.setSiteId(data.getCurrentLine().getId());
             pparams.setStructureNumber(structureNum);
             TransmissionStructure struct = CollectionsUtilities.firstItemIn(svcs.transmissionStructures().search(svcs.token(), pparams));
             if (struct == null) {
@@ -226,7 +226,7 @@ public class ShapeFileMasterDataImport implements MasterDataImporter {
                 struct.setId(UUID.randomUUID().toString());
                 struct.setLocation(location);
                 struct.setName(structureNum);
-                struct.setSiteId(data.getLine().getId());
+                struct.setSiteId(data.getCurrentLine().getId());
                 struct.setStructureNumber(structureNum);
                 data.addTransmissionStruture(struct, true);
             } else {
@@ -236,14 +236,14 @@ public class ShapeFileMasterDataImport implements MasterDataImporter {
             // Pole Inspection
             AssetInspectionSearchParams aiparams = new AssetInspectionSearchParams();
             aiparams.setAssetId(struct.getId());
-            aiparams.setOrderNumber(data.getOrderNumber());
+            aiparams.setOrderNumber(data.getCurrentOrderNumber());
             TransmissionStructureInspection insp = CollectionsUtilities.firstItemIn(svcs.transmissionStructureInspections().search(svcs.token(), aiparams));
             if (insp == null) {
                 insp = new TransmissionStructureInspection();
                 insp.setAssetId(struct.getId());
-                insp.setOrderNumber(data.getOrderNumber());
-                insp.setSiteId(data.getLine().getId());
-                insp.setSiteInspectionId(data.getLineInspection().getId());
+                insp.setOrderNumber(data.getCurrentOrderNumber());
+                insp.setSiteId(data.getCurrentLine().getId());
+                insp.setSiteInspectionId(data.getCurrentLineInspection().getId());
                 insp.setStatus(new AssetInspectionStatus("Pending")); //FIXME:
                 insp.setType(new AssetInspectionType("DroneInspection")); //FIXME:
                 data.addTransmissionStructureInspection(struct, insp, true);
@@ -298,7 +298,7 @@ public class ShapeFileMasterDataImport implements MasterDataImporter {
             rmeta.setContentType(info.getMimeType());
             rmeta.setLocation(ImageUtilities.getLocation(exif));
             rmeta.setName(f.getName());
-            rmeta.setOrderNumber(data.getOrderNumber());
+            rmeta.setOrderNumber(data.getCurrentOrderNumber());
 //            String posSide = resourcePositionSide(listener, f);
 //            if (posSide != null) {
 //                ImagePosition pos = new ImagePosition();
@@ -309,8 +309,8 @@ public class ShapeFileMasterDataImport implements MasterDataImporter {
             rmeta.setAssetInspectionId(data.getStructureInspectionsByStructureNum().get(struct.getStructureNumber()).getId());
             rmeta.setSize(ImageUtilities.getSize(info));
             rmeta.setStatus(ResourceStatus.QueuedForUpload);
-            rmeta.setSiteId(data.getLine().getId());
-            rmeta.setSiteInspectionId(data.getLineInspection().getId());
+            rmeta.setSiteId(data.getCurrentLine().getId());
+            rmeta.setSiteInspectionId(data.getCurrentLineInspection().getId());
             rmeta.setTimestamp(ImageUtilities.getTimestamp(exif, DEFAULT_TZ));
             data.addResourceMetadata(rmeta, f, true);
         } else {

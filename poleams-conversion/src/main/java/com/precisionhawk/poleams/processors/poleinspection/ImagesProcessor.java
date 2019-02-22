@@ -116,12 +116,12 @@ final class ImagesProcessor implements Constants {
             rmeta.setContentType(info.getMimeType());
             rmeta.setLocation(ImageUtilities.getLocation(exif));
             rmeta.setName(f.getName());
-            rmeta.setOrderNumber(data.getOrderNumber());
+            rmeta.setOrderNumber(data.getCurrentOrderNumber());
             rmeta.setAssetId(p.getId());
             rmeta.setAssetInspectionId(data.getPoleInspectionsByFPLId().get(p.getUtilityId()).getId());
             rmeta.setSize(ImageUtilities.getSize(info));
             rmeta.setStatus(ResourceStatus.QueuedForUpload);
-            rmeta.setSiteId(data.getFeeder().getId());
+            rmeta.setSiteId(data.getCurrentFeeder().getId());
             rmeta.setTimestamp(ImageUtilities.getTimestamp(exif, DEFAULT_TZ));
             data.addResourceMetadata(rmeta, f, true);
         } else {

@@ -1,31 +1,18 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
-import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.bean.GeoPoint;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
-import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
-import com.precisionhawk.ams.domain.AssetInspectionStatus;
-import com.precisionhawk.ams.domain.AssetInspectionType;
 import com.precisionhawk.ams.domain.ResourceMetadata;
 import com.precisionhawk.ams.domain.ResourceStatus;
-import com.precisionhawk.ams.domain.ResourceType;
-import com.precisionhawk.ams.domain.SiteInspectionStatus;
-import com.precisionhawk.ams.domain.SiteInspectionType;
-import com.precisionhawk.ams.domain.WorkOrder;
-import com.precisionhawk.ams.domain.WorkOrderStatus;
-import com.precisionhawk.ams.domain.WorkOrderType;
 import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.ams.webservices.ResourceWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.bean.FeederInspectionSummary;
-import com.precisionhawk.poleams.bean.FeederSearchParams;
-import com.precisionhawk.poleams.bean.PoleSearchParams;
-import com.precisionhawk.poleams.domain.Feeder;
-import com.precisionhawk.poleams.domain.FeederInspection;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.ResourceTypes;
-import com.precisionhawk.poleams.processors.DataImportUtilities;
+import com.precisionhawk.poleams.domain.WorkOrderTypes;
+import static com.precisionhawk.poleams.processors.DataImportUtilities.*;
 import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.poleams.webservices.FeederInspectionWebService;
@@ -49,8 +36,6 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.imaging.ImageFormat;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
-import org.apache.http.HttpStatus;
-import org.jboss.resteasy.client.ClientResponseFailure;
 import org.papernapkin.liana.util.StringUtil;
 
 /**
@@ -127,12 +112,12 @@ public class FeederDataDirProcessor2 {
     public static boolean process(Environment env, ProcessListener listener, File feederDir, String orgId, String orderNumber) {
         WSClientHelper svcs = new WSClientHelper(env);
         InspectionData data = new InspectionData();
-        data.setOrderNumber(orderNumber);
+        data.setCurrentOrderNumber(orderNumber);
         data.setOrganizationId(orgId);
         // find and process CSV files.
         boolean success = true;
         try {
-            success = ensureWorkOrder(svcs, data, listener);
+            success = ensureWorkOrder(svcs, data, listener, WorkOrderTypes.DistributionLineInspection);
         } catch (IOException ex) {
             listener.reportFatalException(ex);
             success = false;
@@ -149,14 +134,14 @@ public class FeederDataDirProcessor2 {
             }
         }
         try {
-            success = success && DataImportUtilities.saveData(svcs, listener, data);
+            success = success && saveData(svcs, listener, data);
         } catch (IOException ex) {
             listener.reportFatalException(ex);
             success = false;
         }
-//        success = success && updateSurveyReport(env, data, listener);
+        success = success && updateSurveyReport(env, data, listener);
         try {
-            success = success && DataImportUtilities.saveResources(svcs, listener, data);
+            success = success && saveResources(svcs, listener, data);
         } catch (IOException ex) {
             listener.reportFatalException(ex);
             success = false;
@@ -186,7 +171,7 @@ public class FeederDataDirProcessor2 {
                     listener.reportMessage("\tCSV row 1 has valid number of columns.  Skipping row 1");
                 } else {
                     listener.reportMessage(String.format("\tProcessing %s record %d", f.getName(), record.getRecordNumber()));
-                    if (data.getFeeder() == null) {
+                    if (data.getCurrentFeeder() == null) {
                         // Parse file name for feeder name and number.
                         String[] parts = f.getName().split("_");
                         String subStationName = parts[0];
@@ -272,13 +257,16 @@ public class FeederDataDirProcessor2 {
                             if (f.getName().endsWith("C.xml")) {
                                 // PoleForman XML
                                 PoleForemanXMLProcessor.process(listener, pole, insp, f);
-                                addNonImageResource(svcs, data, data.getFeederInspection(), insp, ResourceTypes.PoleInspectionAnalysisXML, f, "application/xml");
+                                addNonImageResource(svcs, data, data.getCurrentFeederInspection(), insp, ResourceTypes.PoleInspectionAnalysisXML, f, "application/xml");
                             } else if (f.getName().endsWith("C.pdf")) {
                                 // PoleInspectionReport
-                                addNonImageResource(svcs, data, data.getFeederInspection(), insp, ResourceTypes.PoleInspectionReport, f, "application/pdf");
+                                addNonImageResource(svcs, data, data.getCurrentFeederInspection(), insp, ResourceTypes.PoleInspectionReport, f, "application/pdf");
                             } else if (f.getName().endsWith("_DSS.pdf")) {
                                 // Drone Survey Sheet
-                                addNonImageResource(svcs, data, data.getFeederInspection(), insp, ResourceTypes.PoleDroneSurveySheet, f, "application/pdf");
+                                addNonImageResource(svcs, data, data.getCurrentFeederInspection(), insp, ResourceTypes.PoleDroneSurveySheet, f, "application/pdf");
+                            } else if (f.getName().toLowerCase().endsWith("_ca.pdf")) {
+                                // Drone Anomaly Report
+                                addNonImageResource(svcs, data, data.getCurrentFeederInspection(), insp, ResourceTypes.PoleAnomalyReport, f, "application/pdf");
                             } else {
                                 listener.reportNonFatalError(String.format("Unexpected file \"%s\" is being skipped.", f));
                             }
@@ -312,179 +300,11 @@ public class FeederDataDirProcessor2 {
         return null;
     }
 
-    private static boolean ensureFeeder(WSClientHelper svcs, InspectionData data, ProcessListener listener, String feederNum, String subStationName) throws IOException {
-        if (data.getFeeder() != null && data.getFeeder().getFeederNumber().equals(feederNum)) {
-            return true;
-        }
-        FeederSearchParams params = new FeederSearchParams();
-        params.setOrganizationId(data.getOrganizationId());
-        params.setFeederNumber(feederNum);
-        Feeder f = CollectionsUtilities.firstItemIn(svcs.feeders().search(svcs.token(), params));
-        if (f == null) {
-            f = new Feeder();
-            f.setFeederNumber(feederNum);
-            f.setName(subStationName);
-            f.setOrganizationId(data.getOrganizationId());
-            f.setId(UUID.randomUUID().toString());
-            data.getDomainObjectIsNew().put(f.getId(), true);
-        } else {
-            data.getDomainObjectIsNew().put(f.getId(), false);
-        }
-        boolean found = false;
-        for (String siteId : data.getWorkOrder().getSiteIds()) {
-            if (f.getId().equals(siteId)) {
-                found = true;
-            }
-        }
-        if (!found) {
-            data.getWorkOrder().getSiteIds().add(f.getId());
-        }
-        
-        SiteInspectionSearchParams siparams = new SiteInspectionSearchParams();
-        siparams.setSiteId(f.getId());
-        siparams.setOrderNumber(data.getWorkOrder().getOrderNumber());
-        FeederInspection sinsp = CollectionsUtilities.firstItemIn(svcs.feederInspections().search(svcs.token(), siparams));
-        if (sinsp == null) {
-            sinsp = new FeederInspection();
-            sinsp.setDateOfInspection(LocalDate.now());
-            sinsp.setId(UUID.randomUUID().toString());
-            sinsp.setOrderNumber(data.getWorkOrder().getOrderNumber());
-            sinsp.setSiteId(siparams.getSiteId());
-            sinsp.setStatus(new SiteInspectionStatus("Processed"));
-            sinsp.setType(new SiteInspectionType(data.getWorkOrder().getType().getValue()));
-            //FIXME: Remove this
-            sinsp.setVegitationEncroachmentGoogleEarthURL("https://drive.google.com/open?id=19GtK3NykNxcE9KdAiE_aTXoXPkm5o-Ij&usp=sharing");
-            data.getDomainObjectIsNew().put(sinsp.getId(), true);
-        } else {
-            data.getDomainObjectIsNew().put(sinsp.getId(), false);
-        }
-        data.setFeederInspection(sinsp);
-        
-        data.setFeeder(f);
-        return true;
-    }
-
-    private static Pole ensurePole(WSClientHelper svcs, ProcessListener listener, InspectionData data, String fplid, LocalDate inspectionDate) throws IOException {
-        
-        Pole pole = data.getPoleDataByFPLId().get(fplid);
-        if (pole != null) {
-            return pole;
-        }
-        
-        PoleSearchParams pparams = new PoleSearchParams();
-        pparams.setSiteId(data.getFeeder().getId());
-        pparams.setUtilityId(fplid);
-        pole = CollectionsUtilities.firstItemIn(svcs.poles().search(svcs.token(), pparams));
-        AssetInspectionSearchParams iparams = null;
-        if (pole == null) {
-            pole = new Pole();
-            pole.setUtilityId(fplid);
-            pole.setId(UUID.randomUUID().toString());
-            pole.setSiteId(data.getFeeder().getId());
-            data.addPole(pole, true);
-        } else {
-            data.addPole(pole, false);
-            iparams = new AssetInspectionSearchParams();
-            iparams.setAssetId(pole.getId());
-            iparams.setOrderNumber(data.getOrderNumber());
-        }
-        ensurePoleInspection(svcs, listener, data, pole, inspectionDate);
-        return pole;
-    }
-
-    private static PoleInspection ensurePoleInspection(
-            WSClientHelper svcs, ProcessListener listener, InspectionData data, Pole pole, LocalDate inspectionDate
-        ) throws IOException
-    {
-        PoleInspection insp = data.getPoleInspectionsByFPLId().get(pole.getUtilityId());
-        if (insp == null) {
-            AssetInspectionSearchParams iparams = new AssetInspectionSearchParams();
-            iparams.setAssetId(pole.getId());
-            iparams.setOrderNumber(data.getOrderNumber());
-            insp = CollectionsUtilities.firstItemIn(svcs.poleInspections().search(svcs.token(), iparams));
-            if (insp == null) {
-                insp = new PoleInspection();
-                insp.setAssetId(pole.getId());
-                insp.setDateOfInspection(inspectionDate);
-                insp.setId(UUID.randomUUID().toString());
-                insp.setOrderNumber(data.getOrderNumber());
-                insp.setSiteId(data.getFeeder().getId());
-                insp.setSiteInspectionId(data.getFeederInspection().getId());
-                insp.setStatus(new AssetInspectionStatus("Processed"));
-                insp.setType(new AssetInspectionType("DistributionLineInspection"));
-                data.addPoleInspection(pole, insp, true);
-            } else {
-                insp.setType(new AssetInspectionType("DistributionLineInspection"));
-                data.addPoleInspection(pole, insp, false);
-            }
-        }
-        return insp;
-    }
-
-    private static boolean ensureWorkOrder(WSClientHelper svcs, InspectionData data, ProcessListener listener) throws IOException {
-        try {
-            data.setWorkOrder(svcs.workOrders().retrieveById(svcs.token(), data.getOrderNumber()));
-        } catch (ClientResponseFailure f) {
-            if (f.getResponse().getStatus() != HttpStatus.SC_NOT_FOUND) {
-                // 404 is ok
-                throw new IOException(f);
-            }
-        }
-        if (data.getWorkOrder() == null) {
-            WorkOrder wo = new WorkOrder();
-            wo.setOrderNumber(data.getOrderNumber());
-            wo.setRequestDate(LocalDate.now());
-            wo.setStatus(new WorkOrderStatus("Requested"));
-            wo.setType(new WorkOrderType("Pole Inspection"));
-            data.setWorkOrder(wo);
-            data.getDomainObjectIsNew().put(wo.getOrderNumber(), true);
-        } else {
-            data.getDomainObjectIsNew().put(data.getOrderNumber(), false);
-        }
-        return true;
-    }
-    
-    private static void addNonImageResource(
-            WSClientHelper svcs, InspectionData data, FeederInspection finsp, PoleInspection pinsp, ResourceType rtype, File file, String contentType
-        ) throws IOException
-    {
-        ResourceSearchParams params = new ResourceSearchParams();
-        if (pinsp != null) {
-            params.setAssetInspectionId(pinsp.getId());
-        } else {
-            params.setSiteInspectionId(finsp.getId());
-        }
-        params.setType(rtype);
-        ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(svcs.resources().search(svcs.token(), params));
-        if (rmeta == null) {
-            rmeta = new ResourceMetadata();
-            if (pinsp != null) {
-                rmeta.setAssetId(pinsp.getAssetId());
-                rmeta.setAssetInspectionId(pinsp.getId());
-                rmeta.setSiteId(pinsp.getSiteId());
-                rmeta.setSiteInspectionId(pinsp.getId());
-            } else {
-                rmeta.setSiteId(finsp.getSiteId());
-                rmeta.setSiteInspectionId(finsp.getId());
-            }
-            rmeta.setContentType(contentType);
-            rmeta.setName(file.getName());
-            rmeta.setOrderNumber(data.getOrderNumber());
-            rmeta.setResourceId(UUID.randomUUID().toString());
-            rmeta.setStatus(ResourceStatus.QueuedForUpload);
-            rmeta.setTimestamp(ZonedDateTime.now());
-            rmeta.setType(rtype);
-            data.addResourceMetadata(rmeta, file, true);
-        } else {
-            data.addResourceMetadata(rmeta, file, false);
-        }
-    }
-
     private static final String SURVEY_REPORT_TEMPLATE = "com/precisionhawk/poleams/processors/poleinspection/Survey_Report_Template.xlsx";
     
     private static boolean updateSurveyReport(Environment env, InspectionData data, ProcessListener listener) {
         try {
-            File outFile = File.createTempFile(data.getFeeder().getFeederNumber(), "surveyrptout");
+            File outFile = File.createTempFile(data.getCurrentFeeder().getFeederNumber(), "surveyrptout");
             InputStream is = null;
             OutputStream os = null;
             try {
@@ -495,21 +315,21 @@ public class FeederDataDirProcessor2 {
                 org.apache.commons.io.IOUtils.closeQuietly(is);
                 org.apache.commons.io.IOUtils.closeQuietly(os);
             }
-            FeederInspectionSummary summary = env.obtainWebService(FeederInspectionWebService.class).retrieveSummary(env.obtainAccessToken(), data.getFeederInspection().getId());
+            FeederInspectionSummary summary = env.obtainWebService(FeederInspectionWebService.class).retrieveSummary(env.obtainAccessToken(), data.getCurrentFeederInspection().getId());
             boolean success = SurveyReportGenerator.populateTemplate(env, listener, summary, outFile, outFile, true);
             // Set up to upload temp file
             if (success) {
                 ResourceWebService svc = env.obtainWebService(ResourceWebService.class);
                 ResourceSearchParams params = new ResourceSearchParams();
-                params.setOrderNumber(data.getOrderNumber());
-                params.setSiteId(data.getFeederInspection().getSiteId());
-                params.setSiteInspectionId(data.getFeederInspection().getId());
+                params.setOrderNumber(data.getCurrentOrderNumber());
+                params.setSiteId(data.getCurrentFeederInspection().getSiteId());
+                params.setSiteInspectionId(data.getCurrentFeederInspection().getId());
                 params.setType(ResourceTypes.SurveyReport);
                 ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(svc.search(env.obtainAccessToken(), params));
                 if (rmeta == null) {
                     rmeta = new ResourceMetadata();
                     rmeta.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-                    rmeta.setName(String.format("%s-%s_Survey_Report.xlsx", data.getFeeder().getName(), data.getFeeder().getFeederNumber()));
+                    rmeta.setName(String.format("%s-%s_Survey_Report.xlsx", data.getCurrentFeeder().getName(), data.getCurrentFeeder().getFeederNumber()));
                     rmeta.setOrderNumber(params.getOrderNumber());
                     rmeta.setResourceId(UUID.randomUUID().toString());
                     rmeta.setStatus(ResourceStatus.QueuedForUpload);

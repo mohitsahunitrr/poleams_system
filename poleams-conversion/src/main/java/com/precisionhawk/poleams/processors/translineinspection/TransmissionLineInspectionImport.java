@@ -78,7 +78,7 @@ public final class TransmissionLineInspectionImport {
         WSClientHelper wsclient = new WSClientHelper(environment);
         InspectionData data = new InspectionData();
         data.setOrganizationId(orgId);
-        data.setOrderNumber(orderNumber);
+        data.setCurrentOrderNumber(orderNumber);
         try {
             boolean success = initialize(wsclient, listener, data);
             success = success && parseStructureData(wsclient, listener, inputDir, data);
@@ -90,7 +90,7 @@ public final class TransmissionLineInspectionImport {
 
     private boolean initialize(WSClientHelper wsclient, ProcessListener listener, InspectionData data) throws IOException {
         try {
-            data.setWorkOrder(wsclient.workOrders().retrieveById(wsclient.token(), data.getOrderNumber()));
+            data.setCurrentWorkOrder(wsclient.workOrders().retrieveById(wsclient.token(), data.getCurrentOrderNumber()));
         } catch (ClientResponseFailure ex) {
             if (ex.getResponse().getStatus() == 404) {
                 // it does not exist.
@@ -98,15 +98,15 @@ public final class TransmissionLineInspectionImport {
                 throw new IOException("Unable to lookup work order.", ex);
             }
         }
-        if (data.getWorkOrder() == null) {
+        if (data.getCurrentWorkOrder() == null) {
             WorkOrder wo = new WorkOrder();
-            wo.setOrderNumber(data.getOrderNumber());
+            wo.setOrderNumber(data.getCurrentOrderNumber());
             wo.setStatus(WorkOrderStatuses.Requested);
             wo.setType(WorkOrderTypes.TransmissionLineInspection);
-            data.setWorkOrder(wo);
-            data.getDomainObjectIsNew().put(data.getOrderNumber(), true);
+            data.setCurrentWorkOrder(wo);
+            data.getDomainObjectIsNew().put(data.getCurrentOrderNumber(), true);
         } else {
-            data.getDomainObjectIsNew().put(data.getOrderNumber(), false);
+            data.getDomainObjectIsNew().put(data.getCurrentOrderNumber(), false);
         }
         return true;
     }
@@ -208,68 +208,68 @@ public final class TransmissionLineInspectionImport {
         listener.reportMessage(String.format("Processing row %d for transmission structure %s", row.getRowNum(), structNum));
         
         // Transmission Line
-        if (data.getLine() == null) {
+        if (data.getCurrentLine() == null) {
             TransmissionLineSearchParams params = new TransmissionLineSearchParams();
             params.setLineNumber(lineId);
             params.setOrganizationId(data.getOrganizationId());
-            data.setLine(CollectionsUtilities.firstItemIn(wsclient.transmissionLines().search(wsclient.token(), params)));
-            if (data.getLine() == null) {
+            data.setCurrentLine(CollectionsUtilities.firstItemIn(wsclient.transmissionLines().search(wsclient.token(), params)));
+            if (data.getCurrentLine() == null) {
                 // Not found, create it.
                 TransmissionLine line = new TransmissionLine();
                 line.setId(UUID.randomUUID().toString());
                 line.setName(lineName);
                 line.setLineNumber(lineId);
                 line.setOrganizationId(data.getOrganizationId());
-                data.setLine(line);
+                data.setCurrentLine(line);
                 // It must be saved early due to security authentication in the services.
                 wsclient.transmissionLines().create(wsclient.token(), line);
                 data.getDomainObjectIsNew().put(line.getId(), false);
             } else {
-                data.getLine().setOrganizationId(data.getOrganizationId());
-                data.getDomainObjectIsNew().put(data.getLine().getId(), false);
+                data.getCurrentLine().setOrganizationId(data.getOrganizationId());
+                data.getDomainObjectIsNew().put(data.getCurrentLine().getId(), false);
             }
         }
         boolean found = false;
-        for (String id : data.getWorkOrder().getSiteIds()) {
-            if (data.getLine().getId().equals(id)) {
+        for (String id : data.getCurrentWorkOrder().getSiteIds()) {
+            if (data.getCurrentLine().getId().equals(id)) {
                 found = true;
                 break;
             }
         }
         if (!found) {
-            data.getWorkOrder().getSiteIds().add(data.getLine().getId());
+            data.getCurrentWorkOrder().getSiteIds().add(data.getCurrentLine().getId());
         }
         
         // Transmission Line Inspection
-        if (data.getLineInspection() == null) {
+        if (data.getCurrentLineInspection() == null) {
             SiteInspectionSearchParams params = new SiteInspectionSearchParams();
-            params.setOrderNumber(data.getOrderNumber());
-            params.setSiteId(data.getLine().getId());
-            data.setLineInspection(CollectionsUtilities.firstItemIn(wsclient.transmissionLineInspections().search(wsclient.token(), params)));
-            if (data.getLineInspection() == null) {
+            params.setOrderNumber(data.getCurrentOrderNumber());
+            params.setSiteId(data.getCurrentLine().getId());
+            data.setCurrentLineInspection(CollectionsUtilities.firstItemIn(wsclient.transmissionLineInspections().search(wsclient.token(), params)));
+            if (data.getCurrentLineInspection() == null) {
                 TransmissionLineInspection insp = new TransmissionLineInspection();
                 if (inspectionDate != null) {
                     insp.setDateOfInspection(LocalDate.of(inspectionDate.getYear(), inspectionDate.getMonth(), inspectionDate.getDay())); //TODO: handle this better
                 }
                 insp.setId(UUID.randomUUID().toString());
-                insp.setOrderNumber(data.getOrderNumber());
-                insp.setSiteId(data.getLine().getId());
-                data.setLineInspection(insp);
+                insp.setOrderNumber(data.getCurrentOrderNumber());
+                insp.setSiteId(data.getCurrentLine().getId());
+                data.setCurrentLineInspection(insp);
                 data.getDomainObjectIsNew().put(insp.getId(), true);
             } else {
-                data.getDomainObjectIsNew().put(data.getLineInspection().getId(), false);
+                data.getDomainObjectIsNew().put(data.getCurrentLineInspection().getId(), false);
             }
         }
         
         // Transmission Structure
         TransmissionStructureSearchParams tssp = new TransmissionStructureSearchParams();
-        tssp.setSiteId(data.getLine().getId());
+        tssp.setSiteId(data.getCurrentLine().getId());
         tssp.setStructureNumber(structNum);
         TransmissionStructure struct = CollectionsUtilities.firstItemIn(wsclient.transmissionStructures().search(wsclient.token(), tssp));
         if (struct == null) {
             struct = new TransmissionStructure();
             struct.setId(UUID.randomUUID().toString());
-            struct.setSiteId(data.getLine().getId());
+            struct.setSiteId(data.getCurrentLine().getId());
             struct.setStructureNumber(structNum);
             if ("Concrete".equalsIgnoreCase(material)) {
                 struct.setType(AssetTypes.ConcretePole);
@@ -294,9 +294,9 @@ public final class TransmissionLineInspectionImport {
         // Transmission Structure Inspection
         AssetInspectionSearchParams aisp = new AssetInspectionSearchParams();
         aisp.setAssetId(struct.getId());
-        aisp.setOrderNumber(data.getOrderNumber());
-        aisp.setSiteId(data.getLine().getId());
-        aisp.setSiteInspectionId(data.getLineInspection().getId());
+        aisp.setOrderNumber(data.getCurrentOrderNumber());
+        aisp.setSiteId(data.getCurrentLine().getId());
+        aisp.setSiteInspectionId(data.getCurrentLineInspection().getId());
         TransmissionStructureInspection insp = CollectionsUtilities.firstItemIn(wsclient.transmissionStructureInspections().search(wsclient.token(), aisp));
         if (insp == null) {
             insp = new TransmissionStructureInspection();
@@ -305,12 +305,12 @@ public final class TransmissionLineInspectionImport {
                 insp.setDateOfInspection(LocalDate.of(inspectionDate.getYear(), inspectionDate.getMonth(), inspectionDate.getDay())); //TODO: handle this better
             }
             insp.setId(UUID.randomUUID().toString());
-            insp.setOrderNumber(data.getOrderNumber());
+            insp.setOrderNumber(data.getCurrentOrderNumber());
             if (reasonNoInsp != null && !reasonNoInsp.isEmpty()) {
                 insp.setReasonNotInspected(reasonNoInsp);
             }
-            insp.setSiteId(data.getLine().getId());
-            insp.setSiteInspectionId(data.getLineInspection().getId());
+            insp.setSiteId(data.getCurrentLine().getId());
+            insp.setSiteInspectionId(data.getCurrentLineInspection().getId());
             insp.setType(TransmissionStructureInspectionTypes.DroneInspection);
             data.addTransmissionStructureInspection(struct, insp, true);
         } else {
@@ -348,7 +348,7 @@ public final class TransmissionLineInspectionImport {
             rmeta.setContentType(info.getMimeType());
             rmeta.setLocation(ImageUtilities.getLocation(exif));
             rmeta.setName(f.getName());
-            rmeta.setOrderNumber(data.getOrderNumber());
+            rmeta.setOrderNumber(data.getCurrentOrderNumber());
             String posSide = resourcePositionSide(listener, f);
             if (posSide != null) {
                 ImagePosition pos = new ImagePosition();
@@ -359,7 +359,7 @@ public final class TransmissionLineInspectionImport {
             rmeta.setAssetInspectionId(data.getStructureInspectionsByStructureNum().get(struct.getStructureNumber()).getId());
             rmeta.setSize(ImageUtilities.getSize(info));
             rmeta.setStatus(ResourceStatus.QueuedForUpload);
-            rmeta.setSiteId(data.getLine().getId());
+            rmeta.setSiteId(data.getCurrentLine().getId());
             rmeta.setTimestamp(ImageUtilities.getTimestamp(exif, DEFAULT_TZ));
             data.addResourceMetadata(rmeta, f, true);
         } else {

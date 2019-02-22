@@ -58,48 +58,48 @@ public class GeoJsonMasterDataImport implements MasterDataImporter {
             // Feeder
             FeederSearchParams params = new FeederSearchParams();
             params.setFeederNumber(feederId);
-            data.setFeeder(CollectionsUtilities.firstItemIn(svcs.feeders().search(svcs.token(), params)));
-            if (data.getFeeder() == null) {
+            data.setCurrentFeeder(CollectionsUtilities.firstItemIn(svcs.feeders().search(svcs.token(), params)));
+            if (data.getCurrentFeeder() == null) {
                 listener.reportFatalError(String.format("Unable to locate feeder %s", feederId));
                 return false;
             }
-            data.getDomainObjectIsNew().put(data.getFeeder().getId(), false);
+            data.getDomainObjectIsNew().put(data.getCurrentFeeder().getId(), false);
             
             // Work Order
-            data.setOrderNumber(orderNum);
-            data.setWorkOrder(svcs.workOrders().retrieveById(svcs.token(), orderNum));
-            if (data.getWorkOrder() == null) {
+            data.setCurrentOrderNumber(orderNum);
+            data.setCurrentWorkOrder(svcs.workOrders().retrieveById(svcs.token(), orderNum));
+            if (data.getCurrentWorkOrder() == null) {
                 listener.reportFatalError(String.format("Unable to load work order %s", orderNum));
                 return false;
             }
             boolean found = false;
-            for (String siteId : data.getWorkOrder().getSiteIds()) {
-                if (data.getFeeder().getId().equals(siteId)) {
+            for (String siteId : data.getCurrentWorkOrder().getSiteIds()) {
+                if (data.getCurrentFeeder().getId().equals(siteId)) {
                     found = true;
                     break;
                 }
             }
             if (!found) {
-                data.getWorkOrder().getSiteIds().add(data.getFeeder().getId());
+                data.getCurrentWorkOrder().getSiteIds().add(data.getCurrentFeeder().getId());
             }
-            data.getDomainObjectIsNew().put(data.getWorkOrder().getOrderNumber(), false);
+            data.getDomainObjectIsNew().put(data.getCurrentWorkOrder().getOrderNumber(), false);
             
             // Feeder Inspection
             SiteInspectionSearchParams siparams = new SiteInspectionSearchParams();
             siparams.setOrderNumber(orderNum);
-            siparams.setSiteId(data.getFeeder().getId());
-            data.setFeederInspection(CollectionsUtilities.firstItemIn(svcs.feederInspections().search(svcs.token(), siparams)));
-            if (data.getFeederInspection() == null) {
+            siparams.setSiteId(data.getCurrentFeeder().getId());
+            data.setCurrentFeederInspection(CollectionsUtilities.firstItemIn(svcs.feederInspections().search(svcs.token(), siparams)));
+            if (data.getCurrentFeederInspection() == null) {
                 FeederInspection insp = new FeederInspection();
                 insp.setId(UUID.randomUUID().toString());
                 insp.setOrderNumber(orderNum);
-                insp.setSiteId(data.getFeeder().getId());
+                insp.setSiteId(data.getCurrentFeeder().getId());
                 insp.setStatus(new SiteInspectionStatus("Pending")); //FIXME:
                 insp.setType(new SiteInspectionType("DroneInspection")); //FIXME:
-                data.setFeederInspection(insp);
+                data.setCurrentFeederInspection(insp);
                 data.getDomainObjectIsNew().put(insp.getId(), true);
             } else {
-                data.getDomainObjectIsNew().put(data.getFeederInspection().getId(), false);
+                data.getDomainObjectIsNew().put(data.getCurrentFeederInspection().getId(), false);
             }
             
             JsonFactory jfactory = new JsonFactory();
@@ -234,7 +234,7 @@ public class GeoJsonMasterDataImport implements MasterDataImporter {
             listener.reportFatalError(String.format("Bad or missing location for pole %s", poleId));
         }
         PoleSearchParams params = new PoleSearchParams();
-        params.setSiteId(data.getFeeder().getId());
+        params.setSiteId(data.getCurrentFeeder().getId());
         params.setUtilityId(poleId);
         listener.reportMessage(String.format("Loaded pole with ID %s", poleId));
         Pole pole = CollectionsUtilities.firstItemIn(svcs.poles().search(svcs.token(), params));
@@ -251,7 +251,7 @@ public class GeoJsonMasterDataImport implements MasterDataImporter {
             pole.setLocation(location);
             pole.setPoleClass(attributes.get(FIELD_CLASS));
             pole.setSerialNumber(attributes.get(FIELD_POLENUM));
-            pole.setSiteId(data.getFeeder().getId());
+            pole.setSiteId(data.getCurrentFeeder().getId());
             pole.setUtilityId(poleId);
             pole.setAttributes(attributes);
             data.addPole(pole, true);
@@ -264,15 +264,15 @@ public class GeoJsonMasterDataImport implements MasterDataImporter {
             // try to look up a pole inspection.
             AssetInspectionSearchParams aiparams = new AssetInspectionSearchParams();
             aiparams.setAssetId(pole.getId());
-            aiparams.setOrderNumber(data.getOrderNumber());
+            aiparams.setOrderNumber(data.getCurrentOrderNumber());
             insp = CollectionsUtilities.firstItemIn(svcs.poleInspections().search(svcs.token(), aiparams));
         }
         if (insp == null) {
             insp = new PoleInspection();
             insp.setAssetId(pole.getId());
             insp.setId(UUID.randomUUID().toString());
-            insp.setOrderNumber(data.getOrderNumber());
-            insp.setSiteInspectionId(data.getFeederInspection().getId());
+            insp.setOrderNumber(data.getCurrentOrderNumber());
+            insp.setSiteInspectionId(data.getCurrentFeederInspection().getId());
             insp.setStatus(new AssetInspectionStatus("Pending")); //FIXME:
             insp.setType(new AssetInspectionType("DroneInspection")); //FIXME:
             data.addPoleInspection(pole, insp, true);

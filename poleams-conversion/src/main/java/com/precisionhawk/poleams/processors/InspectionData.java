@@ -73,19 +73,31 @@ public class InspectionData implements InspectionDataInterface {
     }
  
     private String orderNumber;
-    public String getOrderNumber() {
+    public String getCurrentOrderNumber() {
         return orderNumber;
     }
-    public void setOrderNumber(String orderNumber) {
+    public void setCurrentOrderNumber(String orderNumber) {
         this.orderNumber = orderNumber;
     }
     
     private WorkOrder workOrder;
-    public WorkOrder getWorkOrder() {
+    public WorkOrder getCurrentWorkOrder() {
         return workOrder;
     }
-    public void setWorkOrder(WorkOrder workOrder) {
+    public void setCurrentWorkOrder(WorkOrder workOrder) {
         this.workOrder = workOrder;
+    }
+
+    private Map<String, WorkOrder> workOrders = new HashMap();
+    public Map<String, WorkOrder> getWorkOrders() {
+        return workOrders;
+    }
+    public void setWorkOrders(Map<String, WorkOrder> workOrders) {
+        this.workOrders = workOrders;
+    }
+    public void addWorkOrder(WorkOrder wo, boolean isNew) {
+        workOrders.put(wo.getOrderNumber(), wo);
+        domainDataIsNew.put(wo.getOrderNumber(), isNew);
     }
 
     // Distribution Line Data
@@ -109,19 +121,41 @@ public class InspectionData implements InspectionDataInterface {
     }
 
     private Feeder feeder;
-    public Feeder getFeeder() {
+    public Feeder getCurrentFeeder() {
         return feeder;
     }
-    public void setFeeder(Feeder feeder) {
+    public void setCurrentFeeder(Feeder feeder) {
         this.feeder = feeder;
+    }
+    private Map<String, Feeder> feedersByFeederNum = new HashMap();
+    public Map<String, Feeder> getFeedersByFeederNum() {
+        return feedersByFeederNum;
+    }
+    public void setFeedersByFeederNum(Map<String, Feeder> feeders) {
+        this.feedersByFeederNum = feeders;
+    }
+    public void addFeeder(Feeder feeder, boolean isNew) {
+        feedersByFeederNum.put(feeder.getFeederNumber(), feeder);
+        domainDataIsNew.put(feeder.getId(), isNew);
     }
     
     private FeederInspection feederInspection;
-    public FeederInspection getFeederInspection() {
+    public FeederInspection getCurrentFeederInspection() {
         return feederInspection;
     }
-    public void setFeederInspection(FeederInspection feederInspection) {
+    public void setCurrentFeederInspection(FeederInspection feederInspection) {
         this.feederInspection = feederInspection;
+    }
+    private Map<String, FeederInspection> feederInspections = new HashMap();
+    public Map<String, FeederInspection> getFeederInspections() {
+        return feederInspections;
+    }
+    public void setFeederInspections(Map<String, FeederInspection> feederInspectionsByFeederNum) {
+        this.feederInspections = feederInspectionsByFeederNum;
+    }
+    public void addFeederInspection(FeederInspection feederInspection, boolean isNew) {
+        feederInspections.put(feederInspection.getId(), feederInspection);
+        domainDataIsNew.put(feederInspection.getId(), isNew);
     }
     
     private Map<String, InspectionEvent> inspectionEvents = new HashMap<>();
@@ -171,19 +205,41 @@ public class InspectionData implements InspectionDataInterface {
     }
     
     private TransmissionLine line;
-    public TransmissionLine getLine() {
+    public TransmissionLine getCurrentLine() {
         return line;
     }
-    public void setLine(TransmissionLine line) {
+    public void setCurrentLine(TransmissionLine line) {
         this.line = line;
+    }
+    private Map<String, TransmissionLine> linesByLineNum;
+    public Map<String, TransmissionLine> getLinesByLineNum() {
+        return linesByLineNum;
+    }
+    public void setLinesByLineNum(Map<String, TransmissionLine> transmissionLinesByLineNum) {
+        this.linesByLineNum = transmissionLinesByLineNum;
+    }
+    public void addLine(TransmissionLine line, boolean isNew) {
+        linesByLineNum.put(line.getLineNumber(), line);
+        domainDataIsNew.put(line.getId(), isNew);
     }
     
     private TransmissionLineInspection lineInspection;
-    public TransmissionLineInspection getLineInspection() {
+    public TransmissionLineInspection getCurrentLineInspection() {
         return lineInspection;
     }
-    public void setLineInspection(TransmissionLineInspection lineInspection) {
+    public void setCurrentLineInspection(TransmissionLineInspection lineInspection) {
         this.lineInspection = lineInspection;
+    }
+    private Map<String, TransmissionLineInspection> lineInspections = new HashMap();
+    public Map<String, TransmissionLineInspection> getLineInspections() {
+        return lineInspections;
+    }
+    public void setLineInspections(Map<String, TransmissionLineInspection> lineInspectionsByLineNum) {
+        this.lineInspections = lineInspectionsByLineNum;
+    }
+    public void addLineInspection(TransmissionLineInspection inspection, boolean isNew) {
+        lineInspections.put(inspection.getId(), inspection);
+        domainDataIsNew.put(inspection.getId(), isNew);
     }
     
     public void addTransmissionStruture(TransmissionStructure struct, boolean isNew) {

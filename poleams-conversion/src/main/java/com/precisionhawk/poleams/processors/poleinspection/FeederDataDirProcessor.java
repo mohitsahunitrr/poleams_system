@@ -87,7 +87,7 @@ public final class FeederDataDirProcessor implements Constants {
                 rmeta = new ResourceMetadata();
                 rmeta.setContentType(contentType);
                 rmeta.setName(f.getName());
-                rmeta.setOrderNumber(data.getOrderNumber());
+                rmeta.setOrderNumber(data.getCurrentOrderNumber());
                 if (poleInspection != null) {
                     rmeta.setAssetId(poleInspection.getAssetId());
                     rmeta.setAssetInspectionId(poleInspection.getId());
@@ -115,7 +115,7 @@ public final class FeederDataDirProcessor implements Constants {
         
         boolean success;
         InspectionData data = new InspectionData();
-        data.setOrderNumber(orderNumber);
+        data.setCurrentOrderNumber(orderNumber);
         data.setOrganizationId(orgId);
         
         // There should be an excel file for all poles.
@@ -182,7 +182,7 @@ public final class FeederDataDirProcessor implements Constants {
         if (fmDir.isDirectory()) {
             File f = findFeederMapFile(listener, fmDir);
             if (f != null) {
-                success = ensureResource(env, data, listener, data.getFeederInspection(), null, ResourceTypes.FeederMap, f);
+                success = ensureResource(env, data, listener, data.getCurrentFeederInspection(), null, ResourceTypes.FeederMap, f);
             }
             if (!success) {
                 return false;
@@ -257,8 +257,8 @@ public final class FeederDataDirProcessor implements Constants {
     
     private static boolean updateSurveyReport(Environment env, InspectionData data, ProcessListener listener) {
         try {
-            File inFile = File.createTempFile(data.getFeeder().getFeederNumber(), "surveyrptsource");
-            File outFile = File.createTempFile(data.getFeeder().getFeederNumber(), "surveyrptout");
+            File inFile = File.createTempFile(data.getCurrentFeeder().getFeederNumber(), "surveyrptsource");
+            File outFile = File.createTempFile(data.getCurrentFeeder().getFeederNumber(), "surveyrptout");
             // Copy from source to temp file.  I do this because I don't trust POI to not overwrite the original.  I've had it do strange things.
             InputStream is = null;
             OutputStream os = null;
@@ -271,21 +271,21 @@ public final class FeederDataDirProcessor implements Constants {
                 IOUtils.closeQuietly(os);
             }
             // Populate summary into 2nd temp file
-            FeederInspectionSummary summary = env.obtainWebService(FeederInspectionWebService.class).retrieveSummary(env.obtainAccessToken(), data.getFeederInspection().getId());
+            FeederInspectionSummary summary = env.obtainWebService(FeederInspectionWebService.class).retrieveSummary(env.obtainAccessToken(), data.getCurrentFeederInspection().getId());
             boolean success = SurveyReportGenerator.populateTemplate(env, listener, summary, inFile, outFile, false);
             // Set up to upload temp file
             if (success) {
                 ResourceWebService svc = env.obtainWebService(ResourceWebService.class);
                 ResourceSearchParams params = new ResourceSearchParams();
-                params.setOrderNumber(data.getOrderNumber());
-                params.setSiteId(data.getFeederInspection().getSiteId());
-                params.setSiteInspectionId(data.getFeederInspection().getId());
+                params.setOrderNumber(data.getCurrentOrderNumber());
+                params.setSiteId(data.getCurrentFeederInspection().getSiteId());
+                params.setSiteInspectionId(data.getCurrentFeederInspection().getId());
                 params.setType(ResourceTypes.SurveyReport);
                 ResourceMetadata rmeta = CollectionsUtilities.firstItemIn(svc.search(env.obtainAccessToken(), params));
                 if (rmeta == null) {
                     rmeta = new ResourceMetadata();
                     rmeta.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-                    rmeta.setName(String.format("%s-%s_Survey_Report.xlsx", data.getFeeder().getName(), data.getFeeder().getFeederNumber()));
+                    rmeta.setName(String.format("%s-%s_Survey_Report.xlsx", data.getCurrentFeeder().getName(), data.getCurrentFeeder().getFeederNumber()));
                     rmeta.setOrderNumber(params.getOrderNumber());
                     rmeta.setResourceId(UUID.randomUUID().toString());
                     rmeta.setStatus(ResourceStatus.QueuedForUpload);

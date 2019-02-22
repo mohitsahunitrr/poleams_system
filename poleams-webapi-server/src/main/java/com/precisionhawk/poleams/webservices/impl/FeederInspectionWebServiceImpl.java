@@ -117,13 +117,6 @@ public class FeederInspectionWebServiceImpl extends AbstractWebService implement
             sss.setAnomalyReportDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
         }
         
-        // Find the Feeder Map, if any.
-        rparams.setType(ResourceTypes.FeederMap);
-        resources = resourceService.search(authToken, rparams);
-        if (!resources.isEmpty()) {
-            sss.setFeederMapDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
-        }
-        
         // find the Summary report, if any.
         rparams.setType(ResourceTypes.FeederSummaryReport);
         resources = resourceService.search(authToken, rparams);
@@ -151,6 +144,15 @@ public class FeederInspectionWebServiceImpl extends AbstractWebService implement
         resources = resourceService.search(authToken, rparams);
         if (!resources.isEmpty()) {
             sss.setVegitationEncroachmentShapeDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
+        }
+        
+        // Find the Feeder Map, if any.
+        rparams.setType(ResourceTypes.FeederMap);
+        rparams.setSiteId(finsp.getSiteId());
+        rparams.setSiteInspectionId(null);
+        resources = resourceService.search(authToken, rparams);
+        if (!resources.isEmpty()) {
+            sss.setFeederMapDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
         }
         
         return sss;

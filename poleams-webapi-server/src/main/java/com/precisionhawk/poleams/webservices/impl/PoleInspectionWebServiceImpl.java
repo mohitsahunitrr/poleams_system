@@ -158,7 +158,7 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
         rparams.setType(ResourceTypes.PoleAnomalyReport);
         resources = resourceService.search(authToken, rparams);
         if (!resources.isEmpty()) {
-            summary.setAnalysisReportURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
+            summary.setAnomalyReportDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
         }
         
         // Populate the drone survey sheet URL, if any.
