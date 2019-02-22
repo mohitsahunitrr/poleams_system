@@ -129,7 +129,7 @@ public final class TransmissionLineInspectionImport {
             
             // Process images
             File imagesDir;
-            for (TransmissionStructure struct : data.getStructureDataByStructureNum().values()) {
+            for (TransmissionStructure struct : data.getStructuresMap().values()) {
                 imagesDir = new File(inputDir, struct.getStructureNumber());
                 if (imagesDir.isDirectory()) {
                     File[] files = imagesDir.listFiles(FilenameFilters.IMAGES_FILTER);
@@ -356,7 +356,7 @@ public final class TransmissionLineInspectionImport {
                 rmeta.setPosition(pos);
             }
             rmeta.setAssetId(struct.getId());
-            rmeta.setAssetInspectionId(data.getStructureInspectionsByStructureNum().get(struct.getStructureNumber()).getId());
+            rmeta.setAssetInspectionId(data.getStructureInspectionsMap().get(struct.getStructureNumber()).getId());
             rmeta.setSize(ImageUtilities.getSize(info));
             rmeta.setStatus(ResourceStatus.QueuedForUpload);
             rmeta.setSiteId(data.getCurrentLine().getId());

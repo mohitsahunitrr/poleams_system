@@ -269,7 +269,7 @@ public class ShapeFileMasterDataImport implements MasterDataImporter {
             listener.reportNonFatalError(String.format("Invalid image name %s", f.getName()));
             return;
         }
-        TransmissionStructure struct = data.getStructureDataByStructureNum().get(parts[0]);
+        TransmissionStructure struct = data.getStructuresMap().get(parts[0]);
         if (struct == null) {
             listener.reportNonFatalError(String.format("Unable to locate structure %s for image %s", parts[0], f.getName()));
             return;
@@ -306,7 +306,7 @@ public class ShapeFileMasterDataImport implements MasterDataImporter {
 //                rmeta.setPosition(pos);
 //            }
             rmeta.setAssetId(struct.getId());
-            rmeta.setAssetInspectionId(data.getStructureInspectionsByStructureNum().get(struct.getStructureNumber()).getId());
+            rmeta.setAssetInspectionId(data.getStructureInspectionsMap().get(struct.getStructureNumber()).getId());
             rmeta.setSize(ImageUtilities.getSize(info));
             rmeta.setStatus(ResourceStatus.QueuedForUpload);
             rmeta.setSiteId(data.getCurrentLine().getId());

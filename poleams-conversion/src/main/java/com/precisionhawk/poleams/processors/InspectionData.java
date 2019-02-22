@@ -88,12 +88,9 @@ public class InspectionData implements InspectionDataInterface {
         this.workOrder = workOrder;
     }
 
-    private Map<String, WorkOrder> workOrders = new HashMap();
+    private final Map<String, WorkOrder> workOrders = new HashMap();
     public Map<String, WorkOrder> getWorkOrders() {
         return workOrders;
-    }
-    public void setWorkOrders(Map<String, WorkOrder> workOrders) {
-        this.workOrders = workOrders;
     }
     public void addWorkOrder(WorkOrder wo, boolean isNew) {
         workOrders.put(wo.getOrderNumber(), wo);
@@ -110,14 +107,14 @@ public class InspectionData implements InspectionDataInterface {
         this.masterDataFile = masterDataFile;
     }
 
-    private final Map<String, Pole> poleData = new HashMap<>();
-    public Map<String, Pole> getPoleDataByFPLId() {
+    private final Map<SiteAssetKey, Pole> poleData = new HashMap<>();
+    public Map<SiteAssetKey, Pole> getPolesMap() {
         return poleData;
     }
     
-    private final Map<String, PoleInspection> poleInspectionsByFPLId = new HashMap<>();
-    public Map<String, PoleInspection> getPoleInspectionsByFPLId() {
-        return poleInspectionsByFPLId;
+    private final Map<SiteAssetKey, PoleInspection> poleInspections = new HashMap<>();
+    public Map<SiteAssetKey, PoleInspection> getPoleInspectionsMap() {
+        return poleInspections;
     }
 
     private Feeder feeder;
@@ -127,12 +124,9 @@ public class InspectionData implements InspectionDataInterface {
     public void setCurrentFeeder(Feeder feeder) {
         this.feeder = feeder;
     }
-    private Map<String, Feeder> feedersByFeederNum = new HashMap();
+    private final Map<String, Feeder> feedersByFeederNum = new HashMap();
     public Map<String, Feeder> getFeedersByFeederNum() {
         return feedersByFeederNum;
-    }
-    public void setFeedersByFeederNum(Map<String, Feeder> feeders) {
-        this.feedersByFeederNum = feeders;
     }
     public void addFeeder(Feeder feeder, boolean isNew) {
         feedersByFeederNum.put(feeder.getFeederNumber(), feeder);
@@ -146,36 +140,27 @@ public class InspectionData implements InspectionDataInterface {
     public void setCurrentFeederInspection(FeederInspection feederInspection) {
         this.feederInspection = feederInspection;
     }
-    private Map<String, FeederInspection> feederInspections = new HashMap();
+    private final Map<String, FeederInspection> feederInspections = new HashMap();
     public Map<String, FeederInspection> getFeederInspections() {
         return feederInspections;
-    }
-    public void setFeederInspections(Map<String, FeederInspection> feederInspectionsByFeederNum) {
-        this.feederInspections = feederInspectionsByFeederNum;
     }
     public void addFeederInspection(FeederInspection feederInspection, boolean isNew) {
         feederInspections.put(feederInspection.getId(), feederInspection);
         domainDataIsNew.put(feederInspection.getId(), isNew);
     }
     
-    private Map<String, InspectionEvent> inspectionEvents = new HashMap<>();
+    private final Map<String, InspectionEvent> inspectionEvents = new HashMap<>();
     public Map<String, InspectionEvent> getInspectionEvents() {
         return inspectionEvents;
-    }
-    public void setInspectionEvents(Map<String, InspectionEvent> inspectionEvents) {
-        this.inspectionEvents = inspectionEvents;
     }
     public void addInspectionEvent(InspectionEvent evt, boolean isNew) {
         inspectionEvents.put(evt.getId(), evt);
         domainDataIsNew.put(evt.getId(), isNew);
     }
     
-    private Map<String, InspectionEventResource> inspectionEventResources = new HashMap<>();
+    private final Map<String, InspectionEventResource> inspectionEventResources = new HashMap<>();
     public Map<String, InspectionEventResource> getInspectionEventResources() {
         return inspectionEventResources;
-    }
-    public void setInspectionEventResources(Map<String, InspectionEventResource> inspectionEventResources) {
-        this.inspectionEventResources = inspectionEventResources;
     }
     public void addInspectionEventResource(InspectionEventResource res, boolean isNew) {
         inspectionEventResources.put(res.getId(), res);
@@ -183,25 +168,25 @@ public class InspectionData implements InspectionDataInterface {
     }
     
     public void addPole(Pole pole, boolean isNew) {
-        poleData.put(pole.getUtilityId(), pole);
+        poleData.put(new SiteAssetKey(pole), pole);
         domainDataIsNew.put(pole.getId(), isNew);
     }
     
     public void addPoleInspection(Pole pole, PoleInspection inspection, boolean isNew) {
-        poleInspectionsByFPLId.put(pole.getUtilityId(), inspection);
+        poleInspections.put(new SiteAssetKey(pole), inspection);
         domainDataIsNew.put(inspection.getId(), isNew);
     }
 
     // Transmission Line Data
 
-    private final Map<String, TransmissionStructure> structureData = new HashMap<>();
-    public Map<String, TransmissionStructure> getStructureDataByStructureNum() {
+    private final Map<SiteAssetKey, TransmissionStructure> structureData = new HashMap<>();
+    public Map<SiteAssetKey, TransmissionStructure> getStructuresMap() {
         return structureData;
     }
     
-    private final Map<String, TransmissionStructureInspection> structureInspectionsByStructureNum = new HashMap<>();
-    public Map<String, TransmissionStructureInspection> getStructureInspectionsByStructureNum() {
-        return structureInspectionsByStructureNum;
+    private final Map<SiteAssetKey, TransmissionStructureInspection> structureInspections = new HashMap<>();
+    public Map<SiteAssetKey, TransmissionStructureInspection> getStructureInspectionsMap() {
+        return structureInspections;
     }
     
     private TransmissionLine line;
@@ -211,12 +196,9 @@ public class InspectionData implements InspectionDataInterface {
     public void setCurrentLine(TransmissionLine line) {
         this.line = line;
     }
-    private Map<String, TransmissionLine> linesByLineNum;
+    private final Map<String, TransmissionLine> linesByLineNum = new HashMap();
     public Map<String, TransmissionLine> getLinesByLineNum() {
         return linesByLineNum;
-    }
-    public void setLinesByLineNum(Map<String, TransmissionLine> transmissionLinesByLineNum) {
-        this.linesByLineNum = transmissionLinesByLineNum;
     }
     public void addLine(TransmissionLine line, boolean isNew) {
         linesByLineNum.put(line.getLineNumber(), line);
@@ -230,12 +212,9 @@ public class InspectionData implements InspectionDataInterface {
     public void setCurrentLineInspection(TransmissionLineInspection lineInspection) {
         this.lineInspection = lineInspection;
     }
-    private Map<String, TransmissionLineInspection> lineInspections = new HashMap();
+    private final Map<String, TransmissionLineInspection> lineInspections = new HashMap();
     public Map<String, TransmissionLineInspection> getLineInspections() {
         return lineInspections;
-    }
-    public void setLineInspections(Map<String, TransmissionLineInspection> lineInspectionsByLineNum) {
-        this.lineInspections = lineInspectionsByLineNum;
     }
     public void addLineInspection(TransmissionLineInspection inspection, boolean isNew) {
         lineInspections.put(inspection.getId(), inspection);
@@ -243,12 +222,12 @@ public class InspectionData implements InspectionDataInterface {
     }
     
     public void addTransmissionStruture(TransmissionStructure struct, boolean isNew) {
-        structureData.put(struct.getStructureNumber(), struct);
+        structureData.put(new SiteAssetKey(struct), struct);
         domainDataIsNew.put(struct.getId(), isNew);
     }
     
     public void addTransmissionStructureInspection(TransmissionStructure struct, TransmissionStructureInspection inspection, boolean isNew) {
-        structureInspectionsByStructureNum.put(struct.getStructureNumber(), inspection);
+        structureInspections.put(new SiteAssetKey(struct), inspection);
         domainDataIsNew.put(inspection.getId(), isNew);
     }
     

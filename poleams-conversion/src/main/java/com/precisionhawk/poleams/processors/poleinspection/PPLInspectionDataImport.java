@@ -1,6 +1,5 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
-import com.precisionhawk.poleams.processors.MasterDataImporter;
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.bean.GeoPoint;
 import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
@@ -9,7 +8,6 @@ import com.precisionhawk.ams.domain.AssetInspectionType;
 import com.precisionhawk.ams.domain.SiteInspectionStatus;
 import com.precisionhawk.ams.domain.SiteInspectionType;
 import com.precisionhawk.ams.domain.WorkOrder;
-import com.precisionhawk.ams.domain.WorkOrderType;
 import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.bean.FeederSearchParams;
@@ -26,7 +24,6 @@ import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.poleams.webservices.client.WSClientHelper;
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;

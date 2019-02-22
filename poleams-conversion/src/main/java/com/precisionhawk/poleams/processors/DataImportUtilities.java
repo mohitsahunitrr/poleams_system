@@ -148,9 +148,9 @@ public class DataImportUtilities {
         }
 
         // Save Poles
-        if (!data.getPoleDataByFPLId().isEmpty()) {
+        if (!data.getPolesMap().isEmpty()) {
             PoleWebService psvc = env.obtainWebService(PoleWebService.class);
-            for (Pole pdata : data.getPoleDataByFPLId().values()) {
+            for (Pole pdata : data.getPolesMap().values()) {
                 if (data.getDomainObjectIsNew().get(pdata.getId())) {
                     psvc.create(env.obtainAccessToken(), pdata);
                     listener.reportMessage(String.format("Inserted new pole %s Utility ID %s", pdata.getId(), pdata.getUtilityId()));
@@ -162,9 +162,9 @@ public class DataImportUtilities {
         }
         
         // Save Transmission Structures
-        if (!data.getStructureDataByStructureNum().isEmpty()) {
+        if (!data.getStructuresMap().isEmpty()) {
             TransmissionStructureWebService svc = env.obtainWebService(TransmissionStructureWebService.class);
-            for (TransmissionStructure struct : data.getStructureDataByStructureNum().values()) {
+            for (TransmissionStructure struct : data.getStructuresMap().values()) {
                 if (data.getDomainObjectIsNew().get(struct.getId())) {
                     svc.create(env.obtainAccessToken(), struct);
                     listener.reportMessage(String.format("Inserted new transmission structure %s for structure number %s", struct.getId(), struct.getStructureNumber()));
@@ -176,9 +176,9 @@ public class DataImportUtilities {
         }
 
         // Save Pole Inspections
-        if (!data.getPoleInspectionsByFPLId().isEmpty()) {
+        if (!data.getPoleInspectionsMap().isEmpty()) {
             PoleInspectionWebService pisvc = env.obtainWebService(PoleInspectionWebService.class);
-            for (PoleInspection pi : data.getPoleInspectionsByFPLId().values()) {
+            for (PoleInspection pi : data.getPoleInspectionsMap().values()) {
                 if (data.getDomainObjectIsNew().get(pi.getId())) {
                     pisvc.create(env.obtainAccessToken(), pi);
                     listener.reportMessage(String.format("Inserted new inspection for pole %s", pi.getAssetId()));
@@ -190,9 +190,9 @@ public class DataImportUtilities {
         }
         
         // Save Transmission Structure Inspections
-        if (!data.getStructureInspectionsByStructureNum().isEmpty()) {
+        if (!data.getStructureInspectionsMap().isEmpty()) {
             TransmissionStructureInspectionWebService svc = env.obtainWebService(TransmissionStructureInspectionWebService.class);
-            for (TransmissionStructureInspection insp : data.getStructureInspectionsByStructureNum().values()) {
+            for (TransmissionStructureInspection insp : data.getStructureInspectionsMap().values()) {
                 if (data.getDomainObjectIsNew().get(insp.getId())) {
                     svc.create(env.obtainAccessToken(), insp);
                     listener.reportMessage(String.format("Inserted new inspection for transmission structure %s", insp.getAssetId()));
@@ -376,7 +376,7 @@ public class DataImportUtilities {
 
     public static Pole ensurePole(WSClientHelper svcs, ProcessListener listener, InspectionData data, String fplid, LocalDate inspectionDate) throws IOException {
         
-        Pole pole = data.getPoleDataByFPLId().get(fplid);
+        Pole pole = data.getPolesMap().get(new SiteAssetKey(data.getCurrentFeeder().getId(), fplid));
         if (pole != null) {
             return pole;
         }
@@ -406,7 +406,7 @@ public class DataImportUtilities {
             WSClientHelper svcs, ProcessListener listener, InspectionData data, Pole pole, LocalDate inspectionDate
         ) throws IOException
     {
-        PoleInspection insp = data.getPoleInspectionsByFPLId().get(pole.getUtilityId());
+        PoleInspection insp = data.getPoleInspectionsMap().get(new SiteAssetKey(pole));
         if (insp == null) {
             AssetInspectionSearchParams iparams = new AssetInspectionSearchParams();
             iparams.setAssetId(pole.getId());
@@ -433,7 +433,7 @@ public class DataImportUtilities {
 
     public static TransmissionStructure ensureTxStructure(WSClientHelper svcs, ProcessListener listener, InspectionData data, String utilityid, LocalDate inspectionDate) throws IOException {
         
-        TransmissionStructure ts = data.getStructureDataByStructureNum().get(utilityid);
+        TransmissionStructure ts = data.getStructuresMap().get(new SiteAssetKey(data.getCurrentLine().getId(), utilityid));
         if (ts != null) {
             return ts;
         }
@@ -464,7 +464,7 @@ public class DataImportUtilities {
             WSClientHelper svcs, ProcessListener listener, InspectionData data, TransmissionStructure struct, LocalDate inspectionDate
         ) throws IOException
     {
-        TransmissionStructureInspection insp = data.getStructureInspectionsByStructureNum().get(struct.getStructureNumber());
+        TransmissionStructureInspection insp = data.getStructureInspectionsMap().get(new SiteAssetKey(struct));
         if (insp == null) {
             AssetInspectionSearchParams iparams = new AssetInspectionSearchParams();
             iparams.setAssetId(struct.getId());

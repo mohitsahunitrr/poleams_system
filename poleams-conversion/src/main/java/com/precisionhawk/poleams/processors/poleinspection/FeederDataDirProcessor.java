@@ -154,7 +154,7 @@ public final class FeederDataDirProcessor implements Constants {
                             fplid = fplid.substring(0, fplid.length() -1);
                         }
                         // The name of the directory should be the FPL ID of the pole.
-                        Pole pole = data.getPoleDataByFPLId().get(fplid);
+                        Pole pole = data.getPolesMap().get(fplid);
                         if (pole == null) {
                             listener.reportMessage(String.format("No pole found with FPL ID \"%s\".  The directory \"%s\" is being skipped.", fplid, f.getAbsolutePath()));
                         } else {

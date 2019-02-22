@@ -95,6 +95,8 @@ public class DeleteSiteProcess extends ServiceClientCommandProcess {
                 deleteTransmissionStructures(services, s);
                 
                 if (all) {
+                    deletePoleInspections(services, s);
+                    deleteFeederInspections(services, s);
                     services.feeders().delete(services.token(), siteId);
                 }
                 
@@ -120,9 +122,11 @@ public class DeleteSiteProcess extends ServiceClientCommandProcess {
 
                 // Just in case
                 deletePoleInspections(services, s);
-                deletePoles(services, s);                
+                deletePoles(services, s);  
                 
                 if (all) {
+                    deleteFeederInspections(services, s);
+                    deletePoleInspections(services, s);
                     services.feeders().delete(services.token(), siteId);
                 }
                 
