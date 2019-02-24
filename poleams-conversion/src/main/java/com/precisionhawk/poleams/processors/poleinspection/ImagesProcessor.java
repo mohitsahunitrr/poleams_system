@@ -95,7 +95,6 @@ final class ImagesProcessor implements Constants {
         if (rmeta == null) {
             rmeta = new ResourceMetadata();
             rmeta.setResourceId(UUID.randomUUID().toString());
-            String name = f.getName().toLowerCase();
             rmeta.setType(ResourceTypes.Other);
             if (getDroneImageFilter().accept(f.getParentFile(), f.getName())) {
                 rmeta.setType(ResourceTypes.DroneInspectionImage);
@@ -115,16 +114,17 @@ final class ImagesProcessor implements Constants {
             } else {
                 exif = null;
             }
+            AssetInspection ai = data.getPoleInspectionsMap().get(new SiteAssetKey(p.getSiteId(), p.getUtilityId()));
+            rmeta.setAssetId(p.getId());
+            rmeta.setAssetInspectionId(ai.getId());
             rmeta.setContentType(info.getMimeType());
             rmeta.setLocation(ImageUtilities.getLocation(exif));
             rmeta.setName(f.getName());
-            rmeta.setOrderNumber(data.getCurrentOrderNumber());
-            rmeta.setAssetId(p.getId());
-            AssetInspection ai = data.getPoleInspectionsMap().get(new SiteAssetKey(p.getSiteId(), p.getUtilityId()));
-            rmeta.setAssetInspectionId(ai.getId());
+            rmeta.setOrderNumber(ai.getOrderNumber());
             rmeta.setSize(ImageUtilities.getSize(info));
             rmeta.setStatus(ResourceStatus.QueuedForUpload);
-            rmeta.setSiteId(data.getCurrentFeeder().getId());
+            rmeta.setSiteId(p.getSiteId());
+            rmeta.setSiteInspectionId(ai.getSiteInspectionId());
             rmeta.setTimestamp(ImageUtilities.getTimestamp(exif, DEFAULT_TZ));
             data.addResourceMetadata(rmeta, f, true);
         } else {

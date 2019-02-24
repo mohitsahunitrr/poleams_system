@@ -179,129 +179,24 @@ public class PPLInspectionDataImport {
         }
     }
     
-    private Feeder ensureFeeder(String feederId) {
-        try {
-            // Feeder
-            FeederSearchParams params = new FeederSearchParams();
-            params.setFeederNumber(feederId);
-            params.setOrganizationId(data.getOrganizationId());
-            data.setCurrentFeeder(CollectionsUtilities.firstItemIn(svcs.feeders().search(svcs.token(), params)));
-            if (data.getCurrentFeeder() == null) {
-                Feeder feeder = new Feeder();
-                feeder.setFeederNumber(feederId);
-                feeder.setId(UUID.randomUUID().toString());
-                feeder.setName(feederId);
-                feeder.setOrganizationId(data.getOrganizationId());
-                data.setCurrentFeeder(feeder);
-                data.getDomainObjectIsNew().put(feeder.getId(), true);
-            } else {
-                data.getDomainObjectIsNew().put(data.getCurrentFeeder().getId(), false);
-            }
-
-            // Now that we have the feeder, we can deal with the Work Order
-            // Work Order
-            try {
-                data.setCurrentWorkOrder(svcs.workOrders().retrieveById(svcs.token(), data.getCurrentOrderNumber()));
-            } catch (ClientResponseFailure ex) {
-                if (ex.getResponse().getResponseStatus() == Status.NOT_FOUND) {
-                    data.setCurrentWorkOrder(null);
-                } else {
-                    throw ex;
-                }
-            }
-            if (data.getCurrentWorkOrder() == null) {
-                WorkOrder wo = new WorkOrder();
-                wo.setOrderNumber(data.getCurrentOrderNumber());
-                wo.setRequestDate(LocalDate.now());
-                wo.setStatus(WorkOrderStatuses.Requested);
-                wo.setType(WorkOrderTypes.DistributionLineInspection);
-                data.setCurrentWorkOrder(wo);
-                data.getDomainObjectIsNew().put(wo.getOrderNumber(), true);
-            } else {
-                data.getDomainObjectIsNew().put(data.getCurrentOrderNumber(), false);
-            }
-            boolean found = false;
-            for (String siteId : data.getCurrentWorkOrder().getSiteIds()) {
-                if (data.getCurrentFeeder().getId().equals(siteId)) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                data.getCurrentWorkOrder().getSiteIds().add(data.getCurrentFeeder().getId());
-            }
-
-            // Now with feeder and work order, we can deal with the feeder inspection
-            // Feeder Inspection
-            SiteInspectionSearchParams siparams = new SiteInspectionSearchParams();
-            siparams.setOrderNumber(data.getCurrentOrderNumber());
-            siparams.setSiteId(data.getCurrentFeeder().getId());
-            data.setCurrentFeederInspection(CollectionsUtilities.firstItemIn(svcs.feederInspections().search(svcs.token(), siparams)));
-            if (data.getCurrentFeederInspection() == null) {
-                FeederInspection insp = new FeederInspection();
-                insp.setId(UUID.randomUUID().toString());
-                insp.setOrderNumber(data.getCurrentOrderNumber());
-                insp.setSiteId(data.getCurrentFeeder().getId());
-                insp.setStatus(new SiteInspectionStatus("Pending")); //FIXME:
-                insp.setType(new SiteInspectionType("DroneInspection")); //FIXME:
-                data.setCurrentFeederInspection(insp);
-                data.getDomainObjectIsNew().put(insp.getId(), true);
-            } else {
-                data.getDomainObjectIsNew().put(data.getCurrentFeederInspection().getId(), false);
-            }
-            return data.getCurrentFeeder();
-        } catch (IOException ioe) {
-            listener.reportFatalException(ioe);
-            return null;
-        }
-    }
-    
-    private Pole ensurePole(String utilityId, GeoPoint location) {
+    private Pole ensurePole(String utilityId, GeoPoint location) throws IOException {
         if (utilityId == null || utilityId.isEmpty()) {
             listener.reportFatalError("Utility ID missing");
             return null;
         }
-        try {
-            // Pole
-            PoleSearchParams pparams = new PoleSearchParams();
-            pparams.setSiteId(data.getCurrentFeeder().getId());
-            pparams.setUtilityId(utilityId);
-            Pole pole = CollectionsUtilities.firstItemIn(svcs.poles().search(svcs.token(), pparams));
-            if (pole == null) {
-                pole = new Pole();
-                pole.setId(UUID.randomUUID().toString());
-                pole.setLocation(location);
-                pole.setName(utilityId);
-                pole.setSiteId(data.getCurrentFeeder().getId());
-                pole.setUtilityId(utilityId);
-                data.addPole(pole, true);
-            } else {
-                data.addPole(pole, false);
-            }
-            
-            // Pole Inspection
-            AssetInspectionSearchParams aiparams = new AssetInspectionSearchParams();
-            aiparams.setAssetId(pole.getId());
-            aiparams.setOrderNumber(data.getCurrentOrderNumber());
-            PoleInspection insp = CollectionsUtilities.firstItemIn(svcs.poleInspections().search(svcs.token(), aiparams));
-            if (insp == null) {
-                insp = new PoleInspection();
-                insp.setAssetId(pole.getId());
-                insp.setOrderNumber(data.getCurrentOrderNumber());
-                insp.setSiteId(data.getCurrentFeeder().getId());
-                insp.setSiteInspectionId(data.getCurrentFeederInspection().getId());
-                insp.setStatus(new AssetInspectionStatus("Pending")); //FIXME:
-                insp.setType(new AssetInspectionType("DroneInspection")); //FIXME:
-                data.addPoleInspection(pole, insp, true);
-            } else {
-                data.addPoleInspection(pole, insp, false);
-            }
-            
-            return pole;
-        } catch (IOException ex) {
-            listener.reportFatalException(ex);
-            return null;
+        Pole pole = DataImportUtilities.ensurePole(svcs, listener, data, utilityId, LocalDate.now());
+        if (pole == null) {
+            throw new IOException(String.format("Unable to lookup or create the pole %s", utilityId));
         }
+        if (pole.getLocation() == null) {
+            pole.setLocation(location);
+        } else {
+            pole.getLocation().setAccuracy(location.getAccuracy());
+            pole.getLocation().setAltitude(location.getAltitude());
+            pole.getLocation().setLatitude(location.getLatitude());
+            pole.getLocation().setLongitude(location.getLongitude());
+        }
+        return pole;
     }
     
     private static final String TAG_COORDS = "coordinates";
@@ -391,13 +286,17 @@ public class PPLInspectionDataImport {
                     break;
                 case TAG_PLACEMARK:
                     // End tag for pole data
-                    Pole p = ensurePole(utilityId, poleLocation);
-                    if (p == null) {
-                        throw new SAXException(String.format("Unable to create new pole %s", utilityId));
+                    try {
+                        Pole p = ensurePole(utilityId, poleLocation);
+                        if (p == null) {
+                            throw new SAXException(String.format("Unable to create new pole %s", utilityId));
+                        }
+                        inPlacemark = false;
+                        poleLocation = null;
+                        utilityId = null;
+                    } catch (IOException ex) {
+                        throw new SAXException(ex);
                     }
-                    inPlacemark = false;
-                    poleLocation = null;
-                    utilityId = null;
                     break;
                 default:
                     // Not handled

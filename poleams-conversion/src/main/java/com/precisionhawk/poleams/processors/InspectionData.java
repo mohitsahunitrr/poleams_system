@@ -69,7 +69,9 @@ public class InspectionData implements InspectionDataInterface {
             list.add(rmeta);
         }
         domainDataIsNew.put(rmeta.getResourceId(), isNew);
-        resourceDataFiles.put(rmeta.getResourceId(), dataFile);
+        if (dataFile != null) {
+            resourceDataFiles.put(rmeta.getResourceId(), dataFile);
+        }
     }
  
     private String orderNumber;

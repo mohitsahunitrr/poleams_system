@@ -69,34 +69,7 @@ public class FeederDataImportProcess extends ServiceClientCommandProcess {
         if (dirPath == null || orderNumber == null) {
             return false;
         }
-        ProcessListener listener = new ProcessListener() {
-            @Override
-            public void reportFatalError(String message) {
-                System.err.println(message);
-            }
-            @Override
-            public void reportFatalException(String message, Throwable t) {
-                System.err.println(message);
-                t.printStackTrace(System.err);
-            }
-            @Override
-            public void reportFatalException(Exception ex) {
-                ex.printStackTrace(System.err);
-            }
-            @Override
-            public void reportMessage(String message) {
-                System.out.println(message);
-            }
-            @Override
-            public void reportNonFatalError(String message) {
-                System.err.println(message);
-            }
-            @Override
-            public void reportNonFatalException(String message, Throwable t) {
-                System.err.println(message);
-                t.printStackTrace(System.err);
-            }
-        };
+        ProcessListener listener = new CLIProcessListener();
         boolean success = false;
         if (type == Type.FPLCSV) {
             success = FeederDataDirProcessor2.process(env, listener, new File(dirPath), orgId, orderNumber);

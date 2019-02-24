@@ -101,34 +101,7 @@ public class TransmissionMasterDataImportProcess extends ServiceClientCommandPro
             System.err.printf("%s is required for input type %s\n", inputType.requires, inputType.name());
             return false;
         }
-        ProcessListener listener = new ProcessListener() {
-            @Override
-            public void reportFatalError(String message) {
-                System.err.println(message);
-            }
-            @Override
-            public void reportFatalException(String message, Throwable t) {
-                System.err.println(message);
-                t.printStackTrace(System.err);
-            }
-            @Override
-            public void reportFatalException(Exception ex) {
-                ex.printStackTrace(System.err);
-            }
-            @Override
-            public void reportMessage(String message) {
-                System.out.println(message);
-            }
-            @Override
-            public void reportNonFatalError(String message) {
-                System.err.println(message);
-            }
-            @Override
-            public void reportNonFatalException(String message, Throwable t) {
-                System.err.println(message);
-                t.printStackTrace(System.err);
-            }
-        };
+        ProcessListener listener = new CLIProcessListener();
         importer.process(env, listener, new File(dirPath), orderNum, otherData);
         return true;
     }

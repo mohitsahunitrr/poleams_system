@@ -61,18 +61,30 @@ public final class ResourceDataUploader {
             exists = svc.verifyUploadedResources(env.obtainAccessToken(), ids);
             for (String resourceId : metadata.keySet()) {
                 rmeta = metadata.get(resourceId);
-                b = exists.get(resourceId);
-                if (b == null || !b || rmeta.getStatus() == ResourceStatus.QueuedForUpload) {
-                    _uploadResource(env, svc, listener, inspdata, rmeta, data.get(resourceId), retryCount);
-                    if (rmeta.getZoomifyId() != null && data.containsKey(rmeta.getZoomifyId())) {
-                        _uploadZoomify(env, svc, listener, rmeta.getZoomifyId(), data.get(rmeta.getZoomifyId()), retryCount);
+                if (data.containsKey(resourceId)) {
+                    b = exists.get(resourceId);
+                    if (b == null || !b || rmeta.getStatus() == ResourceStatus.QueuedForUpload) {
+                        _uploadResource(env, svc, listener, inspdata, rmeta, data.get(resourceId), retryCount);
+                        if (rmeta.getZoomifyId() != null && data.containsKey(rmeta.getZoomifyId())) {
+                            _uploadZoomify(env, svc, listener, rmeta.getZoomifyId(), data.get(rmeta.getZoomifyId()), retryCount);
+                        }
+                    } else {
+                        // Just save the data
+                        try {
+                            svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
+                        } catch (IOException ex) {
+                            listener.reportNonFatalException(String.format("Error updating resource %s.", rmeta.getResourceId()), ex);
+                        }
                     }
                 } else {
-                    // Just save the data
-                    try {
+                    // No data file to upload.  Only metadata insert/update was desired, most likely.  Output a message just in case that was not the intent.
+                    b = exists.get(resourceId);
+                    if (b == null || !b) {
+                        svc.insertResourceMetadata(env.obtainAccessToken(), rmeta);
+                        listener.reportMessage(String.format("No data file for resource %s.  Metadata inserted, but no data uploaded.", resourceId));
+                   } else {
                         svc.updateResourceMetadata(env.obtainAccessToken(), rmeta);
-                    } catch (IOException ex) {
-                        listener.reportNonFatalException(String.format("Error updating resource %s.", rmeta.getResourceId()), ex);
+                        listener.reportMessage(String.format("No data file for resource %s.  Metadata updated, but no data uploaded.", resourceId));
                     }
                 }
             }

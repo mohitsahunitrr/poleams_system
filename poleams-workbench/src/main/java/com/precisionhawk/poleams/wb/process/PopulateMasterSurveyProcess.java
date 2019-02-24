@@ -90,34 +90,7 @@ public class PopulateMasterSurveyProcess extends ServiceClientCommandProcess {
         if (feederId == null || inFile == null || orderNumber == null) {
             return false;
         }
-        ProcessListener listener = new ProcessListener() {
-            @Override
-            public void reportFatalError(String message) {
-                System.err.println(message);
-            }
-            @Override
-            public void reportFatalException(String message, Throwable t) {
-                System.err.println(message);
-                t.printStackTrace(System.err);
-            }
-            @Override
-            public void reportFatalException(Exception ex) {
-                ex.printStackTrace(System.err);
-            }
-            @Override
-            public void reportMessage(String message) {
-                System.out.println(message);
-            }
-            @Override
-            public void reportNonFatalError(String message) {
-                System.err.println(message);
-            }
-            @Override
-            public void reportNonFatalException(String message, Throwable t) {
-                System.err.println(message);
-                t.printStackTrace(System.err);
-            }
-        };
+        ProcessListener listener = new CLIProcessListener();
         try {
             File file;
             if (outFile == null) {

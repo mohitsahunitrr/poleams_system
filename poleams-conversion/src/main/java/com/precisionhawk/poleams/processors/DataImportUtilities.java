@@ -385,7 +385,6 @@ public class DataImportUtilities {
         pparams.setSiteId(data.getCurrentFeeder().getId());
         pparams.setUtilityId(fplid);
         pole = CollectionsUtilities.firstItemIn(svcs.poles().search(svcs.token(), pparams));
-        AssetInspectionSearchParams iparams = null;
         if (pole == null) {
             pole = new Pole();
             pole.setUtilityId(fplid);
@@ -393,9 +392,6 @@ public class DataImportUtilities {
             pole.setSiteId(data.getCurrentFeeder().getId());
             data.addPole(pole, true);
         } else {
-            iparams = new AssetInspectionSearchParams();
-            iparams.setAssetId(pole.getId());
-            iparams.setOrderNumber(data.getCurrentOrderNumber());
             data.addPole(pole, false);
         }
         ensurePoleInspection(svcs, listener, data, pole, inspectionDate);
@@ -417,7 +413,7 @@ public class DataImportUtilities {
                 insp.setAssetId(pole.getId());
                 insp.setDateOfInspection(inspectionDate);
                 insp.setId(UUID.randomUUID().toString());
-                insp.setOrderNumber(data.getCurrentOrderNumber());
+                insp.setOrderNumber(data.getCurrentWorkOrder().getOrderNumber());
                 insp.setSiteId(data.getCurrentFeeder().getId());
                 insp.setSiteInspectionId(data.getCurrentFeederInspection().getId());
                 insp.setStatus(new AssetInspectionStatus("Processed"));
@@ -442,7 +438,6 @@ public class DataImportUtilities {
         pparams.setSiteId(data.getCurrentFeeder().getId());
         pparams.setStructureNumber(utilityid);
         ts = CollectionsUtilities.firstItemIn(svcs.transmissionStructures().search(svcs.token(), pparams));
-        AssetInspectionSearchParams iparams = null;
         if (ts == null) {
             ts = new TransmissionStructure();
             ts.setStructureNumber(utilityid);
@@ -451,9 +446,6 @@ public class DataImportUtilities {
             ts.setName(utilityid);
             data.addTransmissionStruture(ts, true);
         } else {
-            iparams = new AssetInspectionSearchParams();
-            iparams.setAssetId(ts.getId());
-            iparams.setOrderNumber(data.getCurrentOrderNumber());
             data.addTransmissionStruture(ts, false);
         }
         ensureTransmissionStructureInspection(svcs, listener, data, ts, inspectionDate);
@@ -475,7 +467,7 @@ public class DataImportUtilities {
                 insp.setAssetId(struct.getId());
                 insp.setDateOfInspection(inspectionDate);
                 insp.setId(UUID.randomUUID().toString());
-                insp.setOrderNumber(data.getCurrentOrderNumber());
+                insp.setOrderNumber(data.getCurrentWorkOrder().getOrderNumber());
                 insp.setSiteId(data.getCurrentLine().getId());
                 insp.setSiteInspectionId(data.getCurrentLineInspection().getId());
                 insp.setStatus(new AssetInspectionStatus("Processed"));
