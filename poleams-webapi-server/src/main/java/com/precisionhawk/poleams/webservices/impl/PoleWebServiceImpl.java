@@ -6,6 +6,7 @@ import com.precisionhawk.poleams.bean.PoleSummary;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.ams.bean.security.ServicesSessionBean;
 import com.precisionhawk.ams.dao.DaoException;
+import com.precisionhawk.ams.domain.Organization;
 import com.precisionhawk.poleams.dao.PoleDao;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
@@ -17,10 +18,13 @@ import com.precisionhawk.poleams.domain.poledata.PoleSpan;
 import com.precisionhawk.poleams.domain.poledata.PrimaryCable;
 import com.precisionhawk.poleams.domain.poledata.SecondaryCable;
 import com.precisionhawk.ams.util.CollectionsUtilities;
+import com.precisionhawk.ams.webservices.OrganizationWebService;
 import com.precisionhawk.ams.webservices.impl.AbstractWebService;
+import com.precisionhawk.poleams.webservices.FeederWebService;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.ams.webservices.ResourceWebService;
+import com.precisionhawk.poleams.domain.Feeder;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -37,6 +41,8 @@ import javax.ws.rs.NotFoundException;
 @Named
 public class PoleWebServiceImpl extends AbstractWebService implements PoleWebService {
     
+    @Inject private FeederWebService feederSvc;
+    @Inject private OrganizationWebService orgSvc;
     @Inject private PoleDao poleDao;
     @Inject private PoleInspectionWebService poleInspectionSvc;
     @Inject private ResourceWebService resourceSvc;
@@ -78,7 +84,7 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
         try {
             Pole pole = poleDao.retrieve(poleId);
             authorize(sess, pole);
-            return summaryFromPoleData(pole);
+            return summaryFromPoleData(authToken, pole);
         } catch (DaoException ex) {
             throw new InternalServerErrorException("Error retrieving pole.", ex);
         }
@@ -90,7 +96,7 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
         try {
             List<PoleSummary> results = new LinkedList<>();
             for (Pole p : authorize(sess, poleDao.search(params))) {
-                results.add(summaryFromPoleData(p));
+                results.add(summaryFromPoleData(authToken, p));
             }
             return results;
         } catch (DaoException ex) {
@@ -130,12 +136,16 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
         }
     }
     
-    private static PoleSummary summaryFromPoleData(Pole data) {
+    private PoleSummary summaryFromPoleData(String authToken, Pole data) {
         if (data == null) {
             return null;
         }
         
         PoleSummary summary = new PoleSummary(data);
+        Feeder f = feederSvc.retrieve(authToken, data.getSiteId());
+        Organization org = orgSvc.retrieveOrg(f.getOrganizationId());
+        summary.setOwner(org.getName());
+
         summary.setCaTVAttachments(summarizeCommunicationsCables(data, CommunicationsCable.Type.CaTV, 6));
 
         PoleSpan s = CollectionsUtilities.getItemSafely(data.getSpans(), 0);
@@ -158,7 +168,6 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
         }
         summary.setMultiplexType(multiplexType);
         summary.setOpenWireType(openWireType);
-        summary.setOwner("FLorida Light and Power"); //TODO: From org
         summary.setNeutralWireType((s == null || s.getPowerCircuit() == null || s.getPowerCircuit().getNeutral() == null) ? null : s.getPowerCircuit().getNeutral().getConductor());
         summary.setNumberOfOpenWires(scable == null ? null : scable.getWireCount());
         
