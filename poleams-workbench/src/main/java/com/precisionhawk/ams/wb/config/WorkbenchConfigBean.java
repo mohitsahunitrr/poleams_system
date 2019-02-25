@@ -25,6 +25,7 @@ public class WorkbenchConfigBean implements WorkbenchConfig {
         COMMANDS.add(new OrgFieldConfigsUploadProcess());
         COMMANDS.add(new PopulateEncroachmentGoogleEarthURL());
         COMMANDS.add(new PopulateMasterSurveyProcess());
+        COMMANDS.add(new ResourceMetadataForMLProcess());
         COMMANDS.add(new ResourceScaleProcess());
         COMMANDS.add(new ResourceUploadProcess());
         COMMANDS.add(new TransmissionLineInspectionImportProcess());
