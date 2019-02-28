@@ -426,6 +426,8 @@ public class DataImportUtilities {
         }
         return insp;
     }
+    
+//    public static Resource ensureResource(WSClientHelper svcs, ProcessListener listener, InspectionData data, )
 
     public static TransmissionStructure ensureTxStructure(WSClientHelper svcs, ProcessListener listener, InspectionData data, String utilityid, LocalDate inspectionDate) throws IOException {
         

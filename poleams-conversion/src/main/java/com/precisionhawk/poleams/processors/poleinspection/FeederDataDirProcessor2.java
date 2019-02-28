@@ -4,6 +4,7 @@ import com.precisionhawk.ams.bean.GeoPoint;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.ams.domain.ResourceMetadata;
 import com.precisionhawk.ams.domain.ResourceStatus;
+import com.precisionhawk.ams.domain.ResourceType;
 import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.ams.webservices.ResourceWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
@@ -55,6 +56,14 @@ import org.papernapkin.liana.util.StringUtil;
  */
 public class FeederDataDirProcessor2 {
     
+    private static final FilenameFilter ANOMALY_MAP_FILTER = new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+            return name.toLowerCase().endsWith("_Map.pdf");
+        }
+    };
+    
+    private static final int COL_LOC_DELTA = 4;
     private static final int COL_FPLID = 5;
     private static final int COL_SEQ = 6;
     private static final int COL_LON = 7;
@@ -67,12 +76,25 @@ public class FeederDataDirProcessor2 {
             return pathname.isDirectory();
         }  
     };
+
+    private static final FilenameFilter CIRCUIT_MAP_FILTER = new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+            return name.toLowerCase().endsWith("_circuitmap.pdf");
+        }
+    };
     
     private static final FilenameFilter CSV_FILE_FILTER = new FilenameFilter() {
         @Override
         public boolean accept(File dir, String name) {
-//            return name.toLowerCase().endsWith(".csv");
-            return "SEABOARD_803634_Poles_FINAL.csv".equals(name); //TODO: FixMe
+            return name.toLowerCase().endsWith("_poles_final.csv");
+        }
+    };
+    
+    private static final FilenameFilter FEEDER_ANOMALY_RPT_FILTER = new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+            return name.toLowerCase().endsWith("_report.pdf");
         }
     };
     
@@ -105,6 +127,31 @@ public class FeederDataDirProcessor2 {
         IMAGES_PROCESSOR.setManualImageFilter(GROUND_IMG_FILE_FILTER);
         IMAGES_PROCESSOR.setThermalImageFilter(THERMAL_IMG_FILE_FILTER);
     }
+
+    private static boolean queueFeederResource(
+            WSClientHelper svcs, ProcessListener listener, InspectionData data, File feederDir,
+            FilenameFilter fileFilter, ResourceType resourceType, String contentType
+       )
+    {
+        File[] files = feederDir.listFiles(fileFilter);
+        switch (files.length) {
+            case 0:
+                listener.reportMessage(String.format("Unable to locate file for %s", resourceType));
+                break;
+            case 1:
+                try {
+                    addNonImageResource(svcs, data, data.getCurrentFeederInspection(), null, ResourceTypes.PoleInspectionAnalysisXML, files[0], contentType);
+                } catch (IOException ex) {
+                    listener.reportNonFatalException(String.format("Error reading %s for upload as %s", files[0], resourceType), ex);
+                }
+                break;
+            default:
+                listener.reportMessage(String.format("Found multiple files for %s", resourceType));
+                break;
+        }
+        
+        return true;
+    }
     
     // no state
     private FeederDataDirProcessor2() {};
@@ -129,7 +176,8 @@ public class FeederDataDirProcessor2 {
         }
         if (success) {
             // find and process pole dirs.
-            for (File f : feederDir.listFiles(DIR_FILTER)) {
+            File byPole = new File(feederDir, "ByPole");
+            for (File f : byPole.listFiles(DIR_FILTER)) {
                 processPoleDir(svcs, listener, data, f);
             }
         }
@@ -140,6 +188,10 @@ public class FeederDataDirProcessor2 {
             success = false;
         }
         success = success && updateSurveyReport(env, data, listener);
+        // Anomaly 
+        queueFeederResource(svcs, listener, data, feederDir, ANOMALY_MAP_FILTER, ResourceTypes.FeederAnomalyMap, "application/pdf");
+        queueFeederResource(svcs, listener, data, feederDir, CIRCUIT_MAP_FILTER, ResourceTypes.FeederMap, "application/pdf");
+        queueFeederResource(svcs, listener, data, feederDir, FEEDER_ANOMALY_RPT_FILTER, ResourceTypes.FeederAnomalyReport, "application/pdf");
         try {
             success = success && saveResources(svcs, listener, data);
         } catch (IOException ex) {
@@ -152,6 +204,7 @@ public class FeederDataDirProcessor2 {
 
     private static boolean processCSVFile(WSClientHelper svcs, InspectionData data, ProcessListener listener, File f) {
         listener.reportMessage(String.format("Processing CSV file %s", f.getName()));
+        Double delta;
         String fplId;
         Reader in = null;
         Float lat;
@@ -183,6 +236,7 @@ public class FeederDataDirProcessor2 {
                         inspectionDate = LocalDate.now();
                         if (!ensureFeeder(svcs, data, listener, feederNum, subStationName)) return false;
                     }
+                    delta = getDouble(listener, record, COL_LOC_DELTA);
                     fplId = record.get(COL_FPLID);
                     if (fplId != null) {
                         fplId = fplId.trim();
@@ -194,6 +248,8 @@ public class FeederDataDirProcessor2 {
                     lat = getFloat(listener, record, COL_LAT);
                     lon = getFloat(listener, record, COL_LON);
                     Pole p = ensurePole(svcs, listener, data, fplId, inspectionDate);
+                    PoleInspection insp = ensurePoleInspection(svcs, listener, data, p, inspectionDate);
+                    insp.setLatLongDelta(delta);
                     if (p == null) {
                         return false;
                     }
@@ -289,6 +345,17 @@ public class FeederDataDirProcessor2 {
         return true;
     }
     
+    private static Double getDouble(ProcessListener listener, CSVRecord record, int col) {
+        String s = record.get(col);
+        try {
+            if (s != null) {
+                return Double.valueOf(s);
+            }
+        } catch (NumberFormatException ex) {}
+        listener.reportNonFatalError(String.format("Invalid value.  Expecting a numeric value in column %d of row %d", col, record.getRecordNumber()));
+        return null;
+    }
+    
     private static Float getFloat(ProcessListener listener, CSVRecord record, int col) {
         String s = record.get(col);
         try {
@@ -296,7 +363,18 @@ public class FeederDataDirProcessor2 {
                 return Float.valueOf(s);
             }
         } catch (NumberFormatException ex) {}
-        listener.reportNonFatalError(String.format("Invalid value.  Expecting a numiric value in column %d of row %d", col, record.getRecordNumber()));
+        listener.reportNonFatalError(String.format("Invalid value.  Expecting a numeric value in column %d of row %d", col, record.getRecordNumber()));
+        return null;
+    }
+    
+    private static Integer getInteger(ProcessListener listener, CSVRecord record, int col) {
+        String s = record.get(col);
+        try {
+            if (s != null) {
+                return Integer.valueOf(s);
+            }
+        } catch (NumberFormatException ex) {}
+        listener.reportNonFatalError(String.format("Invalid value.  Expecting a numeric value in column %d of row %d", col, record.getRecordNumber()));
         return null;
     }
 
