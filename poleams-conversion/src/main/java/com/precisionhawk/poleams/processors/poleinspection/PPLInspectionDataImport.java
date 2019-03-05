@@ -117,7 +117,7 @@ public class PPLInspectionDataImport {
             imagesProcessor.setManualImageFilter(MANUAL_IMAGE_FILE_FILTER);
             imagesProcessor.setThermalImageFilter(THERM_IMAGE_FILE_FILTER);
             for (File feederDir : importDir.listFiles(new FeederDirFileFilter(data.getFeedersByFeederNum()))) {
-                DataImportUtilities.ensureFeeder(svcs, data, listener, feederDir.getName(), feederDir.getName());
+                DataImportUtilities.ensureFeeder(svcs, data, listener, feederDir.getName(), feederDir.getName(), "Processed");
                 polesDir = new File(feederDir, "Poles");
                 if (polesDir.isDirectory()) {
                     // Process each directory which should be associated with a pole with name {feedername}_Pole{polenumber}
@@ -251,7 +251,7 @@ public class PPLInspectionDataImport {
                     if (inPlacemark) {
                         feederName = super.textbuffer.toString().trim();
                         try {
-                            DataImportUtilities.ensureFeeder(svcs, data, listener, feederName, feederName);
+                            DataImportUtilities.ensureFeeder(svcs, data, listener, feederName, feederName, "Processed");
                             currentFeeder = data.getCurrentFeeder();
                         } catch (IOException ex) {
                             throw new SAXException(ex);

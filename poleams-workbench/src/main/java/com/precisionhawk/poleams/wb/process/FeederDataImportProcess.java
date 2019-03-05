@@ -1,10 +1,13 @@
 package com.precisionhawk.poleams.wb.process;
 
 import com.precisionhawk.ams.wb.process.ServiceClientCommandProcess;
+import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.poleinspection.FeederDataDirProcessor;
+import com.precisionhawk.poleams.processors.poleinspection.FeedersFromCSVProcessor;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.poleams.processors.poleinspection.FeederDataDirProcessor2;
+import com.precisionhawk.poleams.processors.poleinspection.GeoJsonMasterDataImport;
 import com.precisionhawk.poleams.processors.poleinspection.PPLInspectionDataImport;
 import java.io.File;
 import java.io.PrintStream;
@@ -19,6 +22,7 @@ public class FeederDataImportProcess extends ServiceClientCommandProcess {
     public enum Type{
         FPLCSV,
         FPLExcel,
+        GeoJson, // Developed for Duke import
         PPL
     }
     
@@ -73,6 +77,11 @@ public class FeederDataImportProcess extends ServiceClientCommandProcess {
         boolean success = false;
         if (type == Type.FPLCSV) {
             success = FeederDataDirProcessor2.process(env, listener, new File(dirPath), orgId, orderNumber);
+        } else if (type == Type.GeoJson) {
+            //FIXME: This is hardcoded Developed for Duke import
+            InspectionData data = FeedersFromCSVProcessor.process(env, listener, new File("/home/pchapman/tmp/duke/circuits.csv"), orgId);
+            GeoJsonMasterDataImport importer = new GeoJsonMasterDataImport();
+            success = importer.process(env, listener, data, new File(dirPath), orgId, orderNumber);
         } else if (type == Type.FPLExcel) {
             success = FeederDataDirProcessor.process(env, listener, new File(dirPath), orgId, orderNumber);        
         } else if (type == Type.PPL) {

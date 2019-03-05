@@ -187,7 +187,8 @@ public class FeederDataDirProcessor2 {
             listener.reportFatalException(ex);
             success = false;
         }
-        success = success && updateSurveyReport(env, data, listener);
+        //TODO: I think we arun out of memory here.
+//        success = success && updateSurveyReport(env, data, listener);
         // Anomaly 
         queueFeederResource(svcs, listener, data, feederDir, ANOMALY_MAP_FILTER, ResourceTypes.FeederAnomalyMap, "application/pdf");
         queueFeederResource(svcs, listener, data, feederDir, CIRCUIT_MAP_FILTER, ResourceTypes.FeederMap, "application/pdf");
@@ -234,7 +235,7 @@ public class FeederDataDirProcessor2 {
 //                        String datePart = "20" + parts[0];
 //                        inspectionDate = LocalDate.parse(datePart, DATE_FORMAT);
                         inspectionDate = LocalDate.now();
-                        if (!ensureFeeder(svcs, data, listener, feederNum, subStationName)) return false;
+                        if (!ensureFeeder(svcs, data, listener, feederNum, subStationName, "Processed")) return false;
                     }
                     delta = getDouble(listener, record, COL_LOC_DELTA);
                     fplId = record.get(COL_FPLID);

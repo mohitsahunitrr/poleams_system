@@ -17,7 +17,7 @@ import java.util.Queue;
 public class DistributionMasterDataImportProcess extends ServiceClientCommandProcess {
     
     enum InputType {
-        GeoJson(ARG_FEEDER_ID),
+//        GeoJson(ARG_FEEDER_ID),
         ShapeFile(ARG_ORG_ID);
 
         final String requires;
@@ -96,10 +96,10 @@ public class DistributionMasterDataImportProcess extends ServiceClientCommandPro
         MasterDataImporter importer;
         String otherData;
         switch (inputType) {
-            case GeoJson:
-                otherData = feederId;
-                importer = new GeoJsonMasterDataImport();
-                break;
+//            case GeoJson:
+//                otherData = feederId;
+//                importer = new GeoJsonMasterDataImport();
+//                break;
             case ShapeFile:
                 otherData = orgId;
                 importer = new ShapeFileMasterDataImport();

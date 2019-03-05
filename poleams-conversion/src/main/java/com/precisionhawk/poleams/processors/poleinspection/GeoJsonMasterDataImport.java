@@ -1,105 +1,92 @@
 package com.precisionhawk.poleams.processors.poleinspection;
 
-import com.precisionhawk.poleams.processors.MasterDataImporter;
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.ams.bean.GeoPoint;
-import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
 import com.precisionhawk.ams.domain.AssetInspectionStatus;
 import com.precisionhawk.ams.domain.AssetInspectionType;
-import com.precisionhawk.ams.domain.SiteInspectionStatus;
-import com.precisionhawk.ams.domain.SiteInspectionType;
+import com.precisionhawk.ams.domain.WorkOrder;
+import com.precisionhawk.ams.domain.WorkOrderStatus;
 import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.ams.webservices.client.Environment;
-import com.precisionhawk.poleams.bean.FeederSearchParams;
 import com.precisionhawk.poleams.bean.PoleSearchParams;
-import com.precisionhawk.poleams.domain.FeederInspection;
+import com.precisionhawk.poleams.domain.Feeder;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
+import com.precisionhawk.poleams.domain.WorkOrderTypes;
 import com.precisionhawk.poleams.processors.DataImportUtilities;
 import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.poleams.webservices.client.WSClientHelper;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonToken;
 import static org.codehaus.jackson.JsonToken.*;
+import org.jboss.resteasy.client.ClientResponseFailure;
 
 /**
  *
  * @author pchapman
  */
-public class GeoJsonMasterDataImport implements MasterDataImporter {
+ // Developed for Duke import
+public class GeoJsonMasterDataImport {
     
     private static final String FIELD_CLASS = "CLASS";
     private static final String FIELD_COORDS = "coordinates";
     private static final String FIELD_FEATURES = "features";
     private static final String FIELD_GEOMETRY = "geometry";
     private static final String FIELD_HEIGHT = "HEIGHT";
+    private static final String FIELD_NETWORK_ID = "NETWORK_ID"; // Circuit Number
     private static final String FIELD_POLEID = "POLEID";
     private static final String FIELD_POLENUM = "POLE_NUMBE";
     private static final String FIELD_PROPERTIES = "properties";
     private static final String FIELD_LC_TYPE = "type";
 
-    @Override
-    public boolean process(Environment env, ProcessListener listener, File poleDataJson, String orderNum, String feederId) {
+    public boolean process(Environment env, ProcessListener listener, InspectionData data, File poleDataJson, String orgId, String orderNum) {
         boolean success = true;
         
         JsonParser parser = null;
         try {
             WSClientHelper svcs = new WSClientHelper(env);
-            InspectionData data = new InspectionData();
             
             // Feeder
-            FeederSearchParams params = new FeederSearchParams();
-            params.setFeederNumber(feederId);
-            data.setCurrentFeeder(CollectionsUtilities.firstItemIn(svcs.feeders().search(svcs.token(), params)));
-            if (data.getCurrentFeeder() == null) {
-                listener.reportFatalError(String.format("Unable to locate feeder %s", feederId));
-                return false;
-            }
-            data.getDomainObjectIsNew().put(data.getCurrentFeeder().getId(), false);
+//            FeederSearchParams params = new FeederSearchParams();
+//            params.setFeederNumber(feederId);
+//            data.setCurrentFeeder(CollectionsUtilities.firstItemIn(svcs.feeders().search(svcs.token(), params)));
+//            if (data.getCurrentFeeder() == null) {
+//                listener.reportFatalError(String.format("Unable to locate feeder %s", feederId));
+//                return false;
+//            }
+//            data.getDomainObjectIsNew().put(data.getCurrentFeeder().getId(), false);
             
             // Work Order
             data.setCurrentOrderNumber(orderNum);
-            data.setCurrentWorkOrder(svcs.workOrders().retrieveById(svcs.token(), orderNum));
-            if (data.getCurrentWorkOrder() == null) {
-                listener.reportFatalError(String.format("Unable to load work order %s", orderNum));
-                return false;
-            }
-            boolean found = false;
-            for (String siteId : data.getCurrentWorkOrder().getSiteIds()) {
-                if (data.getCurrentFeeder().getId().equals(siteId)) {
-                    found = true;
-                    break;
+            try {
+                data.setCurrentWorkOrder(svcs.workOrders().retrieveById(svcs.token(), orderNum));
+            } catch (ClientResponseFailure f) {
+                if (f.getResponse().getStatus() == 404) {
+                    // Not found is OK
+                } else {
+                    listener.reportFatalException(f);
+                    return false;
                 }
             }
-            if (!found) {
-                data.getCurrentWorkOrder().getSiteIds().add(data.getCurrentFeeder().getId());
-            }
-            data.getDomainObjectIsNew().put(data.getCurrentWorkOrder().getOrderNumber(), false);
-            
-            // Feeder Inspection
-            SiteInspectionSearchParams siparams = new SiteInspectionSearchParams();
-            siparams.setOrderNumber(orderNum);
-            siparams.setSiteId(data.getCurrentFeeder().getId());
-            data.setCurrentFeederInspection(CollectionsUtilities.firstItemIn(svcs.feederInspections().search(svcs.token(), siparams)));
-            if (data.getCurrentFeederInspection() == null) {
-                FeederInspection insp = new FeederInspection();
-                insp.setId(UUID.randomUUID().toString());
-                insp.setOrderNumber(orderNum);
-                insp.setSiteId(data.getCurrentFeeder().getId());
-                insp.setStatus(new SiteInspectionStatus("Pending")); //FIXME:
-                insp.setType(new SiteInspectionType("DroneInspection")); //FIXME:
-                data.setCurrentFeederInspection(insp);
-                data.getDomainObjectIsNew().put(insp.getId(), true);
+            if (data.getCurrentWorkOrder() == null) {
+                WorkOrder wo = new WorkOrder();
+                wo.setOrderNumber(orderNum);
+                wo.setType(WorkOrderTypes.DistributionLineInspection);
+                wo.setStatus(new WorkOrderStatus("Pending"));
+                data.addWorkOrder(wo, true);
+                data.setCurrentWorkOrder(wo);
             } else {
-                data.getDomainObjectIsNew().put(data.getCurrentFeederInspection().getId(), false);
+                data.addWorkOrder(data.getCurrentWorkOrder(), false);
             }
             
             JsonFactory jfactory = new JsonFactory();
@@ -124,6 +111,21 @@ public class GeoJsonMasterDataImport implements MasterDataImporter {
             }
             
             if (success) {
+                // We only want to save feeders for which we have data.
+                Set<String> feederIds = new HashSet<>();
+                Map<String, Feeder> feederMap = new HashMap<>();
+                for (Pole p : data.getPolesMap().values()) {
+                    feederIds.add(p.getSiteId());
+                }
+                for (Feeder f: data.getFeedersByFeederNum().values()) {
+                    if (feederIds.contains(f.getId())) {
+                        feederMap.put(f.getFeederNumber(), f);
+                    }
+                }
+                data.getFeedersByFeederNum().clear();
+                for (Feeder f: feederMap.values()) {
+                    data.getFeedersByFeederNum().put(f.getFeederNumber(), f);
+                }
                 listener.reportMessage("Saving data...");
                 success = DataImportUtilities.saveData(svcs, listener, data);
             }
@@ -203,6 +205,7 @@ public class GeoJsonMasterDataImport implements MasterDataImporter {
     }
 
     private boolean processObjectData(WSClientHelper svcs, ProcessListener listener, InspectionData data, JsonParser parser) throws IOException {
+        String feederNumber;
         GeoPoint location = null;
         String poleId;
         Map<String, String> attributes = null;
@@ -225,59 +228,68 @@ public class GeoJsonMasterDataImport implements MasterDataImporter {
             return false;
         } else {
             poleId = attributes.remove(FIELD_POLEID);
+            feederNumber = attributes.remove(FIELD_NETWORK_ID);
         }
         if (poleId == null) {
             listener.reportFatalError("Bad or missing POLEID");
             return false;
         }
+        if (feederNumber == null) {
+            listener.reportFatalError("Bad or missing NETWORK_ID");
+            return false;
+        }
         if (location == null) {
             listener.reportFatalError(String.format("Bad or missing location for pole %s", poleId));
         }
-        PoleSearchParams params = new PoleSearchParams();
-        params.setSiteId(data.getCurrentFeeder().getId());
-        params.setUtilityId(poleId);
-        listener.reportMessage(String.format("Loaded pole with ID %s", poleId));
-        Pole pole = CollectionsUtilities.firstItemIn(svcs.poles().search(svcs.token(), params));
-        boolean isnew = pole == null;
-        if (isnew) {
-            pole = new Pole();
-            pole.setId(UUID.randomUUID().toString());
-            String s = attributes.remove(FIELD_HEIGHT);
-            try {
-                pole.setLength(s == null ? null : Integer.valueOf(s));
-            } catch (NumberFormatException ex) {
-                listener.reportNonFatalError(String.format("Invalid value for HEIGHT: %s", s));
+        if (!DataImportUtilities.ensureFeeder(svcs, data, listener, feederNumber, null, "Pending")) {
+            listener.reportMessage(String.format("No feeder %s for pole %s, skipping", feederNumber, poleId));
+        } else {
+            PoleSearchParams params = new PoleSearchParams();
+            params.setSiteId(data.getCurrentFeeder().getId());
+            params.setUtilityId(poleId);
+            listener.reportMessage(String.format("Loaded pole with ID %s", poleId));
+            Pole pole = CollectionsUtilities.firstItemIn(svcs.poles().search(svcs.token(), params));
+            boolean isnew = pole == null;
+            if (isnew) {
+                pole = new Pole();
+                pole.setId(UUID.randomUUID().toString());
+                String s = attributes.remove(FIELD_HEIGHT);
+                try {
+                    pole.setLength(s == null ? null : Integer.valueOf(s));
+                } catch (NumberFormatException ex) {
+                    listener.reportNonFatalError(String.format("Invalid value for HEIGHT: %s", s));
+                }
+                pole.setLocation(location);
+                pole.setPoleClass(attributes.get(FIELD_CLASS));
+                pole.setSerialNumber(attributes.get(FIELD_POLENUM));
+                pole.setSiteId(data.getCurrentFeeder().getId());
+                pole.setUtilityId(poleId);
+                pole.setAttributes(attributes);
+                data.addPole(pole, true);
+            } else {
+                data.addPole(pole, false);
             }
-            pole.setLocation(location);
-            pole.setPoleClass(attributes.get(FIELD_CLASS));
-            pole.setSerialNumber(attributes.get(FIELD_POLENUM));
-            pole.setSiteId(data.getCurrentFeeder().getId());
-            pole.setUtilityId(poleId);
-            pole.setAttributes(attributes);
-            data.addPole(pole, true);
-        } else {
-            data.addPole(pole, false);
-        }
-        
-        PoleInspection insp = null;
-        if (!isnew) {
-            // try to look up a pole inspection.
-            AssetInspectionSearchParams aiparams = new AssetInspectionSearchParams();
-            aiparams.setAssetId(pole.getId());
-            aiparams.setOrderNumber(data.getCurrentOrderNumber());
-            insp = CollectionsUtilities.firstItemIn(svcs.poleInspections().search(svcs.token(), aiparams));
-        }
-        if (insp == null) {
-            insp = new PoleInspection();
-            insp.setAssetId(pole.getId());
-            insp.setId(UUID.randomUUID().toString());
-            insp.setOrderNumber(data.getCurrentOrderNumber());
-            insp.setSiteInspectionId(data.getCurrentFeederInspection().getId());
-            insp.setStatus(new AssetInspectionStatus("Pending")); //FIXME:
-            insp.setType(new AssetInspectionType("DroneInspection")); //FIXME:
-            data.addPoleInspection(pole, insp, true);
-        } else {
-            data.addPoleInspection(pole, insp, false);
+
+            PoleInspection insp = null;
+            if (!isnew) {
+                // try to look up a pole inspection.
+                AssetInspectionSearchParams aiparams = new AssetInspectionSearchParams();
+                aiparams.setAssetId(pole.getId());
+                aiparams.setOrderNumber(data.getCurrentOrderNumber());
+                insp = CollectionsUtilities.firstItemIn(svcs.poleInspections().search(svcs.token(), aiparams));
+            }
+            if (insp == null) {
+                insp = new PoleInspection();
+                insp.setAssetId(pole.getId());
+                insp.setId(UUID.randomUUID().toString());
+                insp.setOrderNumber(data.getCurrentOrderNumber());
+                insp.setSiteInspectionId(data.getCurrentFeederInspection().getId());
+                insp.setStatus(new AssetInspectionStatus("Pending")); //FIXME:
+                insp.setType(new AssetInspectionType("DroneInspection")); //FIXME:
+                data.addPoleInspection(pole, insp, true);
+            } else {
+                data.addPoleInspection(pole, insp, false);
+            }
         }
         
         return true;

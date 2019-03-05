@@ -8,6 +8,7 @@ import java.io.Reader;
 import javax.inject.Named;
 import javax.inject.Provider;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -38,9 +39,17 @@ public class AppConfigFactory implements Provider<AppConfig> {
                 String userDir = System.getProperty(PARAM_USER_HOME);
                 for (int i = 0; config == null && i < PATHS.length ; i++) {
                     path = PATHS[i].replace("{" + PARAM_USER_HOME + "}", userDir);
+                    LoggerFactory.getLogger(getClass()).info("Checking for app configuration in {}", path);
                     f = new File(path);
                     if (f.canRead()) {
                         config = loadConfiguration(f);
+                        return config;
+                    } else {
+                        if (f.exists()) {
+                            LoggerFactory.getLogger(getClass()).info("App configuration file {} cannot be read", path);
+                        } else {
+                            LoggerFactory.getLogger(getClass()).info("App configuration file {} does not exist", path);
+                        }
                     }
                 }
                 if (config == null) {
