@@ -91,7 +91,7 @@ public class FeederInspectionWebServiceImpl extends AbstractWebService implement
         // Load pole inspection summaries
         AssetInspectionSearchParams pisparams = new AssetInspectionSearchParams();
         pisparams.setSiteInspectionId(id);
-        List<PoleInspectionSummary> poleInspectionSummaries = poleInspectionService.retrieveSummary(authToken, pisparams);
+        List<PoleInspectionSummary> poleInspectionSummaries = poleInspectionService.retrieveSummary(sess, pisparams);
 
         FeederInspectionSummary sss = new FeederInspectionSummary(feeder, finsp, poleSummaries, poleInspectionSummaries);
 

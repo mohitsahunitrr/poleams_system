@@ -78,7 +78,7 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
                 return null;
             }
             
-            return populateSummary(authToken, new PoleInspectionSummary(inspection));
+            return populateSummary(sess, new PoleInspectionSummary(inspection));
         } catch (DaoException ex) {
             throw new InternalServerErrorException("Error retrieving pole inspection data.", ex);
         }
@@ -117,12 +117,12 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
     }
     
     
-    List<PoleInspectionSummary> retrieveSummary(String authToken, AssetInspectionSearchParams params) {
+    List<PoleInspectionSummary> retrieveSummary(ServicesSessionBean sess, AssetInspectionSearchParams params) {
         try {
             List<PoleInspection> inspections = piDao.search(params);
             List<PoleInspectionSummary> results = new ArrayList<>(inspections.size());
             for (PoleInspection inspection : inspections) {
-                results.add(populateSummary(authToken, new PoleInspectionSummary(inspection)));
+                results.add(populateSummary(sess, new PoleInspectionSummary(inspection)));
             }
             return results;
         } catch (DaoException ex) {
@@ -147,44 +147,54 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
         }
     }
     
-    private PoleInspectionSummary populateSummary(String authToken, PoleInspectionSummary summary) {
-
+    private PoleInspectionSummary populateSummary(ServicesSessionBean sess, PoleInspectionSummary summary) {
         ResourceSearchParams rparams = new ResourceSearchParams();
         rparams.setAssetId(summary.getAssetId());
         rparams.setAssetInspectionId(summary.getId());
         List<ResourceMetadata> resources;
         
+        if (
+                "e31129a7-780b-459f-9e19-62d91770b285".equals(summary.getSiteId()) ||
+                "3bcf0d65-81cc-4980-95b8-fe94161b5835".equals(summary.getSiteId()) ||
+                "068337a5-9816-4f4d-93b2-fae2e586af32".equals(summary.getSiteId()) ||
+                "9bfb23b7-dec7-449b-abf9-d8acdf78a79f".equals(summary.getSiteId())
+           )
+        {
+            //FIXME: Gotta remove this shortcut becuase Duke will be getting data soon.
+            return summary;
+        }
+        
         // Populate the pole anomaly report URL, if any.
         rparams.setType(ResourceTypes.PoleAnomalyReport);
-        resources = resourceService.search(authToken, rparams);
+        resources = resourceService._search(sess, rparams);
         if (!resources.isEmpty()) {
             summary.setAnomalyReportDownloadURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
         }
         
         // Populate the drone survey sheet URL, if any.
         rparams.setType(ResourceTypes.PoleDroneSurveySheet);
-        resources = resourceService.search(authToken, rparams);
+        resources = resourceService._search(sess, rparams);
         if (!resources.isEmpty()) {
             summary.setDroneSurveySheetURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
         }
         
         // find the design report, if any.
         rparams.setType(ResourceTypes.PoleDesignReport);
-        resources = resourceService.search(authToken, rparams);
+        resources = resourceService._search(sess, rparams);
         if (!resources.isEmpty()) {
             summary.setDesignReportURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
         }
         
         // find the analysis report, if any.
         rparams.setType(ResourceTypes.PoleInspectionReport);
-        resources = resourceService.search(authToken, rparams);
+        resources = resourceService._search(sess, rparams);
         if (!resources.isEmpty()) {
             summary.setAnalysisReportURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
         }
 
         // Get URL for the analysis XML, if any.
         rparams.setType(ResourceTypes.PoleInspectionAnalysisXML);
-        resources = resourceService.search(authToken, rparams);
+        resources = resourceService._search(sess, rparams);
         if (!resources.isEmpty()) {
             summary.setAnalysisResultURL(resourceService.getResourceDownloadURL(resources.get(0).getResourceId()));
         }
