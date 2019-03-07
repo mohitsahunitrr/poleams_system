@@ -63,12 +63,23 @@ public class FeederDataDirProcessor2 {
         }
     };
     
-    private static final int COL_LOC_DELTA = 4;
-    private static final int COL_FPLID = 5;
-    private static final int COL_SEQ = 6;
-    private static final int COL_LON = 7;
-    private static final int COL_LAT = 8;
+    //Easting
+    //Northing
+    //Elevation
+    //TopoDOT_ID
+    private static final int COL_LOC_DELTA = 4; // Dist_to_FPL_Loc
+    private static final int COL_FPLID = 5; // FPL_ID
+    private static final int COL_SEQ = 6; // PH_ID
+    private static final int COL_LON = 7; // Longitude
+    private static final int COL_LAT = 8; // Latitude
+    // LAS_Status
+    private static final int COL_TYPE= 10;// Pole_Type
+    // PF_Status
+    // FPL_ID
+    // Match
+
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
+    private static final String POLE_TYPE_NO_POLE = "NO POLE";
 
     private static final FileFilter DIR_FILTER = new FileFilter() {
         @Override
@@ -156,7 +167,7 @@ public class FeederDataDirProcessor2 {
     // no state
     private FeederDataDirProcessor2() {};
 
-    public static boolean process(Environment env, ProcessListener listener, File feederDir, String orgId, String orderNumber) {
+    public static boolean process(Environment env, ProcessListener listener, File feederDir, String orgId, String orderNumber, boolean dryRun) {
         WSClientHelper svcs = new WSClientHelper(env);
         InspectionData data = new InspectionData();
         data.setCurrentOrderNumber(orderNumber);
@@ -176,10 +187,13 @@ public class FeederDataDirProcessor2 {
         }
         if (success) {
             // find and process pole dirs.
-            File byPole = new File(feederDir, "ByPole");
+            File byPole = feederDir;
             for (File f : byPole.listFiles(DIR_FILTER)) {
                 processPoleDir(svcs, listener, data, f);
             }
+        }
+        if(dryRun) {
+            return true;
         }
         try {
             success = success && saveData(svcs, listener, data);
@@ -246,6 +260,13 @@ public class FeederDataDirProcessor2 {
                     if (seq != null) {
                         seq = seq.trim();
                     }
+                    String type = record.get(COL_TYPE);
+                    if (type != null) {
+                        type = type.trim();
+                        if (POLE_TYPE_NO_POLE.equals(type)) {
+                            listener.reportMessage(String.format("Pole %s not found.  Skipping the row %d.", fplId, record.getRecordNumber()));
+                        }
+                    }
                     lat = getFloat(listener, record, COL_LAT);
                     lon = getFloat(listener, record, COL_LON);
                     Pole p = ensurePole(svcs, listener, data, fplId, inspectionDate);
@@ -258,7 +279,7 @@ public class FeederDataDirProcessor2 {
                         p.getAttributes().put("Sequence", seq);
                     }
                     if (lat != null && lon != null) {
-                        if ((lat != null && (lat < 25.0 || lat >= 26.0)) || (lon != null && (lon <= -81.0 || lon > -80.0))) {
+                        if ((lat != null && (lat < 25.0 || lat >= 27.0)) || (lon != null && (lon <= -81.0 || lon > -80.0))) {
                             listener.reportMessage("BAD DATA! Break here!");
                         }
                         GeoPoint loc;

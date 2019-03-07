@@ -26,6 +26,7 @@ public class FeederDataImportProcess extends ServiceClientCommandProcess {
         PPL
     }
     
+    private static final String ARG_DRY_RUN = "-dry";
     private static final String ARG_ORDER_NUM = "-orderNum";
     private static final String ARG_ORG_ID = "-orgId";
     private static final String ARG_TYPE = "-type";
@@ -33,13 +34,20 @@ public class FeederDataImportProcess extends ServiceClientCommandProcess {
     private static final String HELP = "\t" + COMMAND + " " + ARGS_FOR_HELP + " " + ARG_TYPE + "[" + Type.FPLCSV.name() + "|" + Type.FPLExcel.name() + "|" + Type.PPL + "] " + ARG_ORDER_NUM + " WorkOrderNumber " + ARG_ORG_ID + " organizationId path/to/inspection/data/dir";
     
     private String dirPath;
+    private boolean dryRun = false;
     private String orderNumber;
     private String orgId;
     private Type type;
 
     @Override
     protected boolean processArg(String arg, Queue<String> args) {
-        if (ARG_ORDER_NUM.equals(arg)) {
+        if (ARG_DRY_RUN.equals(arg)) {
+            if (dryRun) {
+                return false;
+            }
+            dryRun = true;
+            return true;
+        } else if (ARG_ORDER_NUM.equals(arg)) {
             if (orderNumber == null) {
                 orderNumber = args.poll();
                 return orderNumber != null;
@@ -76,7 +84,7 @@ public class FeederDataImportProcess extends ServiceClientCommandProcess {
         ProcessListener listener = new CLIProcessListener();
         boolean success = false;
         if (type == Type.FPLCSV) {
-            success = FeederDataDirProcessor2.process(env, listener, new File(dirPath), orgId, orderNumber);
+            success = FeederDataDirProcessor2.process(env, listener, new File(dirPath), orgId, orderNumber, dryRun);
         } else if (type == Type.GeoJson) {
             //FIXME: This is hardcoded Developed for Duke import
             InspectionData data = FeedersFromCSVProcessor.process(env, listener, new File("/home/pchapman/tmp/duke/circuits.csv"), orgId);

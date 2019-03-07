@@ -108,7 +108,7 @@ class PoleForemanDocumentHandler extends AbstractDocumentHandler {
 
     @Override
     protected void _endElement(String uri, String localName, String qName) throws SAXException {
-        System.out.printf("Parsing end tag %s\n", localName);
+//        System.out.printf("Parsing end tag %s\n", localName);
         switch (localName) {
             case TAG_ANALYSIS_H_LOADING_PER:
                 inspection.setHorizontalLoadingPercent(intFromBuffer());
@@ -343,7 +343,7 @@ class PoleForemanDocumentHandler extends AbstractDocumentHandler {
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-        System.out.printf("Parsing start tag %s\n", localName);
+//        System.out.printf("Parsing start tag %s\n", localName);
         if (TAG_ROOT.equals(localName)) {
             poleForemanXML = true;
         } else if (poleForemanXML) {
