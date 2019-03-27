@@ -313,6 +313,53 @@ public class DataImportUtilities {
         return true;
     }
 
+    public static boolean ensureFeederInspection(WSClientHelper svcs, InspectionData data, ProcessListener listener, Feeder f, SiteInspectionStatus inspectionStatus)
+        throws IOException
+    {
+        if (data.getCurrentWorkOrder() != null) {
+            boolean found = false;
+            for (String siteId : data.getCurrentWorkOrder().getSiteIds()) {
+                if (f.getId().equals(siteId)) {
+                    found = true;
+                }
+            }
+            if (!found) {
+                data.getCurrentWorkOrder().getSiteIds().add(f.getId());
+            }
+
+            FeederInspection fi = null;
+            for (FeederInspection insp : data.getFeederInspections().values()) {
+                if (insp.getSiteId().equals(f.getId())) {
+                    fi = insp;
+                    break;
+                }
+            }
+
+            if (fi == null) {
+                SiteInspectionSearchParams siparams = new SiteInspectionSearchParams();
+                siparams.setSiteId(f.getId());
+                siparams.setOrderNumber(data.getCurrentWorkOrder().getOrderNumber());
+                fi = CollectionsUtilities.firstItemIn(svcs.feederInspections().search(svcs.token(), siparams));
+                if (fi == null) {
+                    fi = new FeederInspection();
+                    fi.setDateOfInspection(LocalDate.now());
+                    fi.setId(UUID.randomUUID().toString());
+                    fi.setOrderNumber(data.getCurrentWorkOrder().getOrderNumber());
+                    fi.setSiteId(siparams.getSiteId());
+                    fi.setStatus(inspectionStatus);
+                    fi.setType(new SiteInspectionType(data.getCurrentWorkOrder().getType().getValue()));
+                    data.addFeederInspection(fi, true);
+                } else {
+                    data.addFeederInspection(fi, false);
+                }
+            }
+            data.setCurrentFeederInspection(fi);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public static boolean ensureLine(WSClientHelper svcs, InspectionData data, ProcessListener listener, String lineNum, String lineName) throws IOException {
         TransmissionLine tl = data.getLinesByLineNum().get(lineNum);
         if (tl == null) {

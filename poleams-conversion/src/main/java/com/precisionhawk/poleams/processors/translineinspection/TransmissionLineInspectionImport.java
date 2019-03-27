@@ -23,7 +23,7 @@ import com.precisionhawk.poleams.domain.TransmissionStructureInspectionTypes;
 import com.precisionhawk.poleams.domain.WorkOrderStatuses;
 import com.precisionhawk.poleams.domain.WorkOrderTypes;
 import com.precisionhawk.poleams.processors.DataImportUtilities;
-import com.precisionhawk.poleams.processors.FilenameFilters;
+import com.precisionhawk.poleams.processors.FileFilters;
 import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.poleams.processors.SiteAssetKey;
@@ -40,10 +40,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.imaging.ImageFormat;
+import org.apache.commons.imaging.ImageFormats;
 import org.apache.commons.imaging.ImageInfo;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
-import org.apache.commons.imaging.common.IImageMetadata;
+import org.apache.commons.imaging.common.ImageMetadata;
 import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
 import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -63,7 +64,7 @@ public final class TransmissionLineInspectionImport {
     private static final ZoneId DEFAULT_TZ = ZoneId.of("America/New_York");
 
     private static File findMasterSurveyTemplate(ProcessListener listener, File feederDir) {
-        File[] files = feederDir.listFiles(FilenameFilters.EXCEL_SPREADSHEET_FILTER);
+        File[] files = feederDir.listFiles(FileFilters.EXCEL_SPREADSHEET_FILTER);
         if (files.length > 1) {
             listener.reportFatalError(String.format("Multiple excel files exist in directory \"%s\"", feederDir));
             return null;
@@ -133,13 +134,13 @@ public final class TransmissionLineInspectionImport {
             for (TransmissionStructure struct : data.getStructuresMap().values()) {
                 imagesDir = new File(inputDir, struct.getStructureNumber());
                 if (imagesDir.isDirectory()) {
-                    File[] files = imagesDir.listFiles(FilenameFilters.IMAGES_FILTER);
+                    File[] files = imagesDir.listFiles(FileFilters.IMAGES_FILTER);
                     for (File imageFile : files) {
                         if (imageFile.isFile()) {
                             if (imageFile.canRead()) {
                                 try {
                                     ImageFormat format = Imaging.guessFormat(imageFile);
-                                    if (ImageFormat.IMAGE_FORMAT_UNKNOWN.equals(format)) {
+                                    if (ImageFormats.UNKNOWN.equals(format)) {
                                         listener.reportNonFatalError(String.format("Unexpected file \"%s\" is being skipped.", imageFile));
                                     } else {
                                         processImageFile(wsclient, listener, data, struct, imageFile, format);
@@ -337,7 +338,7 @@ public final class TransmissionLineInspectionImport {
             rmeta.setResourceId(UUID.randomUUID().toString());
             rmeta.setType(ResourceTypes.DroneInspectionImage);
             ImageInfo info = Imaging.getImageInfo(f);
-            IImageMetadata metadata = Imaging.getMetadata(f);
+            ImageMetadata metadata = Imaging.getMetadata(f);
             TiffImageMetadata exif;
             if (metadata instanceof JpegImageMetadata) {
                 exif = ((JpegImageMetadata)metadata).getExif();

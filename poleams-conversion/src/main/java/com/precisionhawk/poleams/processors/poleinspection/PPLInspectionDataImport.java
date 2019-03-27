@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.Map;
 import org.apache.commons.imaging.ImageFormat;
+import org.apache.commons.imaging.ImageFormats;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
 import org.apache.commons.io.IOUtils;
@@ -129,7 +130,7 @@ public class PPLInspectionDataImport {
                             if (f.isFile()) {
                                 try {
                                     ImageFormat format = Imaging.guessFormat(f);
-                                    if (ImageFormat.IMAGE_FORMAT_UNKNOWN.equals(format)) {
+                                    if (ImageFormats.UNKNOWN.equals(format)) {
                                         listener.reportMessage(String.format("Skipping unexpected file %s", f.getName()));
                                     } else {
                                         imagesProcessor.process(env, listener, data, p, f, format);

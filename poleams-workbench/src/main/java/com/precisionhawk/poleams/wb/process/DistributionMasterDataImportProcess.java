@@ -3,7 +3,7 @@ package com.precisionhawk.poleams.wb.process;
 import com.precisionhawk.ams.wb.process.ServiceClientCommandProcess;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.processors.ProcessListener;
-import com.precisionhawk.poleams.processors.poleinspection.GeoJsonMasterDataImport;
+import com.precisionhawk.poleams.processors.poleinspection.duke.GeoJsonMasterDataImport;
 import com.precisionhawk.poleams.processors.MasterDataImporter;
 import com.precisionhawk.poleams.processors.poleinspection.ShapeFileMasterDataImport;
 import java.io.File;

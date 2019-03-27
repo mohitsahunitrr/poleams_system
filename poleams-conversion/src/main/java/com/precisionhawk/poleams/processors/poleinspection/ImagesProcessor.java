@@ -25,7 +25,7 @@ import org.apache.commons.imaging.ImageFormat;
 import org.apache.commons.imaging.ImageInfo;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
-import org.apache.commons.imaging.common.IImageMetadata;
+import org.apache.commons.imaging.common.ImageMetadata;
 import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
 import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
 
@@ -105,7 +105,7 @@ final class ImagesProcessor implements Constants {
             }
             listener.reportMessage(String.format("\tType %s determined for image file %s", rmeta.getType().getValue(), f.getName()));
             ImageInfo info = Imaging.getImageInfo(f);
-            IImageMetadata metadata = Imaging.getMetadata(f);
+            ImageMetadata metadata = Imaging.getMetadata(f);
             TiffImageMetadata exif = null;
             if (metadata instanceof JpegImageMetadata) {
                 exif = ((JpegImageMetadata)metadata).getExif();

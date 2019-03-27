@@ -19,6 +19,8 @@ public class WorkbenchConfigBean implements WorkbenchConfig {
         COMMANDS.add(new DataCopyProcess());
         COMMANDS.add(new DeletePoleProcess());
         COMMANDS.add(new DeleteSiteProcess());
+        COMMANDS.add(new DukeInspectionImport());
+        COMMANDS.add(new ResourceUploadProcess());
         COMMANDS.add(new FeederDataImportProcess());
         COMMANDS.add(new FixDataProcess());
         COMMANDS.add(new DistributionMasterDataImportProcess());

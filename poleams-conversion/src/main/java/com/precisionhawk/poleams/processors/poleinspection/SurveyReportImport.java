@@ -21,7 +21,7 @@ import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.poleams.domain.FeederInspection;
 import com.precisionhawk.poleams.domain.WorkOrderStatuses;
 import com.precisionhawk.poleams.domain.WorkOrderTypes;
-import com.precisionhawk.poleams.processors.FilenameFilters;
+import com.precisionhawk.poleams.processors.FileFilters;
 import com.precisionhawk.poleams.webservices.FeederInspectionWebService;
 import java.io.File;
 import java.io.IOException;
@@ -59,7 +59,7 @@ final class SurveyReportImport implements Constants, SurveyReportConstants {
     private SurveyReportImport() {} 
 
     private static File findMasterSurveyTemplate(ProcessListener listener, File feederDir) {
-        File[] files = feederDir.listFiles(FilenameFilters.EXCEL_SPREADSHEET_FILTER);
+        File[] files = feederDir.listFiles(FileFilters.EXCEL_SPREADSHEET_FILTER);
         if (files.length > 1) {
             listener.reportFatalError(String.format("Multiple excel files exist in directory \"%s\"", feederDir));
             return null;

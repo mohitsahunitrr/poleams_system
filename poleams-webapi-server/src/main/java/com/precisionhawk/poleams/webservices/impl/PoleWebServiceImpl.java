@@ -147,6 +147,14 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
         summary.setOwner(org.getName());
 
         summary.setCaTVAttachments(summarizeCommunicationsCables(data, CommunicationsCable.Type.CaTV, 6));
+        String str = data.getAttributes().get("Sequence");
+        if (str != null) {
+            try {
+                summary.setSequence(Integer.valueOf(str));
+            } catch (NumberFormatException ex) {
+                LOGGER.warn("Invalid sequence number value %s for pole %s", str, data.getId());
+            }
+        }
 
         PoleSpan s = CollectionsUtilities.getItemSafely(data.getSpans(), 0);
         

@@ -25,7 +25,7 @@ import com.precisionhawk.poleams.domain.TransmissionStructureInspection;
 import com.precisionhawk.poleams.domain.WorkOrderStatuses;
 import com.precisionhawk.poleams.domain.WorkOrderTypes;
 import com.precisionhawk.poleams.processors.DataImportUtilities;
-import com.precisionhawk.poleams.processors.FilenameFilters;
+import com.precisionhawk.poleams.processors.FileFilters;
 import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.poleams.processors.SiteAssetKey;
@@ -44,10 +44,11 @@ import java.util.Map;
 import java.util.UUID;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.imaging.ImageFormat;
+import org.apache.commons.imaging.ImageFormats;
 import org.apache.commons.imaging.ImageInfo;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
-import org.apache.commons.imaging.common.IImageMetadata;
+import org.apache.commons.imaging.common.ImageMetadata;
 import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
 import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
 import org.apache.commons.io.IOUtils;
@@ -89,13 +90,13 @@ public class ShapeFileMasterDataImport implements MasterDataImporter {
             // Find the directory which contains images, if any
             File imagesDir = new File(poleDataShapeFile.getParentFile(), "Data Analytics");
             if (imagesDir.isDirectory()) {
-                File[] files = imagesDir.listFiles(FilenameFilters.IMAGES_FILTER);
+                File[] files = imagesDir.listFiles(FileFilters.IMAGES_FILTER);
                     for (File imageFile : files) {
                         if (imageFile.isFile()) {
                             if (imageFile.canRead()) {
                                 try {
                                     ImageFormat format = Imaging.guessFormat(imageFile);
-                                    if (ImageFormat.IMAGE_FORMAT_UNKNOWN.equals(format)) {
+                                    if (ImageFormats.UNKNOWN.equals(format)) {
                                         listener.reportNonFatalError(String.format("Unexpected file \"%s\" is being skipped.", imageFile));
                                     } else {
                                         processImageFile(svcs, listener, data, imageFile, format);
@@ -287,7 +288,7 @@ public class ShapeFileMasterDataImport implements MasterDataImporter {
             rmeta.setResourceId(UUID.randomUUID().toString());
             rmeta.setType(ResourceTypes.DroneInspectionImage);
             ImageInfo info = Imaging.getImageInfo(f);
-            IImageMetadata metadata = Imaging.getMetadata(f);
+            ImageMetadata metadata = Imaging.getMetadata(f);
             TiffImageMetadata exif;
             if (metadata instanceof JpegImageMetadata) {
                 exif = ((JpegImageMetadata)metadata).getExif();

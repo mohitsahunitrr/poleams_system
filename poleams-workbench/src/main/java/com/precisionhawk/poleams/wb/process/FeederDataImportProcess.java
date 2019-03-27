@@ -7,7 +7,7 @@ import com.precisionhawk.poleams.processors.poleinspection.FeedersFromCSVProcess
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.poleams.processors.poleinspection.FeederDataDirProcessor2;
-import com.precisionhawk.poleams.processors.poleinspection.GeoJsonMasterDataImport;
+import com.precisionhawk.poleams.processors.poleinspection.duke.GeoJsonMasterDataImport;
 import com.precisionhawk.poleams.processors.poleinspection.PPLInspectionDataImport;
 import java.io.File;
 import java.io.PrintStream;

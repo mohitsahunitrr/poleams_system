@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 import org.apache.commons.imaging.ImageFormat;
+import org.apache.commons.imaging.ImageFormats;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
 
@@ -34,7 +35,7 @@ final class PoleDataProcessor {
                 if (f.canRead()) {
                     try {
                         ImageFormat format = Imaging.guessFormat(f);
-                        if (ImageFormat.IMAGE_FORMAT_UNKNOWN.equals(format)) {
+                        if (ImageFormats.UNKNOWN.equals(format)) {
                             listener.reportNonFatalError(String.format("Unexpected file \"%s\" is being skipped.", f));
                         } else {
                             imagesProcessor.process(env, listener, data, p, f, format);

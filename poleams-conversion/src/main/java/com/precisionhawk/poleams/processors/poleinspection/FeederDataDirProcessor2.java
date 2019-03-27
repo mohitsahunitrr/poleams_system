@@ -14,6 +14,7 @@ import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.domain.ResourceTypes;
 import com.precisionhawk.poleams.domain.WorkOrderTypes;
 import static com.precisionhawk.poleams.processors.DataImportUtilities.*;
+import com.precisionhawk.poleams.processors.FileFilters;
 import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.poleams.webservices.FeederInspectionWebService;
@@ -35,6 +36,7 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.imaging.ImageFormat;
+import org.apache.commons.imaging.ImageFormats;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
 import org.papernapkin.liana.util.StringUtil;
@@ -81,12 +83,7 @@ public class FeederDataDirProcessor2 {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final String POLE_TYPE_NO_POLE = "NO POLE";
 
-    private static final FileFilter DIR_FILTER = new FileFilter() {
-        @Override
-        public boolean accept(File pathname) {
-            return pathname.isDirectory();
-        }  
-    };
+    private static final FileFilter DIR_FILTER = FileFilters.DIRECTORY_FILTER;
 
     private static final FilenameFilter CIRCUIT_MAP_FILTER = new FilenameFilter() {
         @Override
@@ -331,7 +328,7 @@ public class FeederDataDirProcessor2 {
                 if (f.canRead()) {
                     try {
                         ImageFormat format = Imaging.guessFormat(f);
-                        if (ImageFormat.IMAGE_FORMAT_UNKNOWN.equals(format)) {
+                        if (ImageFormats.UNKNOWN.equals(format)) {
                             if (f.getName().endsWith("C.xml")) {
                                 // PoleForman XML
                                 PoleForemanXMLProcessor.process(listener, pole, insp, f);

@@ -1,15 +1,23 @@
 package com.precisionhawk.poleams.processors;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FilenameFilter;
 
 /**
  *
  * @author pchapman
  */
-public final class FilenameFilters {
+public final class FileFilters {
     
-    private FilenameFilters() {}
+    private FileFilters() {}
+    
+    public static final FileFilter DIRECTORY_FILTER = new FileFilter() {
+        @Override
+        public boolean accept(File pathname) {
+            return pathname.isDirectory();
+        }
+    };
     
     public static final FilenameFilter EXCEL_SPREADSHEET_FILTER = new FilenameFilter() {
         @Override

@@ -1,4 +1,4 @@
-package com.precisionhawk.poleams.processors.poleinspection;
+package com.precisionhawk.poleams.processors.poleinspection.duke;
 
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.poleams.processors.InspectionData;
@@ -260,6 +260,7 @@ public class GeoJsonMasterDataImport {
                     listener.reportNonFatalError(String.format("Invalid value for HEIGHT: %s", s));
                 }
                 pole.setLocation(location);
+                pole.setName(attributes.get(FIELD_POLENUM));
                 pole.setPoleClass(attributes.get(FIELD_CLASS));
                 pole.setSerialNumber(attributes.get(FIELD_POLENUM));
                 pole.setSiteId(data.getCurrentFeeder().getId());
