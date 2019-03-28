@@ -133,19 +133,24 @@ public class PoleInspection extends AssetInspection {
         setAccess(pi.getAccess());
         setAnchorsPass(pi.getAnchorsPass());
         setAssetId(pi.getAssetId());
+        setBracketsPass(pi.getBracketsPass());
         setDataMergedBy(pi.getDataMergedBy());
         setDataMergedDate(pi.getDataMergedDate());
-        setBracketsPass(pi.getBracketsPass());
         setDateOfAnalysis(pi.getDateOfAnalysis());
+        setDateOfInspection(pi.getDateOfInspection());
         setDownGuysPass(pi.getDownGuysPass());
         setHorizontalLoadingPercent(pi.getHorizontalLoadingPercent());
         setId(pi.getId());
         setInsulatorsPass(pi.getInsulatorsPass());
         setLatLongDelta(pi.getLatLongDelta());
         setLoadCase(pi.getLoadCase());
+        setOrderNumber(pi.getOrderNumber());
         setPassedAnalysis(pi.passedAnalysis);
+        setProcessedBy(pi.getProcessedBy());
         setSiteId(pi.getSiteId());
         setSiteInspectionId(pi.getSiteInspectionId());
+        setStatus(pi.getStatus());
+        setType(pi.getType());
         setVerticalLoadingPercent(pi.getVerticalLoadingPercent());
     }
 }
