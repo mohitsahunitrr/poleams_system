@@ -1,6 +1,5 @@
 package com.precisionhawk.poleams.processors.poleinspection.duke;
 
-import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.ams.domain.ResourceMetadata;
 import com.precisionhawk.ams.domain.ResourceStatus;
@@ -138,9 +137,25 @@ public class InspectionImport {
                         } else {
                             if (pole.getName() == null) {
                                 pole.setName(pole.getSerialNumber());
+                                data.addPole(pole, false);
                             }
-                            pinsp = null;
+                            pinsp = DataImportUtilities.ensurePoleInspection(svcs, listener, data, pole, null);
+                            if (pinsp == null) {
+                                listener.reportFatalError(String.format("Unable to create inspection for pole %s", pole.getSerialNumber()));
+                                return;
+                            }
                             for (File imageFile : poleDir.listFiles(FileFilters.IMAGES_FILTER)) {
+                                // We have at least one image file, assume we have them all.
+                                if (
+                                        pinsp.getStatus() == null || (
+                                            !pinsp.getStatus().equals(InspectionStatuses.AI_COMPLETE) &&
+                                            !pinsp.getStatus().equals(InspectionStatuses.AI_PENDING_MERGE) &&
+                                            !pinsp.getStatus().equals(InspectionStatuses.AI_PROCESSED)
+                                        )
+                                   )
+                                {
+                                    pinsp.setStatus(InspectionStatuses.AI_PROCESSED);
+                                }
                                 try {
                                     String name = imageFile.getName();
                                     rparams.setAssetId(pole.getId());
@@ -171,25 +186,9 @@ public class InspectionImport {
                                         }
                                         listener.reportMessage(String.format("\tType %s determined for image file %s", rmeta.getType().getValue(), name));
                                         rmeta.setTimestamp(ImageUtilities.getTimestamp(exif, DEFAULT_TZ));
-                                        if (pinsp == null) {
-                                            LocalDate inspectionDate = rmeta.getTimestamp() == null ? LocalDate.now() : rmeta.getTimestamp().toLocalDate();
-                                            pinsp = DataImportUtilities.ensurePoleInspection(svcs, listener, data, pole, inspectionDate);
-                                            if (pinsp == null) {
-                                                listener.reportFatalError(String.format("Unable to create inspection for pole %s", pole.getSerialNumber()));
-                                                return;
-                                            } else if (pinsp.getDateOfInspection() == null) {
-                                                pinsp.setDateOfInspection(inspectionDate);
-                                            }
-                                            if (
-                                                    pinsp.getStatus() == null || (
-                                                        !pinsp.getStatus().equals(InspectionStatuses.AI_COMPLETE) &&
-                                                        !pinsp.getStatus().equals(InspectionStatuses.AI_PENDING_MERGE) &&
-                                                        !pinsp.getStatus().equals(InspectionStatuses.AI_PROCESSED)
-                                                    )
-                                               )
-                                            {
-                                                pinsp.setStatus(InspectionStatuses.AI_PROCESSED);
-                                            }
+                                        LocalDate inspectionDate = rmeta.getTimestamp() == null ? LocalDate.now() : rmeta.getTimestamp().toLocalDate();
+                                        if (pinsp.getDateOfInspection() == null) {
+                                            pinsp.setDateOfInspection(inspectionDate);
                                         }
                                         rmeta.setAssetId(pole.getId());
                                         rmeta.setAssetInspectionId(pinsp.getId());
