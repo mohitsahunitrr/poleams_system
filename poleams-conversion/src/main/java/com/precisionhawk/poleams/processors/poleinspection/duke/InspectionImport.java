@@ -141,17 +141,19 @@ public class InspectionImport {
                             }
                             pinsp = null;
                             for (File imageFile : poleDir.listFiles(FileFilters.IMAGES_FILTER)) {
-                                String name = imageFile.getName();
-                                rparams.setAssetId(pole.getId());
-                                rparams.setName(name);
-                                rmeta = CollectionsUtilities.firstItemIn(svcs.resources().search(svcs.token(), rparams));
-                                if (rmeta == null) {
-                                    try {
+                                try {
+                                    String name = imageFile.getName();
+                                    rparams.setAssetId(pole.getId());
+                                    rparams.setName(name);
+                                    rmeta = CollectionsUtilities.firstItemIn(svcs.resources().search(svcs.token(), rparams));
+                                    if (rmeta == null) {
                                         rmeta = new ResourceMetadata();
                                         rmeta.setResourceId(UUID.randomUUID().toString());
+                                        // Default to manual unless we can determine it's drone
+                                        rmeta.setType(ResourceTypes.ManualInspectionImage);
+                                        TiffImageMetadata exif;
                                         ImageInfo info = Imaging.getImageInfo(imageFile);
                                         ImageMetadata metadata = Imaging.getMetadata(imageFile);
-                                        TiffImageMetadata exif;
                                         if (metadata instanceof JpegImageMetadata) {
                                             exif = ((JpegImageMetadata)metadata).getExif();
                                         } else if (metadata instanceof TiffImageMetadata) {
@@ -159,8 +161,6 @@ public class InspectionImport {
                                         } else {
                                             exif = null;
                                         }
-                                        // Default to manual unless we can determine it's drone
-                                        rmeta.setType(ResourceTypes.ManualInspectionImage);
                                         if (exif != null) {
                                             // Other than looking at make, we could look for roll, yaw, or some other drone-specific
                                             // GPS attribute. However, it's safe to assume if it's a DJI camera, it's drone.
@@ -180,6 +180,16 @@ public class InspectionImport {
                                             } else if (pinsp.getDateOfInspection() == null) {
                                                 pinsp.setDateOfInspection(inspectionDate);
                                             }
+                                            if (
+                                                    pinsp.getStatus() == null || (
+                                                        !pinsp.getStatus().equals(InspectionStatuses.AI_COMPLETE) &&
+                                                        !pinsp.getStatus().equals(InspectionStatuses.AI_PENDING_MERGE) &&
+                                                        !pinsp.getStatus().equals(InspectionStatuses.AI_PROCESSED)
+                                                    )
+                                               )
+                                            {
+                                                pinsp.setStatus(InspectionStatuses.AI_PROCESSED);
+                                            }
                                         }
                                         rmeta.setAssetId(pole.getId());
                                         rmeta.setAssetInspectionId(pinsp.getId());
@@ -193,11 +203,11 @@ public class InspectionImport {
                                         rmeta.setSiteInspectionId(pinsp.getSiteInspectionId());
                                         rmeta.setTimestamp(ImageUtilities.getTimestamp(exif, DEFAULT_TZ));
                                         data.addResourceMetadata(rmeta, imageFile, true);
-                                    } catch (ImageReadException ex) {
-                                        listener.reportNonFatalException(String.format("Unable to process image %s.  It will be skipped.", imageFile), ex);
+                                    } else {
+                                        data.addResourceMetadata(rmeta, imageFile, false);
                                     }
-                                } else {
-                                    data.addResourceMetadata(rmeta, imageFile, false);
+                                } catch (ImageReadException ex) {
+                                    listener.reportNonFatalException(String.format("Unable to process image %s.  It will be skipped.", imageFile), ex);
                                 }
                             }
                         }
