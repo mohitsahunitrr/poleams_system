@@ -8,6 +8,8 @@ import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.ams.domain.ResourceMetadata;
 import com.precisionhawk.ams.domain.ResourceStatus;
 import com.precisionhawk.ams.support.httpclient.HttpClientUtilities;
+import com.precisionhawk.ams.util.HttpClientUtil;
+import com.precisionhawk.ams.util.ImageUtilities;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.bean.ResourceSummary;
 import com.precisionhawk.poleams.processor.bean.JobInfo;
@@ -24,6 +26,11 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.imaging.ImageReadException;
+import org.apache.commons.imaging.Imaging;
+import org.apache.commons.imaging.common.ImageMetadata;
+import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
+import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
 import org.apache.commons.io.IOUtils;
 import org.papernapkin.liana.util.StringUtil;
 import org.quartz.JobExecutionException;
@@ -114,57 +121,20 @@ public class ZoomifyJob {
                         File sourceFile = createSourceFile(smry);
                         File targetFile = createTargetFile(smry);
                         try {
-                            // Download resource into temporary file.
-                            String location = smry.getDownloadURL();
-                            URL url;
-                            HttpURLConnection conn = null;
-                            url = new URL(location);
-                            // It may redirect to AWS, so account for that
-                            boolean searching = true;
-                            boolean found = false;
-                            while (searching) {
-                                LOGGER.info("Downloading resource from {}", url);
-                                conn = (HttpURLConnection)url.openConnection();
-                                conn.setConnectTimeout(15000);
-                                conn.setReadTimeout(15000);
-                                conn.setInstanceFollowRedirects(false);
-                                conn.setRequestProperty("User-Agent", "Mozilla/5.0...");
-                                switch (conn.getResponseCode())
-                                {
-                                    case HttpURLConnection.HTTP_OK:
-                                        searching = false;
-                                        found = true;
-                                        break;
-                                    case HttpURLConnection.HTTP_NOT_FOUND:
-                                        LOGGER.error("Image for resource {} not found.", smry.getResourceId());
-                                        searching = false;
-                                        found = false;
-                                        break;
-                                    case HttpURLConnection.HTTP_MOVED_PERM:
-                                    case HttpURLConnection.HTTP_MOVED_TEMP:
-                                    case 307: // Temporary redirect
-                                        location = conn.getHeaderField("Location");
-                                        url = new URL(url, location);  // Deal with relative URLs
-                                        LOGGER.info("Redirected to {}", url);
-                                        break;
-                                    default:
-                                        LOGGER.error("Unexpected HTTP response {} downloading resource {}.", conn.getResponseCode(), smry.getResourceId());
-                                        searching = false;
-                                        found = false;
-                                        break;
-                                }
-                            }
-                            if (found && conn != null) {
-                                InputStream is = null;
-                                OutputStream os = null;
+                            boolean found = HttpClientUtil.downloadResource(smry.getDownloadURL(), new FileOutputStream(sourceFile));
+                            if (found) {
+                                // Rotate, if necessary
                                 try {
-                                    os = new BufferedOutputStream(new FileOutputStream(sourceFile));
-                                    is = conn.getInputStream();
-                                    IOUtils.copy(is, os);
-                                } finally {
-                                    IOUtils.closeQuietly(is);
-                                    IOUtils.closeQuietly(os);
-                                    is = null;
+                                    TiffImageMetadata exif = ImageUtilities.retrieveExif(sourceFile);
+                                    if (exif != null) {
+                                        File f = ImageUtilities.rotateIfNecessary(exif, sourceFile, ImageUtilities.ImageType.fromContentType(smry.getContentType()));
+                                        if (!f.equals(sourceFile)) {
+                                            sourceFile.delete();
+                                            sourceFile = f;
+                                        }
+                                    }
+                                } catch (IOException | ImageReadException ex) {
+                                    LOGGER.error("Unable to determine if image {} needs to be rotated.  It may not display properly.", smry.getResourceId());
                                 }
                                 LOGGER.info("Zoomifying image {} from {} into {}", smry.getResourceId(), sourceFile.getAbsolutePath(), targetFile.getAbsolutePath());
                                 ProcessBuilder pb = new ProcessBuilder(getExecutablePath(), "-Z", "-o", targetFile.getAbsolutePath(), sourceFile.getAbsolutePath());
@@ -173,7 +143,6 @@ public class ZoomifyJob {
                                     // Invalid state.  Possibly too many open file handles.
                                     LOGGER.error("ProcessBuilder returned NULL from starting zoomify process.  Aborting this run.");
                                     getJobInfo().update(start, ZonedDateTime.now(), count, "ProcessBuilder returned NULL from starting zoomify process.  Run aborted.");
-                                    searching = false;
                                     return;
                                 }
                                 if (proc.waitFor(ZOOMIFY_PROCESS_TIMEOUT, TimeUnit.SECONDS)) {
