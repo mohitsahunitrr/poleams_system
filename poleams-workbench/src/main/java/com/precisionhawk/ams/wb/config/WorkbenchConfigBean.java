@@ -20,10 +20,12 @@ public class WorkbenchConfigBean implements WorkbenchConfig {
         COMMANDS.add(new DeletePoleProcess());
         COMMANDS.add(new DeleteSiteProcess());
         COMMANDS.add(new DukeInspectionImport());
+        COMMANDS.add(new DukeInventoryImport());
         COMMANDS.add(new ResourceUploadProcess());
         COMMANDS.add(new FeederDataImportProcess());
         COMMANDS.add(new FixDataProcess());
         COMMANDS.add(new DistributionMasterDataImportProcess());
+        COMMANDS.add(new InspectShapefile());
         COMMANDS.add(new OrgFieldConfigsUploadProcess());
         COMMANDS.add(new PopulateEncroachmentGoogleEarthURL());
         COMMANDS.add(new PopulateMasterSurveyProcess());

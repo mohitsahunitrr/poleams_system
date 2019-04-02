@@ -1,0 +1,46 @@
+{
+    "Pole": {
+        "properties": {
+            "id": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "siteId": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "assetId": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "type": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "make": {
+                "include_in_all": false,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "model": {
+                "include_in_all": false,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "serialNumber": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            },
+            "utilityId": {
+                "include_in_all": true,
+                "index": "not_analyzed",
+                "type": "string"
+            }
+        }
+    }
+}

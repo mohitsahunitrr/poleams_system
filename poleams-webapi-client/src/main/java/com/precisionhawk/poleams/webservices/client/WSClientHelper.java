@@ -4,6 +4,7 @@ import com.precisionhawk.ams.webservices.InspectionEventResourceWebService;
 import com.precisionhawk.ams.webservices.SiteWebService;
 import com.precisionhawk.ams.webservices.WorkOrderWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
+import com.precisionhawk.poleams.webservices.ComponentWebService;
 import com.precisionhawk.poleams.webservices.FeederInspectionWebService;
 import com.precisionhawk.poleams.webservices.FeederWebService;
 import com.precisionhawk.poleams.webservices.InspectionEventWebService;
@@ -38,6 +39,10 @@ public final class WSClientHelper {
     
     public String token() throws IOException {
         return env.obtainAccessToken();
+    }
+    
+    public ComponentWebService components() {
+        return env.obtainWebService(ComponentWebService.class);
     }
     
     public FeederInspectionWebService feederInspections() {

@@ -5,6 +5,7 @@ import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
 import com.precisionhawk.ams.domain.AssetInspectionStatus;
 import com.precisionhawk.ams.domain.AssetInspectionType;
+import com.precisionhawk.ams.domain.Component;
 import com.precisionhawk.ams.domain.InspectionEventResource;
 import com.precisionhawk.ams.domain.ResourceMetadata;
 import com.precisionhawk.ams.domain.ResourceStatus;
@@ -32,6 +33,7 @@ import com.precisionhawk.poleams.domain.TransmissionLine;
 import com.precisionhawk.poleams.domain.TransmissionLineInspection;
 import com.precisionhawk.poleams.domain.TransmissionStructure;
 import com.precisionhawk.poleams.domain.TransmissionStructureInspection;
+import com.precisionhawk.poleams.webservices.ComponentWebService;
 import com.precisionhawk.poleams.webservices.FeederInspectionWebService;
 import com.precisionhawk.poleams.webservices.FeederWebService;
 import com.precisionhawk.poleams.webservices.InspectionEventWebService;
@@ -199,6 +201,19 @@ public class DataImportUtilities {
                 } else {
                     svc.update(env.obtainAccessToken(), insp);
                     listener.reportMessage(String.format("Updated inspection for transmission structure %s", insp.getAssetId()));
+                }
+            }
+        }
+        
+        if (!data.getComponents().isEmpty()) {
+            ComponentWebService svc = env.obtainWebService(ComponentWebService.class);
+            for (Component comp : data.getComponents().values()) {
+                if (data.getDomainObjectIsNew().get(comp.getId())) {
+                    svc.create(env.obtainAccessToken(), comp);
+                    listener.reportMessage(String.format("Inserted new component %s", comp.getId()));
+                } else {
+                    svc.update(env.obtainAccessToken(), comp);
+                    listener.reportMessage(String.format("Updated existing component %s", comp.getId()));
                 }
             }
         }
@@ -452,6 +467,13 @@ public class DataImportUtilities {
             WSClientHelper svcs, ProcessListener listener, InspectionData data, Pole pole, LocalDate inspectionDate
         ) throws IOException
     {
+        return ensurePoleInspection(svcs, listener, data, pole, inspectionDate, new AssetInspectionStatus("Processed"));
+    }
+        
+    public static PoleInspection ensurePoleInspection(
+            WSClientHelper svcs, ProcessListener listener, InspectionData data, Pole pole, LocalDate inspectionDate, AssetInspectionStatus status
+        ) throws IOException
+    {
         PoleInspection insp = data.getPoleInspectionsMap().get(new SiteAssetKey(pole));
         if (insp == null) {
             AssetInspectionSearchParams iparams = new AssetInspectionSearchParams();
@@ -466,7 +488,7 @@ public class DataImportUtilities {
                 insp.setOrderNumber(data.getCurrentWorkOrder().getOrderNumber());
                 insp.setSiteId(data.getCurrentFeeder().getId());
                 insp.setSiteInspectionId(data.getCurrentFeederInspection().getId());
-                insp.setStatus(new AssetInspectionStatus("Processed"));
+                insp.setStatus(status);
                 insp.setType(new AssetInspectionType("DistributionLineInspection"));
                 data.addPoleInspection(pole, insp, true);
             } else {
