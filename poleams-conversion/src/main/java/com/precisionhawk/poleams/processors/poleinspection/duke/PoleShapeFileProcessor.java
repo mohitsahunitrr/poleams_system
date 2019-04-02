@@ -10,6 +10,7 @@ import com.precisionhawk.poleams.processors.DataImportUtilities;
 import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.poleams.processors.ShapeFileProcessor;
+import com.precisionhawk.poleams.processors.SiteAssetKey;
 import com.precisionhawk.poleams.webservices.client.WSClientHelper;
 import java.io.File;
 import java.io.IOException;
@@ -39,9 +40,11 @@ public class PoleShapeFileProcessor extends ShapeFileProcessor implements ShapeF
         KEYS_TO_REMOVE.add(PROP_CLASS);
         KEYS_TO_REMOVE.add(PROP_HEIGHT);
     }
+    private final boolean expectOneFeeder;
     
-    public PoleShapeFileProcessor(WSClientHelper svcs, ProcessListener listener, InspectionData data, File shapeFile) {
+    public PoleShapeFileProcessor(WSClientHelper svcs, ProcessListener listener, InspectionData data, File shapeFile, boolean expectOneFeeder) {
         super(svcs, listener, data, shapeFile);
+        this.expectOneFeeder = expectOneFeeder;
     }
 
     @Override
@@ -50,22 +53,31 @@ public class PoleShapeFileProcessor extends ShapeFileProcessor implements ShapeF
         try {
             String poleClass = StringUtil.nullableToString(featureProps.get(PROP_CLASS));
             String height = StringUtil.nullableToString(featureProps.get(PROP_HEIGHT));
-            poleId = StringUtil.nullableToString(firstOf(featureProps, PROP_POLE_ID));
+            poleId = longIntegerAsString(firstOf(featureProps, PROP_POLE_ID));
             String poleName = StringUtil.nullableToString(featureProps.get(PROP_POLE_NUM));
             String feederNumber = StringUtil.nullableToString(featureProps.get(PROP_NETWORK_ID));
             String serialNumber = poleName;
+            if (feederNumber == null || feederNumber.isEmpty()) {
+                listener.reportMessage(String.format("Unknown feeder number for pole %s %s", poleName, poleId));
+                return;
+            }
             Feeder feeder = data.getFeedersByFeederNum().get(feederNumber);
             if (feeder == null) {
                 FeederSearchParams fparams = new FeederSearchParams();
                 fparams.setFeederNumber(feederNumber);
                 feeder = CollectionsUtilities.firstItemIn(svcs.feeders().search(svcs.token(), fparams));
                 if (feeder == null) {
-                    listener.reportNonFatalError(String.format("Unable to locate feeder %s", feederNumber));
-                    return;
+                    if (expectOneFeeder && data.getFeedersByFeederNum().size() == 1) {
+                        feeder = data.getCurrentFeeder();
+                    } else {
+                        listener.reportNonFatalError(String.format("Unable to locate feeder %s", feederNumber));
+                        return;
+                    }
                 } else {
                     data.addFeeder(feeder, false);
                 }
             }
+            data.setCurrentFeeder(feeder);
             
             if (data.getCurrentWorkOrder() != null) {
                 DataImportUtilities.ensureFeederInspection(svcs, data, listener, feeder, InspectionStatuses.SI_PENDING);
@@ -87,12 +99,15 @@ public class PoleShapeFileProcessor extends ShapeFileProcessor implements ShapeF
             } else {
                 data.addPole(pole, false);
             }
+            data.getPolesMap().put(new SiteAssetKey(feeder.getId(), pole.getSerialNumber()), pole); // Index by pole number as well as utility ID
             pole.setDateOfInstall(localDate(featureProps, PROP_INSTALL_DATE));
             pole.setLength(IntegerUtil.parseIntegerSafe(height));
             pole.setLocation(super.location(featureProps));
             pole.setPoleClass(poleClass);
             pole.setSerialNumber(serialNumber);
             removeKeys(featureProps, KEYS_TO_REMOVE);
+            //TODO: remove the following
+            pole.getAttributes().clear();
             for (String key : featureProps.keySet()) {
                 pole.getAttributes().put(key, StringUtil.nullableToString(featureProps.get(key)));
             }
@@ -111,8 +126,8 @@ public class PoleShapeFileProcessor extends ShapeFileProcessor implements ShapeF
         if (s == null) {
             return null;
         }
-        if (s.length() > 6) {
-            s = s.substring(0, 5);
+        if (s.length() > 8) {
+            s = s.substring(0, 8);
         }
         return LocalDate.parse(s, DATE_FORMATTER);
     }

@@ -41,7 +41,14 @@ public class ComponentWebServiceImpl extends AbstractWebService implements Compo
 
     @Override
     public List<Component> query(String authToken, ComponentSearchParams params) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ServicesSessionBean sess = lookupSessionBean(authToken);
+        ensureExists(params, "Search parameters are required.");
+        authorize(sess, params);
+        try {
+            return authorize(sess, componentDao.search(params));
+        } catch (DaoException ex) {
+            throw new InternalServerErrorException("Error retrieving components based on search criteria.", ex);
+        }
     }
 
     @Override

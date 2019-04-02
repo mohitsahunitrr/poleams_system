@@ -7,6 +7,7 @@ import com.precisionhawk.ams.domain.Component;
 import com.precisionhawk.poleams.dao.ComponentDao;
 import com.precisionhawk.poleams.support.elasticsearch.ElasticSearchConstants;
 import java.util.List;
+import javax.inject.Named;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -17,6 +18,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
  *
  * @author pchapman
  */
+@Named
 public class ComponentEsDao extends AbstractEsDao implements ComponentDao, ElasticSearchConstants {
     
     private static final String COL_ASSET_ID = "assetId";

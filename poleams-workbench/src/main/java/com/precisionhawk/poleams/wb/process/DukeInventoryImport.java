@@ -14,16 +14,25 @@ import java.util.Queue;
  */
 public class DukeInventoryImport extends ServiceClientCommandProcess {
     
+    private static final String ARG_ONE_FEEDER = "-1";
     private static final String ARG_ORDER_NUM = "-orderNum";
     private static final String COMMAND = "dukeInventoryImporter";
-    private static final String HELP = "\t" + COMMAND + " " + ARGS_FOR_HELP + " " + ARG_ORDER_NUM + " WorkOrderNumber path/to/inventory/data/dir";
+    private static final String HELP = "\t" + COMMAND + " " + ARGS_FOR_HELP + " " + ARG_ORDER_NUM + " WorkOrderNumber [" + ARG_ONE_FEEDER + "] path/to/inventory/data/dir";
 
+    private boolean expect1Feeder = false;
     private String orderNumber;
     private String dataPath;
     
     @Override
     protected boolean processArg(String arg, Queue<String> args) {
         switch (arg) {
+            case ARG_ONE_FEEDER:
+                if (expect1Feeder) {
+                    return false;
+                } else {
+                    expect1Feeder = true;
+                    return true;
+                }
             case ARG_ORDER_NUM:
                 if (orderNumber == null) {
                     orderNumber = args.poll();
@@ -49,7 +58,7 @@ public class DukeInventoryImport extends ServiceClientCommandProcess {
             System.err.println("Data path required.");
         }
         ProcessListener listener = new CLIProcessListener();
-        ShapeFilesMasterDataImport.process(env, listener, new File(dataPath), orderNumber);
+        ShapeFilesMasterDataImport.process(env, listener, new File(dataPath), orderNumber, expect1Feeder);
         return true;
     }
 

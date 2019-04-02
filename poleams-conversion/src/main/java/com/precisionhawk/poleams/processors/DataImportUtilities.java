@@ -48,7 +48,11 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.apache.http.HttpStatus;
 import org.jboss.resteasy.client.ClientResponseFailure;
@@ -151,15 +155,20 @@ public class DataImportUtilities {
 
         // Save Poles
         if (!data.getPolesMap().isEmpty()) {
+            Set<String> created = new HashSet();
             PoleWebService psvc = env.obtainWebService(PoleWebService.class);
             for (Pole pdata : data.getPolesMap().values()) {
-                if (data.getDomainObjectIsNew().get(pdata.getId())) {
-                    psvc.create(env.obtainAccessToken(), pdata);
-                    listener.reportMessage(String.format("Inserted new pole %s Utility ID %s", pdata.getId(), pdata.getUtilityId()));
-                } else {
-                    psvc.update(env.obtainAccessToken(), pdata);
-                    listener.reportMessage(String.format("Updated pole %s Utility ID %s", pdata.getId(), pdata.getUtilityId()));
-                }
+                // We sometimes doubly index poles for searching by more than 1 field
+                if (!created.contains(pdata.getId())) {
+                    if (data.getDomainObjectIsNew().get(pdata.getId())) {
+                        psvc.create(env.obtainAccessToken(), pdata);
+                        created.add(pdata.getId());
+                        listener.reportMessage(String.format("Inserted new pole %s Utility ID %s", pdata.getId(), pdata.getUtilityId()));
+                    } else {
+                        psvc.update(env.obtainAccessToken(), pdata);
+                        listener.reportMessage(String.format("Updated pole %s Utility ID %s", pdata.getId(), pdata.getUtilityId()));
+                    }
+                } // Else already saved
             }
         }
         

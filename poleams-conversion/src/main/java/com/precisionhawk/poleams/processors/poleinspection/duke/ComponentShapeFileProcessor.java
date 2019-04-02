@@ -38,25 +38,25 @@ public class ComponentShapeFileProcessor extends ShapeFileProcessor implements S
         KEYS_TO_REMOVE.addAll(Arrays.asList(PROPS_TO_REMOVE));
         KEYS_TO_REMOVE.add(PROP_MODEL);
     }
-    
-    private ComponentType componentType;
+    private final ComponentType componentType;
+    private final boolean expectOneFeeder;
 
-    public ComponentShapeFileProcessor(WSClientHelper svcs, ProcessListener listener, InspectionData data, File shapeFile, ComponentType componentType) {
+    public ComponentShapeFileProcessor(WSClientHelper svcs, ProcessListener listener, InspectionData data, File shapeFile, ComponentType componentType, boolean expectOneFeeder) {
         super(svcs, listener, data, shapeFile);
         this.componentType = componentType;
+        this.expectOneFeeder = expectOneFeeder;
     }
 
     @Override
     protected void processFeature(Map<String, Object> featureProps) {
-        String compId = StringUtil.nullableToString(firstOf(featureProps, PROP_ID));
+        String compId = longIntegerAsString(firstOf(featureProps, PROP_ID));
         String feederNumber = StringUtil.nullableToString(featureProps.get(PROP_NETWORK_ID));
-        String poleId = StringUtil.nullableToString(firstOf(featureProps, PROP_POLE_ID));
+        String poleId = longIntegerAsString(firstOf(featureProps, PROP_POLE_ID));
+        String poleSerial = StringUtil.nullableToString(featureProps.get(PROP_POLE_NUM));
         
-        if (feederNumber == null || feederNumber.isEmpty()) {
-            listener.reportMessage(String.format("%s field missing for %s %s", PROP_NETWORK_ID, componentType, compId));
-        }
-        if (poleId == null || poleId.isEmpty()) {
+        if ((poleId == null || poleId.isEmpty()) && (poleSerial == null || poleSerial.isEmpty())) {
             listener.reportMessage(String.format("Pole ID missing for %s %s", componentType, compId));
+            return;
         }
         
         try {
@@ -64,23 +64,39 @@ public class ComponentShapeFileProcessor extends ShapeFileProcessor implements S
             if (feeder == null) {
                 FeederSearchParams fparams = new FeederSearchParams();
                 fparams.setFeederNumber(feederNumber);
-                feeder = CollectionsUtilities.firstItemIn(svcs.feeders().search(svcs.token(), fparams));
+                if (fparams.hasCriteria()) {
+                    feeder = CollectionsUtilities.firstItemIn(svcs.feeders().search(svcs.token(), fparams));
+                }
                 if (feeder == null) {
-                    listener.reportNonFatalError(String.format("Unable to locate feeder %s", feederNumber));
-                    return;
+                    if (expectOneFeeder && data.getFeedersByFeederNum().size() == 1) {
+                        feeder = data.getCurrentFeeder();
+                    } else {
+                        listener.reportNonFatalError(String.format("Unable to locate feeder %s", feederNumber));
+                        return;
+                    }
                 } else {
                     data.addFeeder(feeder, false);
                 }
             }
+            data.setCurrentFeeder(feeder);
             
-            Pole pole = data.getPolesMap().get(new SiteAssetKey(feeder.getId(), poleId));
+            Pole pole = null;
+            if (StringUtil.notNullNotEmpty(poleId)) {
+                pole = data.getPolesMap().get(new SiteAssetKey(feeder.getId(), poleId));
+            } else {
+                pole = data.getPolesMap().get(new SiteAssetKey(feeder.getId(), poleSerial));
+            }
             if (pole == null) {
                 PoleSearchParams pparams = new PoleSearchParams();
                 pparams.setSiteId(feeder.getId());
-                pparams.setUtilityId(poleId);
+                if (poleId != null && !poleId.isEmpty()) {
+                    pparams.setUtilityId(poleId);
+                } else {
+                    pparams.setSerialNumber(poleSerial);
+                }
                 pole = CollectionsUtilities.firstItemIn(svcs.poles().search(svcs.token(), pparams));
                 if (pole == null) {
-                    listener.reportNonFatalError(String.format("Unable to locate pole %s for feeder %s", poleId, feederNumber));
+                    listener.reportNonFatalError(String.format("Unable to locate pole %s for feeder %s", StringUtil.notNullNotEmpty(poleId) ? poleId : poleSerial, feederNumber));
                     return;
                 }
                 data.addPole(pole, false);
@@ -91,6 +107,10 @@ public class ComponentShapeFileProcessor extends ShapeFileProcessor implements S
             cparams.setAssetId(pole.getId());
             cparams.setType(componentType);
             cparams.setUtilityId(compId);
+            if (!cparams.hasCriteria()) {
+                listener.reportNonFatalError(String.format("Unable to locate pole %s for feeder %s", poleId, feederNumber));
+                return;
+            }
             List<Component> comps = svcs.components().query(svcs.token(), cparams);
             Component comp;
             switch (comps.size()) {

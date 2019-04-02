@@ -25,6 +25,14 @@ public class ShapeFilesMasterDataImport {
         new ComponentType("Recloser"),
         new ComponentType("Switch")
     };
+    private static final String[] COMP_TYPE_MAPPINGS = {
+        "capacitor",
+        "fuse",
+        "oh_xfmr",
+        "primary_meter",
+        "recloser",
+        "switch"
+    };
     
     public static final FilenameFilter COMP_SHP_FILTER = new FilenameFilter() {
         @Override
@@ -54,13 +62,25 @@ public class ShapeFilesMasterDataImport {
     
     private ShapeFilesMasterDataImport() {}
     
-    public static boolean process(Environment env, ProcessListener listener, File dataDir, String orderNum) {
+    public static boolean process(Environment env, ProcessListener listener, File dataDir, String orderNum, boolean expectOneFeeder) {
         WSClientHelper svcs = new WSClientHelper(env);
         InspectionData data = new InspectionData();
         data.setCurrentOrderNumber(orderNum);
+        data.setOrganizationId(DUKE_ORG_ID);
         ShapeFileProcessor shapeFileProcessor;
+        try {
+            data.setCurrentWorkOrder(svcs.workOrders().retrieveById(svcs.token(), orderNum));
+        } catch (Exception ex) {
+            listener.reportFatalException(ex);
+            return false;
+        }
+        if (data.getCurrentWorkOrder() == null) {
+            listener.reportFatalError(String.format("Unable to look up work order %s", orderNum));
+            return false;
+        }
+        data.addWorkOrder(data.getCurrentWorkOrder(), false);
         for (File shpFile : dataDir.listFiles(POLE_SHP_FILTER)) {
-            shapeFileProcessor = new PoleShapeFileProcessor(svcs, listener, data, dataDir);
+            shapeFileProcessor = new PoleShapeFileProcessor(svcs, listener, data, shpFile, expectOneFeeder);
             shapeFileProcessor.processShapeFile();
         }
         ComponentType type;
@@ -69,7 +89,7 @@ public class ShapeFilesMasterDataImport {
             if (type == null) {
                 listener.reportNonFatalError(String.format("Unknown component type for shape file %s", shpFile));
             } else {
-                shapeFileProcessor = new ComponentShapeFileProcessor(svcs, listener, data, shpFile, type);
+                shapeFileProcessor = new ComponentShapeFileProcessor(svcs, listener, data, shpFile, type, expectOneFeeder);
                 shapeFileProcessor.processShapeFile();
             }
         }
@@ -84,10 +104,10 @@ public class ShapeFilesMasterDataImport {
     private static ComponentType typeOf(File file) {
         String name = file.getName().toLowerCase();
         String s;
-        for (ComponentType type : COMP_TYPES) {
-            s = type.getValue().toLowerCase();
+        for (int i = 0; i < COMP_TYPE_MAPPINGS.length; i++) {
+            s = COMP_TYPE_MAPPINGS[i];
             if (name.startsWith(s)) {
-                return type;
+                return COMP_TYPES[i];
             }
         }
         return null;
