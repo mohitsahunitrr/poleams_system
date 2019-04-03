@@ -48,7 +48,6 @@ public class InspectionImport {
     //FIXME: We need a better way
     private static final ZoneId DEFAULT_TZ = ZoneId.of("America/New_York");
     private static final String DRONE_CAMERA_MAKE = "DJI";
-    private static final String DUKE_ORG_ID = "c382f193-b687-432b-b838-3049b809c937";
     
     private InspectionImport() {}
     
@@ -80,7 +79,7 @@ public class InspectionImport {
         // feeder Directory: RUSHVILLE (454) 1201
         // Parse numbers in feeder directory so that we get 4541201 and match it to feeder number.
         FeederSearchParams fparams = new FeederSearchParams();
-        fparams.setOrganizationId(DUKE_ORG_ID);
+        fparams.setOrganizationId(Constants.DUKE_ORG_ID);
         try {
             for (Feeder f : svcs.feeders().search(svcs.token(), fparams)) {
                 data.getFeedersByFeederNum().put(f.getFeederNumber().substring(f.getFeederNumber().length()-7), f);

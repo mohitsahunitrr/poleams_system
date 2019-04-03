@@ -49,7 +49,7 @@ public class GeoJsonMasterDataImport {
     private static final String FIELD_PROPERTIES = "properties";
     private static final String FIELD_LC_TYPE = "type";
 
-    public boolean process(Environment env, ProcessListener listener, InspectionData data, File poleDataJson, String orgId, String orderNum) {
+    public boolean process(Environment env, ProcessListener listener, InspectionData data, File poleDataJson, String orderNum) {
         boolean success = true;
         
         JsonParser parser = null;

@@ -89,7 +89,7 @@ public class FeederDataImportProcess extends ServiceClientCommandProcess {
             //FIXME: This is hardcoded Developed for Duke import
             InspectionData data = FeedersFromCSVProcessor.process(env, listener, new File("/home/pchapman/tmp/duke/circuits.csv"), orgId);
             GeoJsonMasterDataImport importer = new GeoJsonMasterDataImport();
-            success = importer.process(env, listener, data, new File(dirPath), orgId, orderNumber);
+            success = importer.process(env, listener, data, new File(dirPath), orderNumber);
         } else if (type == Type.FPLExcel) {
             success = FeederDataDirProcessor.process(env, listener, new File(dirPath), orgId, orderNumber);        
         } else if (type == Type.PPL) {

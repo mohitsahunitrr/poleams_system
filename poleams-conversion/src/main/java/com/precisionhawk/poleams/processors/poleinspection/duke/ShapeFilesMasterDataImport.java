@@ -49,8 +49,6 @@ public class ShapeFilesMasterDataImport {
                     );
         }
     };
-
-    private static final String DUKE_ORG_ID = "c382f193-b687-432b-b838-3049b809c937";
     
     public static final FilenameFilter POLE_SHP_FILTER = new FilenameFilter() {
         @Override
@@ -66,7 +64,7 @@ public class ShapeFilesMasterDataImport {
         WSClientHelper svcs = new WSClientHelper(env);
         InspectionData data = new InspectionData();
         data.setCurrentOrderNumber(orderNum);
-        data.setOrganizationId(DUKE_ORG_ID);
+        data.setOrganizationId(Constants.DUKE_ORG_ID);
         ShapeFileProcessor shapeFileProcessor;
         try {
             data.setCurrentWorkOrder(svcs.workOrders().retrieveById(svcs.token(), orderNum));
