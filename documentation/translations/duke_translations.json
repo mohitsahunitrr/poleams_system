@@ -1,7 +1,7 @@
 {
     "languageCode": "en",
     "languageName": "English",
-    "name": "Florida Light and Power",
+    "name": "Duke",
     "countryName": "United States",
     "version": 1,
     "countryCode": "US",
@@ -333,55 +333,1064 @@
             "errors": {},
             "description": "The maximum wind speed.",
             "label": "Wind Zone"
+        },
+        "poleSummary.attributes[].NETWORK_ID": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].NETWORK_ID",
+            "errors": {},
+            "description": "",
+            "label": "Network ID"
+        },
+        "poleSummary.attributes[].JOINID": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].JOINID",
+            "errors": {},
+            "description": "",
+            "label": "Join ID"
+        },
+        "poleSummary.attributes[].PN_Verify": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].PN_Verify",
+            "errors": {},
+            "description": "",
+            "label": "PN Verify"
+        },
+        "poleSummary.attributes[].STUB": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].STUB",
+            "errors": {},
+            "description": "",
+            "label": "Stub"
+        },
+        "poleSummary.attributes[].HT_Update": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].HT_Update",
+            "errors": {},
+            "description": "",
+            "label": "HT Update"
+        },
+        "poleSummary.attributes[].CLASS": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].CLASS",
+            "errors": {},
+            "description": "",
+            "label": "Class"
+        },
+        "poleSummary.attributes[].TERMINATIN": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].TERMINATIN",
+            "errors": {},
+            "description": "",
+            "label": "Terminatin"
+        },
+        "poleSummary.attributes[].Updated X": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].Updated X",
+            "errors": {},
+            "description": "",
+            "label": "Updated X"
+        },
+        "poleSummary.attributes[].STATUS": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].STATUS",
+            "errors": {},
+            "description": "",
+            "label": "Status"
+        },
+        "poleSummary.attributes[].PHASING": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].PHASING",
+            "errors": {},
+            "description": "",
+            "label": "PHasing"
+        },
+        "poleSummary.attributes[].POLEID": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].POLEID",
+            "errors": {},
+            "description": "",
+            "label": "Pole ID"
+        },
+        "poleSummary.attributes[].USAGE": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].USAGE",
+            "errors": {},
+            "description": "",
+            "label": "Usage"
+        },
+        "poleSummary.attributes[].Updated Y": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].Updated Y",
+            "errors": {},
+            "description": "",
+            "label": "Updated Y"
+        },
+        "poleSummary.attributes[].X": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].X",
+            "errors": {},
+            "description": "",
+            "label": "X"
+        },
+        "poleSummary.attributes[].Y": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].Y",
+            "errors": {},
+            "description": "",
+            "label": "Y"
+        },
+        "poleSummary.attributes[].PN_Update": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].PN_Update",
+            "errors": {},
+            "description": "",
+            "label": "PN Update"
+        },
+        "poleSummary.attributes[].STU_Verify": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].STU_Verify",
+            "errors": {},
+            "description": "",
+            "label": "STU Verify"
+        },
+        "poleSummary.attributes[].TYPE": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].TYPE",
+            "errors": {},
+            "description": "",
+            "label": "Type"
+        },
+        "poleSummary.attributes[].CLS_Update": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].CLS_Update",
+            "errors": {},
+            "description": "",
+            "label": "CLS Update"
+        },
+        "poleSummary.attributes[].FOREIGN_AT": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].FOREIGN_AT",
+            "errors": {},
+            "description": "",
+            "label": "Foreign At"
+        },
+        "poleSummary.attributes[].MATERIAL": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].MATERIAL",
+            "errors": {},
+            "description": "",
+            "label": "Material"
+        },
+        "poleSummary.attributes[].POLE_TAG": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].POLE_TAG",
+            "errors": {},
+            "description": "",
+            "label": "Pole Tag"
+        },
+        "poleSummary.attributes[].MAT_Update": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].MAT_Update",
+            "errors": {},
+            "description": "",
+            "label": "MAT Update"
+        },
+        "poleSummary.attributes[].STU_Update": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].STU_Update",
+            "errors": {},
+            "description": "",
+            "label": "STU Update"
+        },
+        "poleSummary.attributes[].POLE_NUMBE": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].POLE_NUMBE",
+            "errors": {},
+            "description": "",
+            "label": "Pole Number"
+        },
+        "poleSummary.attributes[].HEIGHT": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].HEIGHT",
+            "errors": {},
+            "description": "",
+            "label": "Height"
+        },
+        "poleSummary.attributes[].CLS_Verify": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].CLS_Verify",
+            "errors": {},
+            "description": "",
+            "label": "CLS Verify"
+        },
+        "poleSummary.attributes[].pole_num_2": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].pole_num_2",
+            "errors": {},
+            "description": "",
+            "label": "Pole Number 2"
+        },
+        "poleSummary.attributes[].pole_num_1": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].pole_num_1",
+            "errors": {},
+            "description": "",
+            "label": "Pole Number 1"
+        },
+        "poleSummary.attributes[].DATE_INSTA": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].DATE_INSTA",
+            "errors": {},
+            "description": "",
+            "label": "Date Installed"
+        },
+        "poleSummary.attributes[].USR_CIRCUI": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].USR_CIRCUI",
+            "errors": {},
+            "description": "",
+            "label": "User Circuit"
+        },
+        "poleSummary.attributes[].MAT_Verify": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].MAT_Verify",
+            "errors": {},
+            "description": "",
+            "label": "MAT Verify"
+        },
+        "poleSummary.attributes[].HT_Verify": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].HT_Verify",
+            "errors": {},
+            "description": "",
+            "label": "HT Verify"
+        },
+        "poleSummary.attributes[].ED_POLE_ID": {
+            "listValues": [],
+            "key": "poleSummary.attributes[].ED_POLE_ID",
+            "errors": {},
+            "description": "",
+            "label": "ED Pole ID"
+        },
+        "component.make": {
+            "listValues": [],
+            "key": "component.make",
+            "errors": {},
+            "description": "",
+            "label": "Make"
+        },
+        "component.model": {
+            "listValues": [],
+            "key": "component.model",
+            "errors": {},
+            "description": "",
+            "label": "Model"
+        },
+        "component.serialNumber": {
+            "listValues": [],
+            "key": "component.serialNumber",
+            "errors": {},
+            "description": "",
+            "label": "AMP Update"
+        },
+        "component.type": {
+            "listValues": [
+                {
+                    "value": "Capacitor",
+                    "label": "Capacitor",
+                    "selector": null,
+                    "sortOrder": 0,
+                    "deprecated": null
+                },
+                {
+                    "value": "Fuse",
+                    "label": "Fuse",
+                    "selector": null,
+                    "sortOrder": 1,
+                    "deprecated": null
+                },
+                {
+                    "value": "Primary meter",
+                    "label": "Primary Meter",
+                    "selector": null,
+                    "sortOrder": 2,
+                    "deprecated": null
+                },
+                {
+                    "value": "Recloser",
+                    "label": "Recloser",
+                    "selector": null,
+                    "sortOrder": 3,
+                    "deprecated": null
+                },
+                {
+                    "value": "Switch",
+                    "label": "Switch",
+                    "selector": null,
+                    "sortOrder": 4,
+                    "deprecated": null
+                },
+                {
+                    "value": "Transformer",
+                    "label": "Transformer",
+                    "selector": null,
+                    "sortOrder": 5,
+                    "deprecated": null
+                }
+            ],
+            "key": "component.type",
+            "errors": {},
+            "description": "",
+            "label": "Type"
+        },
+        "component.utilityId": {
+            "listValues": [],
+            "key": "component.utilityId",
+            "errors": {},
+            "description": "",
+            "label": "Utility ID"
+        },
+        "component.attributes[].AMP_Update": {
+            "listValues": [],
+            "key": "component.attributes[].AMP_Update",
+            "errors": {},
+            "description": "",
+            "label": "AMP Update"
+        },
+        "component.attributes[].INM_Verify": {
+            "listValues": [],
+            "key": "component.attributes[].INM_Verify",
+            "errors": {},
+            "description": "",
+            "label": "INM Verify"
+        },
+        "component.attributes[].PHASING": {
+            "listValues": [],
+            "key": "component.attributes[].PHASING",
+            "errors": {},
+            "description": "",
+            "label": "PHASING"
+        },
+        "component.attributes[].METER_SERI": {
+            "listValues": [],
+            "key": "component.attributes[].METER_SERI",
+            "errors": {},
+            "description": "",
+            "label": "METER SERIAL"
+        },
+        "component.attributes[].PHA_Verify": {
+            "listValues": [],
+            "key": "component.attributes[].PHA_Verify",
+            "errors": {},
+            "description": "",
+            "label": "PHA Verify"
+        },
+        "component.attributes[].INT_MEDIUM": {
+            "listValues": [],
+            "key": "component.attributes[].INT_MEDIUM",
+            "errors": {},
+            "description": "",
+            "label": "INT MEDIUM"
+        },
+        "component.attributes[].SIZE_VAL": {
+            "listValues": [],
+            "key": "component.attributes[].SIZE_VAL",
+            "errors": {},
+            "description": "",
+            "label": "SIZE VAL"
+        },
+        "component.attributes[].TOTAL_KVA": {
+            "listValues": [],
+            "key": "component.attributes[].TOTAL_KVA",
+            "errors": {},
+            "description": "",
+            "label": "TOTAL KVA"
+        },
+        "component.attributes[].Y": {
+            "listValues": [],
+            "key": "component.attributes[].Y",
+            "errors": {},
+            "description": "",
+            "label": "Y"
+        },
+        "component.attributes[].BYT_Update": {
+            "listValues": [],
+            "key": "component.attributes[].BYT_Update",
+            "errors": {},
+            "description": "",
+            "label": "BYT Update"
+        },
+        "component.attributes[].MNT_Update": {
+            "listValues": [],
+            "key": "component.attributes[].MNT_Update",
+            "errors": {},
+            "description": "",
+            "label": "MNT Update"
+        },
+        "component.attributes[].BANK_CONFI": {
+            "listValues": [],
+            "key": "component.attributes[].BANK_CONFI",
+            "errors": {},
+            "description": "",
+            "label": "BANK CONFI"
+        },
+        "component.attributes[].SCT_Verify": {
+            "listValues": [],
+            "key": "component.attributes[].SCT_Verify",
+            "errors": {},
+            "description": "",
+            "label": "SCT Verify"
+        },
+        "component.attributes[].USR_STRUCT": {
+            "listValues": [],
+            "key": "component.attributes[].USR_STRUCT",
+            "errors": {},
+            "description": "",
+            "label": "USR STRUCT"
+        },
+        "component.attributes[].OPM_Update": {
+            "listValues": [],
+            "key": "component.attributes[].OPM_Update",
+            "errors": {},
+            "description": "",
+            "label": "OPM Update"
+        },
+        "component.attributes[].NETWORK_ID": {
+            "listValues": [],
+            "key": "component.attributes[].NETWORK_ID",
+            "errors": {},
+            "description": "",
+            "label": "NETWORK ID"
+        },
+        "component.attributes[].SWN_Update": {
+            "listValues": [],
+            "key": "component.attributes[].SWN_Update",
+            "errors": {},
+            "description": "",
+            "label": "SWN Update"
+        },
+        "component.attributes[].SV_Update": {
+            "listValues": [],
+            "key": "component.attributes[].SV_Update",
+            "errors": {},
+            "description": "",
+            "label": "SV Update"
+        },
+        "component.attributes[].SWITCH_NUM": {
+            "listValues": [],
+            "key": "component.attributes[].SWITCH_NUM",
+            "errors": {},
+            "description": "",
+            "label": "SWITCH NUM"
+        },
+        "component.attributes[].POLEID": {
+            "listValues": [],
+            "key": "component.attributes[].POLEID",
+            "errors": {},
+            "description": "",
+            "label": "POLE ID"
+        },
+        "component.attributes[].OP_MECH": {
+            "listValues": [],
+            "key": "component.attributes[].OP_MECH",
+            "errors": {},
+            "description": "",
+            "label": "OP MECH"
+        },
+        "component.attributes[].AS_PCB_Y_N": {
+            "listValues": [],
+            "key": "component.attributes[].AS_PCB_Y_N",
+            "errors": {},
+            "description": "",
+            "label": "AS PCB Y N"
+        },
+        "component.attributes[].MS_Verify": {
+            "listValues": [],
+            "key": "component.attributes[].MS_Verify",
+            "errors": {},
+            "description": "",
+            "label": "MS Verify"
+        },
+        "component.attributes[].KVAR": {
+            "listValues": [],
+            "key": "component.attributes[].KVAR",
+            "errors": {},
+            "description": "",
+            "label": "KVAR"
+        },
+        "component.attributes[].SWT_Update": {
+            "listValues": [],
+            "key": "component.attributes[].SWT_Update",
+            "errors": {},
+            "description": "",
+            "label": "SWT Update"
+        },
+        "component.attributes[].TYP_Verify": {
+            "listValues": [],
+            "key": "component.attributes[].TYP_Verify",
+            "errors": {},
+            "description": "",
+            "label": "TYP Verify"
+        },
+        "component.attributes[].KV_Verify": {
+            "listValues": [],
+            "key": "component.attributes[].KV_Verify",
+            "errors": {},
+            "description": "",
+            "label": "KV Verify"
+        },
+        "component.attributes[].ID": {
+            "listValues": [],
+            "key": "component.attributes[].ID",
+            "errors": {},
+            "description": "",
+            "label": "ID"
+        },
+        "component.attributes[].Updated": {
+            "listValues": [],
+            "key": "component.attributes[].Updated",
+            "errors": {},
+            "description": "",
+            "label": "Updated"
+        },
+        "component.attributes[].CN_Verify": {
+            "listValues": [],
+            "key": "component.attributes[].CN_Verify",
+            "errors": {},
+            "description": "",
+            "label": "CN Verify"
+        },
+        "component.attributes[].SPH_Update": {
+            "listValues": [],
+            "key": "component.attributes[].SPH_Update",
+            "errors": {},
+            "description": "",
+            "label": "SPH Update"
+        },
+        "component.attributes[].SENSE_PHA": {
+            "listValues": [],
+            "key": "component.attributes[].SENSE_PHA",
+            "errors": {},
+            "description": "",
+            "label": "SENSE PHA"
+        },
+        "component.attributes[].MS_Update": {
+            "listValues": [],
+            "key": "component.attributes[].MS_Update",
+            "errors": {},
+            "description": "",
+            "label": "MS Update"
+        },
+        "component.attributes[].BYPASS_TY": {
+            "listValues": [],
+            "key": "component.attributes[].BYPASS_TY",
+            "errors": {},
+            "description": "",
+            "label": "BYPASS TY"
+        },
+        "component.attributes[].SWT_Verify": {
+            "listValues": [],
+            "key": "component.attributes[].SWT_Verify",
+            "errors": {},
+            "description": "",
+            "label": "SWT Verify"
+        },
+        "component.attributes[].RECLOS_BYP": {
+            "listValues": [],
+            "key": "component.attributes[].RECLOS_BYP",
+            "errors": {},
+            "description": "",
+            "label": "RECLOS BYP"
+        },
+        "component.attributes[].NST_Update": {
+            "listValues": [],
+            "key": "component.attributes[].NST_Update",
+            "errors": {},
+            "description": "",
+            "label": "NST Update"
+        },
+        "component.attributes[].TKV_Update": {
+            "listValues": [],
+            "key": "component.attributes[].TKV_Update",
+            "errors": {},
+            "description": "",
+            "label": "TKV Update"
+        },
+        "component.attributes[].MODEL": {
+            "listValues": [],
+            "key": "component.attributes[].MODEL",
+            "errors": {},
+            "description": "",
+            "label": "MODEL"
+        },
+        "component.attributes[].BC_Update": {
+            "listValues": [],
+            "key": "component.attributes[].BC_Update",
+            "errors": {},
+            "description": "",
+            "label": "BC Update"
+        },
+        "component.attributes[].SCT_Update": {
+            "listValues": [],
+            "key": "component.attributes[].SCT_Update",
+            "errors": {},
+            "description": "",
+            "label": "SCT Update"
+        },
+        "component.attributes[].AMPACITY": {
+            "listValues": [],
+            "key": "component.attributes[].AMPACITY",
+            "errors": {},
+            "description": "",
+            "label": "AMPACITY"
+        },
+        "component.attributes[].NORMAL_STA": {
+            "listValues": [],
+            "key": "component.attributes[].NORMAL_STA",
+            "errors": {},
+            "description": "",
+            "label": "NORMAL STA"
+        },
+        "component.attributes[].OPM_Verify": {
+            "listValues": [],
+            "key": "component.attributes[].OPM_Verify",
+            "errors": {},
+            "description": "",
+            "label": "OPM Verify"
+        },
+        "component.attributes[].SWN_Verify": {
+            "listValues": [],
+            "key": "component.attributes[].SWN_Verify",
+            "errors": {},
+            "description": "",
+            "label": "SWN Verify"
+        },
+        "component.attributes[].TKV_Verify": {
+            "listValues": [],
+            "key": "component.attributes[].TKV_Verify",
+            "errors": {},
+            "description": "",
+            "label": "TKV Verify"
+        },
+        "component.attributes[].BC_Verify": {
+            "listValues": [],
+            "key": "component.attributes[].BC_Verify",
+            "errors": {},
+            "description": "",
+            "label": "BC Verify"
+        },
+        "component.attributes[].NST_Verify": {
+            "listValues": [],
+            "key": "component.attributes[].NST_Verify",
+            "errors": {},
+            "description": "",
+            "label": "NST Verify"
+        },
+        "component.attributes[].STATUS": {
+            "listValues": [],
+            "key": "component.attributes[].STATUS",
+            "errors": {},
+            "description": "",
+            "label": "STATUS"
+        },
+        "component.attributes[].AMP_Verify": {
+            "listValues": [],
+            "key": "component.attributes[].AMP_Verify",
+            "errors": {},
+            "description": "",
+            "label": "AMP Verify"
+        },
+        "component.attributes[].POLE_ID": {
+            "listValues": [],
+            "key": "component.attributes[].POLE_ID",
+            "errors": {},
+            "description": "",
+            "label": "POLE ID"
+        },
+        "component.attributes[].INM_Update": {
+            "listValues": [],
+            "key": "component.attributes[].INM_Update",
+            "errors": {},
+            "description": "",
+            "label": "INM Update"
+        },
+        "component.attributes[].NETWORK_2": {
+            "listValues": [],
+            "key": "component.attributes[].NETWORK_2",
+            "errors": {},
+            "description": "",
+            "label": "NETWORK 2"
+        },
+        "component.attributes[].TYP_Update": {
+            "listValues": [],
+            "key": "component.attributes[].TYP_Update",
+            "errors": {},
+            "description": "",
+            "label": "TYP Update"
+        },
+        "component.attributes[].KV_Update": {
+            "listValues": [],
+            "key": "component.attributes[].KV_Update",
+            "errors": {},
+            "description": "",
+            "label": "KV Update"
+        },
+        "component.attributes[].SPH_Verify": {
+            "listValues": [],
+            "key": "component.attributes[].SPH_Verify",
+            "errors": {},
+            "description": "",
+            "label": "SPH Verify"
+        },
+        "component.attributes[].SCADA_TYPE": {
+            "listValues": [],
+            "key": "component.attributes[].SCADA_TYPE",
+            "errors": {},
+            "description": "",
+            "label": "SCADA TYPE"
+        },
+        "component.attributes[].CN_Update": {
+            "listValues": [],
+            "key": "component.attributes[].CN_Update",
+            "errors": {},
+            "description": "",
+            "label": "CN Update"
+        },
+        "component.attributes[].PN_Verify": {
+            "listValues": [],
+            "key": "component.attributes[].PN_Verify",
+            "errors": {},
+            "description": "",
+            "label": "PN Verify"
+        },
+        "component.attributes[].GOP_Update": {
+            "listValues": [],
+            "key": "component.attributes[].GOP_Update",
+            "errors": {},
+            "description": "",
+            "label": "GOP Update"
+        },
+        "component.attributes[].PIN1": {
+            "listValues": [],
+            "key": "component.attributes[].PIN1",
+            "errors": {},
+            "description": "",
+            "label": "PIN1"
+        },
+        "component.attributes[].RBP_Update": {
+            "listValues": [],
+            "key": "component.attributes[].RBP_Update",
+            "errors": {},
+            "description": "",
+            "label": "RBP Update"
+        },
+        "component.attributes[].CUST_COUNT": {
+            "listValues": [],
+            "key": "component.attributes[].CUST_COUNT",
+            "errors": {},
+            "description": "",
+            "label": "CUST COUNT"
+        },
+        "component.attributes[].CAN_NUM": {
+            "listValues": [],
+            "key": "component.attributes[].CAN_NUM",
+            "errors": {},
+            "description": "",
+            "label": "CAN NUM"
+        },
+        "component.attributes[].CONTROL_TY": {
+            "listValues": [],
+            "key": "component.attributes[].CONTROL_TY",
+            "errors": {},
+            "description": "",
+            "label": "CONTROL TY"
+        },
+        "component.attributes[].MOUNTING": {
+            "listValues": [],
+            "key": "component.attributes[].MOUNTING",
+            "errors": {},
+            "description": "",
+            "label": "MOUNTING"
+        },
+        "component.attributes[].SV_Verify": {
+            "listValues": [],
+            "key": "component.attributes[].SV_Verify",
+            "errors": {},
+            "description": "",
+            "label": "SV Verify"
+        },
+        "component.attributes[].EGISID": {
+            "listValues": [],
+            "key": "component.attributes[].EGISID",
+            "errors": {},
+            "description": "",
+            "label": "EGIS ID"
+        },
+        "component.attributes[].GOP_Verify": {
+            "listValues": [],
+            "key": "component.attributes[].GOP_Verify",
+            "errors": {},
+            "description": "",
+            "label": "GOP Verify"
+        },
+        "component.attributes[].RBP_Verify": {
+            "listValues": [],
+            "key": "component.attributes[].RBP_Verify",
+            "errors": {},
+            "description": "",
+            "label": "RBP Verify"
+        },
+        "component.attributes[].POLE_NUMBE": {
+            "listValues": [],
+            "key": "component.attributes[].POLE_NUMBE",
+            "errors": {},
+            "description": "",
+            "label": "POLE NUMBER"
+        },
+        "component.attributes[].SWITCH_TYP": {
+            "listValues": [],
+            "key": "component.attributes[].SWITCH_TYP",
+            "errors": {},
+            "description": "",
+            "label": "SWITCH TYPE"
+        },
+        "component.attributes[].PN_Update": {
+            "listValues": [],
+            "key": "component.attributes[].PN_Update",
+            "errors": {},
+            "description": "",
+            "label": "PN Update"
+        },
+        "component.attributes[].TYPE": {
+            "listValues": [],
+            "key": "component.attributes[].TYPE",
+            "errors": {},
+            "description": "",
+            "label": "TYPE"
+        },
+        "component.attributes[].X": {
+            "listValues": [],
+            "key": "component.attributes[].X",
+            "errors": {},
+            "description": "",
+            "label": "X"
+        },
+        "component.attributes[].GANG_OP": {
+            "listValues": [],
+            "key": "component.attributes[].GANG_OP",
+            "errors": {},
+            "description": "",
+            "label": "GANG OP"
+        },
+        "component.attributes[].MNT_Verify": {
+            "listValues": [],
+            "key": "component.attributes[].MNT_Verify",
+            "errors": {},
+            "description": "",
+            "label": "MNT Verify"
+        },
+        "component.attributes[].OBJECT_ID": {
+            "listValues": [],
+            "key": "component.attributes[].OBJECT_ID",
+            "errors": {},
+            "description": "",
+            "label": "OBJECT ID"
+        },
+        "component.attributes[].PHA_Update": {
+            "listValues": [],
+            "key": "component.attributes[].PHA_Update",
+            "errors": {},
+            "description": "",
+            "label": "PHA Update"
+        },
+        "component.attributes[].BYT_Verify": {
+            "listValues": [],
+            "key": "component.attributes[].BYT_Verify",
+            "errors": {},
+            "description": "",
+            "label": "BYT Verify"
         }
     },
     "views": {
-        "poleAMSViewer.poleView.summary": [
-            "feederSummary.name",
-            "feederSummary.feederNumber",
-            "poleSummary.utilityId",
-            "poleSummary.type",
-            "poleSummary.length",
-            "poleSummary.poleClass",
-            "poleSummary.framing",
-            "poleSummary.equipmentType",
-            "poleSummary.numberOfPhases",
-            "poleSummary.location.latitude",
-            "poleSummary.location.longitude",
-            "poleInspectionSummary.horizontalLoadingPercent"
-        ],
-        "poleAMSViewer.poleView.detail": [
-            "poleSummary.id",
-            "poleSummary.owner",
-            "poleInspectionSummary.access",
-            "poleSummary.circuit1SpanLength1",
-            "poleSummary.circuit1SpanLength2",
-            "poleSummary.pullOff1SpanLength1",
-            "poleSummary.pullOff2SpanLength2",
-            "poleSummary.framing",
-            "poleSummary.equipmentQuantity",
-            "poleSummary.streetLight",
-            "poleSummary.risers[]",
-            "poleSummary.numberOfCATVAttachments",
-            "poleSummary.totalSizeCATV",
-            "poleSummary.caTVAttachments[].height",
-            "poleSummary.caTVAttachments[].diameter",
-            "poleSummary.numberOfTelComAttachments",
-            "poleSummary.totalSizeTelCom",
-            "poleSummary.telCommAttachments[].height",
-            "poleSummary.telCommAttachments[].diameter",
-            "poleSummary.primaryWireType",
-            "poleSummary.neutralWireType",
-            "poleSummary.openWireType",
-            "poleSummary.numberOfOpenWires",
-            "poleSummary.multiplexType",
-            "poleSummary.switchNumber",
-            "poleSummary.tlnCoordinate",
-            "poleSummary.anchor[].type",
-            "poleSummary.anchor[].leadLength",
-            "poleSummary.anchor[].diameter",
-            "poleSummary.anchor[].bearing",
-            "poleInspectionSummary.latLongDelta"
-        ]
+        "poleAMSViewer.poleView.summary": {
+            "key": "poleAMSViewer.poleView.summary",
+            "header": null,
+            "fields": [
+                "feederSummary.name",
+                "feederSummary.feederNumber",
+                "poleSummary.utilityId",
+                "poleSummary.type",
+                "poleSummary.length",
+                "poleSummary.poleClass",
+                "poleSummary.framing",
+                "poleSummary.equipmentType",
+                "poleSummary.numberOfPhases",
+                "poleSummary.location.latitude",
+                "poleSummary.location.longitude",
+                "poleInspectionSummary.horizontalLoadingPercent"
+            ]
+        },
+        "poleAMSViewer.poleView.detail": {
+            "key": "poleAMSViewer.poleView.detail",
+            "header": null,
+            "fields": [
+                "poleSummary.id",
+                "poleSummary.owner",
+                "poleInspectionSummary.access",
+                "poleSummary.circuit1SpanLength1",
+                "poleSummary.circuit1SpanLength2",
+                "poleSummary.pullOff1SpanLength1",
+                "poleSummary.pullOff2SpanLength2",
+                "poleSummary.framing",
+                "poleSummary.equipmentQuantity",
+                "poleSummary.streetLight",
+                "poleSummary.risers[]",
+                "poleSummary.numberOfCATVAttachments",
+                "poleSummary.totalSizeCATV",
+                "poleSummary.caTVAttachments[].height",
+                "poleSummary.caTVAttachments[].diameter",
+                "poleSummary.numberOfTelComAttachments",
+                "poleSummary.totalSizeTelCom",
+                "poleSummary.telCommAttachments[].height",
+                "poleSummary.telCommAttachments[].diameter",
+                "poleSummary.primaryWireType",
+                "poleSummary.neutralWireType",
+                "poleSummary.openWireType",
+                "poleSummary.numberOfOpenWires",
+                "poleSummary.multiplexType",
+                "poleSummary.switchNumber",
+                "poleSummary.tlnCoordinate",
+                "poleSummary.anchor[].type",
+                "poleSummary.anchor[].leadLength",
+                "poleSummary.anchor[].diameter",
+                "poleSummary.anchor[].bearing",
+                "poleInspectionSummary.latLongDelta",
+                "poleSummary.attributes[].NETWORK_ID",
+                "poleSummary.attributes[].JOINID",
+                "poleSummary.attributes[].PN_Verify",
+                "poleSummary.attributes[].STUB",
+                "poleSummary.attributes[].HT_Update",
+                "poleSummary.attributes[].CLASS",
+                "poleSummary.attributes[].TERMINATIN",
+                "poleSummary.attributes[].Updated X",
+                "poleSummary.attributes[].STATUS",
+                "poleSummary.attributes[].PHASING",
+                "poleSummary.attributes[].POLEID",
+                "poleSummary.attributes[].USAGE",
+                "poleSummary.attributes[].Updated Y",
+                "poleSummary.attributes[].X",
+                "poleSummary.attributes[].Y",
+                "poleSummary.attributes[].PN_Update",
+                "poleSummary.attributes[].STU_Verify",
+                "poleSummary.attributes[].TYPE",
+                "poleSummary.attributes[].CLS_Update",
+                "poleSummary.attributes[].FOREIGN_AT",
+                "poleSummary.attributes[].MATERIAL",
+                "poleSummary.attributes[].POLE_TAG",
+                "poleSummary.attributes[].MAT_Update",
+                "poleSummary.attributes[].STU_Update",
+                "poleSummary.attributes[].POLE_NUMBE",
+                "poleSummary.attributes[].HEIGHT",
+                "poleSummary.attributes[].CLS_Verify",
+                "poleSummary.attributes[].pole_num_2",
+                "poleSummary.attributes[].pole_num_1",
+                "poleSummary.attributes[].DATE_INSTA",
+                "poleSummary.attributes[].USR_CIRCUI",
+                "poleSummary.attributes[].MAT_Verify",
+                "poleSummary.attributes[].HT_Verify",
+                "poleSummary.attributes[].ED_POLE_ID"
+            ]
+        },
+        "poleAMSViewer.poleView.component" : {
+            "key": "poleAMSViewer.poleView.component",
+            "header": "{component.type}",
+            "fields": [
+                "component.make",
+                "component.model",
+                "component.serialNumber",
+                "component.utilityId",
+                "component.attributes[].AMPACITY",
+                "component.attributes[].AMP_Update",
+                "component.attributes[].AMP_Verify",
+                "component.attributes[].AS_PCB_Y_N",
+                "component.attributes[].BANK_CONFI",
+                "component.attributes[].BC_Update",
+                "component.attributes[].BC_Verify",
+                "component.attributes[].BYPASS_TY",
+                "component.attributes[].BYT_Update",
+                "component.attributes[].BYT_Verify",
+                "component.attributes[].CAN_NUM",
+                "component.attributes[].CN_Update",
+                "component.attributes[].CN_Verify",
+                "component.attributes[].CONTROL_TY",
+                "component.attributes[].CUST_COUNT",
+                "component.attributes[].EGISID",
+                "component.attributes[].GANG_OP",
+                "component.attributes[].GOP_Update",
+                "component.attributes[].GOP_Verify",
+                "component.attributes[].ID",
+                "component.attributes[].INM_Update",
+                "component.attributes[].INM_Verify",
+                "component.attributes[].INT_MEDIUM",
+                "component.attributes[].KVAR",
+                "component.attributes[].KV_Update",
+                "component.attributes[].KV_Verify",
+                "component.attributes[].METER_SERI",
+                "component.attributes[].MNT_Update",
+                "component.attributes[].MNT_Verify",
+                "component.attributes[].MODEL",
+                "component.attributes[].MOUNTING",
+                "component.attributes[].MS_Update",
+                "component.attributes[].MS_Verify",
+                "component.attributes[].NETWORK_2",
+                "component.attributes[].NETWORK_ID",
+                "component.attributes[].NORMAL_STA",
+                "component.attributes[].NST_Update",
+                "component.attributes[].NST_Verify",
+                "component.attributes[].OBJECT_ID",
+                "component.attributes[].OP_MECH",
+                "component.attributes[].OPM_Update",
+                "component.attributes[].OPM_Verify",
+                "component.attributes[].PHASING",
+                "component.attributes[].PHA_Update",
+                "component.attributes[].PHA_Verify",
+                "component.attributes[].PIN1",
+                "component.attributes[].PN_Update",
+                "component.attributes[].PN_Verify",
+                "component.attributes[].POLEID",
+                "component.attributes[].POLE_ID",
+                "component.attributes[].POLE_NUMBE",
+                "component.attributes[].RBP_Update",
+                "component.attributes[].RBP_Verify",
+                "component.attributes[].RECLOS_BYP",
+                "component.attributes[].SCADA_TYPE",
+                "component.attributes[].SCT_Update",
+                "component.attributes[].SCT_Verify",
+                "component.attributes[].SENSE_PHA",
+                "component.attributes[].SIZE_VAL",
+                "component.attributes[].SPH_Update",
+                "component.attributes[].SPH_Verify",
+                "component.attributes[].STATUS",
+                "component.attributes[].SV_Update",
+                "component.attributes[].SV_Verify",
+                "component.attributes[].SWITCH_NUM",
+                "component.attributes[].SWITCH_TYP",
+                "component.attributes[].SWN_Update",
+                "component.attributes[].SWN_Verify",
+                "component.attributes[].SWT_Update",
+                "component.attributes[].SWT_Verify",
+                "component.attributes[].the_geom",
+                "component.attributes[].TKV_Update",
+                "component.attributes[].TKV_Verify",
+                "component.attributes[].TOTAL_KVA",
+                "component.attributes[].TYPE",
+                "component.attributes[].TYP_Update",
+                "component.attributes[].TYP_Verify",
+                "component.attributes[].Updated",
+                "component.attributes[].USR_STRUCT",
+                "component.attributes[].X",
+                "component.attributes[].Y"
+            ]
+        }
     }
 }
