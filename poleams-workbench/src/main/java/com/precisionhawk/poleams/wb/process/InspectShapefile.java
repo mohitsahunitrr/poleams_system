@@ -14,10 +14,22 @@ import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.geometry.jts.JTS;
+import org.geotools.referencing.CRS;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
+import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -63,14 +75,22 @@ public class InspectShapefile extends CommandProcess {
 
             FeatureSource<SimpleFeatureType, SimpleFeature> source =
                     dataStore.getFeatureSource(typeName);
-            Filter filter = Filter.INCLUDE; // ECQL.toFilter("BBOX(THE_GEOM, 10,20,30,40)")
+            Filter filter = Filter.INCLUDE;
 
             Map<String, PropertyInfo> propertyInfo = new HashMap();
             FeatureCollection<SimpleFeatureType, SimpleFeature> collection = source.getFeatures(filter);
+//            CoordinateReferenceSystem sourceCRS;
+//            CoordinateReferenceSystem targetCRS = CRS.decode("EPSG:4326");
             try (FeatureIterator<SimpleFeature> features = collection.features()) {
                 while (features.hasNext()) {
                     SimpleFeature feature = features.next();
-                    System.out.printf("%s: %s\n", URLDecoder.decode(feature.getID(), "UTF-8"), feature.getDefaultGeometryProperty().getValue());
+//                    Point sourcePoint = (Point)feature.getAttribute("the_geom");
+//                    sourceCRS = feature.getFeatureType().getCoordinateReferenceSystem();
+//                    MathTransform transform = CRS.findMathTransform(sourceCRS, targetCRS, false);
+//                    GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+//                    Coordinate targetPoint = JTS.transform(sourcePoint, transform).getCoordinate();
+//                    System.out.printf("X: %d\tY: %d\t", targetPoint.getX(), targetPoint.getY());
+//                    System.out.printf("%s: %s\n", URLDecoder.decode(feature.getID(), "UTF-8"), feature.getDefaultGeometryProperty().getValue());
                     for (Property p : feature.getProperties()) {
                         System.out.printf("\t%s: %s\n", p.getName(), p.getValue());
                         PropertyInfo info = propertyInfo.get(p.getName().toString());
@@ -82,6 +102,8 @@ public class InspectShapefile extends CommandProcess {
                         }
                     }
                 }
+//            } catch (MismatchedDimensionException | TransformException ex) {
+//                ex.printStackTrace(System.err);
             }
             System.out.println("\nProperties:");
             for (PropertyInfo info : propertyInfo.values()) {

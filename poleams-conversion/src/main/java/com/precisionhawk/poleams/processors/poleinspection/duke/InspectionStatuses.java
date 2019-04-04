@@ -10,10 +10,10 @@ import com.precisionhawk.ams.domain.WorkOrderStatus;
  */
 //TODO: This needs to be done differently
 public interface InspectionStatuses {
-    public static final AssetInspectionStatus AI_PENDING = new AssetInspectionStatus("Pending"); // Black
-    public static final AssetInspectionStatus AI_PROCESSED = new AssetInspectionStatus("Processed"); // Yellow
-    public static final AssetInspectionStatus AI_PENDING_MERGE = new AssetInspectionStatus("PendingMerge"); // Orange
-    public static final AssetInspectionStatus AI_COMPLETE = new AssetInspectionStatus("Complete"); // Green
+    public static final AssetInspectionStatus AI_PENDING = new AssetInspectionStatus("Pending"); // Black               Not yet collected or processed
+    public static final AssetInspectionStatus AI_PROCESSED = new AssetInspectionStatus("Processed"); // Yellow          Data collected, not yet processed
+    public static final AssetInspectionStatus AI_PENDING_MERGE = new AssetInspectionStatus("PendingMerge"); // Orange   Data collected and processed, differences identified
+    public static final AssetInspectionStatus AI_COMPLETE = new AssetInspectionStatus("Complete"); // Green             Data collected and processed, no differences identified
     
     public static final WorkOrderStatus WO_PENDING = new WorkOrderStatus("Pending");
     public static final WorkOrderStatus WO_PROCESSED = new WorkOrderStatus("Processed");
