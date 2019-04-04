@@ -1,42 +1,25 @@
 package com.precisionhawk.poleams.processors.poleinspection.duke;
 
+import com.precisionhawk.poleams.support.geojson.GeoJsonFeatureSet;
+import com.precisionhawk.poleams.support.geojson.GeoJsonFeature;
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.poleams.processors.InspectionData;
-import com.precisionhawk.ams.bean.GeoPoint;
 import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
-import com.precisionhawk.ams.domain.AssetInspection;
-import com.precisionhawk.ams.domain.AssetInspectionStatus;
-import com.precisionhawk.ams.domain.AssetInspectionType;
-import com.precisionhawk.ams.domain.SiteInspection;
-import com.precisionhawk.ams.domain.SiteInspectionStatus;
 import com.precisionhawk.ams.domain.WorkOrder;
-import com.precisionhawk.ams.domain.WorkOrderStatus;
 import com.precisionhawk.ams.support.jackson.ObjectMapperFactory;
-import com.precisionhawk.ams.util.CollectionsUtilities;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.bean.PoleSearchParams;
 import com.precisionhawk.poleams.domain.Feeder;
 import com.precisionhawk.poleams.domain.FeederInspection;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
-import com.precisionhawk.poleams.domain.WorkOrderTypes;
 import com.precisionhawk.poleams.processors.DataImportUtilities;
 import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.poleams.webservices.client.WSClientHelper;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import org.apache.commons.io.IOUtils;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonToken;
-import static org.codehaus.jackson.JsonToken.*;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.jboss.resteasy.client.ClientResponseFailure;
 
 /**
  * We assume everything in the site that has images has been captured and processed.
@@ -49,12 +32,7 @@ import org.jboss.resteasy.client.ClientResponseFailure;
  // Developed for Duke import
 public class GeoJsonDeltaImport implements Constants {
     
-    private static final String FIELD_COORDS = "coordinates";
-    private static final String FIELD_FEATURES = "features";
-    private static final String FIELD_GEOMETRY = "geometry";
-    private static final String FIELD_LC_TYPE = "type";
     private static final String FIELD_POLENUM = "POLE_NUMBE";
-    private static final String FIELD_PROPERTIES = "properties";
 
     public boolean process(Environment env, ProcessListener listener, File poleDataJson, String siteId, String orderNum) {
         boolean success = true;

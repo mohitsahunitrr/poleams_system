@@ -1,4 +1,4 @@
-package com.precisionhawk.poleams.processors.poleinspection.duke;
+package com.precisionhawk.poleams.support.geojson;
 
 import java.util.HashMap;
 import java.util.Map;
