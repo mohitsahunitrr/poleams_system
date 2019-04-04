@@ -277,8 +277,12 @@ public class ResourceUploadProcess extends ServiceClientCommandProcess {
                                     }
                                 }
                             } else {
-                                System.err.printf("There are multiple feeders or lines associated with work order %s.  No idea which one to assign the resource to.\n", orderNum);
-                                return true;
+                                if (feeder != null) {
+                                    // We know our feeder, so we're ok
+                                } else {
+                                    System.err.printf("There are multiple feeders or lines associated with work order %s.  No idea which one to assign the resource to.\n", orderNum);
+                                    return true;
+                                }
                             }
                         } else {
                             boolean found = false;
