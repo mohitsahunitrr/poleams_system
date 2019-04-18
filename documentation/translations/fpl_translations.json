@@ -6,7 +6,7 @@
     "version": 1,
     "countryCode": "US",
     "id": "986bf50d-9968-4f3a-9a92-bcf8a56258cb",
-    "updated": "20180919",
+    "updated": "20190409",
     "errors": {
         "maxValue": "{label} must be less than or equal to {maxValue}.",
         "maxLength": "{label} must be no more than {maxLength} characters in length.",
@@ -298,6 +298,13 @@
             "errors": {},
             "description": "Access to pole.",
             "label": "Access"
+        },
+        "poleInspectionSummary.dataMergedDate": {
+            "listValues": [],
+            "key": "poleInspectionSummary.dataMergedDate",
+            "errors": {},
+            "description": "Data has been merged into Design Manager",
+            "label": "In Design Manager"
         },
         "poleInspectionSummary.passedAnalysis": {
             "listValues": [],

@@ -6,7 +6,7 @@
     "version": 1,
     "countryCode": "US",
     "id": "788c987a-a0a7-4436-8ad7-16f086cd4697",
-    "updated": "20190116",
+    "updated": "20190409",
     "errors": {
         "maxValue": "{label} must be less than or equal to {maxValue}.",
         "maxLength": "{label} must be no more than {maxLength} characters in length.",
@@ -298,6 +298,13 @@
             "errors": {},
             "description": "Access to pole.",
             "label": "Access"
+        },
+        "poleInspectionSummary.dataMergedDate": {
+            "listValues": [],
+            "key": "poleInspectionSummary.dataMergedDate",
+            "errors": {},
+            "description": "Data has been merged into Small World",
+            "label": "In Small World"
         },
         "poleInspectionSummary.passedAnalysis": {
             "listValues": [],
