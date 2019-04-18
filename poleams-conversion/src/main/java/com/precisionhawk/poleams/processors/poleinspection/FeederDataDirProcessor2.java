@@ -65,20 +65,13 @@ public class FeederDataDirProcessor2 {
         }
     };
     
-    //Easting
-    //Northing
-    //Elevation
-    //TopoDOT_ID
-    private static final int COL_LOC_DELTA = 4; // Dist_to_FPL_Loc
-    private static final int COL_FPLID = 5; // FPL_ID
-    private static final int COL_SEQ = 6; // PH_ID
-    private static final int COL_LON = 7; // Longitude
-    private static final int COL_LAT = 8; // Latitude
-    // LAS_Status
-    private static final int COL_TYPE= 10;// Pole_Type
-    // PF_Status
-    // FPL_ID
-    // Match
+    private static final int COL_SEQ = 1; // PH_ID
+    private static final int COL_FPLID = 2; // FPL_ID
+    private static final int COL_LAT = 3; // Latitude
+    private static final int COL_LON = 4; // Longitude
+    // Usage
+    private static final int COL_LOC_DELTA = 6; // Dist_to_FPL_Loc
+//    private static final int COL_TYPE= 10;// Pole_Type
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final String POLE_TYPE_NO_POLE = "NO POLE";
@@ -256,14 +249,17 @@ public class FeederDataDirProcessor2 {
                     seq = record.get(COL_SEQ);
                     if (seq != null) {
                         seq = seq.trim();
-                    }
-                    String type = record.get(COL_TYPE);
-                    if (type != null) {
-                        type = type.trim();
-                        if (POLE_TYPE_NO_POLE.equals(type)) {
-                            listener.reportMessage(String.format("Pole %s not found.  Skipping the row %d.", fplId, record.getRecordNumber()));
+                        if (seq.endsWith(".0")) {
+                            seq = seq.substring(0, seq.length() - 2);
                         }
                     }
+//                    String type = record.get(COL_TYPE);
+//                    if (type != null) {
+//                        type = type.trim();
+//                        if (POLE_TYPE_NO_POLE.equals(type)) {
+//                            listener.reportMessage(String.format("Pole %s not found.  Skipping the row %d.", fplId, record.getRecordNumber()));
+//                        }
+//                    }
                     lat = getFloat(listener, record, COL_LAT);
                     lon = getFloat(listener, record, COL_LON);
                     Pole p = ensurePole(svcs, listener, data, fplId, inspectionDate);
@@ -276,9 +272,9 @@ public class FeederDataDirProcessor2 {
                         p.getAttributes().put("Sequence", seq);
                     }
                     if (lat != null && lon != null) {
-                        if ((lat != null && (lat < 25.0 || lat >= 27.0)) || (lon != null && (lon <= -81.0 || lon > -80.0))) {
-                            listener.reportMessage("BAD DATA! Break here!");
-                        }
+//                        if ((lat != null && (lat < 25.0 || lat >= 27.0)) || (lon != null && (lon <= -81.0 || lon > -80.0))) {
+//                            listener.reportMessage("BAD DATA! Break here!");
+//                        }
                         GeoPoint loc;
                         if (p.getLocation() != null) {
                             loc = p.getLocation();
