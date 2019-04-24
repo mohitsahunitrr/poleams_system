@@ -10,6 +10,8 @@ import java.util.List;
  * @author Philip A. Chapman
  */
 public interface ComponentDao {
+    
+    long count(ComponentSearchParams params) throws DaoException;
         
     boolean insert(Component comp) throws DaoException;
     

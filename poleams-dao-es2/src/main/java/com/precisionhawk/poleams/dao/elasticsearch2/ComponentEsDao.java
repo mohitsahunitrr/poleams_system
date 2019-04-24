@@ -84,16 +84,7 @@ public class ComponentEsDao extends AbstractEsDao implements ComponentDao, Elast
 
     @Override
     public List<Component> search(ComponentSearchParams params) throws DaoException {
-        ensureExists(params, "Search parameters are required");
-        if (!params.hasCriteria()) {
-            throw new IllegalArgumentException("Search parameters are required.");
-        }
-        BoolQueryBuilder query = null;
-        query = addQueryMust(query, COL_ASSET_ID, params.getAssetId());
-        query = addQueryMust(query, COL_SERIAL_NUM, params.getSerialNumber());
-        query = addQueryMust(query, COL_SITE_ID, params.getSiteId());
-        query = addQueryMust(query, COL_TYPE, params.getType());
-        
+        BoolQueryBuilder query = buildQuery(params);
         TimeValue scrollLifeLimit = new TimeValue(getScrollLifespan());
         SearchRequestBuilder search =
                 getClient().prepareSearch(INDEX_NAME_POLEAMS)
@@ -107,4 +98,33 @@ public class ComponentEsDao extends AbstractEsDao implements ComponentDao, Elast
         return loadFromScrolledSearch(Component.class, response, scrollLifeLimit);
     }
     
+    @Override
+    public long count(ComponentSearchParams params) throws DaoException {
+        BoolQueryBuilder query = buildQuery(params);
+        TimeValue scrollLifeLimit = new TimeValue(getScrollLifespan());
+        SearchRequestBuilder search =
+                getClient().prepareSearch(INDEX_NAME_POLEAMS)
+                        .setSearchType(SearchType.QUERY_AND_FETCH)
+                        .setTypes(DOCUMENT)
+                        .setQuery(query)
+                        .setScroll(scrollLifeLimit)
+                        .setSize(0);
+        SearchResponse response = search.execute().actionGet();
+        return response.getHits().getTotalHits();
+    }
+    
+    private BoolQueryBuilder buildQuery(ComponentSearchParams params)
+        throws DaoException
+    {
+        ensureExists(params, "Search parameters are required");
+        if (!params.hasCriteria()) {
+            throw new IllegalArgumentException("Search parameters are required.");
+        }
+        BoolQueryBuilder query = null;
+        query = addQueryMust(query, COL_ASSET_ID, params.getAssetId());
+        query = addQueryMust(query, COL_SERIAL_NUM, params.getSerialNumber());
+        query = addQueryMust(query, COL_SITE_ID, params.getSiteId());
+        query = addQueryMust(query, COL_TYPE, params.getType());
+        return query;
+    }
 }

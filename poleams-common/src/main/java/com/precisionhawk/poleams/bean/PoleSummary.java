@@ -40,6 +40,15 @@ public class PoleSummary extends Pole {
     public void setCircuit1SpanLength2(String circuit1SpanLength2) {
         this.circuit1SpanLength2 = circuit1SpanLength2;
     }
+    
+    @Schema(description="The number of components associated with the pole.")
+    private Long componentCount;
+    public Long getComponentCount() {
+        return componentCount;
+    }
+    public void setComponentCount(Long componentCount) {
+        this.componentCount = componentCount;
+    }
 
     @Schema(description="A count of equipment installed.")
     private Integer equipmentQuantity;

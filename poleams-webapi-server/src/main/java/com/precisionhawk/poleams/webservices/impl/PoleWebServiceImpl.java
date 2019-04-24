@@ -1,6 +1,7 @@
 package com.precisionhawk.poleams.webservices.impl;
 
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
+import com.precisionhawk.ams.bean.ComponentSearchParams;
 import com.precisionhawk.poleams.bean.PoleSearchParams;
 import com.precisionhawk.poleams.bean.PoleSummary;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
@@ -24,6 +25,7 @@ import com.precisionhawk.poleams.webservices.FeederWebService;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.ams.webservices.ResourceWebService;
+import com.precisionhawk.poleams.dao.ComponentDao;
 import com.precisionhawk.poleams.domain.Feeder;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,6 +43,7 @@ import javax.ws.rs.NotFoundException;
 @Named
 public class PoleWebServiceImpl extends AbstractWebService implements PoleWebService {
     
+    @Inject private ComponentDao componentDao;
     @Inject private FeederWebService feederSvc;
     @Inject private OrganizationWebService orgSvc;
     @Inject private PoleDao poleDao;
@@ -136,7 +139,9 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
         }
     }
     
-    private PoleSummary summaryFromPoleData(String authToken, Pole data) {
+    private PoleSummary summaryFromPoleData(String authToken, Pole data)
+        throws DaoException
+    {
         if (data == null) {
             return null;
         }
@@ -145,6 +150,10 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
         Feeder f = feederSvc.retrieve(authToken, data.getSiteId());
         Organization org = orgSvc.retrieveOrg(f.getOrganizationId());
         summary.setOwner(org.getName());
+        
+        ComponentSearchParams csparams = new ComponentSearchParams();
+        csparams.setAssetId(data.getId());
+        summary.setComponentCount(componentDao.count(csparams));
 
         summary.setCaTVAttachments(summarizeCommunicationsCables(data, CommunicationsCable.Type.CaTV, 6));
         String str = data.getAttributes().get("Sequence");
