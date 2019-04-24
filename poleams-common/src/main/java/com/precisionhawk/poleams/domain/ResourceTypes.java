@@ -41,8 +41,11 @@ public class ResourceTypes {
     @Schema(description="Images highlighting identified components on a pole.")
     public static final ResourceType IdentifiedComponents = new ResourceType("IdentifiedComponents");
     
-    @Schema(description="Images taken manually during inspection")
+    @Schema(description="Images taken manually during inspection which should not be zoomified.  Usually used for small size or close-up images (pole markings, etc).")
     public static final ResourceType ManualInspectionImage = new ResourceType("ManualInspectionImage");
+    
+    @Schema(description="Images taken manually during inspection which should be zoomified for efficient zooming within the application")
+    public static final ResourceType ManualInspectionImageZ = new ResourceType("ManualInspectionImageZ");
     
     @Schema(description="Misc. files gathered during inspeciton")
     public static final ResourceType Other = new ResourceType("Other");

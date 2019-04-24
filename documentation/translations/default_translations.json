@@ -843,6 +843,13 @@
             "description": "Access to pole.",
             "label": "Access"
         },
+        "poleInspectionSummary.dataMergedDate": {
+            "listValues": [],
+            "key": "poleInspectionSummary.dataMergedDate",
+            "errors": {},
+            "description": "Data has been merged",
+            "label": "Data Merged"
+        },
         "feederInspectionSummary.name": {
             "listValues": [],
             "views": {},

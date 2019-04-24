@@ -77,13 +77,22 @@ public class PoleInspectionSummary extends PoleInspection {
         this.flightImages = flightImages;
     }
 
-    @Schema(description="A list of all images collected on the ground, in no particular order.")
+    @Schema(description="A list of all images collected on the ground that have not been zoomified, in no particular order.")
     private List<ResourceSummary> groundImages = new LinkedList<>();
     public List<ResourceSummary> getGroundImages() {
         return groundImages;
     }
     public void setGroundImages(List<ResourceSummary> groundImages) {
         this.groundImages = groundImages;
+    }
+
+    @Schema(description="A list of all images collected on the ground that have been zoomified, in no particular order.")
+    private List<ResourceSummary> groundImagesZ = new LinkedList<>();
+    public List<ResourceSummary> getGroundImagesZ() {
+        return groundImagesZ;
+    }
+    public void setGroundImagesZ(List<ResourceSummary> groundImagesZ) {
+        this.groundImagesZ = groundImagesZ;
     }
     
     @Schema(description="A list of all images highlighting identified components on the pole, in no particular order.")

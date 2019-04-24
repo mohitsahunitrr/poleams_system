@@ -8,6 +8,7 @@ import com.precisionhawk.ams.dao.DaoException;
 import com.precisionhawk.poleams.dao.PoleInspectionDao;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.ams.domain.ResourceMetadata;
+import com.precisionhawk.ams.domain.ResourceStatus;
 import com.precisionhawk.ams.util.Comparators;
 import com.precisionhawk.ams.webservices.impl.AbstractWebService;
 import com.precisionhawk.poleams.domain.ResourceTypes;
@@ -152,6 +153,7 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
         ResourceSearchParams rparams = new ResourceSearchParams();
         rparams.setAssetId(summary.getAssetId());
         rparams.setAssetInspectionId(summary.getId());
+        rparams.setStatus(ResourceStatus.Released);
         List<ResourceMetadata> resources;
         
         // Populate the pole anomaly report URL, if any.
@@ -196,6 +198,10 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
         // Ground Images
         rparams.setType(ResourceTypes.ManualInspectionImage);
         summary.setGroundImages(resourceService.summaryFor(rparams, Comparators.RESOURCE_BY_TIMESTAMP));
+
+        // Ground Zoomified Images
+        rparams.setType(ResourceTypes.ManualInspectionImageZ);
+        summary.setGroundImagesZ(resourceService.summaryFor(rparams, Comparators.RESOURCE_BY_TIMESTAMP));
         
         // Identified Components Images
         rparams.setType(ResourceTypes.IdentifiedComponents);

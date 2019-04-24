@@ -198,7 +198,7 @@ public final class ResourceDataUploader {
                         throw new IOException(String.format("Unable to scale the image \"%s\" after %d attempts.", rmeta.getResourceId(), retryCount));
                     }
                 }
-                if (ResourceTypes.DroneInspectionImage.equals(rmeta.getType())) {
+                if (ResourceTypes.DroneInspectionImage.equals(rmeta.getType()) || ResourceTypes.ManualInspectionImageZ.equals(rmeta.getType())) {
                     // Queue the image to be zoomified.
                     rmeta.setStatus(ResourceStatus.Processed);
                 } else {

@@ -133,6 +133,7 @@ public class PoleInspection extends AssetInspection {
         setAccess(pi.getAccess());
         setAnchorsPass(pi.getAnchorsPass());
         setAssetId(pi.getAssetId());
+        setAttributes(pi.getAttributes());
         setBracketsPass(pi.getBracketsPass());
         setDataMergedBy(pi.getDataMergedBy());
         setDataMergedDate(pi.getDataMergedDate());

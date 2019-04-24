@@ -164,7 +164,7 @@ public class InspectionImport {
                                         rmeta = new ResourceMetadata();
                                         rmeta.setResourceId(UUID.randomUUID().toString());
                                         // Default to manual unless we can determine it's drone
-                                        rmeta.setType(ResourceTypes.ManualInspectionImage);
+                                        rmeta.setType(ResourceTypes.ManualInspectionImageZ);
                                         TiffImageMetadata exif;
                                         ImageInfo info = Imaging.getImageInfo(imageFile);
                                         ImageMetadata metadata = Imaging.getMetadata(imageFile);

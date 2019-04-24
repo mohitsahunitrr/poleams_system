@@ -161,7 +161,9 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
         summary.setCircuit1SpanLength1(s == null ? null : s.getLength());
         PrimaryCable pcable = (s == null || s.getPowerCircuit() == null) ? null : s.getPowerCircuit().getPrimary();
         summary.setPrimaryWireType(pcable == null ? null : pcable.getConductor());
+        summary.setName(data.getName());
         summary.setNumberOfPhases(pcable == null ? null : pcable.getPhases());
+        summary.setSerialNumber(data.getSerialNumber());
         summary.setFraming(pcable == null ? null : pcable.getFraming());
         
         SecondaryCable scable = (s == null || s.getPowerCircuit() == null) ? null : s.getPowerCircuit().getSecondary();
