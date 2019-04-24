@@ -99,8 +99,11 @@ public class ShapeFilesMasterDataImport {
         }
     }
     
-    private static ComponentType typeOf(File file) {
-        String name = file.getName().toLowerCase();
+    static ComponentType typeOf(String name) {
+        if (name == null || name.isEmpty()) {
+            return null;
+        }
+        name = name.toLowerCase();
         String s;
         for (int i = 0; i < COMP_TYPE_MAPPINGS.length; i++) {
             s = COMP_TYPE_MAPPINGS[i];
@@ -109,5 +112,9 @@ public class ShapeFilesMasterDataImport {
             }
         }
         return null;
+    }
+    
+    static ComponentType typeOf(File file) {
+        return typeOf(file.getName());
     }
 }

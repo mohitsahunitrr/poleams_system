@@ -1,6 +1,7 @@
 package com.precisionhawk.poleams.processors;
 
 import com.precisionhawk.ams.domain.Component;
+import com.precisionhawk.ams.domain.ComponentInspection;
 import com.precisionhawk.ams.domain.InspectionEventResource;
 import com.precisionhawk.poleams.domain.Pole;
 import com.precisionhawk.poleams.domain.PoleInspection;
@@ -118,6 +119,15 @@ public class InspectionData implements InspectionDataInterface {
     private final Map<SiteAssetKey, PoleInspection> poleInspections = new HashMap<>();
     public Map<SiteAssetKey, PoleInspection> getPoleInspectionsMap() {
         return poleInspections;
+    }
+    
+    private final Map<String, ComponentInspection> componentInspections = new HashMap<>();
+    public Map<String, ComponentInspection> getComponentInspectionsMap() {
+        return componentInspections;
+    }
+    public void addComponentInspection(ComponentInspection insp, boolean isNew) {
+        componentInspections.put(insp.getId(), insp);
+        domainDataIsNew.put(insp.getId(), isNew);
     }
 
     private Feeder feeder;

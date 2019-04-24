@@ -1,10 +1,12 @@
 package com.precisionhawk.poleams.webservices.impl;
 
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
+import com.precisionhawk.ams.bean.ComponentInspectionSearchParams;
 import com.precisionhawk.poleams.bean.PoleInspectionSummary;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.ams.bean.security.ServicesSessionBean;
 import com.precisionhawk.ams.dao.DaoException;
+import com.precisionhawk.ams.domain.ComponentInspection;
 import com.precisionhawk.poleams.dao.PoleInspectionDao;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.ams.domain.ResourceMetadata;
@@ -12,6 +14,7 @@ import com.precisionhawk.ams.domain.ResourceStatus;
 import com.precisionhawk.ams.util.Comparators;
 import com.precisionhawk.ams.webservices.impl.AbstractWebService;
 import com.precisionhawk.poleams.domain.ResourceTypes;
+import com.precisionhawk.poleams.webservices.ComponentInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +35,7 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
     
     //TODO: Remove boilderplate DaoException handling?
     
+    @Inject private ComponentInspectionWebService componentInspectionService;
     @Inject private PoleInspectionDao piDao;
     @Inject private ResourceWebServiceImpl resourceService;
 
@@ -228,11 +232,22 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
         if (insp != null) {
             authorize(sess, insp);
             {
+                // TODO: InspectionEventResources
+                
+                // TODO: Inspection Events
+                
                 // Delete any related resources
                 ResourceSearchParams params = new ResourceSearchParams();
                 params.setAssetInspectionId(insp.getId());
                 for (ResourceMetadata rmeta : resourceService.search(authToken, params)) {
                     resourceService.delete(authToken, rmeta.getResourceId());
+                }
+                
+                // Delete any related component inspections
+                ComponentInspectionSearchParams ciparams = new ComponentInspectionSearchParams();
+                ciparams.setAssetInspectionId(insp.getId());
+                for (ComponentInspection ci : componentInspectionService.search(authToken, ciparams)) {
+                    componentInspectionService.delete(authToken, ci.getId());
                 }
             }
             try {

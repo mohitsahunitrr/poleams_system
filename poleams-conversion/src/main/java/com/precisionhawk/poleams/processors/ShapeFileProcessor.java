@@ -30,7 +30,7 @@ public abstract class ShapeFileProcessor {
 
     protected final InspectionData data;
     protected final ProcessListener listener;
-    private final File shapeFile;
+    protected final File shapeFile;
     protected final WSClientHelper svcs;
 
     public ShapeFileProcessor(WSClientHelper svcs, ProcessListener listener, InspectionData data, File shapeFile) {

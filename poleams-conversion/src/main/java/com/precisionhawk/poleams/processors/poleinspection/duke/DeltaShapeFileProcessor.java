@@ -1,25 +1,24 @@
 package com.precisionhawk.poleams.processors.poleinspection.duke;
 
+import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
+import com.precisionhawk.ams.bean.ComponentInspectionSearchParams;
 import com.precisionhawk.ams.bean.ComponentSearchParams;
 import com.precisionhawk.ams.domain.Component;
+import com.precisionhawk.ams.domain.ComponentInspection;
+import com.precisionhawk.ams.domain.ComponentInspectionStatus;
+import com.precisionhawk.ams.domain.ComponentInspectionType;
 import com.precisionhawk.ams.domain.ComponentType;
 import com.precisionhawk.ams.util.CollectionsUtilities;
-import com.precisionhawk.poleams.bean.FeederSearchParams;
 import com.precisionhawk.poleams.bean.PoleSearchParams;
-import com.precisionhawk.poleams.domain.Feeder;
 import com.precisionhawk.poleams.domain.Pole;
+import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.poleams.processors.ShapeFileProcessor;
 import com.precisionhawk.poleams.processors.SiteAssetKey;
-import static com.precisionhawk.poleams.processors.poleinspection.duke.ShapeFileConstants.PROPS_TO_REMOVE;
-import static com.precisionhawk.poleams.processors.poleinspection.duke.ShapeFileConstants.PROP_POLE_ID;
 import com.precisionhawk.poleams.webservices.client.WSClientHelper;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -31,138 +30,150 @@ import org.papernapkin.liana.util.StringUtil;
  */
 public class DeltaShapeFileProcessor extends ShapeFileProcessor implements ShapeFileConstants {
     
-    private static final String PROP_ATTR_1 = "Attribute1";
-    private static final String PROP_ATTR_2 = "Attribute2";
-    private static final String PROP_ATTR_3 = "Attribute3";
-    private static final String PROP_ATTR_4 = "Attribute4";
+    private static final String PROP_ATTR = "Attribute%d";
     private static final String PROP_COMP = "Component";
-    private static final String PROP_ORIG_1 = "Original1";
-    private static final String PROP_ORIG_2 = "Original2";
-    private static final String PROP_ORIG_3 = "Original3";
-    private static final String PROP_ORIG_4 = "Original4";
-    private static final String PROP_UPDT_1 = "Updated1";
-    private static final String PROP_UPDT_2 = "Updated2";
-    private static final String PROP_UPDT_3 = "Updated3";
-    private static final String PROP_UPDT_4 = "Updated4";
+    private static final String PROP_ORIG = "Original%d";
+    private static final String PROP_UPDT = "Updated%d";
+    private static final String PROP_X = "X";
+    private static final String PROP_Y = "Y";
     
     static final String[] PROP_ID = {"ID","OBJECT_ID","EGISID"};
-    private final ComponentType componentType;
-    private final boolean expectOneFeeder;
 
-    public DeltaShapeFileProcessor(WSClientHelper svcs, ProcessListener listener, InspectionData data, File shapeFile, ComponentType componentType, boolean expectOneFeeder) {
+    public DeltaShapeFileProcessor(WSClientHelper svcs, ProcessListener listener, InspectionData data, File shapeFile) {
         super(svcs, listener, data, shapeFile);
-        this.componentType = componentType;
-        this.expectOneFeeder = expectOneFeeder;
+        if (data.getCurrentWorkOrder() == null) {
+            throw new IllegalStateException("Work order required.");
+        }
     }
 
     @Override
     protected void processFeature(Map<String, Object> featureProps) {
-        String attrType1 = StringUtil.nullableToString(featureProps.get(PROP_ATTR_1));
-        String attrOriginal1 = StringUtil.nullableToString(featureProps.get(PROP_ORIG_1));
-        String attrUpdated1 = StringUtil.nullableToString(featureProps.get(PROP_UPDT_1));
-        String attrType2 = StringUtil.nullableToString(featureProps.get(PROP_ATTR_2));
-        String attrOriginal2 = StringUtil.nullableToString(featureProps.get(PROP_ORIG_2));
-        String attrUpdated2 = StringUtil.nullableToString(featureProps.get(PROP_UPDT_2));
-        String attrType3 = StringUtil.nullableToString(featureProps.get(PROP_ATTR_3));
-        String attrOriginal3 = StringUtil.nullableToString(featureProps.get(PROP_ORIG_3));
-        String attrUpdated3 = StringUtil.nullableToString(featureProps.get(PROP_UPDT_3));
-        String attrType4 = StringUtil.nullableToString(featureProps.get(PROP_ATTR_4));
-        String attrOriginal4 = StringUtil.nullableToString(featureProps.get(PROP_ORIG_4));
-        String attrUpdated4 = StringUtil.nullableToString(featureProps.get(PROP_UPDT_4));
         String compType = StringUtil.nullableToString(featureProps.get(PROP_COMP));
         String poleSerial = StringUtil.nullableToString(featureProps.get(PROP_POLE_NUM));
+        String x = StringUtil.nullableToString(featureProps.get(PROP_X));
+        String y = StringUtil.nullableToString(featureProps.get(PROP_Y));
         
-        
-        
-        String compId = longIntegerAsString(firstOf(featureProps, PROP_ID));
-        String feederNumber = StringUtil.nullableToString(featureProps.get(PROP_NETWORK_ID));
-        String poleId = longIntegerAsString(firstOf(featureProps, PROP_POLE_ID));
-        String poleSerial = StringUtil.nullableToString(featureProps.get(PROP_POLE_NUM));
-        
-        if ((poleId == null || poleId.isEmpty()) && (poleSerial == null || poleSerial.isEmpty())) {
-            listener.reportMessage(String.format("Pole ID missing for %s %s", componentType, compId));
+        if (poleSerial == null || poleSerial.isEmpty()) {
+            listener.reportMessage(String.format("Pole number missing for %s at X: %s Y: %s", compType == null || compType.isEmpty() ? "pole" : compType , x, y));
             return;
         }
         
         try {
-            Feeder feeder = data.getFeedersByFeederNum().get(feederNumber);
-            if (feeder == null) {
-                FeederSearchParams fparams = new FeederSearchParams();
-                fparams.setFeederNumber(feederNumber);
-                if (fparams.hasCriteria()) {
-                    feeder = CollectionsUtilities.firstItemIn(svcs.feeders().search(svcs.token(), fparams));
-                }
-                if (feeder == null) {
-                    if (expectOneFeeder && data.getFeedersByFeederNum().size() == 1) {
-                        feeder = data.getCurrentFeeder();
-                    } else {
-                        listener.reportNonFatalError(String.format("Unable to locate feeder %s", feederNumber));
-                        return;
-                    }
-                } else {
-                    data.addFeeder(feeder, false);
-                }
-            }
-            data.setCurrentFeeder(feeder);
-            
             Pole pole = null;
-            if (StringUtil.notNullNotEmpty(poleId)) {
-                pole = data.getPolesMap().get(new SiteAssetKey(feeder.getId(), poleId));
-            } else {
-                pole = data.getPolesMap().get(new SiteAssetKey(feeder.getId(), poleSerial));
+            for (String feederId : data.getCurrentWorkOrder().getSiteIds()) {
+                pole = data.getPolesMap().get(new SiteAssetKey(feederId, poleSerial));
+                if (pole != null) {
+                    break;
+                }
             }
+            
             if (pole == null) {
                 PoleSearchParams pparams = new PoleSearchParams();
-                pparams.setSiteId(feeder.getId());
-                if (poleId != null && !poleId.isEmpty()) {
-                    pparams.setUtilityId(poleId);
-                } else {
-                    pparams.setSerialNumber(poleSerial);
+                pparams.setSerialNumber(poleSerial);
+                for (String feederId : data.getCurrentWorkOrder().getSiteIds()) {
+                    pparams.setSiteId(feederId);
+                    pole = CollectionsUtilities.firstItemIn(svcs.poles().search(svcs.token(), pparams));
+                    if (pole != null) {
+                        break;
+                    }
                 }
-                pole = CollectionsUtilities.firstItemIn(svcs.poles().search(svcs.token(), pparams));
                 if (pole == null) {
-                    listener.reportNonFatalError(String.format("Unable to locate pole %s for feeder %s", StringUtil.notNullNotEmpty(poleId) ? poleId : poleSerial, feederNumber));
+                    listener.reportNonFatalError(String.format("Unable to locate pole %s for work order %s", poleSerial, data.getCurrentWorkOrder().getOrderNumber()));
                     return;
                 }
                 data.addPole(pole, false);
             }
             
-            // If compId = null, we trust that there is only one component of the given type for any given pole.
-            ComponentSearchParams cparams = new ComponentSearchParams();
-            cparams.setAssetId(pole.getId());
-            cparams.setType(componentType);
-            cparams.setUtilityId(compId);
-            if (!cparams.hasCriteria()) {
-                listener.reportNonFatalError(String.format("Unable to locate pole %s for feeder %s", poleId, feederNumber));
-                return;
-            }
-            List<Component> comps = svcs.components().query(svcs.token(), cparams);
-            Component comp;
-            switch (comps.size()) {
-                case 0:
-                    comp = new Component();
-                    comp.setAssetId(pole.getId());
-                    comp.setId(UUID.randomUUID().toString());
-                    comp.setSiteId(feeder.getId());
-                    comp.setType(componentType);
-                    data.addComponent(comp, true);
-                    break;
-                case 1:
-                    comp = comps.get(0);
-                    data.addComponent(comp, false);
-                    break;
-                default:
-                    listener.reportMessage(String.format("Multiple matches for component %s of type %s for pole %s", compId, componentType, poleId));
+            PoleInspection pi = data.getPoleInspectionsMap().get(new SiteAssetKey(pole));
+            if (pi == null) {
+                AssetInspectionSearchParams aiparams = new AssetInspectionSearchParams();
+                aiparams.setAssetId(pole.getId());
+                aiparams.setOrderNumber(data.getCurrentWorkOrder().getOrderNumber());
+                pi = CollectionsUtilities.firstItemIn(svcs.poleInspections().search(svcs.token(), aiparams));
+                if (pi == null) {
+                    listener.reportFatalError(String.format("Unable to find an inspection for pole %s", pole.getId()));
                     return;
+                }
+                data.addPoleInspection(pole, pi, false);
             }
-            comp.setModel(StringUtil.nullableToString(featureProps.get(PROP_MODEL)));
-            comp.setUtilityId(compId);
-            removeKeys(featureProps, KEYS_TO_REMOVE);
-            for (String key : featureProps.keySet()) {
-                comp.getAttributes().put(key, StringUtil.nullableToString(featureProps.get(key)));
+            
+            ComponentType componentType = ShapeFilesMasterDataImport.typeOf(compType);
+            if (componentType == null) {
+                // Assume differences for pole
+                populateAttributesDelta(pole.getAttributes(), pi.getAttributes(), featureProps);
+            } else {
+                // We're dealing with a component
+                ComponentSearchParams cparams = new ComponentSearchParams();
+                cparams.setAssetId(pole.getId());
+                cparams.setType(componentType);
+                if (!cparams.hasCriteria()) {
+                    listener.reportNonFatalError(String.format("Unable to locate pole %s for work order %s", poleSerial, data.getCurrentWorkOrder().getOrderNumber()));
+                    return;
+                }
+                List<Component> comps = svcs.components().query(svcs.token(), cparams);
+                Component comp;
+                switch (comps.size()) {
+                    case 0:
+                        listener.reportNonFatalError(
+                            String.format("Unable to locate component %s for pole %s for work order %s", compType, poleSerial, data.getCurrentWorkOrder().getOrderNumber())
+                        );
+                        return;
+                    case 1:
+                        comp = comps.get(0);
+                        data.addComponent(comp, false);
+                        break;
+                    default:
+                        listener.reportMessage(
+                            String.format("Multiple matches for %s for pole %s for work order %s", compType, poleSerial, data.getCurrentWorkOrder().getOrderNumber())
+                        );
+                        return;
+                }
+                ComponentInspectionSearchParams ciparams = new ComponentInspectionSearchParams();
+                ciparams.setComponentId(comp.getId());
+                ciparams.setOrderNumber(data.getCurrentWorkOrder().getOrderNumber());
+                ComponentInspection ci = CollectionsUtilities.firstItemIn(svcs.componentInspections().search(svcs.token(), ciparams));
+                if (ci == null) {
+                    ci = createComponentInspection(pi, comp);
+                }
+                populateAttributesDelta(comp.getAttributes(), ci.getAttributes(), featureProps);
             }
+            
         } catch (IOException ex) {
-            listener.reportNonFatalException(String.format("Error parsing data for %s component of pole %s", componentType, poleId), ex);
+            listener.reportNonFatalException(String.format("Error parsing delta data in file %s", shapeFile), ex);
+        }
+    }
+    
+    private ComponentInspection createComponentInspection(PoleInspection pinsp, Component comp) {
+        ComponentInspection insp = new ComponentInspection();
+        insp.setAssetId(pinsp.getAssetId());
+        insp.setAssetInspectionId(pinsp.getId());
+        insp.setComponentId(comp.getId());
+        insp.setId(UUID.randomUUID().toString());
+        insp.setOrderNumber(pinsp.getOrderNumber());
+        insp.setSiteId(pinsp.getSiteId());
+        insp.setSiteInspectionId(pinsp.getSiteInspectionId());
+        insp.setStatus(new ComponentInspectionStatus(pinsp.getStatus().getValue()));
+        insp.setType(new ComponentInspectionType(pinsp.getType().getValue()));
+        data.addComponent(comp, true);
+        return insp;
+    }
+    
+    private void populateAttributesDelta(Map<String, String> originalAttrs, Map<String, String> inspectionAttrs, Map<String, Object> featureProps) {
+        String attrName;
+        String attrOldVal;
+        String attrNewVal;
+        for (int i = 1; i < 5; i++) {
+            attrName = StringUtil.nullableToString(featureProps.get(String.format(PROP_ATTR, i)));
+            attrOldVal = StringUtil.nullableToString(featureProps.get(String.format(PROP_ORIG, i)));
+            attrNewVal = StringUtil.nullableToString(featureProps.get(String.format(PROP_UPDT, i)));
+            
+            if (StringUtil.notNullNotEmpty(attrName)) {
+                if (!originalAttrs.containsKey(attrName)) {
+                    //TODO:
+                } else {
+                    inspectionAttrs.put(attrName, attrNewVal);
+                }
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ import com.precisionhawk.ams.bean.SiteInspectionSearchParams;
 import com.precisionhawk.ams.domain.AssetInspectionStatus;
 import com.precisionhawk.ams.domain.AssetInspectionType;
 import com.precisionhawk.ams.domain.Component;
+import com.precisionhawk.ams.domain.ComponentInspection;
 import com.precisionhawk.ams.domain.InspectionEventResource;
 import com.precisionhawk.ams.domain.ResourceMetadata;
 import com.precisionhawk.ams.domain.ResourceStatus;
@@ -33,6 +34,7 @@ import com.precisionhawk.poleams.domain.TransmissionLine;
 import com.precisionhawk.poleams.domain.TransmissionLineInspection;
 import com.precisionhawk.poleams.domain.TransmissionStructure;
 import com.precisionhawk.poleams.domain.TransmissionStructureInspection;
+import com.precisionhawk.poleams.webservices.ComponentInspectionWebService;
 import com.precisionhawk.poleams.webservices.ComponentWebService;
 import com.precisionhawk.poleams.webservices.FeederInspectionWebService;
 import com.precisionhawk.poleams.webservices.FeederWebService;
@@ -221,6 +223,19 @@ public class DataImportUtilities {
                 } else {
                     svc.update(env.obtainAccessToken(), comp);
                     listener.reportMessage(String.format("Updated existing component %s", comp.getId()));
+                }
+            }
+        }
+        
+        if (!data.getComponentInspectionsMap().isEmpty()) {
+            ComponentInspectionWebService svc = env.obtainWebService(ComponentInspectionWebService.class);
+            for (ComponentInspection insp : data.getComponentInspectionsMap().values()) {
+                if (data.getDomainObjectIsNew().get(insp.getId())) {
+                    svc.create(env.obtainAccessToken(), insp);
+                    listener.reportMessage(String.format("Inserted new component inspection %s", insp.getId()));
+                } else {
+                    svc.update(env.obtainAccessToken(), insp);
+                    listener.reportMessage(String.format("Updated existing component inspection %s", insp.getId()));
                 }
             }
         }
