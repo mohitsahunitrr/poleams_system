@@ -163,10 +163,10 @@ public class DataImportUtilities {
                     if (data.getDomainObjectIsNew().get(pdata.getId())) {
                         psvc.create(env.obtainAccessToken(), pdata);
                         created.add(pdata.getId());
-                        listener.reportMessage(String.format("Inserted new pole %s Utility ID %s", pdata.getId(), pdata.getUtilityId()));
+                        listener.reportMessage(String.format("Inserted new pole %s Utility ID %s Serial Number %s", pdata.getId(), pdata.getUtilityId(), pdata.getSerialNumber()));
                     } else {
                         psvc.update(env.obtainAccessToken(), pdata);
-                        listener.reportMessage(String.format("Updated pole %s Utility ID %s", pdata.getId(), pdata.getUtilityId()));
+                        listener.reportMessage(String.format("Updated pole %s Utility ID %s Serial Number %s", pdata.getId(), pdata.getUtilityId(), pdata.getSerialNumber()));
                     }
                 } // Else already saved
             }

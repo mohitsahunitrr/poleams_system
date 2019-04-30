@@ -153,6 +153,7 @@ public class PoleWebServiceImpl extends AbstractWebService implements PoleWebSer
         
         ComponentSearchParams csparams = new ComponentSearchParams();
         csparams.setAssetId(data.getId());
+        summary.setAttributes(data.getAttributes());
         summary.setComponentCount(componentDao.count(csparams));
 
         summary.setCaTVAttachments(summarizeCommunicationsCables(data, CommunicationsCable.Type.CaTV, 6));

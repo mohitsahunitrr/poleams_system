@@ -41,9 +41,21 @@ public class DeltaShapeFileProcessor extends ShapeFileProcessor implements Shape
 
     public DeltaShapeFileProcessor(WSClientHelper svcs, ProcessListener listener, InspectionData data, File shapeFile) {
         super(svcs, listener, data, shapeFile);
+        if (data.getCurrentOrderNumber()!= null) {
+            if (data.getCurrentWorkOrder()== null) {
+                try {
+                    data.setCurrentWorkOrder(svcs.workOrders().retrieveById(svcs.token(), data.getCurrentOrderNumber()));
+                } catch (IOException ex) {
+                    throw new IllegalStateException("Work order required.", ex);
+                }
+            }
+        }
         if (data.getCurrentWorkOrder() == null) {
             throw new IllegalStateException("Work order required.");
+        } else {
+            data.setCurrentOrderNumber(data.getCurrentWorkOrder().getOrderNumber());
         }
+        data.addWorkOrder(data.getCurrentWorkOrder(), false);
     }
 
     @Override
@@ -81,7 +93,8 @@ public class DeltaShapeFileProcessor extends ShapeFileProcessor implements Shape
                     listener.reportNonFatalError(String.format("Unable to locate pole %s for work order %s", poleSerial, data.getCurrentWorkOrder().getOrderNumber()));
                     return;
                 }
-                data.addPole(pole, false);
+                data.getPolesMap().put(new SiteAssetKey(pole.getSiteId(), poleSerial), pole);
+                data.getDomainObjectIsNew().put(pole.getId(), Boolean.FALSE);
             }
             
             PoleInspection pi = data.getPoleInspectionsMap().get(new SiteAssetKey(pole));
@@ -100,7 +113,7 @@ public class DeltaShapeFileProcessor extends ShapeFileProcessor implements Shape
             ComponentType componentType = ShapeFilesMasterDataImport.typeOf(compType);
             if (componentType == null) {
                 // Assume differences for pole
-                populateAttributesDelta(pole.getAttributes(), pi.getAttributes(), featureProps);
+                populateAttributesDelta(pole.getSerialNumber(), null, pole.getAttributes(), pi.getAttributes(), featureProps);
             } else {
                 // We're dealing with a component
                 ComponentSearchParams cparams = new ComponentSearchParams();
@@ -134,8 +147,10 @@ public class DeltaShapeFileProcessor extends ShapeFileProcessor implements Shape
                 ComponentInspection ci = CollectionsUtilities.firstItemIn(svcs.componentInspections().search(svcs.token(), ciparams));
                 if (ci == null) {
                     ci = createComponentInspection(pi, comp);
+                } else {
+                    data.addComponentInspection(ci, false);                
                 }
-                populateAttributesDelta(comp.getAttributes(), ci.getAttributes(), featureProps);
+                populateAttributesDelta(pole.getSerialNumber(), comp.getType().getValue(), comp.getAttributes(), ci.getAttributes(), featureProps);
             }
             
         } catch (IOException ex) {
@@ -158,7 +173,7 @@ public class DeltaShapeFileProcessor extends ShapeFileProcessor implements Shape
         return insp;
     }
     
-    private void populateAttributesDelta(Map<String, String> originalAttrs, Map<String, String> inspectionAttrs, Map<String, Object> featureProps) {
+    private void populateAttributesDelta(String poleSerial, String compType, Map<String, String> originalAttrs, Map<String, String> inspectionAttrs, Map<String, Object> featureProps) {
         String attrName;
         String attrOldVal;
         String attrNewVal;
@@ -166,11 +181,12 @@ public class DeltaShapeFileProcessor extends ShapeFileProcessor implements Shape
             attrName = StringUtil.nullableToString(featureProps.get(String.format(PROP_ATTR, i)));
             attrOldVal = StringUtil.nullableToString(featureProps.get(String.format(PROP_ORIG, i)));
             attrNewVal = StringUtil.nullableToString(featureProps.get(String.format(PROP_UPDT, i)));
-            
-            if (StringUtil.notNullNotEmpty(attrName)) {
-                if (!originalAttrs.containsKey(attrName)) {
-                    //TODO:
-                } else {
+            if (attrName != null || !attrName.isEmpty()) {
+                if (StringUtil.notNullNotEmpty(attrName)) {
+                    if (!originalAttrs.containsKey(attrName)) {
+                        listener.reportNonFatalError(String.format("No original field %s for component %s on pole %s (Old Value: \"%s\", New Value: \"%s\") it will be added", attrName, compType, poleSerial, attrOldVal, attrNewVal));
+                        originalAttrs.put(attrName, attrOldVal);
+                    }
                     inspectionAttrs.put(attrName, attrNewVal);
                 }
             }

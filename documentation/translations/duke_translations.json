@@ -6,7 +6,7 @@
     "version": 1,
     "countryCode": "US",
     "id": "788c987a-a0a7-4436-8ad7-16f086cd4697",
-    "updated": "20190409",
+    "updated": "20190429",
     "errors": {
         "maxValue": "{label} must be less than or equal to {maxValue}.",
         "maxLength": "{label} must be no more than {maxLength} characters in length.",
@@ -578,6 +578,13 @@
             "errors": {},
             "description": "",
             "label": "ED Pole ID"
+        },
+        "poleSummary.serialNumber": {
+            "listValues": [],
+            "key": "poleSummary.serialNumber",
+            "errors": {},
+            "description": "Pole Number.",
+            "label": "Pole Number"
         },
         "component.make": {
             "listValues": [],
@@ -1225,7 +1232,7 @@
             "fields": [
                 "feederSummary.name",
                 "feederSummary.feederNumber",
-                "poleSummary.utilityId",
+                "poleSummary.serialNumber",
                 "poleSummary.type",
                 "poleSummary.length",
                 "poleSummary.poleClass",
@@ -1241,7 +1248,6 @@
             "key": "poleAMSViewer.poleView.detail",
             "header": null,
             "fields": [
-                "poleSummary.id",
                 "poleSummary.owner",
                 "poleInspectionSummary.access",
                 "poleSummary.circuit1SpanLength1",
@@ -1277,7 +1283,6 @@
                 "poleSummary.attributes[].PN_Verify",
                 "poleSummary.attributes[].STUB",
                 "poleSummary.attributes[].HT_Update",
-                "poleSummary.attributes[].CLASS",
                 "poleSummary.attributes[].TERMINATIN",
                 "poleSummary.attributes[].Updated X",
                 "poleSummary.attributes[].STATUS",
@@ -1297,7 +1302,6 @@
                 "poleSummary.attributes[].MAT_Update",
                 "poleSummary.attributes[].STU_Update",
                 "poleSummary.attributes[].POLE_NUMBE",
-                "poleSummary.attributes[].HEIGHT",
                 "poleSummary.attributes[].CLS_Verify",
                 "poleSummary.attributes[].pole_num_2",
                 "poleSummary.attributes[].pole_num_1",
@@ -1305,7 +1309,9 @@
                 "poleSummary.attributes[].USR_CIRCUI",
                 "poleSummary.attributes[].MAT_Verify",
                 "poleSummary.attributes[].HT_Verify",
-                "poleSummary.attributes[].ED_POLE_ID"
+                "poleSummary.attributes[].ED_POLE_ID",
+                "poleSummary.attributes[].CLASS",
+                "poleSummary.attributes[].HEIGHT"
             ]
         },
         "poleAMSViewer.poleView.component" : {

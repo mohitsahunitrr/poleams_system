@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotFoundException;
 
 /**
  *
@@ -105,7 +106,22 @@ public class ComponentWebServiceImpl extends AbstractWebService implements Compo
 
     @Override
     public void update(String authToken, Component component) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ServicesSessionBean sess = lookupSessionBean(authToken);
+        ensureExists(component, "Component is required");
+        ensureExists(component.getId(), "Component ID is required");
+        try {
+            boolean updated = false;
+            Component c = componentDao.retrieve(component.getId());
+            if (c != null) {
+                authorize(sess, c);
+                updated = componentDao.update(component);
+            }
+            if (!updated) {
+                throw new NotFoundException(String.format("No component with ID %s exists.", component.getId()));
+            }
+        } catch (DaoException ex) {
+            throw new InternalServerErrorException("Error persisting component.", ex);
+        }
     }
     
 }
