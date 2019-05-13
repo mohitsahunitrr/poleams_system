@@ -34,7 +34,7 @@ import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
  * @author Philip A. Chapman
  */
 //TODO: handle identified components images.  Their names look like:  rgb_DJI_3949917_ML1.jpg identified by the "rgb_DJI" and the "ML" portions of the name.
-final class ImagesProcessor implements Constants {
+public final class ImagesProcessor implements Constants {
 
     private static final String DRONE_IMG = "rgb";
     private static final String MANUAL_IMG_1 = "phone";
@@ -82,7 +82,7 @@ final class ImagesProcessor implements Constants {
         this.thermalImageFilter = thermalImageFilter;
     }
 
-    void process(Environment environment, ProcessListener listener, InspectionData data, Pole p, File f, ImageFormat format)
+    public void process(Environment environment, ProcessListener listener, InspectionData data, Pole p, File f, ImageFormat format)
         throws IOException, ImageReadException
     {
         

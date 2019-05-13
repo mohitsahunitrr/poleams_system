@@ -112,6 +112,10 @@ public class FixDataProcess extends ServiceClientCommandProcess {
                 } else {
                     DataImportUtilities.saveData(svcs, listener, data);
                     DataImportUtilities.saveResources(svcs, listener, data);
+                    listener.reportMessage(String.format("Results for feeder %s", feeder.getFeederNumber()));
+                    listener.reportMessage(String.format("Saved %d component inspections", data.getComponentInspectionsMap().size()));
+                    listener.reportMessage(String.format("Saved %d resources", data.getAssetResources().size()));
+                    listener.reportMessage(String.format("Uploaded %d resources", data.getResourceDataFiles().size()));
                 }
             }
         } catch (IOException ex) {

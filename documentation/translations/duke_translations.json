@@ -6,7 +6,7 @@
     "version": 1,
     "countryCode": "US",
     "id": "788c987a-a0a7-4436-8ad7-16f086cd4697",
-    "updated": "20190429",
+    "updated": "20190508",
     "errors": {
         "maxValue": "{label} must be less than or equal to {maxValue}.",
         "maxLength": "{label} must be no more than {maxLength} characters in length.",
@@ -19,6 +19,24 @@
     },
     "organizationId": "c382f193-b687-432b-b838-3049b809c937",
     "fields": {
+        "inspectionTable.masterData": {
+            "listValues": [],
+            "views": {},
+            "dependent": null,
+            "key": "inspectionTable.masterData",
+            "errors": {},
+            "description": "Master Data imported from Utility.",
+            "label": "Small World"
+        },
+        "inspectionTable.fieldData": {
+            "listValues": [],
+            "views": {},
+            "dependent": null,
+            "key": "inspectionTable.fieldData",
+            "errors": {},
+            "description": "Field Data discovered during inspection.",
+            "label": "Field Data"
+        },
         "feederSummary.feederNumber": {
             "listValues": [],
             "key": "feederSummary.feederNumber",

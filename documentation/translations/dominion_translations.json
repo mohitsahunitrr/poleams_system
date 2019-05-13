@@ -68,7 +68,7 @@
     "version": 1,
     "countryCode": "US",
     "id": "ea7bec9e-ac83-438d-95f1-cf8814b2c6b4",
-    "updated": "20181218",
+    "updated": "20190508",
     "errors": {
         "maxValue": "{label} must be less than or equal to {maxValue}.",
         "maxLength": "{label} must be no more than {maxLength} characters in length.",
@@ -80,6 +80,24 @@
     "logoURLs": {},
     "organizationId": "f5bbb93e-04cb-4c79-8c36-b81409a30243",
     "fields": {
+        "inspectionTable.masterData": {
+            "listValues": [],
+            "views": {},
+            "dependent": null,
+            "key": "inspectionTable.masterData",
+            "errors": {},
+            "description": "Master Data imported from Utility.",
+            "label": "Master Data"
+        },
+        "inspectionTable.fieldData": {
+            "listValues": [],
+            "views": {},
+            "dependent": null,
+            "key": "inspectionTable.fieldData",
+            "errors": {},
+            "description": "Field Data discovered during inspection.",
+            "label": "Field Data"
+        },
         "poleSummary.type": {
             "listValues": [],
             "views": {},

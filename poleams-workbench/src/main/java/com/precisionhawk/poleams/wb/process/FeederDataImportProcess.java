@@ -8,7 +8,7 @@ import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.poleams.processors.poleinspection.FeederDataDirProcessor2;
 import com.precisionhawk.poleams.processors.poleinspection.duke.GeoJsonMasterDataImport;
-import com.precisionhawk.poleams.processors.poleinspection.PPLInspectionDataImport;
+import com.precisionhawk.poleams.processors.poleinspection.ppl.PPLInspectionDataImport;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.Queue;
@@ -94,7 +94,7 @@ public class FeederDataImportProcess extends ServiceClientCommandProcess {
             success = FeederDataDirProcessor.process(env, listener, new File(dirPath), orgId, orderNumber);        
         } else if (type == Type.PPL) {
             PPLInspectionDataImport importer = new PPLInspectionDataImport();
-            success = importer.process(env, listener, orderNumber, orgId, new File(dirPath));
+            success = importer.process(env, listener, orderNumber, orgId, new File(dirPath), dryRun);
         } else {
             return false;
         }

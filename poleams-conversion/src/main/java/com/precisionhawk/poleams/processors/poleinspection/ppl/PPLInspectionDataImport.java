@@ -1,4 +1,4 @@
-package com.precisionhawk.poleams.processors.poleinspection;
+package com.precisionhawk.poleams.processors.poleinspection.ppl;
 
 import com.precisionhawk.ams.bean.GeoPoint;
 import com.precisionhawk.ams.webservices.client.Environment;
@@ -8,6 +8,7 @@ import com.precisionhawk.poleams.domain.WorkOrderTypes;
 import com.precisionhawk.poleams.processors.DataImportUtilities;
 import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.ProcessListener;
+import com.precisionhawk.poleams.processors.poleinspection.ImagesProcessor;
 import com.precisionhawk.poleams.webservices.client.WSClientHelper;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -22,6 +23,7 @@ import org.apache.commons.imaging.ImageFormats;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
 import org.apache.commons.io.IOUtils;
+import org.papernapkin.liana.util.StringUtil;
 import org.papernapkin.liana.xml.sax.AbstractDocumentHandler;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -84,7 +86,7 @@ public class PPLInspectionDataImport {
         }
     };
     
-    public boolean process(Environment env, ProcessListener listener, String orderNum, String organizationId, File importDir) {
+    public boolean process(Environment env, ProcessListener listener, String orderNum, String organizationId, File importDir, boolean dryRun) {
         this.listener = listener;
         svcs = new WSClientHelper(env);
         InputStream is = null;
@@ -145,15 +147,16 @@ public class PPLInspectionDataImport {
                     listener.reportMessage(String.format("Unable to find valid \"Poles\" directory in %s", feederDir.getAbsolutePath()));
                 }
             }
-            
-            if (success) {
-                listener.reportMessage("Saving data...");
-                success = DataImportUtilities.saveData(svcs, listener, data);
-            }
-            
-            if (success) {
-                listener.reportMessage("Saving resources...");
-                success = DataImportUtilities.saveResources(svcs, listener, data);
+            if (!dryRun) {
+                if (success) {
+                    listener.reportMessage("Saving data...");
+                    success = DataImportUtilities.saveData(svcs, listener, data);
+                }
+
+                if (success) {
+                    listener.reportMessage("Saving resources...");
+                    success = DataImportUtilities.saveResources(svcs, listener, data);
+                }
             }
             return success;
         } catch (IOException | SAXException ex) {
@@ -173,6 +176,9 @@ public class PPLInspectionDataImport {
         if (pole == null) {
             throw new IOException(String.format("Unable to lookup or create the pole %s", utilityId));
         }
+        if (pole.getName() == null || pole.getName().isEmpty()) {
+            pole.setName(pole.getUtilityId());
+        }
         if (pole.getLocation() == null) {
             pole.setLocation(location);
         } else {
@@ -184,21 +190,68 @@ public class PPLInspectionDataImport {
         return pole;
     }
     
-    private static final String TAG_COORDS = "coordinates";
-    private static final String TAG_DESC = "description";
-    private static final String TAG_FOLDER = "Folder";
+    /* We expect a format like the following:
+    
+    <?xml version="1.0" encoding="utf-8" ?>
+    <kml xmlns="http://www.opengis.net/kml/2.2">
+    <Document id="root_doc">
+    <Schema name="PPL_poles" id="PPL_poles">
+            <SimpleField name="Name" type="string"></SimpleField>
+            <SimpleField name="Feeder" type="string"></SimpleField>
+            <SimpleField name="Lon" type="string"></SimpleField>
+            <SimpleField name="Lat" type="string"></SimpleField>
+    </Schema>
+    <Folder><name>PPL_poles</name>
+      <Placemark>
+            <name>1</name>
+            <ExtendedData><SchemaData schemaUrl="#PPL_poles">
+                    <SimpleData name="Feeder">Harrisburg-Newport</SimpleData>
+                    <SimpleData name="Lon">-76.95599241358025</SimpleData>
+                    <SimpleData name="Lat">40.36859165740742</SimpleData>
+            </SchemaData></ExtendedData>
+          <Point><coordinates>-76.9559924135802,40.3685916574074</coordinates></Point>
+      </Placemark>
+      <Placemark>
+            <name>2</name>
+            <ExtendedData><SchemaData schemaUrl="#PPL_poles">
+                    <SimpleData name="Feeder">Harrisburg-Newport</SimpleData>
+                    <SimpleData name="Lon">-76.95602480555557</SimpleData>
+                    <SimpleData name="Lat">40.36857850925927</SimpleData>
+            </SchemaData></ExtendedData>
+          <Point><coordinates>-76.9560248055556,40.3685785092593</coordinates></Point>
+      </Placemark>
+      ....
+      <Placemark>
+            <name>837</name>
+            <ExtendedData><SchemaData schemaUrl="#PPL_poles">
+                    <SimpleData name="Feeder">Panther Valley</SimpleData>
+                    <SimpleData name="Lon">-75.90080841382985</SimpleData>
+                    <SimpleData name="Lat">40.74758361121352</SimpleData>
+            </SchemaData></ExtendedData>
+          <Point><coordinates>-75.9008084138298,40.7475836112135</coordinates></Point>
+      </Placemark>
+    </Folder>
+    </Document></kml>
+    */
+    
+    private static final String ATTR_NAME = "name";
+    private static final String NAME_FEEDER = "Feeder";
+    private static final String NAME_LAT = "Lat";
+    private static final String NAME_LON = "Lon";
     private static final String TAG_NAME = "name";
+    private static final String TAG_SIMPLE_DATA = "SimpleData";
     private static final String TAG_PLACEMARK = "Placemark";
     
+    //FIXME: break this class out and put in unit tests for it
     class ShapeFileDocumentHandler extends AbstractDocumentHandler {
         private Feeder currentFeeder;
         private String feederName;
-        private boolean inFolder = false;
-        private boolean inPlacemark = false;
+        private boolean inPlacemark;
         private final ProcessListener listener;
         private GeoPoint poleLocation;
         private final WSClientHelper svcs;
         private String utilityId;
+        private String simpleDataName;
         
         ShapeFileDocumentHandler(WSClientHelper svcs, ProcessListener listener) {
             this.listener = listener;
@@ -208,19 +261,15 @@ public class PPLInspectionDataImport {
         @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
             switch (qName) {
-                case TAG_DESC:
-                    // Not Handled
-                    break;
-                case TAG_FOLDER:
-                    // Start tag for feeder data
-                    assertFeederNotExists();
-                    inFolder = true;
-                    break;
                 case TAG_PLACEMARK:
                     // Start tag for pole data
+                    currentFeeder = null;
                     inPlacemark = true;
-                    poleLocation = null;
+                    poleLocation = new GeoPoint();
+                    simpleDataName = null;
                     utilityId = null;
+                case TAG_SIMPLE_DATA:
+                    simpleDataName = attributes.getValue(ATTR_NAME);
                 default:
                     // Not handled
             }
@@ -230,59 +279,68 @@ public class PPLInspectionDataImport {
         protected void _endElement(String uri, String localName, String qName) throws SAXException {
             String s;
             switch (qName) {
-                case TAG_COORDS:
-                    // Coordinates for pole
-                    s = super.textbuffer.toString().trim();
-                    String[] coords = s.split(",");
-                    if (coords.length < 2 || coords.length > 3) {
-                        throw new SAXException(String.format("Unexpected coordinates value %s", s));
-                    }
-                    poleLocation = new GeoPoint();
-                    try {
-                        poleLocation.setLongitude(Double.valueOf(coords[0]));
-                        poleLocation.setLatitude(Double.valueOf(coords[1]));
-                        if (coords.length == 3) {
-                            poleLocation.setAltitude(Double.valueOf(coords[2]));
-                        }
-                    } catch (NumberFormatException ex) {
-                        throw new SAXException(String.format("Unexpected coordinates value %s", s), ex);
-                    }
-                    break;
-                case TAG_DESC:
-                    if (inPlacemark) {
-                        feederName = super.textbuffer.toString().trim();
-                        try {
-                            DataImportUtilities.ensureFeeder(svcs, data, listener, feederName, feederName, "Processed");
-                            currentFeeder = data.getCurrentFeeder();
-                        } catch (IOException ex) {
-                            throw new SAXException(ex);
-                        }
-                    } break;
-                case TAG_FOLDER:
-                    // End tag for feeder data
-                    assertFeederExists();
-                    inFolder = false;
-                    break;
                 case TAG_NAME:
                     if (inPlacemark) {
-                        // Name of pole
                         utilityId = super.textbuffer.toString().trim();
                     }
                     break;
                 case TAG_PLACEMARK:
                     // End tag for pole data
                     try {
+                        if ("681".equals(utilityId)) {
+                            listener.reportMessage("Found pole 681");
+                        }
+                        assertFeederExists();
+                        assertPoleDataExists();
                         Pole p = ensurePole(utilityId, poleLocation);
                         if (p == null) {
                             throw new SAXException(String.format("Unable to create new pole %s", utilityId));
                         }
-                        inPlacemark = false;
                         poleLocation = null;
                         utilityId = null;
                     } catch (IOException ex) {
                         throw new SAXException(ex);
+                    } finally {
+                        inPlacemark = false;
                     }
                     break;
+                case TAG_SIMPLE_DATA: {
+                    switch (simpleDataName) {
+                        case NAME_FEEDER:
+                            feederName = super.textbuffer.toString().trim();
+                            try {
+                                DataImportUtilities.ensureFeeder(svcs, data, listener, feederName, feederName, "Processed");
+                                currentFeeder = data.getCurrentFeeder();
+                            } catch (IOException ex) {
+                                throw new SAXException(ex);
+                            }
+                            break;
+                        case NAME_LAT:
+                            if (poleLocation == null) {
+                                poleLocation = new GeoPoint();
+                            }
+                            s = super.textbuffer.toString().trim();
+                            try {
+                                poleLocation.setLatitude(Double.valueOf(s));
+                            } catch (NumberFormatException ex) {
+                                throw new SAXException(String.format("Invalid latitude %s", 2), ex);
+                            }
+                            break;
+                        case NAME_LON:
+                            if (poleLocation == null) {
+                                poleLocation = new GeoPoint();
+                            }
+                            s = super.textbuffer.toString().trim();
+                            try {
+                                poleLocation.setLongitude(Double.valueOf(s));
+                            } catch (NumberFormatException ex) {
+                                throw new SAXException(String.format("Invalid longitude %s", 2), ex);
+                            }
+                            break;
+                        default:
+                            throw new SAXException(String.format("Invalid value %s", simpleDataName));
+                    }
+                }
                 default:
                     // Not handled
             }
@@ -294,9 +352,18 @@ public class PPLInspectionDataImport {
             }
         }
         
-        private void assertFeederNotExists() throws SAXException {
-            if (currentFeeder != null) {
-                throw new SAXException("Feeder is not expected, but does exist.");
+        private void assertPoleDataExists() throws SAXException {
+            if (!StringUtil.notNullNotEmpty(utilityId)) {
+                throw new SAXException("Utility ID missing.");
+            }
+            if (poleLocation == null) {
+                throw new SAXException("Pole location missing.");
+            }
+            if (poleLocation.getLatitude() == null) {
+                throw new SAXException("Pole latitude missing.");
+            }
+            if (poleLocation.getLongitude() == null) {
+                throw new SAXException("Pole longitude missing.");
             }
         }
     }

@@ -113,7 +113,11 @@ public class DeltaShapeFileProcessor extends ShapeFileProcessor implements Shape
             ComponentType componentType = ShapeFilesMasterDataImport.typeOf(compType);
             if (componentType == null) {
                 // Assume differences for pole
-                populateAttributesDelta(pole.getSerialNumber(), null, pole.getAttributes(), pi.getAttributes(), featureProps);
+                if (populateAttributesDelta(pole.getSerialNumber(), null, pole.getAttributes(), pi.getAttributes(), featureProps)) {
+                    if (!InspectionStatuses.AI_PENDING_MERGE.equals(pi.getStatus())) {
+                        pi.setStatus(InspectionStatuses.AI_PENDING_MERGE);
+                    }
+                }
             } else {
                 // We're dealing with a component
                 ComponentSearchParams cparams = new ComponentSearchParams();
@@ -150,7 +154,11 @@ public class DeltaShapeFileProcessor extends ShapeFileProcessor implements Shape
                 } else {
                     data.addComponentInspection(ci, false);                
                 }
-                populateAttributesDelta(pole.getSerialNumber(), comp.getType().getValue(), comp.getAttributes(), ci.getAttributes(), featureProps);
+                if (populateAttributesDelta(pole.getSerialNumber(), comp.getType().getValue(), comp.getAttributes(), ci.getAttributes(), featureProps)) {
+                    if (!InspectionStatuses.AI_PENDING_MERGE.equals(pi.getStatus())) {
+                        pi.setStatus(InspectionStatuses.AI_PENDING_MERGE);
+                    }                    
+                }
             }
             
         } catch (IOException ex) {
@@ -173,7 +181,8 @@ public class DeltaShapeFileProcessor extends ShapeFileProcessor implements Shape
         return insp;
     }
     
-    private void populateAttributesDelta(String poleSerial, String compType, Map<String, String> originalAttrs, Map<String, String> inspectionAttrs, Map<String, Object> featureProps) {
+    private boolean populateAttributesDelta(String poleSerial, String compType, Map<String, String> originalAttrs, Map<String, String> inspectionAttrs, Map<String, Object> featureProps) {
+        boolean hadChanges = false;
         String attrName;
         String attrOldVal;
         String attrNewVal;
@@ -188,8 +197,10 @@ public class DeltaShapeFileProcessor extends ShapeFileProcessor implements Shape
                         originalAttrs.put(attrName, attrOldVal);
                     }
                     inspectionAttrs.put(attrName, attrNewVal);
+                    hadChanges = true;
                 }
             }
         }
+        return hadChanges;
     }
 }
