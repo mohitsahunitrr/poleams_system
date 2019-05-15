@@ -1,6 +1,7 @@
 package com.precisionhawk.poleams.webservices.client;
 
 import com.precisionhawk.ams.webservices.InspectionEventResourceWebService;
+import com.precisionhawk.ams.webservices.OrganizationWebService;
 import com.precisionhawk.ams.webservices.WorkOrderWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.webservices.*;
@@ -52,6 +53,10 @@ public final class WSClientHelper {
     
     public InspectionEventResourceWebService inspectionEventResources() {
         return env.obtainWebService(InspectionEventResourceWebService.class);
+    }
+    
+    public OrganizationWebService organizations() {
+        return env.obtainWebService(OrganizationWebService.class);
     }
     
     public PoleInspectionWebService poleInspections() {
