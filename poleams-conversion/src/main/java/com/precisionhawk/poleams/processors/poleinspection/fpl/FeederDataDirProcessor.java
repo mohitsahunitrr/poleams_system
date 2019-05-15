@@ -1,4 +1,4 @@
-package com.precisionhawk.poleams.processors.poleinspection;
+package com.precisionhawk.poleams.processors.poleinspection.fpl;
 
 import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.DataImportUtilities;
@@ -17,6 +17,7 @@ import com.precisionhawk.ams.webservices.ResourceWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.domain.FeederInspection;
 import com.precisionhawk.poleams.processors.SiteAssetKey;
+import com.precisionhawk.poleams.processors.poleinspection.Constants;
 import com.precisionhawk.poleams.webservices.FeederInspectionWebService;
 import java.io.File;
 import java.io.FileInputStream;

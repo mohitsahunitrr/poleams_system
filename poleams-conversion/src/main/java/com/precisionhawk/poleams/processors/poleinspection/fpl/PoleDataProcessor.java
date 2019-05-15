@@ -1,5 +1,6 @@
-package com.precisionhawk.poleams.processors.poleinspection;
+package com.precisionhawk.poleams.processors.poleinspection.fpl;
 
+import com.precisionhawk.poleams.processors.poleinspection.fpl.PoleForemanXMLProcessor;
 import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.poleams.bean.PoleSearchParams;
@@ -13,6 +14,7 @@ import com.precisionhawk.poleams.webservices.PoleWebService;
 import com.precisionhawk.ams.webservices.ResourceWebService;
 import com.precisionhawk.ams.webservices.client.Environment;
 import com.precisionhawk.poleams.processors.SiteAssetKey;
+import com.precisionhawk.poleams.processors.poleinspection.ImagesProcessor;
 import java.io.File;
 import java.io.IOException;
 import java.time.ZonedDateTime;

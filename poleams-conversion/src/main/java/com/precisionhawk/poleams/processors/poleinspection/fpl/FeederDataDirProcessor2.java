@@ -1,4 +1,4 @@
-package com.precisionhawk.poleams.processors.poleinspection;
+package com.precisionhawk.poleams.processors.poleinspection.fpl;
 
 import com.precisionhawk.ams.bean.GeoPoint;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
@@ -17,6 +17,7 @@ import static com.precisionhawk.poleams.processors.DataImportUtilities.*;
 import com.precisionhawk.poleams.processors.FileFilters;
 import com.precisionhawk.poleams.processors.InspectionData;
 import com.precisionhawk.poleams.processors.ProcessListener;
+import com.precisionhawk.poleams.processors.poleinspection.ImagesProcessor;
 import com.precisionhawk.poleams.webservices.FeederInspectionWebService;
 import com.precisionhawk.poleams.webservices.client.WSClientHelper;
 import java.io.File;
@@ -393,7 +394,7 @@ public class FeederDataDirProcessor2 {
         return null;
     }
 
-    private static final String SURVEY_REPORT_TEMPLATE = "com/precisionhawk/poleams/processors/poleinspection/Survey_Report_Template.xlsx";
+    private static final String SURVEY_REPORT_TEMPLATE = "com/precisionhawk/poleams/processors/poleinspection/fpl/Survey_Report_Template.xlsx";
     
     private static boolean updateSurveyReport(Environment env, InspectionData data, ProcessListener listener) {
         try {

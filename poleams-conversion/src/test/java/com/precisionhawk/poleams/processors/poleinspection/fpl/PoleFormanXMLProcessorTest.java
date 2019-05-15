@@ -1,4 +1,4 @@
-package com.precisionhawk.poleams.processors.poleinspection;
+package com.precisionhawk.poleams.processors.poleinspection.fpl;
 
 import com.precisionhawk.poleams.processors.ProcessListener;
 import com.precisionhawk.poleams.domain.Pole;
@@ -21,9 +21,9 @@ public class PoleFormanXMLProcessorTest
 {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
-    private static final String TEST_XML_PATH1 = "com/precisionhawk/poleams/processors/poleinspection/PoleForeman.xml";
-    private static final String TEST_XML_PATH2 = "com/precisionhawk/poleams/processors/poleinspection/PoleForeman2.xml";
-    private static final String TEST_XML_PATH3 = "com/precisionhawk/poleams/processors/poleinspection/PoleForeman3.xml";
+    private static final String TEST_XML_PATH1 = "com/precisionhawk/poleams/processors/poleinspection/fpl/PoleForeman.xml";
+    private static final String TEST_XML_PATH2 = "com/precisionhawk/poleams/processors/poleinspection/fpl/PoleForeman2.xml";
+    private static final String TEST_XML_PATH3 = "com/precisionhawk/poleams/processors/poleinspection/fpl/PoleForeman3.xml";
 
     @Test
     public void processTest() throws IOException, SAXException {
