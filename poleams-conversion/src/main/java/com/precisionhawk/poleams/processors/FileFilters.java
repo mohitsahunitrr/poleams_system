@@ -8,9 +8,14 @@ import java.io.FilenameFilter;
  *
  * @author pchapman
  */
-public final class FileFilters {
+public interface FileFilters {
     
-    private FileFilters() {}
+    public static final FilenameFilter CSV_FILTER = new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+            return name.endsWith(".csv");
+        }
+    };
     
     public static final FileFilter DIRECTORY_FILTER = new FileFilter() {
         @Override

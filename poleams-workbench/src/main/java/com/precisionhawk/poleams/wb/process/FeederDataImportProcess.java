@@ -94,7 +94,7 @@ public class FeederDataImportProcess extends ServiceClientCommandProcess {
             success = FeederDataDirProcessor.process(env, listener, new File(dirPath), orgId, orderNumber);        
         } else if (type == Type.PPL) {
             PPLInspectionDataImport importer = new PPLInspectionDataImport();
-            success = importer.process(env, listener, orderNumber, orgId, new File(dirPath), dryRun);
+            success = importer.process(env, listener, orderNumber, new File(dirPath), dryRun);
         } else {
             return false;
         }

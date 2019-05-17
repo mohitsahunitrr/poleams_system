@@ -1,0 +1,50 @@
+<annotation>
+  <folder>OUT</folder>
+  <filename>PPL_Panther Valley_Pole0014_rgb07</filename>
+  <path>C:\Users\webonise\Desktop\FPL 1K\12-04-19\OUT\PPL_Panther Valley_Pole0014_rgb07.PNG</path>
+  <source>
+    <database>Unknown</database>
+  </source>
+  <size>
+    <width>754</width>
+    <height>746</height>
+    <depth>3</depth>
+  </size>
+  <segmented>0</segmented>
+  <object>
+    <name>Fuse Switch</name>
+    <pose>Unspecified</pose>
+    <truncated>0</truncated>
+    <difficult>0</difficult>
+    <bndbox>
+      <xmin>266</xmin>
+      <ymin>324</ymin>
+      <xmax>389</xmax>
+      <ymax>500</ymax>
+    </bndbox>
+  </object>
+  <object>
+    <name>Fuse Switch</name>
+    <pose>Unspecified</pose>
+    <truncated>0</truncated>
+    <difficult>0</difficult>
+    <bndbox>
+      <xmin>410</xmin>
+      <ymin>210</ymin>
+      <xmax>547</xmax>
+      <ymax>377</ymax>
+    </bndbox>
+  </object>
+  <object>
+    <name>Fuse Switch</name>
+    <pose>Unspecified</pose>
+    <truncated>0</truncated>
+    <difficult>0</difficult>
+    <bndbox>
+      <xmin>527</xmin>
+      <ymin>131</ymin>
+      <xmax>633</xmax>
+      <ymax>282</ymax>
+    </bndbox>
+  </object>
+</annotation>

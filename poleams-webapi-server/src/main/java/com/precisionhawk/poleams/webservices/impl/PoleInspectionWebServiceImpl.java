@@ -2,17 +2,23 @@ package com.precisionhawk.poleams.webservices.impl;
 
 import com.precisionhawk.ams.bean.AssetInspectionSearchParams;
 import com.precisionhawk.ams.bean.ComponentInspectionSearchParams;
+import com.precisionhawk.ams.bean.InspectionEventResourceSearchParams;
+import com.precisionhawk.ams.bean.InspectionEventSearchParams;
 import com.precisionhawk.poleams.bean.PoleInspectionSummary;
 import com.precisionhawk.ams.bean.ResourceSearchParams;
 import com.precisionhawk.ams.bean.security.ServicesSessionBean;
 import com.precisionhawk.ams.dao.DaoException;
 import com.precisionhawk.ams.domain.ComponentInspection;
+import com.precisionhawk.ams.domain.InspectionEvent;
 import com.precisionhawk.poleams.dao.PoleInspectionDao;
 import com.precisionhawk.poleams.domain.PoleInspection;
 import com.precisionhawk.ams.domain.ResourceMetadata;
 import com.precisionhawk.ams.domain.ResourceStatus;
 import com.precisionhawk.ams.util.Comparators;
 import com.precisionhawk.ams.webservices.impl.AbstractWebService;
+import com.precisionhawk.poleams.dao.FeederDao;
+import com.precisionhawk.poleams.dao.InspectionEventDao;
+import com.precisionhawk.poleams.domain.Feeder;
 import com.precisionhawk.poleams.domain.ResourceTypes;
 import com.precisionhawk.poleams.webservices.ComponentInspectionWebService;
 import com.precisionhawk.poleams.webservices.PoleInspectionWebService;
@@ -36,8 +42,10 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
     //TODO: Remove boilderplate DaoException handling?
     
     @Inject private ComponentInspectionWebService componentInspectionService;
+    @Inject private InspectionEventDao ieDao;
     @Inject private PoleInspectionDao piDao;
     @Inject private ResourceWebServiceImpl resourceService;
+    @Inject private FeederDao feederDao;
 
     @Override
     public PoleInspection create(String authToken, PoleInspection inspection) {
@@ -136,19 +144,45 @@ public class PoleInspectionWebServiceImpl extends AbstractWebService implements 
     }
     
     private Integer calculateCriticality(PoleInspectionSummary summary) {
-        Integer i = summary.getHorizontalLoadingPercent();
-        if (i == null) {
-            return null;
-        } else if (i < 90) {
-            return 1;
-        } else if (i < 100) {
-            return 2;
-        } else if (i < 120) {
-            return 3;
-        } else if (i < 200) {
-            return 4;
+        boolean isFPL = false;
+        try {
+            Feeder f = feederDao.retrieve(summary.getSiteId());
+            //TODO: Put this in a constant somewhere
+            isFPL = "9d718b1e-ca84-4e78-a1cb-1393ceecc927".equals(f.getOrganizationId());
+        } catch (DaoException ex) {
+            throw new InternalServerErrorException("Error looking up feeder.", ex);
+        }
+        if (isFPL) {
+            // Based on horizontal loading %
+            Integer i = summary.getHorizontalLoadingPercent();
+            if (i == null) {
+                return null;
+            } else if (i < 90) {
+                return 1;
+            } else if (i < 100) {
+                return 2;
+            } else if (i < 120) {
+                return 3;
+            } else if (i < 200) {
+                return 4;
+            } else {
+                return 5;
+            }
         } else {
-            return 5;
+            try {
+                int i = 0;
+                InspectionEventSearchParams params = new InspectionEventResourceSearchParams();
+                params.setAssetId(summary.getAssetId());
+                params.setOrderNumber(summary.getOrderNumber());
+                for (InspectionEvent evt : ieDao.search(params)) {
+                    if (evt.getSeverity() != null && evt.getSeverity() > i) {
+                        i = evt.getSeverity();
+                    }
+                }
+                return i;
+            } catch (DaoException ex) {
+                throw new InternalServerErrorException("Error looking up inspection events.", ex);
+            }
         }
     }
     

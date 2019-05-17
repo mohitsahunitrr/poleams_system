@@ -461,20 +461,20 @@ public class DataImportUtilities {
         return true;
     }
 
-    public static Pole ensurePole(WSClientHelper svcs, ProcessListener listener, InspectionData data, String fplid, LocalDate inspectionDate) throws IOException {
+    public static Pole ensurePole(WSClientHelper svcs, ProcessListener listener, InspectionData data, String utilityId, LocalDate inspectionDate) throws IOException {
         
-        Pole pole = data.getPolesMap().get(new SiteAssetKey(data.getCurrentFeeder().getId(), fplid));
+        Pole pole = data.getPolesMap().get(new SiteAssetKey(data.getCurrentFeeder().getId(), utilityId));
         if (pole != null) {
             return pole;
         }
         
         PoleSearchParams pparams = new PoleSearchParams();
         pparams.setSiteId(data.getCurrentFeeder().getId());
-        pparams.setUtilityId(fplid);
+        pparams.setUtilityId(utilityId);
         pole = CollectionsUtilities.firstItemIn(svcs.poles().search(svcs.token(), pparams));
         if (pole == null) {
             pole = new Pole();
-            pole.setUtilityId(fplid);
+            pole.setUtilityId(utilityId);
             pole.setId(UUID.randomUUID().toString());
             pole.setSiteId(data.getCurrentFeeder().getId());
             data.addPole(pole, true);

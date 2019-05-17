@@ -35,7 +35,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
  *
  * @author pchapman
  */
-public class PPLInspectionDataImport {
+public class PPLInspectionDataImport implements PPLConstants {
     
     private WSClientHelper svcs;
     private final InspectionData data = new InspectionData();
@@ -86,11 +86,11 @@ public class PPLInspectionDataImport {
         }
     };
     
-    public boolean process(Environment env, ProcessListener listener, String orderNum, String organizationId, File importDir, boolean dryRun) {
+    public boolean process(Environment env, ProcessListener listener, String orderNum, File importDir, boolean dryRun) {
         this.listener = listener;
         svcs = new WSClientHelper(env);
         InputStream is = null;
-        data.setOrganizationId(organizationId);
+        data.setOrganizationId(ORG_ID);
         data.setCurrentOrderNumber(orderNum);
         try {
             boolean success = DataImportUtilities.ensureWorkOrder(svcs, data, listener, WorkOrderTypes.DistributionLineInspection);
